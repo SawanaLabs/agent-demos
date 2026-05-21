@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Maintainer"
+  short_description: "Scan repo and keep project docs current"
+  default_prompt: "Use $project-docs-system for a repository docs maintenance pass: read AGENTS.md and the docs maps first, then update durable, evidence-backed project knowledge in `docs/` without speculative rewrites."

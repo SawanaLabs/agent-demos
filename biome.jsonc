@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/type-aware",
+    "ultracite/biome/next",
+    "ultracite/biome/react"
+  ],
+  "linter": {
+    "rules": {
+      "correctness": {
+        // Package export maps and TS path aliases do not always expose runtime file extensions.
+        "useImportExtensions": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.config.{js,ts,mjs,cjs,mts,cts}"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          },
+          "style": {
+            "noExportedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/app/layout.tsx", "packages/eslint-config/base.js"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            // Biome cannot resolve Next font virtual exports or eslint-plugin-only-warn's main field here.
+            "noUnresolvedImports": "off"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,22 +1,24 @@
 {
+  "devDependencies": {
+    "@biomejs/biome": "2.4.15",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "turbo": "^2.8.17",
+    "typescript": "5.9.3",
+    "ultracite": "7.7.0"
+  },
   "name": "ai-sdk-6-ai-elements-demos",
-  "version": "0.0.1",
-  "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "lint": "ultracite check",
+    "format": "ultracite fix",
+    "typecheck": "turbo typecheck",
+    "check": "ultracite check",
+    "fix": "ultracite fix"
   },
-  "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.17",
-    "typescript": "5.9.3"
-  },
+  "version": "0.0.1",
+  "private": true,
   "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20"

@@ -6,6 +6,13 @@ updateAt: 2026-05-21
 
 # Project Knowledge Protocol
 
+## Business Context
+
+- [Root Context](../CONTEXT.md) is the canonical business agreement for this repository.
+- Read `CONTEXT.md` before changing the homepage, demo catalog, demo page shape, demo selection workflow, copy boundaries, or agent-demo terminology.
+- Treat `CONTEXT.md` as binding project language. Implementation docs can refine how the agreement is built, but they must not redefine product terms or weaken business boundaries from `CONTEXT.md`.
+- If code, docs, or a proposed implementation conflicts with `CONTEXT.md`, stop and resolve the business language first.
+
 ## Domain Language
 
 - **Workspace package**: A package under `apps/*` or `packages/*` managed by the root pnpm workspace.

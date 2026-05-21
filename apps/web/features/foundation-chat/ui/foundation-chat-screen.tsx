@@ -1,10 +1,10 @@
 import { Badge } from "@workspace/ui/components/badge";
 
+import { getFoundationChatRuntimeState } from "@/features/foundation-chat/server/runtime";
 import { FoundationChatWorkspace } from "@/features/foundation-chat/ui/foundation-chat-workspace";
-import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
 export function FoundationChatScreen() {
-  const setup = getAiGatewaySetupState();
+  const runtimeState = getFoundationChatRuntimeState();
 
   return (
     <main className="min-h-svh bg-background text-foreground">
@@ -25,18 +25,16 @@ export function FoundationChatScreen() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">
-              {setup.isReady ? "Ready" : "Setup required"}
-            </Badge>
-            <Badge variant="outline">{setup.config.chatModel}</Badge>
+            <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+            <Badge variant="outline">{runtimeState.chatModel}</Badge>
           </div>
         </header>
 
         <FoundationChatWorkspace
-          chatModel={setup.config.chatModel}
-          isReady={setup.isReady}
-          issues={setup.issues}
-          nodeVersion={setup.nodeVersion}
+          chatModel={runtimeState.chatModel}
+          isChatAvailable={runtimeState.isChatAvailable}
+          nodeVersion={runtimeState.nodeVersion}
+          setupMessage={runtimeState.setupMessage}
         />
       </div>
     </main>

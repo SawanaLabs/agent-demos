@@ -35,16 +35,16 @@ function getTextContent(message: UIMessage) {
 
 export interface FoundationChatWorkspaceProps {
   chatModel: string;
-  isReady: boolean;
-  issues: string[];
+  isChatAvailable: boolean;
   nodeVersion: string;
+  setupMessage: string | null;
 }
 
 export function FoundationChatWorkspace({
   chatModel,
-  isReady,
-  issues,
+  isChatAvailable,
   nodeVersion,
+  setupMessage,
 }: FoundationChatWorkspaceProps) {
   const [chat] = useState(
     () =>
@@ -64,9 +64,9 @@ export function FoundationChatWorkspace({
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
-        {isReady ? null : (
+        {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
-            {issues.join(" ")}
+            {setupMessage}
           </div>
         )}
 
@@ -116,7 +116,7 @@ export function FoundationChatWorkspace({
             <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
               <PromptInputBody>
                 <PromptInputTextarea
-                  disabled={!isReady || isBusy}
+                  disabled={!isChatAvailable || isBusy}
                   placeholder="Ask this demo to explain the stack or help shape the next agent."
                 />
               </PromptInputBody>
@@ -149,7 +149,10 @@ export function FoundationChatWorkspace({
                       Retry
                     </Button>
                   ) : null}
-                  <PromptInputSubmit disabled={!isReady} status={status} />
+                  <PromptInputSubmit
+                    disabled={!isChatAvailable}
+                    status={status}
+                  />
                 </div>
               </PromptInputFooter>
             </PromptInput>

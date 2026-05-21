@@ -13,8 +13,8 @@ import Link from "next/link";
 import {
   demoGallery,
   demoPatternLabels,
-  readyDemos,
-  roadmapDemos,
+  readyDemoCatalogEntries,
+  roadmapDemoCatalogEntries,
 } from "@/features/demo-catalog/registry";
 
 export default function Page() {
@@ -42,13 +42,17 @@ export default function Page() {
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
                 Ready now
               </p>
-              <p className="mt-1 font-medium text-2xl">{readyDemos.length}</p>
+              <p className="mt-1 font-medium text-2xl">
+                {readyDemoCatalogEntries.length}
+              </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
                 Roadmap
               </p>
-              <p className="mt-1 font-medium text-2xl">{roadmapDemos.length}</p>
+              <p className="mt-1 font-medium text-2xl">
+                {roadmapDemoCatalogEntries.length}
+              </p>
             </div>
             <div>
               <p className="text-muted-foreground text-sm/relaxed">

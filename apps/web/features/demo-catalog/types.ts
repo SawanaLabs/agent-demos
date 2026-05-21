@@ -17,7 +17,7 @@ export const demoStatuses = ["ready", "roadmap"] as const;
 
 export type DemoStatus = (typeof demoStatuses)[number];
 
-export interface DemoMetadata {
+export interface DemoCatalogEntry {
   href?: string;
   pattern: DemoPattern;
   slug: string;

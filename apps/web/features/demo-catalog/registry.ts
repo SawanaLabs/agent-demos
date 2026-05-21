@@ -1,5 +1,12 @@
-import type { DemoMetadata, DemoPattern } from "@/features/demo-catalog/types";
+import type {
+  DemoCatalogEntry,
+  DemoPattern,
+} from "@/features/demo-catalog/types";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
+import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
+import { ragChatbotDemoMeta } from "@/features/rag-chatbot/demo-meta";
+import { sandboxAgentDemoMeta } from "@/features/sandbox-agent/demo-meta";
+import { skillsAgentDemoMeta } from "@/features/skills-agent/demo-meta";
 
 export const demoPatternLabels: Record<DemoPattern, string> = {
   foundation: "Foundation",
@@ -14,45 +21,20 @@ export const demoPatternLabels: Record<DemoPattern, string> = {
   tools: "Tools",
 };
 
-export const readyDemos: DemoMetadata[] = [foundationChatDemoMeta];
-
-export const roadmapDemos: DemoMetadata[] = [
-  {
-    slug: "rag-chatbot",
-    title: "RAG Chatbot",
-    summary:
-      "Knowledge-base ingestion and retrieval over durable storage, following the stable AI SDK recipe with a productized workspace.",
-    pattern: "rag",
-    status: "roadmap",
-    source: "AI SDK 6 stable RAG recipe",
-  },
-  {
-    slug: "loop-agent",
-    title: "Loop Agent",
-    summary:
-      "A visible multi-step agent loop that shows tool calling, stopping rules, and the contrast between simple tools and agent control.",
-    pattern: "loop",
-    status: "roadmap",
-    source: "AI SDK 6 tool and agent loop examples",
-  },
-  {
-    slug: "skills-agent",
-    title: "Skills Agent",
-    summary:
-      "A demo that composes reusable capabilities behind a single agent surface so feature-local logic can move between projects cleanly.",
-    pattern: "skills",
-    status: "roadmap",
-    source: "Project-specific skills batch",
-  },
-  {
-    slug: "sandbox-agent",
-    title: "Sandbox Agent",
-    summary:
-      "A contained execution workspace for tools that need a safer runtime boundary while still feeling like a first-class product surface.",
-    pattern: "sandbox",
-    status: "roadmap",
-    source: "Sandbox and computer-use batch",
-  },
+export const demoCatalogEntries: DemoCatalogEntry[] = [
+  foundationChatDemoMeta,
+  ragChatbotDemoMeta,
+  loopAgentDemoMeta,
+  skillsAgentDemoMeta,
+  sandboxAgentDemoMeta,
 ];
 
-export const demoGallery = [...readyDemos, ...roadmapDemos];
+export const readyDemoCatalogEntries = demoCatalogEntries.filter(
+  (entry) => entry.status === "ready"
+);
+
+export const roadmapDemoCatalogEntries = demoCatalogEntries.filter(
+  (entry) => entry.status === "roadmap"
+);
+
+export const demoGallery = demoCatalogEntries;

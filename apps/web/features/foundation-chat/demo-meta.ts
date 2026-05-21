@@ -1,6 +1,6 @@
-import type { DemoMetadata } from "@/features/demo-catalog/types";
+import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
-export const foundationChatDemoMeta: DemoMetadata = {
+export const foundationChatDemoMeta: DemoCatalogEntry = {
   slug: "foundation-chat",
   title: "Foundation Chat",
   summary:

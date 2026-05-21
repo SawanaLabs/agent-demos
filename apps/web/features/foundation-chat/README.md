@@ -15,7 +15,7 @@ foundation-chat/
   demo-meta.ts
   README.md
   server/
-    stream-foundation-chat.ts
+    runtime.ts
   ui/
     foundation-chat-screen.tsx
     foundation-chat-workspace.tsx

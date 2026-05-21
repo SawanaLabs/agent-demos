@@ -48,6 +48,10 @@ _Avoid_: Visitor, end user, customer
 The internal standard that an **Agent Demo** must meet by making its pattern clear, its full-stack behavior complete, and its reuse potential credible through use and code structure.
 _Avoid_: Marketing checklist, feature list
 
+**Production-Ready Demo**:
+An **Agent Demo** whose copy boundary can be used in a compatible real project after required configuration is provided.
+_Avoid_: Toy demo, throwaway example
+
 **Roadmap**:
 The product-facing view of planned **Agent Demos** that shows direction without implying those demos are already interactive or complete.
 _Avoid_: Planned demo catalog, backlog
@@ -77,6 +81,7 @@ _Avoid_: Starter code, rough inspiration
 - An **Agent Demo** demonstrates exactly one primary **Agent Pattern**.
 - A **Demo Catalog Entry** is written primarily for a **Technical Evaluator**.
 - An **Agent Demo** is evaluated against the **Demo Quality Bar**.
+- An **Agent Demo** is expected to become a **Production-Ready Demo** before it is treated as ready.
 - The **Roadmap** may include planned **Agent Demos** before they become interactive.
 - An **Agent Demo** may originate from a **Canonical Source Example**.
 - A **Canonical Source Example** must pass the **Manual Review Gate** before becoming an **Agent Demo**.
@@ -92,5 +97,6 @@ _Avoid_: Starter code, rough inspiration
 - "agent" can mean an **Agent Demo**, a runtime implementation, or a reusable module. Resolved: use **Agent Demo** for the product-level unit and **Reusable Agent Module** for reusable implementation slices.
 - "pattern" should not be free-form. Resolved: use **Agent Pattern** as the controlled business category for cataloging demos.
 - The **Demo Quality Bar** is an internal evaluation standard, not required visible copy on demo pages.
+- "demo" does not mean toy or disposable. Resolved: ready demos must be production-ready enough to copy into real compatible projects after configuration.
 - Initial demo selection prioritizes AI SDK cookbook, guide, and documentation examples through the **Manual Review Gate** before original batches are planned.
 - "productized" means improving routes, copy boundaries, UI experience, and integration shape while preserving the **Source Core**, especially on backend agent logic.

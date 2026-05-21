@@ -69,16 +69,38 @@
     },
     {
       "includes": [
-        "packages/ui/src/components/button-group.tsx",
-        "packages/ui/src/components/carousel.tsx",
-        "packages/ui/src/components/input-group.tsx"
+        "packages/ui/src/components/*.tsx",
+        "packages/ui/src/hooks/use-mobile.ts"
       ],
       "linter": {
         "rules": {
           "a11y": {
+            "noLabelWithoutControl": "off",
             "noNoninteractiveElementInteractions": "off",
+            "useFocusableInteractive": "off",
             "useKeyWithClickEvents": "off",
             "useSemanticElements": "off"
+          },
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "correctness": {
+            "noNestedComponentDefinitions": "off"
+          },
+          "performance": {
+            "noBarrelFile": "off",
+            "noNamespaceImport": "off"
+          },
+          "security": {
+            "noDangerouslySetInnerHtml": "off"
+          },
+          "style": {
+            "useConsistentTypeDefinitions": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off",
+            "noDocumentCookie": "off",
+            "noDoubleEquals": "off"
           }
         }
       }

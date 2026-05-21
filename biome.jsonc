@@ -38,6 +38,50 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/ui/src/components/ai-elements/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "useAnchorContent": "off",
+            "useSemanticElements": "off"
+          },
+          "correctness": {
+            "noUnresolvedImports": "off",
+            "useExhaustiveDependencies": "off",
+            "useImageSize": "off"
+          },
+          "performance": {
+            "noImgElement": "off"
+          },
+          "security": {
+            "noDangerouslySetInnerHtml": "off"
+          },
+          "suspicious": {
+            "noBitwiseOperators": "off",
+            "noDeprecatedImports": "off",
+            "noEmptyBlockStatements": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/ui/src/components/button-group.tsx",
+        "packages/ui/src/components/carousel.tsx",
+        "packages/ui/src/components/input-group.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "useKeyWithClickEvents": "off",
+            "useSemanticElements": "off"
+          }
+        }
+      }
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { Output, streamText } from "ai";
+import { Output, streamText, type LanguageModelUsage } from "ai";
 
 import {
   createAiGateway,
@@ -12,6 +12,12 @@ import {
   contentReviewResultSchema,
   type ContentReviewRequest,
 } from "../schema";
+import { contentReviewRecordIdHeader } from "../record";
+import {
+  completeContentReviewRecord,
+  createPendingContentReviewRecord,
+  failContentReviewRecord,
+} from "./review-records";
 
 const invalidBodyError =
   'Expected a JSON body with a "prompt" string and an "attachments" array.';
@@ -41,10 +47,15 @@ export interface ContentReviewRuntimeState {
 }
 
 interface ContentReviewRequestDependencies {
-  streamContentReview: (
+  createContentReviewStream: (
     input: ContentReviewRequest,
     env: DemoEnv
-  ) => Promise<Response>;
+  ) => Promise<ContentReviewStreamResult>;
+}
+
+export interface ContentReviewStreamResult {
+  textStream: AsyncIterable<string>;
+  totalUsage: PromiseLike<LanguageModelUsage>;
 }
 
 function isAcceptedMediaType(mediaType: string) {
@@ -117,10 +128,10 @@ export function getContentReviewRuntimeState(
   };
 }
 
-export async function streamContentReview(
+export async function createContentReviewStream(
   input: ContentReviewRequest,
   env: DemoEnv
-) {
+) : Promise<ContentReviewStreamResult> {
   const gateway = createAiGateway(env);
   const { chatModel } = getAiGatewayConfig(env);
 
@@ -136,14 +147,74 @@ export async function streamContentReview(
     system: reviewSystemPrompt,
   });
 
-  return result.toTextStreamResponse();
+  return {
+    textStream: result.textStream,
+    totalUsage: result.totalUsage,
+  };
+}
+
+function createRecordedStreamResponse(
+  stream: ContentReviewStreamResult,
+  recordId: string
+) {
+  const encoder = new TextEncoder();
+  let accumulatedText = "";
+
+  const body = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        for await (const chunk of stream.textStream) {
+          accumulatedText += chunk;
+          controller.enqueue(encoder.encode(chunk));
+        }
+
+        let parsedResult: unknown;
+
+        try {
+          parsedResult = JSON.parse(accumulatedText);
+        } catch (error) {
+          failContentReviewRecord(
+            recordId,
+            error instanceof Error ? error.message : "Failed to parse final review object."
+          );
+          controller.close();
+          return;
+        }
+
+        try {
+          const usage = await stream.totalUsage;
+          completeContentReviewRecord(recordId, parsedResult, usage);
+        } catch (error) {
+          failContentReviewRecord(
+            recordId,
+            error instanceof Error ? error.message : "Failed to record token usage."
+          );
+        }
+
+        controller.close();
+      } catch (error) {
+        failContentReviewRecord(
+          recordId,
+          error instanceof Error ? error.message : "Content review stream failed."
+        );
+        controller.error(error);
+      }
+    },
+  });
+
+  return new Response(body, {
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      [contentReviewRecordIdHeader]: recordId,
+    },
+  });
 }
 
 export async function handleContentReviewRequest(
   request: Request,
   env: DemoEnv = process.env,
   dependencies: ContentReviewRequestDependencies = {
-    streamContentReview,
+    createContentReviewStream,
   }
 ) {
   const runtimeState = getContentReviewRuntimeState(env);
@@ -190,5 +261,10 @@ export async function handleContentReviewRequest(
     throw error;
   }
 
-  return dependencies.streamContentReview(input, env);
+  const recordId = crypto.randomUUID();
+  createPendingContentReviewRecord(recordId);
+
+  const stream = await dependencies.createContentReviewStream(input, env);
+
+  return createRecordedStreamResponse(stream, recordId);
 }

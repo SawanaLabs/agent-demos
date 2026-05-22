@@ -1,13 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
   getContentReviewRuntimeState,
   handleContentReviewRequest,
 } from "./runtime";
+import {
+  clearContentReviewRecordsForTest,
+  handleContentReviewRecordRequest,
+} from "./review-records";
 
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
 
 describe("content review runtime", () => {
+  afterEach(() => {
+    clearContentReviewRecordsForTest();
+  });
+
   it("maps shared gateway setup into a structured-review runtime state", () => {
     expect(
       getContentReviewRuntimeState({
@@ -41,11 +49,31 @@ describe("content review runtime", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamContentReview: async (input) =>
-          Response.json({
-            attachmentCount: input.attachments.length,
-            prompt: input.prompt,
+        createContentReviewStream: async (input) => ({
+          textStream: (async function* () {
+            yield JSON.stringify({
+              attachmentCount: input.attachments.length,
+              prompt: input.prompt,
+            });
+          })(),
+          totalUsage: Promise.resolve({
+            cachedInputTokens: undefined,
+            inputTokenDetails: {
+              cacheReadTokens: undefined,
+              cacheWriteTokens: undefined,
+              noCacheTokens: 12,
+            },
+            inputTokens: 12,
+            outputTokenDetails: {
+              reasoningTokens: undefined,
+              textTokens: 18,
+            },
+            outputTokens: 18,
+            reasoningTokens: undefined,
+            raw: undefined,
+            totalTokens: 30,
           }),
+        }),
       }
     );
 
@@ -53,6 +81,112 @@ describe("content review runtime", () => {
     await expect(response.json()).resolves.toEqual({
       attachmentCount: 1,
       prompt: "Review this draft landing page copy for policy violations.",
+    });
+  });
+
+  it("records the final object and token usage after the object stream finishes", async () => {
+    const finalObject = {
+      categories: [
+        {
+          label: "Unsupported claims",
+          rationale: "The screenshot promises guaranteed outcomes.",
+          severity: "high" as const,
+        },
+      ],
+      decision: "needs_review" as const,
+      evidence: [
+        {
+          filename: "landing-page.png",
+          quote: "Guaranteed revenue in seven days",
+          rationale: "This is an unsubstantiated performance claim.",
+          sourceType: "image" as const,
+        },
+      ],
+      findings: [
+        {
+          details: "The hero copy guarantees a result without support.",
+          policyLabel: "Unsupported claims",
+          severity: "high" as const,
+          title: "Guarantee claim",
+        },
+      ],
+      openQuestions: ["Can the submitter provide evidence for the claim?"],
+      recommendedAction: "Remove the guarantee or add substantiation before publishing.",
+      riskScore: 82,
+      summary: "The submission needs review because it makes unsupported guarantees.",
+    };
+
+    const response = await handleContentReviewRequest(
+      new Request("http://localhost/api/demos/content-review", {
+        body: JSON.stringify({
+          attachments: [
+            {
+              filename: "landing-page.png",
+              mediaType: "image/png",
+              url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
+            },
+          ],
+          prompt: "Review this landing page screenshot.",
+        }),
+        method: "POST",
+      }),
+      { AI_GATEWAY_API_KEY: "test-key" },
+      {
+        createContentReviewStream: async () => ({
+          textStream: (async function* () {
+            const payload = JSON.stringify(finalObject);
+            yield payload.slice(0, 80);
+            yield payload.slice(80);
+          })(),
+          totalUsage: Promise.resolve({
+            cachedInputTokens: 11,
+            inputTokenDetails: {
+              cacheReadTokens: 11,
+              cacheWriteTokens: 0,
+              noCacheTokens: 94,
+            },
+            inputTokens: 105,
+            outputTokenDetails: {
+              reasoningTokens: 14,
+              textTokens: 58,
+            },
+            outputTokens: 72,
+            reasoningTokens: 14,
+            raw: undefined,
+            totalTokens: 177,
+          }),
+        }),
+      }
+    );
+
+    expect(response.status).toBe(200);
+
+    const recordId = response.headers.get("x-content-review-record-id");
+    expect(recordId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+    await expect(response.text()).resolves.toEqual(JSON.stringify(finalObject));
+
+    const recordResponse = await handleContentReviewRecordRequest(
+      new Request(
+        `http://localhost/api/demos/content-review/records?recordId=${recordId}`
+      )
+    );
+
+    expect(recordResponse.status).toBe(200);
+    await expect(recordResponse.json()).resolves.toEqual({
+      errorMessage: null,
+      id: recordId,
+      recordedAt: expect.any(String),
+      result: finalObject,
+      status: "ready",
+      usage: {
+        cachedInputTokens: 11,
+        inputTokens: 105,
+        outputTokens: 72,
+        reasoningTokens: 14,
+        totalTokens: 177,
+      },
     });
   });
 
@@ -90,7 +224,28 @@ describe("content review runtime", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamContentReview: async () => Response.json({ ok: true }),
+        createContentReviewStream: async () => ({
+          textStream: (async function* () {
+            yield JSON.stringify({ ok: true });
+          })(),
+          totalUsage: Promise.resolve({
+            cachedInputTokens: undefined,
+            inputTokenDetails: {
+              cacheReadTokens: undefined,
+              cacheWriteTokens: undefined,
+              noCacheTokens: 0,
+            },
+            inputTokens: 0,
+            outputTokenDetails: {
+              reasoningTokens: undefined,
+              textTokens: 0,
+            },
+            outputTokens: 0,
+            reasoningTokens: undefined,
+            raw: undefined,
+            totalTokens: 0,
+          }),
+        }),
       }
     );
 
@@ -111,7 +266,28 @@ describe("content review runtime", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamContentReview: async () => Response.json({ ok: true }),
+        createContentReviewStream: async () => ({
+          textStream: (async function* () {
+            yield JSON.stringify({ ok: true });
+          })(),
+          totalUsage: Promise.resolve({
+            cachedInputTokens: undefined,
+            inputTokenDetails: {
+              cacheReadTokens: undefined,
+              cacheWriteTokens: undefined,
+              noCacheTokens: 0,
+            },
+            inputTokens: 0,
+            outputTokenDetails: {
+              reasoningTokens: undefined,
+              textTokens: 0,
+            },
+            outputTokens: 0,
+            reasoningTokens: undefined,
+            raw: undefined,
+            totalTokens: 0,
+          }),
+        }),
       }
     );
 

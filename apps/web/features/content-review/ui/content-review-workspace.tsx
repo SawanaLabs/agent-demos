@@ -43,6 +43,10 @@ import type {
   ContentReviewAttachment,
   ContentReviewResult,
 } from "../schema";
+import {
+  contentReviewRecordIdHeader,
+  type ContentReviewRecord,
+} from "../record";
 import { contentReviewResultSchema } from "../schema";
 import { ContentReviewResultCard } from "./content-review-result-card";
 import {
@@ -60,6 +64,7 @@ interface ReviewThreadEntry {
   id: string;
   prompt: string;
   requestAttachments: ContentReviewAttachment[];
+  record: ContentReviewRecord | null;
   result: DeepPartial<ContentReviewResult> | undefined;
   status: ReviewEntryStatus;
 }
@@ -81,6 +86,18 @@ function getUserAttachmentParts(attachments: SubmittedReviewAttachment[]) {
       url: attachment.previewUrl,
     })
   );
+}
+
+async function fetchContentReviewRecord(recordId: string) {
+  const response = await fetch(
+    `/api/demos/content-review/records?recordId=${encodeURIComponent(recordId)}`
+  );
+
+  if (!response.ok) {
+    throw new Error((await response.text()) || "Failed to load review record.");
+  }
+
+  return (await response.json()) as ContentReviewRecord;
 }
 
 export function ContentReviewWorkspace({
@@ -133,6 +150,7 @@ export function ContentReviewWorkspace({
             ? {
                 ...entry,
                 errorMessage: streamError.message,
+                record: entry.record,
                 result: latestObjectRef.current ?? entry.result,
                 status: "error",
               }
@@ -141,11 +159,60 @@ export function ContentReviewWorkspace({
       );
       setActiveEntryId(null);
     },
-    onFinish({ error: finishError, object: finalObject }) {
+    async fetch(input, init) {
+      const response = await fetch(input, init);
+      const entryId = activeEntryIdRef.current;
+      const recordId = response.headers.get(contentReviewRecordIdHeader);
+
+      if (entryId && recordId) {
+        setEntries((current) =>
+          current.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  record: {
+                    errorMessage: null,
+                    id: recordId,
+                    recordedAt: null,
+                    result: null,
+                    status: "pending",
+                    usage: null,
+                  },
+                }
+              : entry
+          )
+        );
+      }
+
+      return response;
+    },
+    async onFinish({ error: finishError, object: finalObject }) {
       const entryId = activeEntryIdRef.current;
 
       if (!entryId) {
         return;
+      }
+
+      const currentEntry = entriesRef.current.find((entry) => entry.id === entryId);
+      const recordId = currentEntry?.record?.id;
+      let record = currentEntry?.record ?? null;
+
+      if (recordId) {
+        try {
+          record = await fetchContentReviewRecord(recordId);
+        } catch (recordError) {
+          record = {
+            errorMessage:
+              recordError instanceof Error
+                ? recordError.message
+                : "Failed to load the recorded review output.",
+            id: recordId,
+            recordedAt: new Date().toISOString(),
+            result: null,
+            status: "error",
+            usage: null,
+          };
+        }
       }
 
       setEntries((current) =>
@@ -154,6 +221,7 @@ export function ContentReviewWorkspace({
             ? {
                 ...entry,
                 errorMessage: finishError?.message ?? null,
+                record,
                 result:
                   finalObject ??
                   latestObjectRef.current ??
@@ -270,6 +338,7 @@ export function ContentReviewWorkspace({
           errorMessage: null,
           id: entryId,
           prompt,
+          record: null,
           requestAttachments: attachments,
           result: undefined,
           status: "streaming",
@@ -308,6 +377,7 @@ export function ContentReviewWorkspace({
         entry.id === entryId
           ? {
               ...entry,
+              record: entry.record,
               result: latestObjectRef.current ?? entry.result,
               status: "stopped",
             }
@@ -329,6 +399,7 @@ export function ContentReviewWorkspace({
           ? {
               ...currentEntry,
               errorMessage: null,
+              record: null,
               result: currentEntry.result,
               status: "streaming",
             }
@@ -409,6 +480,7 @@ export function ContentReviewWorkspace({
                       <MessageContent className="space-y-3 max-w-3xl">
                         <ContentReviewResultCard
                           errorMessage={entry.errorMessage}
+                          record={entry.record}
                           result={liveResult}
                           status={liveStatus}
                         />

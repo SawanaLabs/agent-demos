@@ -8,8 +8,10 @@ Streams a structured content-review result from multimodal inputs and renders th
 content-review/
   demo-meta.ts
   README.md
+  record.ts
   schema.ts
   server/
+    review-records.ts
     runtime.ts
     runtime.test.ts
   ui/

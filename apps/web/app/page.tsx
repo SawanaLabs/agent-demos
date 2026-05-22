@@ -56,8 +56,8 @@ export default function Page() {
             </div>
             <div>
               <p className="text-muted-foreground text-sm/relaxed">
-                The first slot is live. The next batches follow the stable AI
-                SDK cookbook and guide recipes.
+                Ready demos follow stable AI SDK Recipes and docs sources while
+                roadmap cards stay separate.
               </p>
             </div>
           </div>

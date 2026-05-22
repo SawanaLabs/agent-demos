@@ -14,6 +14,7 @@ describe("demo catalog registry", () => {
     expect(slugs).toEqual([
       "foundation-chat",
       "rag-chatbot",
+      "multimodal-chatbot",
       "loop-agent",
       "skills-agent",
       "sandbox-agent",
@@ -24,6 +25,7 @@ describe("demo catalog registry", () => {
     expect(readyDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
       "foundation-chat",
       "rag-chatbot",
+      "multimodal-chatbot",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
       "loop-agent",

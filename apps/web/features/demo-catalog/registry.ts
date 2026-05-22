@@ -8,6 +8,7 @@ import { multimodalChatbotDemoMeta } from "@/features/multimodal-chatbot/demo-me
 import { ragChatbotDemoMeta } from "@/features/rag-chatbot/demo-meta";
 import { sandboxAgentDemoMeta } from "@/features/sandbox-agent/demo-meta";
 import { skillsAgentDemoMeta } from "@/features/skills-agent/demo-meta";
+import { streamingChatShellDemoMeta } from "@/features/streaming-chat-shell/demo-meta";
 
 export const demoPatternLabels: Record<DemoPattern, string> = {
   foundation: "Foundation",
@@ -26,6 +27,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   foundationChatDemoMeta,
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
+  streamingChatShellDemoMeta,
   loopAgentDemoMeta,
   skillsAgentDemoMeta,
   sandboxAgentDemoMeta,

@@ -104,6 +104,18 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/database/src/index.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            // Drizzle consumes the schema module as an object, and the package entrypoint re-exports schema by design.
+            "noBarrelFile": "off",
+            "noNamespaceImport": "off"
+          }
+        }
+      }
     }
   ]
 }

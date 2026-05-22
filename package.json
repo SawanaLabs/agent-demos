@@ -10,6 +10,11 @@
   "name": "ai-sdk-6-ai-elements-demos",
   "scripts": {
     "build": "turbo build",
+    "db:generate": "pnpm --filter @workspace/database db:generate",
+    "db:migrate": "pnpm --filter @workspace/database db:migrate",
+    "db:pull": "pnpm --filter @workspace/database db:pull",
+    "db:push": "pnpm --filter @workspace/database db:push",
+    "db:studio": "pnpm --filter @workspace/database db:studio",
     "dev": "turbo dev",
     "lint": "ultracite check",
     "format": "ultracite fix",

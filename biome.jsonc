@@ -7,10 +7,27 @@
     "ultracite/biome/react"
   ],
   "linter": {
+    "domains": {
+      "drizzle": "all"
+    },
     "rules": {
       "correctness": {
         // Package export maps and TS path aliases do not always expose runtime file extensions.
         "useImportExtensions": "off"
+      },
+      "nursery": {
+        "noDrizzleDeleteWithoutWhere": {
+          "level": "error",
+          "options": {
+            "drizzleObjectName": ["database", "db"]
+          }
+        },
+        "noDrizzleUpdateWithoutWhere": {
+          "level": "error",
+          "options": {
+            "drizzleObjectName": ["database", "db"]
+          }
+        }
       }
     }
   },

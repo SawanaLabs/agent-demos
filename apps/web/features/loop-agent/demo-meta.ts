@@ -4,8 +4,9 @@ export const loopAgentDemoMeta: DemoCatalogEntry = {
   slug: "loop-agent",
   title: "Loop Agent",
   summary:
-    "A visible multi-step agent loop that shows tool calling, stopping rules, and the contrast between simple tools and agent control.",
+    "A support triage agent that shows parallel context lookup, dependent SLA checks, visible tool state, and bounded loop control.",
   pattern: "loop",
-  status: "roadmap",
-  source: "AI SDK 6 tool and agent loop examples",
+  status: "ready",
+  source: "AI SDK 6 stable tool-calling and loop-control recipes",
+  href: "/demos/loop-agent",
 };

@@ -21,7 +21,7 @@ updateAt: 2026-05-22
 - Shape the homepage as a demo gallery for technical evaluators.
 - Present each ready agent demo as an active gallery card.
 - Present roadmap demos as visible but non-active roadmap cards.
-- The current homepage catalog has one ready demo, `foundation-chat`, and four roadmap demos: `rag-chatbot`, `loop-agent`, `skills-agent`, and `sandbox-agent`.
+- The homepage catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Each gallery card should make the agent pattern legible through its title and a concise product-metaphor visual.
 - A gallery visual can use simple diagram-like content, such as a loop flow for a loop agent, while still being a stylized asset.
 - Defer the exact visual style until the project chooses an art direction.

@@ -23,9 +23,9 @@ describe("demo catalog registry", () => {
   it("derives ready and roadmap groups from the shared catalog entries", () => {
     expect(readyDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
       "foundation-chat",
+      "rag-chatbot",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
-      "rag-chatbot",
       "loop-agent",
       "skills-agent",
       "sandbox-agent",

@@ -44,6 +44,7 @@ updateAt: 2026-05-22
 - Shape each demo page primarily as an operable application workspace.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
+- Prefer a user-facing default reading path. Answers, results, citations, and other end-user evidence should carry the main conversation, while developer-oriented traces or debug surfaces should stay available as secondary, usually collapsible, layers.
 - Every implemented feature slice must include a lightweight `README.md`. Roadmap-only catalog stubs may contain only `demo-meta.ts` until implementation starts.
 - The feature-local `README.md` should describe the demo's business-facing capability, show a concise file tree for the feature slice, and later include the shadcn registry install command once registry distribution exists.
 - Do not turn the feature-local `README.md` into a dependency checklist or migration guide unless the user explicitly asks for that extra detail.

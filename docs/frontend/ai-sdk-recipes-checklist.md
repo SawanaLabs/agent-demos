@@ -22,7 +22,7 @@ updateAt: 2026-05-22
 - The repo is a pnpm/Turborepo monorepo with `apps/web` as the Next.js app and `packages/ui` as the shared shadcn/AI Elements package.
 - `apps/web` currently depends on `ai` `^6.0.188` and `@ai-sdk/react` `^3.0.190`; it does not have a direct provider package dependency.
 - AI Gateway provider wiring lives under `apps/web/features/shared/ai-gateway/server`, using `createGateway` from `ai`.
-- The root `package.json` currently declares `node >=20`, which is compatible with the current AI SDK 6 npm package engine requirement of `node >=18`.
+- The root `package.json` now declares `node >=22.13.0` because the current PDF-ingestion stack includes `pdfjs-dist`, which requires that runtime floor.
 - `apps/web/app/page.tsx` is now the Demo Gallery. The current catalog shows one ready demo, `foundation-chat`, and four roadmap demos.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
 - `packages/database` exists as the Drizzle/Neon workspace package and validates `DATABASE_URL`, but product tables for the RAG demo are not defined yet.
@@ -68,8 +68,8 @@ updateAt: 2026-05-22
 
 - [x] Target AI SDK 6 stable Recipes pages and docs examples.
 - [x] Install AI SDK dependencies as v6-compatible packages when implementation starts, using `pnpm` from the workspace. Current `apps/web` versions are `ai` `^6.0.188` and `@ai-sdk/react` `^3.0.190`.
-- [x] Keep the root Node engine at `>=20` unless another confirmed dependency requires a change.
-- [x] Do not raise the project to Node `>=22` for AI SDK alone; that requirement belongs to AI SDK 7.
+- [x] Raise the root Node engine to `>=22.13.0` when the selected implementation depends on packages with that floor, and keep the runtime guard in sync.
+- [x] Do not raise the project to Node `>=22.13.0` for AI SDK alone; only do it when a confirmed dependency requires it.
 - [ ] Use AI SDK 6 API shapes from the stable docs, including `system`, `stepCountIs`, `convertToModelMessages`, `UIMessage`, `tool({ inputSchema })`, and `toUIMessageStreamResponse()` where the selected official example uses them.
 - [ ] Verify all examples against the stable AI SDK 6 docs before coding. Do not trust canary v7 snippets or `main` branch snippets without public-route confirmation.
 

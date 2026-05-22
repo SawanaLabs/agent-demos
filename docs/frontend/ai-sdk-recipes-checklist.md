@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
 description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
-updateAt: 2026-05-22
+updateAt: 2026-05-23
 ---
 
 # AI SDK Recipes Checklist
@@ -23,9 +23,10 @@ updateAt: 2026-05-22
 - `apps/web` currently depends on `ai` `^6.0.188` and `@ai-sdk/react` `^3.0.190`; it does not have a direct provider package dependency.
 - AI Gateway provider wiring lives under `apps/web/features/shared/ai-gateway/server`, using `createGateway` from `ai`.
 - The root `package.json` now declares `node >=22.13.0` because the current PDF-ingestion stack includes `pdfjs-dist`, which requires that runtime floor.
-- `apps/web/app/page.tsx` is now the Demo Gallery. The current catalog shows one ready demo, `foundation-chat`, and four roadmap demos.
+- `apps/web/app/page.tsx` is now the Demo Gallery. The catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
-- `packages/database` exists as the Drizzle/Neon workspace package and validates `DATABASE_URL`, but product tables for the RAG demo are not defined yet.
+- `packages/database` now exports the RAG demo schema from `packages/database/src/schemas/rag-chatbot.ts` and remains the shared Drizzle/Neon workspace package.
+- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, and `content-review` as the Batch 5 object-generation slice.
 
 ## Non-Negotiable Workflow
 
@@ -73,29 +74,32 @@ updateAt: 2026-05-22
 - [ ] Use AI SDK 6 API shapes from the stable docs, including `system`, `stepCountIs`, `convertToModelMessages`, `UIMessage`, `tool({ inputSchema })`, and `toUIMessageStreamResponse()` where the selected official example uses them.
 - [ ] Verify all examples against the stable AI SDK 6 docs before coding. Do not trust canary v7 snippets or `main` branch snippets without public-route confirmation.
 
-## First Demo Recommendation
+## Completed First Demo Wave
 
-- [ ] Build `rag-chatbot` as the first full Recipes-derived agent demo. `foundation-chat` is the completed Batch 0 foundation slot.
-- [ ] Source candidates:
-  - [ ] `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot` - current public AI SDK RAG Agent recipe route.
-  - [ ] `https://ai-sdk.dev/resources/recipes` - current public Recipes index.
-  - [ ] `https://ai-sdk.dev/cookbook/guides/rag-chatbot` - still-live compatibility route for the same RAG Agent guide.
-  - [ ] `https://ai-sdk.dev/cookbook/guides` - still-live Guides index, but not the primary entrypoint.
-  - [ ] `content/cookbook/00-guides/01-rag-chatbot.mdx` - source lookup alias only.
-  - [ ] `content/cookbook/05-node/100-retrieval-augmented-generation.mdx` - lower-level RAG reference.
-  - [ ] `content/cookbook/05-node/101-knowledge-base-agent.mdx` - related knowledge-base agent reference.
-  - [ ] `content/docs/03-ai-sdk-core/30-embeddings.mdx` - embeddings API reference.
-  - [ ] `content/docs/03-ai-sdk-core/15-tools-and-tool-calling.mdx` - tool calling and multi-step behavior.
-- [ ] Keep the first version narrow:
-  - [ ] One chat workspace.
-  - [ ] One knowledge-base add flow.
-  - [ ] One retrieval question flow.
-  - [ ] Postgres with `pgvector` and a minimal Drizzle schema/migration.
-  - [ ] Two tools: `addResource` and `getInformation`.
-  - [ ] Visible tool-call states for adding and retrieving knowledge.
-  - [ ] Hard step limit with `stepCountIs(5)` unless the stable source page changes.
-  - [ ] Clear setup errors for missing `AI_GATEWAY_API_KEY`, `DATABASE_URL`, or `pgvector`.
-- [ ] Defer general loop-agent and human approval demos until the RAG demo is stable.
+- [x] `foundation-chat` established the Batch 0 foundation slot.
+- [x] `rag-chatbot` shipped as the first full Recipes-derived agent demo.
+- [x] RAG source candidates used in the first wave:
+  - [x] `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot` - current public AI SDK RAG Agent recipe route.
+  - [x] `https://ai-sdk.dev/resources/recipes` - current public Recipes index.
+  - [x] `https://ai-sdk.dev/cookbook/guides/rag-chatbot` - still-live compatibility route for the same RAG Agent guide.
+  - [x] `content/cookbook/00-guides/01-rag-chatbot.mdx` - source lookup alias only.
+  - [x] `content/cookbook/05-node/100-retrieval-augmented-generation.mdx` - lower-level RAG reference.
+  - [x] `content/cookbook/05-node/101-knowledge-base-agent.mdx` - related knowledge-base agent reference.
+  - [x] `content/docs/03-ai-sdk-core/30-embeddings.mdx` - embeddings API reference.
+  - [x] `content/docs/03-ai-sdk-core/15-tools-and-tool-calling.mdx` - tool calling and multi-step behavior.
+- [x] Delivered narrow first-wave scope:
+  - [x] One chat workspace.
+  - [x] One retrieval question flow.
+  - [x] Postgres with `pgvector` and a minimal Drizzle schema/migration.
+  - [x] `getInformation` retrieval tool.
+  - [x] Visible tool-call states for retrieval.
+  - [x] Hard step limit with `stepCountIs(5)`.
+  - [x] Clear setup errors for missing `AI_GATEWAY_API_KEY`, `DATABASE_URL`, or `pgvector`.
+- [ ] Deferred from the original first-wave sketch:
+  - [ ] A user-driven knowledge-base add flow in the product UI.
+  - [ ] An `addResource` tool exposed in the demo workspace.
+- [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path; human approval remains deferred.
+- [x] Current next recommended wave after the completed RAG, multimodal, and streaming demos: Batch 5 - Structured Output.
 
 ## Prerequisite Configuration Matrix
 
@@ -124,22 +128,22 @@ updateAt: 2026-05-22
 
 ### Batch 1 - RAG Agent
 
-- [ ] Stable RAG source review.
-- [ ] Postgres with `pgvector` setup.
-- [ ] Drizzle schema and migration.
-- [ ] Resource creation flow.
-- [ ] Embedding and chunking pipeline.
+- [x] Stable RAG source review.
+- [x] Postgres with `pgvector` setup.
+- [x] Drizzle schema and migration.
+- [x] Resource creation flow.
+- [x] Embedding and chunking pipeline.
 - [ ] `addResource` tool.
-- [ ] `getInformation` retrieval tool.
-- [ ] Chat workspace with visible tool states.
-- [ ] Clear setup errors for missing Gateway key, database URL, or vector extension.
+- [x] `getInformation` retrieval tool.
+- [x] Chat workspace with visible tool states.
+- [x] Clear setup errors for missing Gateway key, database URL, or vector extension.
 
 ### Batch 2 - Loop And Tool Agent
 
-- [ ] Simple tool call.
-- [ ] Parallel tool calls.
-- [ ] Multi-step tool calls.
-- [ ] Manual agent loop as contrast/reference.
+- [x] Simple tool call.
+- [x] Parallel tool calls.
+- [x] Multi-step tool calls.
+- [x] Manual agent loop as contrast/reference.
 - [ ] Web search agent only if the provider/tool route is stable.
 - [ ] Human approval as a follow-up once the loop demo is stable.
 
@@ -149,29 +153,30 @@ updateAt: 2026-05-22
 - [ ] Generate text with chat prompt.
 - [ ] Stream text.
 - [ ] Stream text with chat prompt.
-- [ ] Shared `useChat` state.
-- [ ] Custom request body.
-- [ ] Custom stream format.
+- [x] Shared `useChat` state.
+- [x] Custom request body.
+- [x] Custom stream format.
 - [ ] Markdown chatbot memoization.
 
 ### Batch 4 - Multimodal And Files
 
-- [ ] Image prompt text generation.
-- [ ] File prompt text generation.
-- [ ] Chat with PDFs.
+- [x] Image prompt text generation.
+- [x] File prompt text generation.
+- [x] Chat with PDFs.
 - [ ] Image generation.
 - [ ] Gemini image generation/editing.
-- [ ] Multimodal agent guide.
+- [x] Multimodal agent guide.
 
 ### Batch 5 - Structured Output
 
-- [ ] Generate object.
+- [x] Generate object.
 - [ ] Generate object with file prompt.
 - [ ] Generate object with reasoning model.
-- [ ] Stream object.
-- [ ] Stream object with image prompt.
+- [x] Stream object.
+- [x] Stream object with image prompt.
 - [ ] Record token usage after streaming object.
 - [ ] Record final object after streaming object.
+- [x] `content-review` now covers the first structured-output workspace: multimodal input, streamed object state, and assistant-message embedded object rendering.
 
 ### Batch 6 - Memory And Embeddings Extensions
 
@@ -239,8 +244,8 @@ updateAt: 2026-05-22
 
 ### Guides
 
-- [ ] `00-guides/01-rag-chatbot.mdx` - RAG Agent - Batch 1.
-- [ ] `00-guides/02-multi-modal-chatbot.mdx` - Multi-Modal Agent - Batch 4.
+- [x] `00-guides/01-rag-chatbot.mdx` - RAG Agent - Batch 1.
+- [x] `00-guides/02-multi-modal-chatbot.mdx` - Multi-Modal Agent - Batch 4.
 - [ ] `00-guides/03-slackbot.mdx` - Slackbot Agent Guide - Batch 7.
 - [ ] `00-guides/04-natural-language-postgres.mdx` - Natural Language Postgres - Batch 7.
 - [ ] `00-guides/05-computer-use.mdx` - Get started with Computer Use - Batch 7.
@@ -267,21 +272,21 @@ updateAt: 2026-05-22
 - [ ] `01-next/122-caching-middleware.mdx` - Caching Middleware - Batch 8.
 - [ ] `01-next/20-stream-text.mdx` - Stream Text - Batch 3.
 - [ ] `01-next/21-stream-text-with-chat-prompt.mdx` - Stream Text with Chat Prompt - Batch 3.
-- [ ] `01-next/22-stream-text-with-image-prompt.mdx` - Stream Text with Image Prompt - Batch 4.
-- [ ] `01-next/23-chat-with-pdf.mdx` - Chat with PDFs - Batch 4.
-- [ ] `01-next/24-stream-text-multistep.mdx` - streamText Multi-Step Cookbook - Batch 2.
+- [x] `01-next/22-stream-text-with-image-prompt.mdx` - Stream Text with Image Prompt - Batch 4.
+- [x] `01-next/23-chat-with-pdf.mdx` - Chat with PDFs - Batch 4.
+- [x] `01-next/24-stream-text-multistep.mdx` - streamText Multi-Step Cookbook - Batch 2.
 - [ ] `01-next/25-markdown-chatbot-with-memoization.mdx` - Markdown Chatbot with Memoization - Batch 3.
-- [ ] `01-next/30-generate-object.mdx` - Generate Object - Batch 5.
+- [x] `01-next/30-generate-object.mdx` - Generate Object - Batch 5.
 - [ ] `01-next/31-generate-object-with-file-prompt.mdx` - Generate Object with File Prompt through Form Submission - Batch 5.
-- [ ] `01-next/40-stream-object.mdx` - Stream Object - Batch 5.
-- [ ] `01-next/70-call-tools.mdx` - Call Tools - Batch 2.
-- [ ] `01-next/72-call-tools-multiple-steps.mdx` - Call Tools in Multiple Steps - Batch 2.
+- [x] `01-next/40-stream-object.mdx` - Stream Object - Batch 5.
+- [x] `01-next/70-call-tools.mdx` - Call Tools - Batch 2.
+- [x] `01-next/72-call-tools-multiple-steps.mdx` - Call Tools in Multiple Steps - Batch 2.
 - [ ] `01-next/73-mcp-tools.mdx` - Model Context Protocol (MCP) Tools - Batch 7.
-- [ ] `01-next/74-use-shared-chat-context.mdx` - Share useChat State Across Components - Batch 3.
+- [x] `01-next/74-use-shared-chat-context.mdx` - Share useChat State Across Components - Batch 3.
 - [ ] `01-next/75-human-in-the-loop.mdx` - Human-in-the-Loop with Next.js - Batch 2 or 7.
 - [ ] `01-next/77-track-agent-token-usage.mdx` - Track Agent Token Usage - Batch 8.
-- [ ] `01-next/80-send-custom-body-from-use-chat.mdx` - Send Custom Body from useChat - Batch 3.
-- [ ] `01-next/85-custom-stream-format.mdx` - Streaming with Custom Format - Batch 3.
+- [x] `01-next/80-send-custom-body-from-use-chat.mdx` - Send Custom Body from useChat - Batch 3.
+- [x] `01-next/85-custom-stream-format.mdx` - Streaming with Custom Format - Batch 3.
 - [ ] `01-next/90-render-visual-interface-in-chat.mdx` - Render Visual Interface in Chat - Batch 9.
 
 ### Node
@@ -296,17 +301,17 @@ updateAt: 2026-05-22
 - [ ] `05-node/22-stream-text-with-image-prompt.mdx` - Stream Text with Image Prompt - Batch 4.
 - [ ] `05-node/23-stream-text-with-file-prompt.mdx` - Stream Text with File Prompt - Batch 4.
 - [ ] `05-node/30-generate-object-reasoning.mdx` - Generate Object with a Reasoning Model - Batch 5.
-- [ ] `05-node/30-generate-object.mdx` - Generate Object - merged into Batch 5.
-- [ ] `05-node/40-stream-object.mdx` - Stream Object - merged into Batch 5.
-- [ ] `05-node/41-stream-object-with-image-prompt.mdx` - Stream Object with Image Prompt - Batch 5.
+- [x] `05-node/30-generate-object.mdx` - Generate Object - merged into Batch 5.
+- [x] `05-node/40-stream-object.mdx` - Stream Object - merged into Batch 5.
+- [x] `05-node/41-stream-object-with-image-prompt.mdx` - Stream Object with Image Prompt - Batch 5.
 - [ ] `05-node/45-stream-object-record-token-usage.mdx` - Record Token Usage After Streaming Object - Batch 5 or 8.
 - [ ] `05-node/46-stream-object-record-final-object.mdx` - Record Final Object after Streaming Object - Batch 5.
-- [ ] `05-node/50-call-tools.mdx` - Call Tools - merged into Batch 2.
-- [ ] `05-node/51-call-tools-in-parallel.mdx` - Call Tools in Parallel - Batch 2.
+- [x] `05-node/50-call-tools.mdx` - Call Tools - merged into Batch 2.
+- [x] `05-node/51-call-tools-in-parallel.mdx` - Call Tools in Parallel - Batch 2.
 - [ ] `05-node/52-call-tools-with-image-prompt.mdx` - Call Tools with Image Prompt - Batch 4 or 2.
-- [ ] `05-node/53-call-tools-multiple-steps.mdx` - Call Tools in Multiple Steps - Batch 2.
+- [x] `05-node/53-call-tools-multiple-steps.mdx` - Call Tools in Multiple Steps - Batch 2.
 - [ ] `05-node/54-mcp-tools.mdx` - Model Context Protocol (MCP) Tools - Batch 7.
-- [ ] `05-node/55-manual-agent-loop.mdx` - Manual Agent Loop - Batch 2 as contrast/reference.
+- [x] `05-node/55-manual-agent-loop.mdx` - Manual Agent Loop - Batch 2 as contrast/reference.
 - [ ] `05-node/56-web-search-agent.mdx` - Web Search Agent - Batch 2 or 7 depending on provider/tool choice.
 - [ ] `05-node/57-mcp-elicitation.mdx` - Model Context Protocol (MCP) Elicitation - Batch 7.
 - [ ] `05-node/60-embed-text.mdx` - Embed Text - Batch 6.

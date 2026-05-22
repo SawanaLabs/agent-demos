@@ -15,6 +15,7 @@ describe("demo catalog registry", () => {
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
+      "content-review",
       "streaming-chat-shell",
       "loop-agent",
       "skills-agent",
@@ -27,6 +28,7 @@ describe("demo catalog registry", () => {
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
+      "content-review",
       "streaming-chat-shell",
       "loop-agent",
     ]);

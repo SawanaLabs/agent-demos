@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { getReplayPromptEntries } from "./replay-prompts";
+import {
+  createStreamingReplayEventParser,
+  getReplayPromptEntries,
+} from "./streaming-replay";
 
-describe("getReplayPromptEntries", () => {
+describe("streaming replay", () => {
   it("builds replay entries from user prompts and slices the thread prefix", () => {
     const entries = getReplayPromptEntries([
       {
@@ -76,5 +79,22 @@ describe("getReplayPromptEntries", () => {
 
     expect(entries).toHaveLength(1);
     expect(entries[0]?.id).toBe("u2");
+  });
+
+  it("reassembles split SSE chunks into typed events", () => {
+    const parser = createStreamingReplayEventParser();
+
+    const firstEvents = parser.push(
+      'data: {"type":"start","audience":"engineers"}\n\ndata: {"type":"text","text":"Hel'
+    );
+    const secondEvents = parser.push(
+      'lo"}\n\ndata: {"type":"finish","finishReason":"stop"}\n\n'
+    );
+
+    expect(firstEvents).toEqual([{ type: "start", audience: "engineers" }]);
+    expect(secondEvents).toEqual([
+      { type: "text", text: "Hello" },
+      { type: "finish", finishReason: "stop" },
+    ]);
   });
 });

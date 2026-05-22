@@ -1,7 +1,6 @@
 import { embed } from "ai";
 import {
   and,
-  count,
   cosineDistance,
   desc,
   eq,
@@ -11,6 +10,11 @@ import {
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 
+import {
+  ensureRagKnowledgeBaseReady,
+  loadRagChatbotDatabase,
+  type RagDatabaseModule,
+} from "./knowledge-base-status";
 import { ragChatbotSourceDocument } from "./source-document";
 
 type DemoEnv = Record<string, string | undefined>;
@@ -44,20 +48,18 @@ export interface RagToolResult {
   sources: RagToolSource[];
 }
 
-interface RagDatabaseModule {
-  database: (typeof import("@workspace/database"))["database"];
+interface RagRetrievalDatabaseModule extends RagDatabaseModule {
   ragChatbotEmbeddings: (typeof import("@workspace/database"))["ragChatbotEmbeddings"];
-  ragChatbotResources: (typeof import("@workspace/database"))["ragChatbotResources"];
 }
 
 interface FindRelevantContentDependencies {
+  ensureKnowledgeBaseReady?: (env: DemoEnv) => Promise<void>;
   generateEmbedding: (value: string, env: DemoEnv) => Promise<number[]>;
-  countIndexedResources?: (sourceSlug: string) => Promise<number>;
   findMatches?: (input: {
     queryEmbedding: number[];
     sourceSlug: string;
   }) => Promise<RetrievedRagContent[]>;
-  loadDatabase?: () => Promise<RagDatabaseModule>;
+  loadDatabase?: () => Promise<RagRetrievalDatabaseModule>;
 }
 
 function createCitationLabel(source: RetrievedRagContent): string {
@@ -95,7 +97,7 @@ export function createRagToolResult(
   };
 }
 
-async function loadRagDatabase(): Promise<RagDatabaseModule> {
+async function loadRagDatabase(): Promise<RagRetrievalDatabaseModule> {
   const databaseModule = await import("@workspace/database");
 
   return {
@@ -105,25 +107,12 @@ async function loadRagDatabase(): Promise<RagDatabaseModule> {
   };
 }
 
-async function countIndexedResourcesForSource(
-  sourceSlug: string,
-  loadDatabase: () => Promise<RagDatabaseModule>
-): Promise<number> {
-  const { database, ragChatbotResources } = await loadDatabase();
-  const resourceCountRows = await database
-    .select({ resourceCount: count() })
-    .from(ragChatbotResources)
-    .where(eq(ragChatbotResources.sourceSlug, sourceSlug));
-
-  return resourceCountRows[0]?.resourceCount ?? 0;
-}
-
 async function findMatchesForSource(
   input: {
     queryEmbedding: number[];
     sourceSlug: string;
   },
-  loadDatabase: () => Promise<RagDatabaseModule>
+  loadDatabase: () => Promise<RagRetrievalDatabaseModule>
 ): Promise<RetrievedRagContent[]> {
   const { database, ragChatbotEmbeddings, ragChatbotResources } =
     await loadDatabase();
@@ -185,20 +174,18 @@ export async function findRelevantContent(
 
   const sourceSlug = ragChatbotSourceDocument.slug;
   const loadDatabase = dependencies.loadDatabase ?? loadRagDatabase;
-  const countIndexedResources =
-    dependencies.countIndexedResources ??
-    ((slug: string) => countIndexedResourcesForSource(slug, loadDatabase));
+  const ensureKnowledgeBaseReady =
+    dependencies.ensureKnowledgeBaseReady ??
+    ((nextEnv: DemoEnv) =>
+      ensureRagKnowledgeBaseReady(nextEnv, {
+        loadDatabase: loadDatabase as never,
+      }));
   const findMatches =
     dependencies.findMatches ??
     ((input: { queryEmbedding: number[]; sourceSlug: string }) =>
       findMatchesForSource(input, loadDatabase));
-  const resourceCount = await countIndexedResources(sourceSlug);
 
-  if (resourceCount === 0) {
-    throw new Error(
-      `No preindexed documents are available for the RAG chatbot. Index ${ragChatbotSourceDocument.title} before sending chat requests.`
-    );
-  }
+  await ensureKnowledgeBaseReady(env);
 
   const queryEmbedding = await dependencies.generateEmbedding(
     normalizedQuery,

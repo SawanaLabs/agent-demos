@@ -38,42 +38,17 @@ import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import {
   DefaultChatTransport,
-  isToolUIPart,
-  type ToolUIPart,
   type UIMessage,
 } from "ai";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import type { RagToolSource } from "@/features/rag-chatbot/server/retrieval";
 import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
 
-import { getSourceItemKey } from "./source-item-key";
-
-function getTextContent(message: UIMessage) {
-  return message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("\n");
-}
-
-function getToolParts(message: UIMessage) {
-  return message.parts.filter(isToolUIPart);
-}
-
-function readSourcesFromToolPart(part: ToolUIPart) {
-  if (part.state !== "output-available" || !part.output) {
-    return [];
-  }
-
-  if (typeof part.output !== "object" || !("sources" in part.output)) {
-    return [];
-  }
-
-  const { sources } = part.output as { sources?: RagToolSource[] };
-
-  return Array.isArray(sources) ? sources : [];
-}
+import {
+  getGroundedSourceKey,
+  projectGroundedMessage,
+} from "./grounded-response";
 
 export interface RagChatbotWorkspaceProps {
   chatModel: string;
@@ -132,11 +107,7 @@ export function RagChatbotWorkspace({
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               messages.map((message) => {
-                const text = getTextContent(message);
-                const toolParts = getToolParts(message);
-                const sources = toolParts.flatMap((part) =>
-                  part.type === "dynamic-tool" ? [] : readSourcesFromToolPart(part)
-                );
+                const projection = projectGroundedMessage(message);
 
                 return (
                   <Message from={message.role} key={message.id}>
@@ -146,14 +117,14 @@ export function RagChatbotWorkspace({
                         message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
                       )}
                     >
-                      {sources.length > 0 ? (
+                      {projection.sources.length > 0 ? (
                         <Sources>
-                          <SourcesTrigger count={sources.length} />
+                          <SourcesTrigger count={projection.sources.length} />
                           <SourcesContent>
-                            {sources.map((source, index) => (
+                            {projection.sources.map((source, index) => (
                               <Source
                                 href={source.documentUrl}
-                                key={getSourceItemKey(message.id, source, index)}
+                                key={getGroundedSourceKey(message.id, source, index)}
                                 title={source.citationLabel}
                               >
                                 <span className="font-medium">
@@ -170,15 +141,15 @@ export function RagChatbotWorkspace({
                         </Sources>
                       ) : null}
 
-                      {text ? (
-                        <MessageResponse>{text}</MessageResponse>
+                      {projection.text ? (
+                        <MessageResponse>{projection.text}</MessageResponse>
                       ) : (
                         <p className="text-muted-foreground text-sm">
                           Waiting for visible output.
                         </p>
                       )}
 
-                      {toolParts.map((part) => (
+                      {projection.toolParts.map((part) => (
                         <Tool key={part.toolCallId}>
                           {part.type === "dynamic-tool" ? (
                             <ToolHeader

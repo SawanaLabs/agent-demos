@@ -1,10 +1,6 @@
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { type UIMessage } from "ai";
 
-import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
+import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
 import {
   invalidMessagesError,
@@ -13,15 +9,13 @@ import {
   readStreamingChatShellRequest,
   type StreamingAudience,
 } from "./contract";
-import { buildAudienceSystemPrompt } from "./prompt";
+import {
+  createStreamingTurnEventsResponse,
+  streamStreamingTurnEvents,
+  type StreamingChatShellEvent,
+} from "./streaming-turn";
 
 type DemoEnv = Record<string, string | undefined>;
-
-export type StreamingChatShellEvent =
-  | { type: "start"; audience: StreamingAudience }
-  | { type: "text"; text: string }
-  | { type: "finish"; finishReason: string }
-  | { type: "error"; message: string };
 
 interface StreamingChatShellEventsDependencies {
   streamStreamingChatShellEvents: (
@@ -31,48 +25,12 @@ interface StreamingChatShellEventsDependencies {
   ) => AsyncIterable<StreamingChatShellEvent>;
 }
 
-function formatStreamingChatShellEvent(event: StreamingChatShellEvent) {
-  return `data: ${JSON.stringify(event)}\n\n`;
-}
-
 export async function* streamStreamingChatShellEvents(
   messages: UIMessage[],
   env: DemoEnv,
   options: { audience: StreamingAudience }
 ): AsyncIterable<StreamingChatShellEvent> {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
-
-  const result = streamText({
-    model: gateway(chatModel),
-    system: buildAudienceSystemPrompt(options.audience),
-    messages: await convertToModelMessages(messages),
-  });
-
-  yield { type: "start", audience: options.audience };
-
-  for await (const part of result.fullStream) {
-    if (part.type === "text-delta") {
-      yield { type: "text", text: part.text };
-      continue;
-    }
-
-    if (part.type === "finish") {
-      yield { type: "finish", finishReason: part.finishReason };
-      return;
-    }
-
-    if (part.type === "error") {
-      yield {
-        type: "error",
-        message:
-          part.error instanceof Error
-            ? part.error.message
-            : "Custom stream failed.",
-      };
-      return;
-    }
-  }
+  yield* streamStreamingTurnEvents(messages, env, options.audience);
 }
 
 export async function handleStreamingChatShellEventsRequest(
@@ -100,6 +58,10 @@ export async function handleStreamingChatShellEventsRequest(
     const { audience, messages } = await readStreamingChatShellRequest(
       await request.json()
     );
+    if (dependencies.streamStreamingChatShellEvents === streamStreamingChatShellEvents) {
+      return createStreamingTurnEventsResponse(messages, env, audience);
+    }
+
     const encoder = new TextEncoder();
     const eventStream =
       await dependencies.streamStreamingChatShellEvents(messages, env, {
@@ -111,7 +73,7 @@ export async function handleStreamingChatShellEventsRequest(
         async start(controller) {
           for await (const event of eventStream) {
             controller.enqueue(
-              encoder.encode(formatStreamingChatShellEvent(event))
+              encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
             );
           }
 

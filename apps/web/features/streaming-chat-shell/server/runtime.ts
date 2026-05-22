@@ -1,14 +1,6 @@
-import {
-  convertToModelMessages,
-  streamText,
-  type UIMessage,
-} from "ai";
+import { type UIMessage } from "ai";
 
-import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
+import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
 import {
   invalidMessagesError,
@@ -18,7 +10,7 @@ import {
   supportedAudiences,
   type StreamingAudience,
 } from "./contract";
-import { buildAudienceSystemPrompt } from "./prompt";
+import { createStreamingTurnUiMessageResponse } from "./streaming-turn";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -63,16 +55,7 @@ export async function streamStreamingChatShell(
   env: DemoEnv,
   options: StreamingChatShellRequestOptions
 ) {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
-
-  const result = streamText({
-    model: gateway(chatModel),
-    system: buildAudienceSystemPrompt(options.audience),
-    messages: await convertToModelMessages(messages),
-  });
-
-  return result.toUIMessageStreamResponse();
+  return createStreamingTurnUiMessageResponse(messages, env, options.audience);
 }
 
 export async function handleStreamingChatShellRequest(

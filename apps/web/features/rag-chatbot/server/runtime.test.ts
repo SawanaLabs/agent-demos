@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { RagKnowledgeBaseStatus } from "./knowledge-base-status";
 import {
   getRagChatbotRuntimeState,
   handleRagChatbotRequest,
@@ -7,6 +8,18 @@ import {
 
 const missingDatabasePattern = /DATABASE_URL/i;
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+
+function createKnowledgeBaseStatus(
+  overrides: Partial<RagKnowledgeBaseStatus>
+): RagKnowledgeBaseStatus {
+  return {
+    indexedResourceCount: 1,
+    isReady: true,
+    message: null,
+    statusLabel: "Ready",
+    ...overrides,
+  };
+}
 
 describe("rag chatbot runtime", () => {
   it("reports setup requirements before chat work starts", async () => {
@@ -17,7 +30,6 @@ describe("rag chatbot runtime", () => {
       statusLabel: "Setup required",
       setupMessage: expect.stringMatching(missingGatewayKeyPattern),
     });
-    expect(state.setupMessage).toMatch(missingDatabasePattern);
   });
 
   it("reports index required when the source PDF has not been indexed yet", async () => {
@@ -28,7 +40,13 @@ describe("rag chatbot runtime", () => {
           DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         },
         {
-          getIndexedResourceCount: async () => 0,
+          getKnowledgeBaseStatus: async () =>
+            createKnowledgeBaseStatus({
+              indexedResourceCount: 0,
+              isReady: false,
+              message: "index required",
+              statusLabel: "Index required",
+            }),
         }
       )
     ).resolves.toMatchObject({
@@ -46,7 +64,7 @@ describe("rag chatbot runtime", () => {
           DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         },
         {
-          getIndexedResourceCount: async () => 1,
+          getKnowledgeBaseStatus: async () => createKnowledgeBaseStatus({}),
         }
       )
     ).resolves.toMatchObject({
@@ -69,7 +87,13 @@ describe("rag chatbot runtime", () => {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
-        getIndexedResourceCount: async () => 0,
+        getKnowledgeBaseStatus: async () =>
+          createKnowledgeBaseStatus({
+            indexedResourceCount: 0,
+            isReady: false,
+            message: "index required",
+            statusLabel: "Index required",
+          }),
         streamRagChatbot: async () => Response.json({ ok: true }),
       }
     );
@@ -91,6 +115,34 @@ describe("rag chatbot runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringMatching(missingGatewayKeyPattern),
+    });
+  });
+
+  it("returns a database setup error when gateway setup is present but pgvector is unavailable", async () => {
+    const response = await handleRagChatbotRequest(
+      new Request("http://localhost/api/demos/rag-chatbot", {
+        body: JSON.stringify({ messages: [] }),
+        method: "POST",
+      }),
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+      },
+      {
+        getKnowledgeBaseStatus: async () =>
+          createKnowledgeBaseStatus({
+            indexedResourceCount: 0,
+            isReady: false,
+            message:
+              "DATABASE_URL is missing. The RAG chatbot can render, but chat requests require a preindexed pgvector database.",
+            statusLabel: "Setup required",
+          }),
+        streamRagChatbot: async () => Response.json({ ok: true }),
+      }
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({
       error: expect.stringMatching(missingDatabasePattern),
     });
   });
@@ -106,7 +158,7 @@ describe("rag chatbot runtime", () => {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
-        getIndexedResourceCount: async () => 1,
+        getKnowledgeBaseStatus: async () => createKnowledgeBaseStatus({}),
         streamRagChatbot: async () => Response.json({ ok: true }),
       }
     );
@@ -131,7 +183,7 @@ describe("rag chatbot runtime", () => {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
-        getIndexedResourceCount: async () => 1,
+        getKnowledgeBaseStatus: async () => createKnowledgeBaseStatus({}),
         streamRagChatbot: async () => Response.json({ ok: true }),
       }
     );
@@ -155,7 +207,7 @@ describe("rag chatbot runtime", () => {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
-        getIndexedResourceCount: async () => 1,
+        getKnowledgeBaseStatus: async () => createKnowledgeBaseStatus({}),
         streamRagChatbot: async () => Response.json({ ok: true }),
       }
     );
@@ -185,7 +237,7 @@ describe("rag chatbot runtime", () => {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
-        getIndexedResourceCount: async () => 1,
+        getKnowledgeBaseStatus: async () => createKnowledgeBaseStatus({}),
         streamRagChatbot: async (messages) =>
           Response.json({ messageCount: messages.length }),
       }

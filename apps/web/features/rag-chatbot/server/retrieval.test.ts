@@ -160,12 +160,12 @@ describe("rag chatbot retrieval result", () => {
 
   it("returns early for blank queries without touching embedding or retrieval dependencies", async () => {
     const generateEmbedding = vi.fn();
-    const countIndexedResources = vi.fn();
+    const ensureKnowledgeBaseReady = vi.fn();
     const findMatches = vi.fn();
 
     await expect(
       findRelevantContent("   ", {}, {
-        countIndexedResources,
+        ensureKnowledgeBaseReady,
         findMatches,
         generateEmbedding,
       })
@@ -176,20 +176,19 @@ describe("rag chatbot retrieval result", () => {
       sources: [],
     });
 
-    expect(countIndexedResources).not.toHaveBeenCalled();
+    expect(ensureKnowledgeBaseReady).not.toHaveBeenCalled();
     expect(findMatches).not.toHaveBeenCalled();
     expect(generateEmbedding).not.toHaveBeenCalled();
   });
 
   it("requires the configured source PDF to be indexed before retrieval", async () => {
-    const countIndexedResources = vi.fn(async (sourceSlug: string) => {
-      expect(sourceSlug).toBe(ragChatbotSourceDocument.slug);
-      return 0;
+    const ensureKnowledgeBaseReady = vi.fn(async () => {
+      throw new Error("No preindexed documents are available.");
     });
 
     await expect(
       findRelevantContent("logotype", {}, {
-        countIndexedResources,
+        ensureKnowledgeBaseReady,
         findMatches: vi.fn(),
         generateEmbedding: vi.fn(),
       })
@@ -199,9 +198,11 @@ describe("rag chatbot retrieval result", () => {
   it("scopes the actual resource-count and retrieval queries to the configured source document slug", async () => {
     const databaseDouble = createScopedQueryDatabaseDouble();
     const generateEmbedding = vi.fn(async () => [0.1, 0.2, 0.3]);
+    const ensureKnowledgeBaseReady = vi.fn(async () => undefined);
 
     await expect(
       findRelevantContent("NASA logotype", {}, {
+        ensureKnowledgeBaseReady,
         generateEmbedding,
         loadDatabase: databaseDouble.loadDatabase as never,
       })
@@ -222,14 +223,7 @@ describe("rag chatbot retrieval result", () => {
     });
 
     expect(generateEmbedding).toHaveBeenCalledWith("NASA logotype", {});
-    expect(databaseDouble.state.resourceWhereValues).toEqual(
-      expect.arrayContaining([
-        expect.arrayContaining([
-          "source_slug",
-          ragChatbotSourceDocument.slug,
-        ]),
-      ])
-    );
+    expect(ensureKnowledgeBaseReady).toHaveBeenCalledWith({});
     expect(databaseDouble.state.matchWhereValues).toEqual(
       expect.arrayContaining([
         expect.arrayContaining([

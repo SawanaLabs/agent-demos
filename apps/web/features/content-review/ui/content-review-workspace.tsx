@@ -1,6 +1,5 @@
 "use client";
 
-import { experimental_useObject as useObject } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
   PaperclipIcon,
@@ -8,7 +7,7 @@ import {
   StopIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import type { DeepPartial, FileUIPart } from "ai";
+import type { FileUIPart } from "ai";
 import {
   Attachment,
   AttachmentInfo,
@@ -37,37 +36,13 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
-import type {
-  ContentReviewAttachment,
-  ContentReviewResult,
-} from "../schema";
-import {
-  contentReviewRecordIdHeader,
-  type ContentReviewRecord,
-} from "../record";
-import { contentReviewResultSchema } from "../schema";
 import { ContentReviewResultCard } from "./content-review-result-card";
 import {
-  buildPendingReviewAttachment,
-  convertFilesToReviewAttachments,
-  type PendingReviewAttachment,
-  type SubmittedReviewAttachment,
-} from "./convert-files-to-review-attachments";
-
-type ReviewEntryStatus = "streaming" | "ready" | "error" | "stopped";
-
-interface ReviewThreadEntry {
-  attachments: SubmittedReviewAttachment[];
-  errorMessage: string | null;
-  id: string;
-  prompt: string;
-  requestAttachments: ContentReviewAttachment[];
-  record: ContentReviewRecord | null;
-  result: DeepPartial<ContentReviewResult> | undefined;
-  status: ReviewEntryStatus;
-}
+  type DisplayReviewThreadEntry,
+} from "./content-review-session";
+import { useContentReviewSession } from "./use-content-review-session";
 
 export interface ContentReviewWorkspaceProps {
   acceptedMediaTypes: string[];
@@ -77,7 +52,7 @@ export interface ContentReviewWorkspaceProps {
   setupMessage: string | null;
 }
 
-function getUserAttachmentParts(attachments: SubmittedReviewAttachment[]) {
+function getUserAttachmentParts(attachments: DisplayReviewThreadEntry["attachments"]) {
   return attachments.map(
     (attachment): FileUIPart => ({
       filename: attachment.filename,
@@ -88,18 +63,6 @@ function getUserAttachmentParts(attachments: SubmittedReviewAttachment[]) {
   );
 }
 
-async function fetchContentReviewRecord(recordId: string) {
-  const response = await fetch(
-    `/api/demos/content-review/records?recordId=${encodeURIComponent(recordId)}`
-  );
-
-  if (!response.ok) {
-    throw new Error((await response.text()) || "Failed to load review record.");
-  }
-
-  return (await response.json()) as ContentReviewRecord;
-}
-
 export function ContentReviewWorkspace({
   acceptedMediaTypes,
   chatModel,
@@ -107,136 +70,22 @@ export function ContentReviewWorkspace({
   nodeVersion,
   setupMessage,
 }: ContentReviewWorkspaceProps) {
-  const [pendingAttachments, setPendingAttachments] = useState<
-    PendingReviewAttachment[]
-  >([]);
-  const [composerError, setComposerError] = useState<string | null>(null);
-  const [entries, setEntries] = useState<ReviewThreadEntry[]>([]);
-  const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pendingAttachmentsRef = useRef<PendingReviewAttachment[]>([]);
-  const entriesRef = useRef<ReviewThreadEntry[]>([]);
-  const latestObjectRef = useRef<DeepPartial<ContentReviewResult> | undefined>(
-    undefined
-  );
-  const activeEntryIdRef = useRef<string | null>(null);
-
   const {
-    clear,
-    error,
+    composerError,
+    entries,
+    hasMessages,
+    inputResetKey,
     isLoading,
-    object,
-    stop,
-    submit,
-  } = useObject<
-    typeof contentReviewResultSchema,
-    ContentReviewResult,
-    {
-      attachments: ContentReviewAttachment[];
-      prompt: string;
-    }
-  >({
-    api: "/api/demos/content-review",
-    onError(streamError) {
-      const entryId = activeEntryIdRef.current;
+    pendingAttachments,
+    streamErrorMessage,
+    appendFiles,
+    removePendingAttachment,
+    retryReview,
+    stopReview,
+    submitReview,
+  } = useContentReviewSession();
 
-      if (!entryId) {
-        return;
-      }
-
-      setEntries((current) =>
-        current.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                errorMessage: streamError.message,
-                record: entry.record,
-                result: latestObjectRef.current ?? entry.result,
-                status: "error",
-              }
-            : entry
-        )
-      );
-      setActiveEntryId(null);
-    },
-    async fetch(input, init) {
-      const response = await fetch(input, init);
-      const entryId = activeEntryIdRef.current;
-      const recordId = response.headers.get(contentReviewRecordIdHeader);
-
-      if (entryId && recordId) {
-        setEntries((current) =>
-          current.map((entry) =>
-            entry.id === entryId
-              ? {
-                  ...entry,
-                  record: {
-                    errorMessage: null,
-                    id: recordId,
-                    recordedAt: null,
-                    result: null,
-                    status: "pending",
-                    usage: null,
-                  },
-                }
-              : entry
-          )
-        );
-      }
-
-      return response;
-    },
-    async onFinish({ error: finishError, object: finalObject }) {
-      const entryId = activeEntryIdRef.current;
-
-      if (!entryId) {
-        return;
-      }
-
-      const currentEntry = entriesRef.current.find((entry) => entry.id === entryId);
-      const recordId = currentEntry?.record?.id;
-      let record = currentEntry?.record ?? null;
-
-      if (recordId) {
-        try {
-          record = await fetchContentReviewRecord(recordId);
-        } catch (recordError) {
-          record = {
-            errorMessage:
-              recordError instanceof Error
-                ? recordError.message
-                : "Failed to load the recorded review output.",
-            id: recordId,
-            recordedAt: new Date().toISOString(),
-            result: null,
-            status: "error",
-            usage: null,
-          };
-        }
-      }
-
-      setEntries((current) =>
-        current.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                errorMessage: finishError?.message ?? null,
-                record,
-                result:
-                  finalObject ??
-                  latestObjectRef.current ??
-                  entry.result,
-                status: finishError ? "error" : "ready",
-              }
-            : entry
-        )
-      );
-      setActiveEntryId(null);
-    },
-    schema: contentReviewResultSchema,
-  });
-
-  const hasMessages = entries.length > 0;
   const samplePrompts = useMemo(
     () => [
       "Review this pricing page draft for risky claims and unsupported promises.",
@@ -245,174 +94,6 @@ export function ContentReviewWorkspace({
     ],
     []
   );
-
-  useEffect(() => {
-    pendingAttachmentsRef.current = pendingAttachments;
-  }, [pendingAttachments]);
-
-  useEffect(() => {
-    entriesRef.current = entries;
-  }, [entries]);
-
-  useEffect(() => {
-    activeEntryIdRef.current = activeEntryId;
-  }, [activeEntryId]);
-
-  useEffect(() => {
-    latestObjectRef.current = object;
-  }, [object]);
-
-  useEffect(() => {
-    return () => {
-      const previewUrls = new Set<string>();
-
-      for (const attachment of pendingAttachmentsRef.current) {
-        previewUrls.add(attachment.previewUrl);
-      }
-
-      for (const entry of entriesRef.current) {
-        for (const attachment of entry.attachments) {
-          previewUrls.add(attachment.previewUrl);
-        }
-      }
-
-      for (const url of previewUrls) {
-        URL.revokeObjectURL(url);
-      }
-    };
-  }, []);
-
-  function removePendingAttachment(attachmentId: string) {
-    setPendingAttachments((current) => {
-      const target = current.find((attachment) => attachment.id === attachmentId);
-
-      if (target) {
-        URL.revokeObjectURL(target.previewUrl);
-      }
-
-      return current.filter((attachment) => attachment.id !== attachmentId);
-    });
-  }
-
-  function appendFiles(fileList: FileList | null) {
-    if (!fileList) {
-      return;
-    }
-
-    const nextAttachments = Array.from(fileList).map(buildPendingReviewAttachment);
-    setPendingAttachments((current) => {
-      const byId = new Map(current.map((attachment) => [attachment.id, attachment]));
-
-      for (const attachment of nextAttachments) {
-        byId.set(attachment.id, attachment);
-      }
-
-      return Array.from(byId.values());
-    });
-  }
-
-  async function handleSubmit(text: string) {
-    const prompt = text.trim();
-
-    if (!prompt && pendingAttachments.length === 0) {
-      return;
-    }
-
-    try {
-      setComposerError(null);
-      const attachments = await convertFilesToReviewAttachments(
-        pendingAttachments.map((attachment) => attachment.file)
-      );
-      const threadAttachments = pendingAttachments.map((attachment) => ({
-        filename: attachment.file.name,
-        id: attachment.id,
-        mediaType: attachment.file.type || "application/octet-stream",
-        previewUrl: attachment.previewUrl,
-      }));
-      const entryId = crypto.randomUUID();
-
-      setEntries((current) => [
-        ...current,
-        {
-          attachments: threadAttachments,
-          errorMessage: null,
-          id: entryId,
-          prompt,
-          record: null,
-          requestAttachments: attachments,
-          result: undefined,
-          status: "streaming",
-        },
-      ]);
-      setActiveEntryId(entryId);
-      latestObjectRef.current = undefined;
-      submit({
-        attachments,
-        prompt,
-      });
-      setPendingAttachments([]);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    } catch (attachmentError) {
-      setComposerError(
-        attachmentError instanceof Error
-          ? attachmentError.message
-          : "Failed to prepare review attachments."
-      );
-    }
-  }
-
-  function handleStop() {
-    const entryId = activeEntryIdRef.current;
-
-    stop();
-
-    if (!entryId) {
-      return;
-    }
-
-    setEntries((current) =>
-      current.map((entry) =>
-        entry.id === entryId
-          ? {
-              ...entry,
-              record: entry.record,
-              result: latestObjectRef.current ?? entry.result,
-              status: "stopped",
-            }
-          : entry
-      )
-    );
-    setActiveEntryId(null);
-  }
-
-  function handleRetry(entry: ReviewThreadEntry) {
-    if (isLoading) {
-      return;
-    }
-
-    clear();
-    setEntries((current) =>
-      current.map((currentEntry) =>
-        currentEntry.id === entry.id
-          ? {
-              ...currentEntry,
-              errorMessage: null,
-              record: null,
-              result: currentEntry.result,
-              status: "streaming",
-            }
-          : currentEntry
-      )
-    );
-    setActiveEntryId(entry.id);
-    latestObjectRef.current = undefined;
-    submit({
-      attachments: entry.requestAttachments,
-      prompt: entry.prompt,
-    });
-  }
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -429,9 +110,9 @@ export function ContentReviewWorkspace({
           </div>
         ) : null}
 
-        {error ? (
+        {streamErrorMessage ? (
           <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
+            {streamErrorMessage}
           </div>
         ) : null}
 
@@ -439,11 +120,7 @@ export function ContentReviewWorkspace({
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               entries.map((entry) => {
-                const isActive = activeEntryId === entry.id;
                 const attachmentParts = getUserAttachmentParts(entry.attachments);
-                const liveResult = isActive ? object ?? entry.result : entry.result;
-                const liveStatus =
-                  isActive && isLoading ? "streaming" : entry.status;
 
                 return (
                   <div className="space-y-4" key={entry.id}>
@@ -481,14 +158,14 @@ export function ContentReviewWorkspace({
                         <ContentReviewResultCard
                           errorMessage={entry.errorMessage}
                           record={entry.record}
-                          result={liveResult}
-                          status={liveStatus}
+                          result={entry.liveResult}
+                          status={entry.liveStatus}
                         />
 
-                        {liveStatus !== "streaming" ? (
+                        {entry.liveStatus !== "streaming" ? (
                           <div className="flex justify-end">
                             <Button
-                              onClick={() => handleRetry(entry)}
+                              onClick={() => retryReview(entry)}
                               size="sm"
                               type="button"
                               variant="outline"
@@ -516,7 +193,7 @@ export function ContentReviewWorkspace({
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
-            <PromptInput onSubmit={({ text }) => handleSubmit(text)}>
+            <PromptInput onSubmit={({ text }) => submitReview(text)}>
               <PromptInputBody>
                 {pendingAttachments.length > 0 ? (
                   <Attachments className="mb-3" variant="list">
@@ -551,6 +228,7 @@ export function ContentReviewWorkspace({
                   <input
                     accept="image/*,application/pdf"
                     className="hidden"
+                    key={inputResetKey}
                     multiple
                     onChange={(event) => appendFiles(event.target.files)}
                     ref={fileInputRef}
@@ -572,7 +250,7 @@ export function ContentReviewWorkspace({
                 <div className="flex items-center gap-2">
                   {isLoading ? (
                     <Button
-                      onClick={handleStop}
+                      onClick={stopReview}
                       size="sm"
                       type="button"
                       variant="outline"
@@ -593,7 +271,7 @@ export function ContentReviewWorkspace({
                     className={cn("max-w-full justify-start text-left")}
                     disabled={!isReviewAvailable || isLoading}
                     key={prompt}
-                    onClick={() => handleSubmit(prompt)}
+                    onClick={() => submitReview(prompt)}
                     size="sm"
                     type="button"
                     variant="outline"

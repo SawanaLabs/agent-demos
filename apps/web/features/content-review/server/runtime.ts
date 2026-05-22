@@ -12,12 +12,7 @@ import {
   contentReviewResultSchema,
   type ContentReviewRequest,
 } from "../schema";
-import { contentReviewRecordIdHeader } from "../record";
-import {
-  completeContentReviewRecord,
-  createPendingContentReviewRecord,
-  failContentReviewRecord,
-} from "./review-records";
+import { startRecordedReviewRun } from "./recorded-review-run";
 
 const invalidBodyError =
   'Expected a JSON body with a "prompt" string and an "attachments" array.';
@@ -153,63 +148,6 @@ export async function createContentReviewStream(
   };
 }
 
-function createRecordedStreamResponse(
-  stream: ContentReviewStreamResult,
-  recordId: string
-) {
-  const encoder = new TextEncoder();
-  let accumulatedText = "";
-
-  const body = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const chunk of stream.textStream) {
-          accumulatedText += chunk;
-          controller.enqueue(encoder.encode(chunk));
-        }
-
-        let parsedResult: unknown;
-
-        try {
-          parsedResult = JSON.parse(accumulatedText);
-        } catch (error) {
-          failContentReviewRecord(
-            recordId,
-            error instanceof Error ? error.message : "Failed to parse final review object."
-          );
-          controller.close();
-          return;
-        }
-
-        try {
-          const usage = await stream.totalUsage;
-          completeContentReviewRecord(recordId, parsedResult, usage);
-        } catch (error) {
-          failContentReviewRecord(
-            recordId,
-            error instanceof Error ? error.message : "Failed to record token usage."
-          );
-        }
-
-        controller.close();
-      } catch (error) {
-        failContentReviewRecord(
-          recordId,
-          error instanceof Error ? error.message : "Content review stream failed."
-        );
-        controller.error(error);
-      }
-    },
-  });
-
-  return new Response(body, {
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      [contentReviewRecordIdHeader]: recordId,
-    },
-  });
-}
-
 export async function handleContentReviewRequest(
   request: Request,
   env: DemoEnv = process.env,
@@ -261,10 +199,7 @@ export async function handleContentReviewRequest(
     throw error;
   }
 
-  const recordId = crypto.randomUUID();
-  createPendingContentReviewRecord(recordId);
-
   const stream = await dependencies.createContentReviewStream(input, env);
 
-  return createRecordedStreamResponse(stream, recordId);
+  return startRecordedReviewRun(stream);
 }

@@ -38,28 +38,17 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { useMemo, useState } from "react";
 
 import type { StreamingAudience } from "../server/contract";
-import type { StreamingChatShellEvent } from "../server/events";
 import {
   getReplayPromptEntries,
+  useStreamingReplayPrompt,
   type ReplayPromptEntry,
-} from "../replay-prompts";
-import { createStreamingChatShellEventParser } from "./stream-event-parser";
+} from "./streaming-replay";
 
 function getTextContent(message: UIMessage) {
   return message.parts
     .filter((part) => part.type === "text")
     .map((part) => part.text)
     .join("\n");
-}
-
-function getTraceText(events: StreamingChatShellEvent[]) {
-  return events
-    .filter(
-      (event): event is Extract<StreamingChatShellEvent, { type: "text" }> =>
-        event.type === "text"
-    )
-    .map((event) => event.text)
-    .join("");
 }
 
 function getAudienceLabel(audience: StreamingAudience) {
@@ -72,72 +61,6 @@ function getAudienceLabel(audience: StreamingAudience) {
     default:
       return "Engineers";
   }
-}
-
-async function replayStreamingPrompt(
-  audience: StreamingAudience,
-  messages: UIMessage[]
-) {
-  const response = await fetch("/api/demos/streaming-chat-shell/events", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      audience,
-      messages,
-    }),
-  });
-
-  if (!response.ok) {
-    let message = "Failed to replay the custom stream.";
-
-    try {
-      const payload = (await response.json()) as { error?: string };
-
-      if (payload.error) {
-        message = payload.error;
-      }
-    } catch {
-      const fallbackText = await response.text();
-
-      if (fallbackText) {
-        message = fallbackText;
-      }
-    }
-
-    throw new Error(message);
-  }
-
-  if (!response.body) {
-    throw new Error("The custom event stream returned an empty body.");
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  const parser = createStreamingChatShellEventParser();
-  const replayEvents: StreamingChatShellEvent[] = [];
-
-  while (true) {
-    const { done, value } = await reader.read();
-
-    if (done) {
-      break;
-    }
-
-    const nextEvents = parser.push(decoder.decode(value, { stream: true }));
-    if (nextEvents.length > 0) {
-      replayEvents.push(...nextEvents);
-    }
-  }
-
-  const trailingEvents = parser.push(decoder.decode());
-
-  if (trailingEvents.length > 0) {
-    replayEvents.push(...trailingEvents);
-  }
-
-  return replayEvents;
 }
 
 interface StreamingChatShellWorkspaceProps {
@@ -337,39 +260,8 @@ function ReplayPromptCard({
   entry,
   title,
 }: ReplayPromptCardProps) {
-  const [events, setEvents] = useState<StreamingChatShellEvent[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
-    "idle"
-  );
-  const traceText = useMemo(() => getTraceText(events), [events]);
-  const isReplayable = entry.replayMessages.length > 0;
-
-  async function replayPrompt() {
-    if (!isReplayable) {
-      return;
-    }
-
-    setEvents([]);
-    setError(null);
-    setStatus("loading");
-
-    try {
-      const replayEvents = await replayStreamingPrompt(
-        audience,
-        entry.replayMessages
-      );
-      setEvents(replayEvents);
-      setStatus("ready");
-    } catch (replayError) {
-      setError(
-        replayError instanceof Error
-          ? replayError.message
-          : "Failed to replay the custom stream."
-      );
-      setStatus("error");
-    }
-  }
+  const { error, events, isReplayable, status, traceText, replayPrompt } =
+    useStreamingReplayPrompt(audience, entry);
 
   return (
     <Collapsible className="border border-foreground/10" defaultOpen={defaultOpen}>

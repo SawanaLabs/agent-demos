@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-05-21
+updateAt: 2026-05-22
 ---
 
 # Agent Demo Structure
@@ -22,19 +22,19 @@ updateAt: 2026-05-21
 
 ## Current Subdomain Docs
 
-- Organize each agent demo around a feature slice such as `apps/web/features/loop-agent`.
-- Keep `apps/web/app/demos/<demo-slug>/page.tsx` as a thin route entry that imports the feature slice's page-level UI.
-- Keep `apps/web/app/api/demos/<demo-slug>/route.ts` as a thin API entry when a demo needs a route handler.
-- Put demo-specific UI components under `apps/web/features/<demo-slug>/ui`.
+- Organize each implemented agent demo around a feature slice such as `apps/web/features/foundation-chat`.
+- Keep `apps/web/app/demos/<demo-slug>/page.tsx` as a thin route entry that imports the feature slice's page-level UI for ready demos.
+- Keep `apps/web/app/api/demos/<demo-slug>/route.ts` as a thin API entry when a ready demo needs a route handler.
+- Put demo-specific UI components under `apps/web/features/<demo-slug>/ui` once the demo has UI.
 - Put demo-specific agent and server code under the same feature slice, using subdirectories such as `agent` and `server` when they clarify ownership.
 - Every feature slice must include `demo-meta.ts`.
 - `demo-meta.ts` must include at least `slug`, `title`, `summary`, `pattern`, `status`, and `source`.
 - Define `pattern` as a TypeScript string-literal union or equivalent `as const` source of truth, not free-form strings.
-- Start `pattern` with `loop`, `rag`, `tool-use`, `skills`, `sandbox`, `human-in-the-loop`, and `multi-agent`.
-- Use `status` to separate planned, ready, and experimental demos.
-- Show `planned` demos as roadmap items rather than interactive demo entries.
+- Keep `pattern` aligned with `apps/web/features/demo-catalog/types.ts`: `foundation`, `rag`, `loop`, `tools`, `skills`, `sandbox`, `multimodal`, `structured-output`, `mcp`, and `generative-ui`.
+- Use `status` to separate `ready` demos from `roadmap` demos.
+- Show `roadmap` demos as non-active roadmap items rather than interactive demo entries.
 - Use `source` to distinguish AI SDK docs examples, original demos, and hybrid demos.
-- Build early demos from AI SDK cookbook, guide, and documentation examples through manual review before planning original demo batches.
+- Build early demos from AI SDK Recipes, guide, and documentation examples through manual review before planning original demo batches.
 - Treat batch processing as a later workflow after the repository's demo style and copy boundary conventions are mature.
 - Preserve the official example's core backend code path when converting a docs-derived demo; prefer path, boundary, and integration adjustments over custom rewrites.
 - When official backend code conflicts with repository style, resolve in this order: preserve the source core, keep the feature-slice copy boundary, add explicit errors and readability, then polish style and abstractions.
@@ -44,7 +44,7 @@ updateAt: 2026-05-21
 - Shape each demo page primarily as an operable application workspace.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
-- Every feature slice must include a lightweight `README.md`.
+- Every implemented feature slice must include a lightweight `README.md`. Roadmap-only catalog stubs may contain only `demo-meta.ts` until implementation starts.
 - The feature-local `README.md` should describe the demo's business-facing capability, show a concise file tree for the feature slice, and later include the shadcn registry install command once registry distribution exists.
 - Do not turn the feature-local `README.md` into a dependency checklist or migration guide unless the user explicitly asks for that extra detail.
 - Put shadcn components, AI Elements primitives, Tailwind primitives, and other shared front-end primitives in `packages/ui`.

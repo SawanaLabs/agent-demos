@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
-description: Working checklist for turning AI SDK cookbook and guide examples into portable Agent Demos.
-updateAt: 2026-05-21
+description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
+updateAt: 2026-05-22
 ---
 
 # AI SDK Recipes Checklist
@@ -9,26 +9,29 @@ updateAt: 2026-05-21
 ## Source Snapshot
 
 - Target docs version: AI SDK 6 stable.
-- Canonical recipe index: `https://ai-sdk.dev/resources/recipes`.
-- First canonical recipe checked: `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot`.
-- Current check on 2026-05-21: the stable recipe index and RAG Agent recipe return 200, and the recipe page version selector shows `v6 (Latest)` / `AI SDK 6.x`.
-- Excluded source: `https://ai-sdk.dev/v7/resources/recipes`; treat v7 routes as canary and do not use them for this project unless the target version changes explicitly.
-- Use the stable public recipe URL as the authority. `content/cookbook/**/*.mdx` paths below are lookup aliases only and must be verified against the matching stable public route before implementation.
-- Treat recipe inventory as drift-prone. Refresh the stable recipe index, the target recipe page, and the relevant docs/reference pages before starting each new batch.
+- Current public recipes index: `https://ai-sdk.dev/resources/recipes`.
+- First public RAG source checked: `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot`.
+- Current check on 2026-05-22: the `/cookbook` root redirects to `/resources/recipes`; use "Recipes" as the public section label. The `/cookbook/guides/*` routes still return 200 and are sitemap-listed, but they are not the primary entrypoint.
+- RAG source coverage: the public RAG Agent page covers AI SDK, Vercel AI Gateway, Drizzle ORM, Postgres with `pgvector`, shadcn-ui, and TailwindCSS.
+- Do not treat stale copied URLs, canary routes, versioned preview routes, or `main` branch snippets as current without re-verifying the matching stable public recipe page.
+- Use the stable public Recipes URL as the authority. `content/cookbook/**/*.mdx` paths below are source lookup aliases only and must be verified against the matching stable public route before implementation.
+- Treat recipe inventory as drift-prone. Refresh the stable recipes index, the target recipe or guide page, and the relevant docs/reference pages before starting each new batch.
 
 ## Project Starting Point
 
 - The repo is a pnpm/Turborepo monorepo with `apps/web` as the Next.js app and `packages/ui` as the shared shadcn/AI Elements package.
-- `apps/web` currently has no `ai`, `@ai-sdk/react`, or direct provider package dependency.
+- `apps/web` currently depends on `ai` `^6.0.188` and `@ai-sdk/react` `^3.0.190`; it does not have a direct provider package dependency.
+- AI Gateway provider wiring lives under `apps/web/features/shared/ai-gateway/server`, using `createGateway` from `ai`.
 - The root `package.json` currently declares `node >=20`, which is compatible with the current AI SDK 6 npm package engine requirement of `node >=18`.
-- `apps/web/app/page.tsx` is still the template placeholder. The first demo also needs the initial Demo Gallery shape, even if it only lists one ready demo.
+- `apps/web/app/page.tsx` is now the Demo Gallery. The current catalog shows one ready demo, `foundation-chat`, and four roadmap demos.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
+- `packages/database` exists as the Drizzle/Neon workspace package and validates `DATABASE_URL`, but product tables for the RAG demo are not defined yet.
 
 ## Non-Negotiable Workflow
 
 - [ ] Refresh sources:
-  - [ ] Open the current AI SDK resources page.
-  - [ ] Inspect the matching `vercel/ai` cookbook MDX file(s).
+  - [ ] Open the current AI SDK Recipes page.
+  - [ ] Inspect the matching `vercel/ai` source MDX file(s) when available.
   - [ ] Inspect the relevant AI SDK docs or reference page for current API shape.
 - [ ] Pick the Canonical Source Example(s) for the next Agent Demo.
 - [ ] Decide the implementation class:
@@ -59,23 +62,25 @@ updateAt: 2026-05-21
 - [ ] Core contracts have focused tests when the demo has reusable tools, schema parsing, message conversion, or persistence logic.
 - [ ] `pnpm lint`, `pnpm typecheck`, and the relevant build/dev smoke check pass.
 - [ ] Browser verification covers desktop and mobile viewports for layout and interaction.
-- [ ] Homepage Demo Gallery shows ready/experimental demos and keeps planned demos as roadmap items.
+- [ ] Homepage Demo Gallery shows ready demos and keeps roadmap demos visually separate from active demo entries.
 
 ## Version And Runtime Gates
 
-- [x] Target AI SDK 6 stable recipes.
-- [ ] Install AI SDK dependencies as v6-compatible packages when implementation starts, using `pnpm` from the workspace.
-- [ ] Keep the root Node engine at `>=20` unless another confirmed dependency requires a change.
-- [ ] Do not raise the project to Node `>=22` for AI SDK alone; that requirement belongs to AI SDK 7.
-- [ ] Use AI SDK 6 API shapes from the stable docs, including `system`, `stepCountIs`, `convertToModelMessages`, `UIMessage`, `tool({ inputSchema })`, and `toUIMessageStreamResponse()` where the recipe uses them.
+- [x] Target AI SDK 6 stable Recipes pages and docs examples.
+- [x] Install AI SDK dependencies as v6-compatible packages when implementation starts, using `pnpm` from the workspace. Current `apps/web` versions are `ai` `^6.0.188` and `@ai-sdk/react` `^3.0.190`.
+- [x] Keep the root Node engine at `>=20` unless another confirmed dependency requires a change.
+- [x] Do not raise the project to Node `>=22` for AI SDK alone; that requirement belongs to AI SDK 7.
+- [ ] Use AI SDK 6 API shapes from the stable docs, including `system`, `stepCountIs`, `convertToModelMessages`, `UIMessage`, `tool({ inputSchema })`, and `toUIMessageStreamResponse()` where the selected official example uses them.
 - [ ] Verify all examples against the stable AI SDK 6 docs before coding. Do not trust canary v7 snippets or `main` branch snippets without public-route confirmation.
 
 ## First Demo Recommendation
 
-- [ ] Build `rag-chatbot` first.
+- [ ] Build `rag-chatbot` as the first full Recipes-derived agent demo. `foundation-chat` is the completed Batch 0 foundation slot.
 - [ ] Source candidates:
-  - [ ] `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot` - canonical AI SDK 6 stable RAG Agent recipe.
-  - [ ] `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot.md` - markdown form of the same recipe when available.
+  - [ ] `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot` - current public AI SDK RAG Agent recipe route.
+  - [ ] `https://ai-sdk.dev/resources/recipes` - current public Recipes index.
+  - [ ] `https://ai-sdk.dev/cookbook/guides/rag-chatbot` - still-live compatibility route for the same RAG Agent guide.
+  - [ ] `https://ai-sdk.dev/cookbook/guides` - still-live Guides index, but not the primary entrypoint.
   - [ ] `content/cookbook/00-guides/01-rag-chatbot.mdx` - source lookup alias only.
   - [ ] `content/cookbook/05-node/100-retrieval-augmented-generation.mdx` - lower-level RAG reference.
   - [ ] `content/cookbook/05-node/101-knowledge-base-agent.mdx` - related knowledge-base agent reference.
@@ -88,18 +93,18 @@ updateAt: 2026-05-21
   - [ ] Postgres with `pgvector` and a minimal Drizzle schema/migration.
   - [ ] Two tools: `addResource` and `getInformation`.
   - [ ] Visible tool-call states for adding and retrieving knowledge.
-  - [ ] Hard step limit with `stepCountIs(5)` unless the stable recipe changes.
+  - [ ] Hard step limit with `stepCountIs(5)` unless the stable source page changes.
   - [ ] Clear setup errors for missing `AI_GATEWAY_API_KEY`, `DATABASE_URL`, or `pgvector`.
 - [ ] Defer general loop-agent and human approval demos until the RAG demo is stable.
 
 ## Prerequisite Configuration Matrix
 
 - [x] AI Gateway key: `AI_GATEWAY_API_KEY`.
-- [ ] Base LLM access through Vercel AI Gateway. Start with the models used by the stable recipe, then normalize model names in one feature-local config file.
+- [ ] Base LLM access through Vercel AI Gateway. Start with the models used by the stable source page, then normalize model names in one feature-local config file.
 - [ ] RAG database: `DATABASE_URL` for Postgres with `pgvector` enabled.
-- [ ] RAG migration path: Drizzle config, resource table, embedding vector column, and vector index. Do not start with an in-memory store because the recipe's useful contract is retrieval over durable knowledge.
-- [ ] Embeddings model access through Gateway or the provider route used by the stable recipe. The checked RAG recipe uses `openai/text-embedding-ada-002`; verify before implementation.
-- [ ] Optional provider-native keys for provider-specific guides. Keep these out of the first demo unless the stable recipe cannot run through Gateway.
+- [ ] RAG migration path: Drizzle config, resource table, embedding vector column, and vector index. Do not start with an in-memory store because the official example's useful contract is retrieval over durable knowledge.
+- [ ] Embeddings model access through Gateway or the provider route used by the stable source page. The checked RAG source uses `openai/text-embedding-ada-002`; verify before implementation.
+- [ ] Optional provider-native keys for provider-specific guides. Keep these out of the first demo unless the stable source page cannot run through Gateway.
 - [ ] Slack app credentials before the Slackbot batch: bot token, signing secret, and a test workspace.
 - [ ] MCP test server config before the MCP batch. Prefer a local safe server first, then add third-party MCP examples.
 - [ ] External Postgres sandbox before Natural Language Postgres. Use a non-production database with read-only or tightly scoped credentials.
@@ -111,15 +116,15 @@ updateAt: 2026-05-21
 
 ### Batch 0 - Foundation
 
-- [ ] AI SDK 6 dependency and Gateway provider setup.
-- [ ] Runtime version confirmation.
-- [ ] Environment variable contract and `.env.example`.
-- [ ] Initial Demo Gallery data model and one ready demo slot.
-- [ ] Shared demo metadata type and pattern union.
+- [x] AI SDK 6 dependency and Gateway provider setup.
+- [x] Runtime version confirmation.
+- [x] Environment variable contract and `apps/web/.env.example`.
+- [x] Initial Demo Gallery data model with one ready demo slot and four roadmap demos.
+- [x] Shared demo metadata type and pattern union.
 
 ### Batch 1 - RAG Agent
 
-- [ ] Stable RAG recipe review.
+- [ ] Stable RAG source review.
 - [ ] Postgres with `pgvector` setup.
 - [ ] Drizzle schema and migration.
 - [ ] Resource creation flow.
@@ -337,7 +342,7 @@ updateAt: 2026-05-21
 
 ## Update Triggers
 
-- Update this file when the AI SDK public resources page changes count or route shape.
-- Update this file when `vercel/ai` cookbook files are added, removed, or renamed.
-- Update this file when the repository target leaves AI SDK 6 stable or a stable recipe changes its required APIs.
+- Update this file when the AI SDK public Recipes page changes count, route shape, or redirect behavior.
+- Update this file when `vercel/ai` source example files are added, removed, or renamed.
+- Update this file when the repository target leaves AI SDK 6 stable or a stable source page changes its required APIs.
 - Update this file after each completed Agent Demo so the remaining checklist stays honest.

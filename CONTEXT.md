@@ -57,7 +57,7 @@ The product-facing view of planned **Agent Demos** that shows direction without 
 _Avoid_: Planned demo catalog, backlog
 
 **Canonical Source Example**:
-An AI SDK cookbook, guide, or documentation example selected as the starting point for an **Agent Demo**.
+An AI SDK Recipes, guide, or documentation example selected as the starting point for an **Agent Demo**.
 _Avoid_: Inspiration, reference
 
 **Manual Review Gate**:
@@ -87,6 +87,14 @@ _Avoid_: Starter code, rough inspiration
 - A **Canonical Source Example** must pass the **Manual Review Gate** before becoming an **Agent Demo**.
 - A **Canonical Source Example** provides the **Source Core** for an official-docs-derived **Agent Demo**.
 
+## RAG Chatbot Direction
+
+The `rag-chatbot` **Agent Demo** should model a production-ready document support agent for an independent website chatbot. Its business workflow starts with a curated or uploaded document set, such as product docs, policy pages, FAQs, or design guideline PDFs, then answers visitor questions from retrieved document evidence.
+
+The implementation should preserve the AI SDK RAG guide's **Source Core**: durable Postgres storage with vector search, document/resource ingestion, embeddings, retrieval, tool calling, and a bounded multi-step loop. Productization should add a credible **Demo Workspace** for document ingestion, grounded answers, visible retrieval/tool state, citations or source snippets, and explicit refusal when the indexed documents do not contain enough evidence.
+
+The first seed document should be a well-known public design-guide PDF, with the NASA Graphics Standards Manual as the preferred initial candidate. The demo may explain what the indexed manual says, but it must not imply trademark, logo, or commercial usage permission beyond the source document's own claims.
+
 ## Example Dialogue
 
 > **Dev:** "If we add a Loop Agent, should its backend code live beside the RAG Agent code?"
@@ -98,5 +106,5 @@ _Avoid_: Starter code, rough inspiration
 - "pattern" should not be free-form. Resolved: use **Agent Pattern** as the controlled business category for cataloging demos.
 - The **Demo Quality Bar** is an internal evaluation standard, not required visible copy on demo pages.
 - "demo" does not mean toy or disposable. Resolved: ready demos must be production-ready enough to copy into real compatible projects after configuration.
-- Initial demo selection prioritizes AI SDK cookbook, guide, and documentation examples through the **Manual Review Gate** before original batches are planned.
+- Initial demo selection prioritizes AI SDK Recipes, guide, and documentation examples through the **Manual Review Gate** before original batches are planned.
 - "productized" means improving routes, copy boundaries, UI experience, and integration shape while preserving the **Source Core**, especially on backend agent logic.

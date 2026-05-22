@@ -1,7 +1,7 @@
 ---
 title: Project Knowledge Protocol
 description: Cross-domain language, collaboration conventions, and repository boundary rules.
-updateAt: 2026-05-21
+updateAt: 2026-05-22
 ---
 
 # Project Knowledge Protocol
@@ -17,7 +17,7 @@ updateAt: 2026-05-21
 
 - **Workspace package**: A package under `apps/*` or `packages/*` managed by the root pnpm workspace.
 - **Root quality gate**: The root-level Ultracite check and fix workflow, exposed through `pnpm lint`, `pnpm check`, `pnpm format`, and `pnpm fix`.
-- **Shared UI package**: `packages/ui`, the reusable shadcn/Tailwind component package consumed by `apps/web`.
+- **Shared UI package**: `packages/ui`, the reusable shadcn, AI Elements, and Tailwind component package consumed by `apps/web`.
 
 ## Collaboration Conventions
 

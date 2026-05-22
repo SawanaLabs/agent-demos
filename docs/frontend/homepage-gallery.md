@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-05-21
+updateAt: 2026-05-22
 ---
 
 # Homepage Gallery
@@ -19,12 +19,13 @@ updateAt: 2026-05-21
 ## Current Subdomain Docs
 
 - Shape the homepage as a demo gallery for technical evaluators.
-- Present each ready or experimental agent demo as a gallery card.
+- Present each ready agent demo as an active gallery card.
+- Present roadmap demos as visible but non-active roadmap cards.
+- The current homepage catalog has one ready demo, `foundation-chat`, and four roadmap demos: `rag-chatbot`, `loop-agent`, `skills-agent`, and `sandbox-agent`.
 - Each gallery card should make the agent pattern legible through its title and a concise product-metaphor visual.
 - A gallery visual can use simple diagram-like content, such as a loop flow for a loop agent, while still being a stylized asset.
 - Defer the exact visual style until the project chooses an art direction.
 - Do not make the homepage a generic personal portfolio or a long documentation index.
-- Show planned demos as roadmap items rather than active gallery cards.
 
 ## Update Triggers
 

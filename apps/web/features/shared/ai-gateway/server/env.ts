@@ -1,10 +1,15 @@
 import { createGateway } from "ai";
 
+import { env as appEnv } from "@/env";
+
+import { DEFAULT_CHAT_MODEL, DEFAULT_GATEWAY_BASE_URL } from "./keys";
 import { assertSupportedNodeRuntime } from "./runtime";
 
-const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
-const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
-type DemoEnv = Record<string, string | undefined>;
+interface AiGatewayEnv {
+  AI_GATEWAY_API_KEY?: string;
+  AI_GATEWAY_BASE_URL?: string;
+  AI_GATEWAY_CHAT_MODEL?: string;
+}
 
 export interface AiGatewayConfig {
   apiKey: string;
@@ -19,34 +24,44 @@ export interface AiGatewaySetupState {
   nodeVersion: string;
 }
 
-function readRequiredEnv(env: DemoEnv, name: string): string {
+function readRequiredEnv(env: AiGatewayEnv, name: keyof AiGatewayEnv): string {
   const value = env[name];
 
   if (!value) {
     throw new Error(
-      `Missing ${name}. Add it to .env.local using the contract in .env.example.`
+      `Missing ${name}. Add it to apps/web/.env.local using the contract in apps/web/.env.example.`
     );
   }
 
   return value;
 }
 
-export function getAiGatewayConfig(
-  env: DemoEnv = process.env
-): AiGatewayConfig {
-  assertSupportedNodeRuntime();
-
+function resolveAiGatewayEnv(env: AiGatewayEnv = appEnv) {
   return {
-    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
+    apiKey: env.AI_GATEWAY_API_KEY,
     baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
     chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
   };
 }
 
+export function getAiGatewayConfig(
+  env: AiGatewayEnv = appEnv
+): AiGatewayConfig {
+  assertSupportedNodeRuntime();
+  const resolvedEnv = resolveAiGatewayEnv(env);
+
+  return {
+    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
+    baseURL: resolvedEnv.baseURL,
+    chatModel: resolvedEnv.chatModel,
+  };
+}
+
 export function getAiGatewaySetupState(
-  env: DemoEnv = process.env
+  env: AiGatewayEnv = appEnv
 ): AiGatewaySetupState {
   const issues: string[] = [];
+  const resolvedEnv = resolveAiGatewayEnv(env);
 
   try {
     assertSupportedNodeRuntime();
@@ -56,7 +71,7 @@ export function getAiGatewaySetupState(
     );
   }
 
-  if (!env.AI_GATEWAY_API_KEY) {
+  if (!resolvedEnv.apiKey) {
     issues.push(
       "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured."
     );
@@ -64,8 +79,8 @@ export function getAiGatewaySetupState(
 
   return {
     config: {
-      baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-      chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
+      baseURL: resolvedEnv.baseURL,
+      chatModel: resolvedEnv.chatModel,
     },
     issues,
     isReady: issues.length === 0,
@@ -74,7 +89,7 @@ export function getAiGatewaySetupState(
 }
 
 export function createAiGateway(
-  env: DemoEnv = process.env
+  env: AiGatewayEnv = appEnv
 ): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getAiGatewayConfig(env);
 

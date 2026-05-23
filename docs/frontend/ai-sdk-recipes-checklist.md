@@ -26,7 +26,7 @@ updateAt: 2026-05-23
 - `apps/web/app/page.tsx` is now the Demo Gallery. The catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
 - `packages/database` now exports the RAG demo schema from `packages/database/src/schemas/rag-chatbot.ts` and remains the shared Drizzle/Neon workspace package.
-- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, and `skills-agent`.
+- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, `skills-agent`, and `sandbox-agent`.
 
 ## Non-Negotiable Workflow
 
@@ -99,7 +99,7 @@ updateAt: 2026-05-23
   - [ ] A user-driven knowledge-base add flow in the product UI.
   - [ ] An `addResource` tool exposed in the demo workspace.
 - [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path; human approval remains deferred.
-- [x] Current next recommended wave after the completed RAG, multimodal, streaming, memory, loop, and skills demos: Batch 7 - remaining MCP and external integrations.
+- [x] Current next recommended wave after the completed RAG, multimodal, streaming, memory, loop, skills, and sandbox demos: Batch 7 - remaining MCP and external integrations.
 
 ## Prerequisite Configuration Matrix
 
@@ -199,6 +199,7 @@ updateAt: 2026-05-23
 - [ ] Natural Language Postgres.
 - [ ] Computer Use.
 - [x] Agent skills. `skills-agent` now ships the AI SDK `Add Skills to Your Agent` guide as a sandbox-backed ToolLoopAgent workspace with repo-local `.agents/skills`, `@vercel/sandbox`, official `skill`/`bash`/`readFile`/`writeFile` tools, and generated `CONTEXT` / `SKILL.md` artifacts driven by `grill-with-docs` plus `skill-creator`.
+- [x] Sandbox workspace agent. `sandbox-agent` now ships a sandbox-backed ToolLoopAgent workspace that generates static frontend prototypes, runs commands in a persistent named Vercel Sandbox, and renders a live result with AI Elements `WebPreview`.
 
 ### Batch 8 - Reliability, Cost, And Observability
 

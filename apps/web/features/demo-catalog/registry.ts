@@ -1,8 +1,8 @@
+import { contentReviewDemoMeta } from "@/features/content-review/demo-meta";
 import type {
   DemoCatalogEntry,
   DemoPattern,
 } from "@/features/demo-catalog/types";
-import { contentReviewDemoMeta } from "@/features/content-review/demo-meta";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
 import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
 import { multimodalChatbotDemoMeta } from "@/features/multimodal-chatbot/demo-meta";

@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 import { cn } from "@workspace/ui/lib/utils";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronUpIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import {
   createContext,
@@ -243,7 +243,7 @@ export const WebPreviewConsole = ({
         }
       >
         Console
-        <ChevronDownIcon
+        <ChevronUpIcon
           className={cn(
             "h-4 w-4 transition-transform duration-200",
             consoleOpen && "rotate-180"

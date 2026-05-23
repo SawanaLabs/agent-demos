@@ -2,10 +2,10 @@ import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const sandboxAgentDemoMeta: DemoCatalogEntry = {
   slug: "sandbox-agent",
-  title: "Sandbox Agent",
+  title: "Sandbox Workspace Agent",
   summary:
-    "A contained execution workspace for tools that need a safer runtime seam while still feeling like a first-class product surface.",
+    "A persistent Vercel Sandbox workspace that lets the agent generate frontend files, run commands, and publish a live preview.",
   pattern: "sandbox",
-  status: "roadmap",
-  source: "Sandbox and computer-use batch",
+  status: "ready",
+  source: "Sandbox workspace and live preview batch",
 };

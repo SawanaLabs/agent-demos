@@ -1,7 +1,7 @@
 ---
 title: Workspace UI
 description: Durable conventions for shared UI exports and Next.js app consumption.
-updateAt: 2026-05-22
+updateAt: 2026-05-24
 ---
 
 # Workspace UI
@@ -26,8 +26,12 @@ updateAt: 2026-05-22
 - Keep export-map imports extensionless unless the export map changes. Current working examples include `@workspace/ui/globals.css`, `@workspace/ui/lib/utils`, `@workspace/ui/postcss.config`, and `@workspace/ui/components/ai-elements/conversation`.
 - `apps/web/postcss.config.mjs` re-exports `@workspace/ui/postcss.config` so the app uses the shared Tailwind/PostCSS setup.
 - `apps/web/app/layout.tsx` imports `@workspace/ui/globals.css` and applies the shared font variables through `cn`.
+- Use state-and-view separation as the default React maintainability rule: components render views, custom hooks own view state and actions, and pure helper modules own data derivation and formatting.
+- When a React file grows, split in this order: move pure calculations out first, move stateful orchestration into a custom hook second, then split large JSX regions into semantic child views.
+- Keep page- or workspace-level components thin. They should assemble view pieces and wire handlers, not own large blocks of business derivation or preview/session state logic.
+- Prefer semantic filenames that reflect the role in this split, for example `*-pane.tsx`, `use-*.ts`, and `*-model.ts`, over generic names such as `section`, `utils`, or `wrapper`.
 
 ## Update Triggers
 
 - Update this file when `packages/ui` exports change.
-- Update this file when shared styles, app provider wiring, or shadcn component placement changes.
+- Update this file when shared styles, app provider wiring, shadcn component placement, or the repository's default React maintainability rules change.

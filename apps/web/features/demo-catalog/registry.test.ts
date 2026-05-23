@@ -32,9 +32,8 @@ describe("demo catalog registry", () => {
       "streaming-chat-shell",
       "loop-agent",
       "skills-agent",
-    ]);
-    expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
       "sandbox-agent",
     ]);
+    expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
   });
 });

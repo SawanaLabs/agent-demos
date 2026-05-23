@@ -31,9 +31,9 @@ describe("demo catalog registry", () => {
       "content-review",
       "streaming-chat-shell",
       "loop-agent",
+      "skills-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
-      "skills-agent",
       "sandbox-agent",
     ]);
   });

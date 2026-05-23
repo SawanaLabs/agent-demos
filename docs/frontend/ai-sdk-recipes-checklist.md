@@ -26,7 +26,7 @@ updateAt: 2026-05-23
 - `apps/web/app/page.tsx` is now the Demo Gallery. The catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
 - `packages/database` now exports the RAG demo schema from `packages/database/src/schemas/rag-chatbot.ts` and remains the shared Drizzle/Neon workspace package.
-- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, and `content-review` as the Batch 5 object-generation slice.
+- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, and `skills-agent`.
 
 ## Non-Negotiable Workflow
 
@@ -99,7 +99,7 @@ updateAt: 2026-05-23
   - [ ] A user-driven knowledge-base add flow in the product UI.
   - [ ] An `addResource` tool exposed in the demo workspace.
 - [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path; human approval remains deferred.
-- [x] Current next recommended wave after the completed RAG, multimodal, and streaming demos: Batch 5 - Structured Output.
+- [x] Current next recommended wave after the completed RAG, multimodal, streaming, memory, loop, and skills demos: Batch 7 - remaining MCP and external integrations.
 
 ## Prerequisite Configuration Matrix
 
@@ -110,6 +110,7 @@ updateAt: 2026-05-23
 - [ ] Embeddings model access through Gateway or the provider route used by the stable source page. The checked RAG source uses `openai/text-embedding-ada-002`; verify before implementation.
 - [ ] Optional provider-native keys for provider-specific guides. Keep these out of the first demo unless the stable source page cannot run through Gateway.
 - [ ] Slack app credentials before the Slackbot batch: bot token, signing secret, and a test workspace.
+- [x] Vercel Sandbox credentials and project binding before the skills-agent batch. The shipped demo uses `@vercel/sandbox` with explicit setup messaging for missing binding or auth state.
 - [ ] MCP test server config before the MCP batch. Prefer a local safe server first, then add third-party MCP examples.
 - [ ] External Postgres sandbox before Natural Language Postgres. Use a non-production database with read-only or tightly scoped credentials.
 - [ ] Persistence database tables before memory, message save/restore, and context compaction demos.
@@ -174,18 +175,19 @@ updateAt: 2026-05-23
 - [ ] Generate object with reasoning model.
 - [x] Stream object.
 - [x] Stream object with image prompt.
-- [ ] Record token usage after streaming object.
-- [ ] Record final object after streaming object.
+- [x] Record token usage after streaming object.
+- [x] Record final object after streaming object.
 - [x] `content-review` now covers the first structured-output workspace: multimodal input, streamed object state, and assistant-message embedded object rendering.
 
 ### Batch 6 - Memory And Embeddings Extensions
 
-- [ ] Custom memory tool.
-- [ ] Agent context compaction.
-- [ ] Embeddings.
-- [ ] Batch embeddings.
-- [ ] Message persistence and restore.
+- [x] Custom memory tool.
+- [x] Agent context compaction.
+- [x] Embeddings.
+- [x] Batch embeddings.
+- [x] Message persistence and restore.
 - [ ] Retrieval augmented generation and knowledge-base Node examples only as refinements to the RAG demo.
+- [x] `customer-memory-agent` now covers the first Batch 6 workspace: persistent threads, agent-written customer memories, semantic memory recall, and summary-only compaction at a message-count threshold.
 
 ### Batch 7 - MCP And External Integrations
 
@@ -196,7 +198,7 @@ updateAt: 2026-05-23
 - [ ] Slackbot agent.
 - [ ] Natural Language Postgres.
 - [ ] Computer Use.
-- [ ] Agent skills.
+- [x] Agent skills. `skills-agent` now ships the AI SDK `Add Skills to Your Agent` guide as a sandbox-backed ToolLoopAgent workspace with repo-local `.agents/skills`, `@vercel/sandbox`, official `skill`/`bash`/`readFile`/`writeFile` tools, and generated `CONTEXT` / `SKILL.md` artifacts driven by `grill-with-docs` plus `skill-creator`.
 
 ### Batch 8 - Reliability, Cost, And Observability
 
@@ -249,9 +251,9 @@ updateAt: 2026-05-23
 - [ ] `00-guides/03-slackbot.mdx` - Slackbot Agent Guide - Batch 7.
 - [ ] `00-guides/04-natural-language-postgres.mdx` - Natural Language Postgres - Batch 7.
 - [ ] `00-guides/05-computer-use.mdx` - Get started with Computer Use - Batch 7.
-- [ ] `00-guides/06-agent-skills.mdx` - Add Skills to Your Agent - Batch 7.
-- [ ] `00-guides/07-custom-memory-tool.mdx` - Build a Custom Memory Tool - Batch 6.
-- [ ] `00-guides/08-agent-context-compaction.mdx` - Compact Agent Context - Batch 6.
+- [x] `00-guides/06-agent-skills.mdx` - Add Skills to Your Agent - Batch 7. Current public route: `https://ai-sdk.dev/cookbook/guides/agent-skills`. Preserve the guide's `ToolLoopAgent` plus sandbox-backed skill-loading source core, implement against the current stable `ToolLoopAgent` methods in this repository version, and let the first demo flow pivot between `grill-with-docs` and `skill-creator`.
+- [x] `00-guides/07-custom-memory-tool.mdx` - Build a Custom Memory Tool - Batch 6.
+- [x] `00-guides/08-agent-context-compaction.mdx` - Compact Agent Context - Batch 6.
 - [ ] `00-guides/17-gemini.mdx` - Get started with Gemini 3 - Batch 10.
 - [ ] `00-guides/18-claude-4.mdx` - Get started with Claude 4 - Batch 10.
 - [ ] `00-guides/19-openai-responses.mdx` - OpenAI Responses API - Batch 10.
@@ -304,8 +306,8 @@ updateAt: 2026-05-23
 - [x] `05-node/30-generate-object.mdx` - Generate Object - merged into Batch 5.
 - [x] `05-node/40-stream-object.mdx` - Stream Object - merged into Batch 5.
 - [x] `05-node/41-stream-object-with-image-prompt.mdx` - Stream Object with Image Prompt - Batch 5.
-- [ ] `05-node/45-stream-object-record-token-usage.mdx` - Record Token Usage After Streaming Object - Batch 5 or 8.
-- [ ] `05-node/46-stream-object-record-final-object.mdx` - Record Final Object after Streaming Object - Batch 5.
+- [x] `05-node/45-stream-object-record-token-usage.mdx` - Record Token Usage After Streaming Object - Batch 5 or 8.
+- [x] `05-node/46-stream-object-record-final-object.mdx` - Record Final Object after Streaming Object - Batch 5.
 - [x] `05-node/50-call-tools.mdx` - Call Tools - merged into Batch 2.
 - [x] `05-node/51-call-tools-in-parallel.mdx` - Call Tools in Parallel - Batch 2.
 - [ ] `05-node/52-call-tools-with-image-prompt.mdx` - Call Tools with Image Prompt - Batch 4 or 2.
@@ -314,8 +316,8 @@ updateAt: 2026-05-23
 - [x] `05-node/55-manual-agent-loop.mdx` - Manual Agent Loop - Batch 2 as contrast/reference.
 - [ ] `05-node/56-web-search-agent.mdx` - Web Search Agent - Batch 2 or 7 depending on provider/tool choice.
 - [ ] `05-node/57-mcp-elicitation.mdx` - Model Context Protocol (MCP) Elicitation - Batch 7.
-- [ ] `05-node/60-embed-text.mdx` - Embed Text - Batch 6.
-- [ ] `05-node/61-embed-text-batch.mdx` - Embed Text in Batch - Batch 6.
+- [x] `05-node/60-embed-text.mdx` - Embed Text - Batch 6.
+- [x] `05-node/61-embed-text-batch.mdx` - Embed Text in Batch - Batch 6.
 - [ ] `05-node/70-intercept-fetch-requests.mdx` - Intercepting Fetch Requests - Batch 8.
 - [ ] `05-node/80-local-caching-middleware.mdx` - Local Caching Middleware - Batch 8.
 - [ ] `05-node/85-repair-json-with-jsonrepair.mdx` - Repair Malformed JSON with jsonrepair - Batch 8.

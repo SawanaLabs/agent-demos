@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  formatVisibleSkillCatalog,
-  skillsAgentInstructions,
-  toVisibleSkillCatalog,
-} from "./chat";
+import { skillsAgentInstructions } from "./chat";
 import type { SkillMetadata } from "./skill-catalog";
+import { formatVisibleSkillCatalog, toVisibleSkillCatalog } from "./workspace";
 
 describe("skills-agent chat prompt helpers", () => {
   it("includes skill paths in the visible catalog payload and prompt text", () => {
@@ -36,10 +33,10 @@ describe("skills-agent chat prompt helpers", () => {
         path: "/repo/.agents/skills/skill-creator",
       },
     ]);
-    expect(formatVisibleSkillCatalog({ skills: visibleCatalog })).toContain(
+    expect(formatVisibleSkillCatalog(visibleCatalog)).toContain(
       "grill-with-docs: Challenge an idea until the project context is precise. (path: /repo/.agents/skills/grill-with-docs)"
     );
-    expect(formatVisibleSkillCatalog({ skills: visibleCatalog })).toContain(
+    expect(formatVisibleSkillCatalog(visibleCatalog)).toContain(
       "skill-creator: Draft a reusable skill package from aligned context. (path: /repo/.agents/skills/skill-creator)"
     );
   });

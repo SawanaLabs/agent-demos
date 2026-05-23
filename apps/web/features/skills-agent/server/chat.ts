@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import {
   createAgentUIStreamResponse,
   stepCountIs,
@@ -10,18 +7,12 @@ import {
 import { z } from "zod";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
-import { SKILLS_AGENT_WORKSPACE_ROOT } from "./local-skill-catalog";
 import {
   resolveSkillsAgentChatModel,
   SKILLS_AGENT_PROVIDER_OPTIONS,
 } from "./model";
-import { createSkillsAgentOfficialTools } from "./official-tools";
-import {
-  getSharedSkillsAgentSessionRegistry,
-  SANDBOX_ARTIFACTS_ROOT,
-  SANDBOX_PROJECT_ROOT,
-} from "./sandbox";
 import type { SkillMetadata } from "./skill-catalog";
+import { createSkillsAgentWorkspace } from "./workspace";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -47,22 +38,6 @@ export const skillsAgentInstructions = [
   "Keep the final answer concise and report any artifact paths that were created or updated.",
 ].join(" ");
 
-export function toVisibleSkillCatalog(skills: SkillMetadata[]) {
-  return skills.map(({ description, name, path }) => ({
-    description,
-    name,
-    path,
-  }));
-}
-
-export function formatVisibleSkillCatalog(options: SkillsAgentCallOptions) {
-  return options.skills
-    .map(
-      (skill) => `- ${skill.name}: ${skill.description} (path: ${skill.path})`
-    )
-    .join("\n");
-}
-
 export async function streamSkillsAgent(
   messages: UIMessage[],
   {
@@ -77,17 +52,10 @@ export async function streamSkillsAgent(
 ) {
   const gateway = createAiGateway(env);
   const chatModel = resolveSkillsAgentChatModel(env);
-  const session =
-    getSharedSkillsAgentSessionRegistry(env).getSession(sessionId);
-  const agentsContent = await readFile(
-    path.join(SKILLS_AGENT_WORKSPACE_ROOT, "AGENTS.md"),
-    "utf-8"
-  );
-  const officialToolkit = await createSkillsAgentOfficialTools({
-    agentsContent,
-    projectRoot: SANDBOX_PROJECT_ROOT,
-    session,
-    skillsDirectory: path.join(SKILLS_AGENT_WORKSPACE_ROOT, ".agents/skills"),
+  const workspace = await createSkillsAgentWorkspace({
+    env,
+    sessionId,
+    skills,
   });
 
   const agent = new ToolLoopAgent<SkillsAgentCallOptions>({
@@ -97,21 +65,21 @@ export async function streamSkillsAgent(
       ...call,
       instructions: [
         skillsAgentInstructions,
-        `Visible skill catalog:\n${formatVisibleSkillCatalog(options)}`,
-        `Sandbox project root: ${SANDBOX_PROJECT_ROOT}`,
-        `Default artifacts root: ${SANDBOX_ARTIFACTS_ROOT}`,
+        `Visible skill catalog:\n${workspace.visibleSkillCatalogText}`,
+        `Sandbox project root: ${workspace.projectRoot}`,
+        `Default artifacts root: ${workspace.artifactsRoot}`,
       ].join("\n\n"),
     }),
     providerOptions: SKILLS_AGENT_PROVIDER_OPTIONS,
     callOptionsSchema: skillsAgentCallOptionsSchema,
     stopWhen: stepCountIs(8),
-    tools: officialToolkit.tools,
+    tools: workspace.toolset.tools,
   });
 
   return await createAgentUIStreamResponse({
     agent,
     options: {
-      skills: toVisibleSkillCatalog(skills),
+      skills: workspace.visibleSkillCatalog,
     },
     sendReasoning: true,
     uiMessages: messages,

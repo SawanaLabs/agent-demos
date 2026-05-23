@@ -27,6 +27,7 @@ updateAt: 2026-05-24
 - `apps/web/postcss.config.mjs` re-exports `@workspace/ui/postcss.config` so the app uses the shared Tailwind/PostCSS setup.
 - `apps/web/app/layout.tsx` imports `@workspace/ui/globals.css` and applies the shared font variables through `cn`.
 - Use state-and-view separation as the default React maintainability rule: components render views, custom hooks own view state and actions, and pure helper modules own data derivation and formatting.
+- Feature TSX functions under `apps/web/features/**/*.tsx` are capped by Biome at 150 nonblank body lines. When the cap trips, split by responsibility first: view components for semantic regions, hooks for session/composer state, and model/helper modules for pure message, attachment, or formatting derivation.
 - When a React file grows, split in this order: move pure calculations out first, move stateful orchestration into a custom hook second, then split large JSX regions into semantic child views.
 - Keep page- or workspace-level components thin. They should assemble view pieces and wire handlers, not own large blocks of business derivation or preview/session state logic.
 - Prefer semantic filenames that reflect the role in this split, for example `*-pane.tsx`, `use-*.ts`, and `*-model.ts`, over generic names such as `section`, `utils`, or `wrapper`.

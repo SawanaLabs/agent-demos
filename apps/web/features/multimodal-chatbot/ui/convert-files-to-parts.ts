@@ -1,10 +1,4 @@
-export interface PendingAttachment {
-  id: string;
-  file: File;
-  previewUrl: string;
-}
-
-export async function convertFilesToParts(files: File[]) {
+export function convertFilesToParts(files: File[]) {
   return Promise.all(
     files.map(
       (file) =>

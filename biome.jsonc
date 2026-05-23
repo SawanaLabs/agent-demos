@@ -33,6 +33,22 @@
   },
   "overrides": [
     {
+      "includes": ["apps/web/features/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": {
+              "level": "error",
+              "options": {
+                "maxLines": 150,
+                "skipBlankLines": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.config.{js,ts,mjs,cjs,mts,cts}"],
       "linter": {
         "rules": {

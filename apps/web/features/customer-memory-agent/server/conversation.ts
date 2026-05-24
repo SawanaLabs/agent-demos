@@ -27,16 +27,12 @@ import {
   type CustomerMemoryCompactionRecord,
   createCustomerMemoryCompactionStore,
 } from "./compaction-store";
+import { createCustomerMemoryLifecycle } from "./memory-lifecycle";
 import {
-  createCustomerMemoryEmbeddingPersistence,
   findRelevantCustomerMemory,
-  indexCustomerMemories,
   type RetrievedCustomerMemory,
 } from "./memory-recall";
-import {
-  type CustomerMemoryRecord,
-  createCustomerMemoryStore,
-} from "./memory-store";
+import type { CustomerMemoryRecord } from "./memory-store";
 import { createCustomerMemoryThreadStore } from "./thread-store";
 
 type DemoEnv = Record<string, string | undefined>;
@@ -259,97 +255,15 @@ function buildCustomerMemorySystemPrompt(input: {
   ].join("\n\n");
 }
 
-function dedupeMemoryOperations(operations: PendingMemoryOperation[]) {
-  const uniqueOperations = new Map<string, PendingMemoryOperation>();
-
-  for (const operation of operations) {
-    const key = `${operation.operation}::${operation.memoryId ?? ""}::${operation.category}::${operation.title}::${operation.content}`;
-
-    if (!uniqueOperations.has(key)) {
-      uniqueOperations.set(key, operation);
-    }
-  }
-
-  return [...uniqueOperations.values()];
-}
-
-async function applyCustomerMemoryOperations(
+function applyCustomerMemoryOperations(
   operations: PendingMemoryOperation[],
   input: StreamCustomerMemoryConversationInput
 ) {
-  const store = createCustomerMemoryStore();
-  const uniqueOperations = dedupeMemoryOperations(operations);
-  const memoriesToIndex: CustomerMemoryRecord[] = [];
-
-  for (const operation of uniqueOperations) {
-    if (operation.operation === "noop") {
-      await store.recordEvent({
-        afterContent: null,
-        beforeContent: null,
-        customerId: input.customer.id,
-        memoryId: null,
-        operation: "noop",
-        reason: operation.reason,
-        sourceMessageId: operation.sourceMessageId,
-        threadId: input.threadId,
-        visitorId: input.visitorId,
-      });
-      continue;
-    }
-
-    if (operation.operation === "delete") {
-      if (!operation.memoryId) {
-        throw new Error("Customer-memory delete requires a memoryId.");
-      }
-
-      await store.deleteMemory({
-        memoryId: operation.memoryId,
-        reason: operation.reason,
-        sourceMessageId: operation.sourceMessageId,
-      });
-      continue;
-    }
-
-    if (operation.operation === "update") {
-      if (!operation.memoryId) {
-        throw new Error("Customer-memory update requires a memoryId.");
-      }
-
-      memoriesToIndex.push(
-        await store.updateMemory({
-          category: operation.category,
-          content: operation.content,
-          memoryId: operation.memoryId,
-          reason: operation.reason,
-          sourceMessageId: operation.sourceMessageId,
-          title: operation.title,
-        })
-      );
-      continue;
-    }
-
-    memoriesToIndex.push(
-      await store.addMemory({
-        category: operation.category,
-        content: operation.content,
-        customerId: input.customer.id,
-        reason: operation.reason,
-        sourceMessageId: operation.sourceMessageId,
-        threadId: input.threadId,
-        title: operation.title,
-        visitorId: input.visitorId,
-      })
-    );
-  }
-
-  if (memoriesToIndex.length > 0) {
-    await indexCustomerMemories(
-      memoriesToIndex,
-      createCustomerMemoryEmbeddingPersistence()
-    );
-  }
-
-  return memoriesToIndex;
+  return createCustomerMemoryLifecycle().applyOperations(operations, {
+    customerId: input.customer.id,
+    threadId: input.threadId,
+    visitorId: input.visitorId,
+  });
 }
 
 async function maybeCompactCustomerMemoryThread(input: {

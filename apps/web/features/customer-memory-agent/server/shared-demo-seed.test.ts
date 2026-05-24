@@ -11,7 +11,9 @@ describe("customer memory shared demo seed", () => {
   it("creates one canonical shared demo thread with memories and compaction", async () => {
     const customer = getCustomerMemoryProfile("acme-co");
 
-    expect(customer).toBeTruthy();
+    if (!customer) {
+      throw new Error("Expected acme-co customer profile.");
+    }
 
     const listThreads = vi.fn().mockResolvedValue([]);
     const createThread = vi.fn().mockResolvedValue({
@@ -23,12 +25,12 @@ describe("customer memory shared demo seed", () => {
       visitorId: "demo-shared",
     });
     const saveThreadMessages = vi.fn().mockResolvedValue(undefined);
-    const addMemory = vi.fn().mockResolvedValue(undefined);
+    const seedMemories = vi.fn().mockResolvedValue([]);
     const saveCompaction = vi.fn().mockResolvedValue(undefined);
 
-    await ensureCustomerMemorySharedDemoSeed(customer!, {
+    await ensureCustomerMemorySharedDemoSeed(customer, {
       compactionStore: { saveCompaction },
-      memoryStore: { addMemory },
+      memoryLifecycle: { seedMemories },
       threadStore: {
         createThread,
         listThreads,
@@ -51,7 +53,11 @@ describe("customer memory shared demo seed", () => {
       messages: snapshot?.messages,
       threadId: "thread-1",
     });
-    expect(addMemory).toHaveBeenCalledTimes(snapshot?.memories.length ?? 0);
+    expect(seedMemories).toHaveBeenCalledWith(snapshot?.memories, {
+      customerId: "acme-co",
+      threadId: "thread-1",
+      visitorId: "demo-shared",
+    });
     expect(saveCompaction).toHaveBeenCalledWith({
       messageCount: snapshot?.compaction.messageCount,
       summary: snapshot?.compaction.summary,
@@ -62,7 +68,9 @@ describe("customer memory shared demo seed", () => {
   it("skips seeding when the shared demo already has threads", async () => {
     const customer = getCustomerMemoryProfile("helio-dev");
 
-    expect(customer).toBeTruthy();
+    if (!customer) {
+      throw new Error("Expected helio-dev customer profile.");
+    }
 
     const listThreads = vi.fn().mockResolvedValue([
       {
@@ -77,12 +85,12 @@ describe("customer memory shared demo seed", () => {
     ]);
     const createThread = vi.fn();
     const saveThreadMessages = vi.fn();
-    const addMemory = vi.fn();
+    const seedMemories = vi.fn();
     const saveCompaction = vi.fn();
 
-    await ensureCustomerMemorySharedDemoSeed(customer!, {
+    await ensureCustomerMemorySharedDemoSeed(customer, {
       compactionStore: { saveCompaction },
-      memoryStore: { addMemory },
+      memoryLifecycle: { seedMemories },
       threadStore: {
         createThread,
         listThreads,
@@ -92,7 +100,7 @@ describe("customer memory shared demo seed", () => {
 
     expect(createThread).not.toHaveBeenCalled();
     expect(saveThreadMessages).not.toHaveBeenCalled();
-    expect(addMemory).not.toHaveBeenCalled();
+    expect(seedMemories).not.toHaveBeenCalled();
     expect(saveCompaction).not.toHaveBeenCalled();
   });
 });

@@ -3,12 +3,18 @@ import type { UIMessage } from "ai";
 import type { CustomerMemoryProfile } from "../customer-profiles";
 
 import { createCustomerMemoryCompactionStore } from "./compaction-store";
-import { createCustomerMemoryStore } from "./memory-store";
+import { createCustomerMemoryLifecycle } from "./memory-lifecycle";
 import { createCustomerMemoryThreadStore } from "./thread-store";
 import { customerMemorySharedVisitorId } from "./viewer-context";
 
 interface SharedDemoSeedMemory {
-  category: "constraint" | "preference" | "promise" | "risk" | "fact" | "follow_up";
+  category:
+    | "constraint"
+    | "preference"
+    | "promise"
+    | "risk"
+    | "fact"
+    | "follow_up";
   content: string;
   sourceMessageId: string | null;
   title: string;
@@ -34,13 +40,15 @@ const sharedDemoSnapshots: Record<string, SharedDemoSeedSnapshot> = {
     memories: [
       {
         category: "constraint",
-        content: "Marketing claims need legal review before any customer-facing launch language ships.",
+        content:
+          "Marketing claims need legal review before any customer-facing launch language ships.",
         sourceMessageId: "acme-user-2",
         title: "Legal review on claims",
       },
       {
         category: "preference",
-        content: "Executive-facing updates should be concise, calm, and safe to forward without editing.",
+        content:
+          "Executive-facing updates should be concise, calm, and safe to forward without editing.",
         sourceMessageId: "acme-user-3",
         title: "Forwardable executive updates",
       },
@@ -118,13 +126,15 @@ const sharedDemoSnapshots: Record<string, SharedDemoSeedSnapshot> = {
     memories: [
       {
         category: "preference",
-        content: "Helio Dev prefers root-cause detail over polished status language.",
+        content:
+          "Helio Dev prefers root-cause detail over polished status language.",
         sourceMessageId: "helio-user-1",
         title: "Lead with root cause",
       },
       {
         category: "promise",
-        content: "Follow-up commitments should include a concrete date or checkpoint owner.",
+        content:
+          "Follow-up commitments should include a concrete date or checkpoint owner.",
         sourceMessageId: "helio-user-2",
         title: "Date every promise",
       },
@@ -202,13 +212,15 @@ const sharedDemoSnapshots: Record<string, SharedDemoSeedSnapshot> = {
     memories: [
       {
         category: "constraint",
-        content: "Downtime language must stay conservative until root cause is confirmed.",
+        content:
+          "Downtime language must stay conservative until root cause is confirmed.",
         sourceMessageId: "northstar-user-1",
         title: "Conservative incident wording",
       },
       {
         category: "follow_up",
-        content: "Every escalation update needs a named owner and next checkpoint across operations and finance.",
+        content:
+          "Every escalation update needs a named owner and next checkpoint across operations and finance.",
         sourceMessageId: "northstar-user-2",
         title: "Owner and checkpoint on escalations",
       },
@@ -288,7 +300,10 @@ interface SharedDemoSeedDependencies {
     ReturnType<typeof createCustomerMemoryCompactionStore>,
     "saveCompaction"
   >;
-  memoryStore?: Pick<ReturnType<typeof createCustomerMemoryStore>, "addMemory">;
+  memoryLifecycle?: Pick<
+    ReturnType<typeof createCustomerMemoryLifecycle>,
+    "seedMemories"
+  >;
   threadStore?: Pick<
     ReturnType<typeof createCustomerMemoryThreadStore>,
     "createThread" | "listThreads" | "saveThreadMessages"
@@ -331,21 +346,13 @@ export async function ensureCustomerMemorySharedDemoSeed(
     threadId: thread.id,
   });
 
-  const memoryStore =
-    dependencies.memoryStore ?? createCustomerMemoryStore();
-
-  for (const memory of snapshot.memories) {
-    await memoryStore.addMemory({
-      category: memory.category,
-      content: memory.content,
-      customerId: customer.id,
-      reason: "Seeded shared customer-memory demo snapshot.",
-      sourceMessageId: memory.sourceMessageId,
-      threadId: thread.id,
-      title: memory.title,
-      visitorId: customerMemorySharedVisitorId,
-    });
-  }
+  await (
+    dependencies.memoryLifecycle ?? createCustomerMemoryLifecycle()
+  ).seedMemories(snapshot.memories, {
+    customerId: customer.id,
+    threadId: thread.id,
+    visitorId: customerMemorySharedVisitorId,
+  });
 
   const compactionStore =
     dependencies.compactionStore ?? createCustomerMemoryCompactionStore();

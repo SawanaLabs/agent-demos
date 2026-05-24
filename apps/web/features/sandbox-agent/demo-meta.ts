@@ -1,6 +1,12 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const sandboxAgentDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "rose",
+    label: "Live preview",
+    steps: ["Write", "Run", "Preview"],
+  },
+  href: "/demos/sandbox-agent",
   slug: "sandbox-agent",
   title: "Sandbox Workspace Agent",
   summary:

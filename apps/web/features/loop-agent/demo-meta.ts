@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const loopAgentDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "amber",
+    label: "Loop control",
+    steps: ["Context", "Approval", "Action"],
+  },
   slug: "loop-agent",
   title: "Loop Agent",
   summary:

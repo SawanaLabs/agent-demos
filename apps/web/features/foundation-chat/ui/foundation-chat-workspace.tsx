@@ -1,6 +1,5 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
 import { ArrowClockwiseIcon, RobotIcon, StopIcon } from "@phosphor-icons/react";
 import {
   Conversation,
@@ -23,8 +22,9 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
-import { DefaultChatTransport, type UIMessage } from "ai";
-import { useState } from "react";
+import type { UIMessage } from "ai";
+
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -46,20 +46,18 @@ export function FoundationChatWorkspace({
   nodeVersion,
   setupMessage,
 }: FoundationChatWorkspaceProps) {
-  const [chat] = useState(
-    () =>
-      new Chat({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/foundation-chat",
-        }),
-      })
-  );
-  const { error, messages, regenerate, sendMessage, status, stop } = useChat({
-    chat,
+  const {
+    error,
+    hasMessages,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    status,
+    stop,
+  } = useDemoChat({
+    api: "/api/demos/foundation-chat",
   });
-
-  const hasMessages = messages.length > 0;
-  const isBusy = status === "submitted" || status === "streaming";
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">

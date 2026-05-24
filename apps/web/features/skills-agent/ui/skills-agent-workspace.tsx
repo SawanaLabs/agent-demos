@@ -1,6 +1,5 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
   HammerIcon,
@@ -42,13 +41,10 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  DefaultChatTransport,
-  isReasoningUIPart,
-  isToolUIPart,
-  type UIMessage,
-} from "ai";
-import { useMemo, useState } from "react";
+import { isReasoningUIPart, isToolUIPart, type UIMessage } from "ai";
+import { useMemo } from "react";
+
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 
 const configuredTools = [
   {
@@ -259,19 +255,18 @@ export function SkillsAgentWorkspace({
   sandboxProvider,
   setupMessage,
 }: SkillsAgentWorkspaceProps) {
-  const [chat] = useState(
-    () =>
-      new Chat({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/skills-agent",
-        }),
-      })
-  );
-  const { error, messages, regenerate, sendMessage, status, stop } = useChat({
-    chat,
+  const {
+    error,
+    hasMessages,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    status,
+    stop,
+  } = useDemoChat({
+    api: "/api/demos/skills-agent",
   });
-  const hasMessages = messages.length > 0;
-  const isBusy = status === "submitted" || status === "streaming";
   const samplePrompts = useMemo(
     () => [
       "Grill this rough idea for a docs chatbot.",

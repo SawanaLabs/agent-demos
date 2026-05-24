@@ -1,6 +1,6 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
+import { Chat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
   CheckCircleIcon,
@@ -69,9 +69,10 @@ import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
   type UIMessage,
 } from "ai";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useMemo } from "react";
 
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -156,18 +157,16 @@ function getApprovalToolInput(part: ToolPart): ApprovalToolInput {
 }
 
 function useLoopAgentChat() {
-  const [chat] = useState(
-    () =>
+  return useDemoChat({
+    createChat: () =>
       new Chat({
         sendAutomaticallyWhen:
           lastAssistantMessageIsCompleteWithApprovalResponses,
         transport: new DefaultChatTransport({
           api: "/api/demos/loop-agent",
         }),
-      })
-  );
-
-  return useChat({ chat });
+      }),
+  });
 }
 
 interface HumanApprovalConfirmationProps {
@@ -385,14 +384,14 @@ export function LoopAgentWorkspace({
   const {
     addToolApprovalResponse,
     error,
+    hasMessages,
+    isBusy,
     messages,
     regenerate,
     sendMessage,
     status,
     stop,
   } = useLoopAgentChat();
-  const hasMessages = messages.length > 0;
-  const isBusy = status === "submitted" || status === "streaming";
   const samplePrompts = useMemo(
     () => [
       `Triage ${triage.caseId} and explain the tool sequence.`,

@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { VERCEL_SANDBOX_WORKSPACE_ROOT } from "@/features/shared/vercel-sandbox/server/session";
 import {
   discoverSkills,
   type SkillMetadata,
@@ -12,7 +13,7 @@ export const PRIMARY_SKILL_NAMES = [
   "skill-creator",
 ] as const;
 
-export const SKILLS_AGENT_WORKSPACE_ROOT = path.resolve(process.cwd(), "../..");
+export const SKILLS_AGENT_WORKSPACE_ROOT = VERCEL_SANDBOX_WORKSPACE_ROOT;
 const DEFAULT_SKILLS_DIRECTORY = path.join(
   SKILLS_AGENT_WORKSPACE_ROOT,
   ".agents/skills"

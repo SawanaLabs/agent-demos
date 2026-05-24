@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const foundationChatDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "sky",
+    label: "Base chat",
+    steps: ["Prompt", "Stream", "Reply"],
+  },
   slug: "foundation-chat",
   title: "Foundation Chat",
   summary:

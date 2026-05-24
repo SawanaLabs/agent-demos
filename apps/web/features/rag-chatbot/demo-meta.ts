@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const ragChatbotDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "amber",
+    label: "Knowledge base",
+    steps: ["Ingest", "Retrieve", "Ground"],
+  },
   slug: "rag-chatbot",
   title: "RAG Chatbot",
   summary:

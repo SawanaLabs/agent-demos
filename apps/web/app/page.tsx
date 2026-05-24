@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@workspace/ui/components/badge";
 import {
   Card,
@@ -8,14 +8,92 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
-
 import {
-  demoGallery,
+  demoCatalogEntries,
+  demoGalleryVisualClasses,
   demoPatternLabels,
   readyDemoCatalogEntries,
   roadmapDemoCatalogEntries,
 } from "@/features/demo-catalog/registry";
+import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
+
+function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
+  const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
+
+  return (
+    <div className={cn("space-y-3 border p-3", styles.panel)}>
+      <div className="flex items-center justify-between gap-3">
+        <span
+          className={cn(
+            "px-2 py-1 text-[11px] uppercase tracking-[0.18em]",
+            styles.pill
+          )}
+        >
+          {demo.galleryVisual.label}
+        </span>
+        <span className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
+          {demoPatternLabels[demo.pattern]}
+        </span>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-3">
+        {demo.galleryVisual.steps.map((step) => (
+          <div
+            className={cn(
+              "border px-2 py-3 text-center text-[11px] uppercase tracking-[0.18em]",
+              styles.step
+            )}
+            key={step}
+          >
+            {step}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DemoGalleryCard({ demo }: { demo: DemoCatalogEntry }) {
+  const card = (
+    <Card
+      className="h-full border border-foreground/10 transition-colors hover:border-foreground/30"
+      size="sm"
+    >
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">
+            {demo.status === "ready" ? "Ready" : "Roadmap"}
+          </Badge>
+          <Badge variant="outline">{demoPatternLabels[demo.pattern]}</Badge>
+        </div>
+        <CardTitle>{demo.title}</CardTitle>
+        <CardDescription>{demo.summary}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <DemoGalleryVisual demo={demo} />
+        <p className="text-muted-foreground text-xs/relaxed">
+          Source: {demo.source}
+        </p>
+      </CardContent>
+      <CardFooter className="justify-between gap-3">
+        <span className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
+          {demo.slug}
+        </span>
+        <span className="inline-flex items-center gap-1 text-xs">
+          {demo.status === "ready" ? "Open demo" : "Planned"}
+          <ArrowSquareOutIcon className="size-3.5" />
+        </span>
+      </CardFooter>
+    </Card>
+  );
+
+  if (demo.status === "ready") {
+    return <Link href={demo.href}>{card}</Link>;
+  }
+
+  return <div>{card}</div>;
+}
 
 export default function Page() {
   return (
@@ -63,76 +141,42 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {demoGallery.map((demo) =>
-            demo.href ? (
-              <Link href={demo.href} key={demo.slug}>
-                <Card
-                  className="h-full border border-foreground/10 transition-colors hover:border-foreground/30"
-                  size="sm"
-                >
-                  <CardHeader>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">
-                        {demo.status === "ready" ? "Ready" : "Roadmap"}
-                      </Badge>
-                      <Badge variant="outline">
-                        {demoPatternLabels[demo.pattern]}
-                      </Badge>
-                    </div>
-                    <CardTitle>{demo.title}</CardTitle>
-                    <CardDescription>{demo.summary}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-xs/relaxed">
-                      Source: {demo.source}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="justify-between gap-3">
-                    <span className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
-                      {demo.slug}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs">
-                      Open demo
-                      <ArrowRightIcon className="size-3.5" />
-                    </span>
-                  </CardFooter>
-                </Card>
-              </Link>
-            ) : (
-              <div key={demo.slug}>
-                <Card
-                  className="h-full border border-foreground/10 transition-colors hover:border-foreground/30"
-                  size="sm"
-                >
-                  <CardHeader>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">Roadmap</Badge>
-                      <Badge variant="outline">
-                        {demoPatternLabels[demo.pattern]}
-                      </Badge>
-                    </div>
-                    <CardTitle>{demo.title}</CardTitle>
-                    <CardDescription>{demo.summary}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-xs/relaxed">
-                      Source: {demo.source}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="justify-between gap-3">
-                    <span className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
-                      {demo.slug}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs">
-                      Planned
-                      <ArrowRightIcon className="size-3.5" />
-                    </span>
-                  </CardFooter>
-                </Card>
+        <section className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                  Ready demos
+                </p>
+                <h2 className="mt-1 font-medium text-xl">Interactive now</h2>
               </div>
-            )
-          )}
+              <p className="text-muted-foreground text-sm">
+                {readyDemoCatalogEntries.length} of {demoCatalogEntries.length}{" "}
+                demos
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {readyDemoCatalogEntries.map((demo) => (
+                <DemoGalleryCard demo={demo} key={demo.slug} />
+              ))}
+            </div>
+          </div>
+
+          {roadmapDemoCatalogEntries.length > 0 ? (
+            <div className="space-y-4 border-foreground/10 border-t pt-6">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                  Roadmap
+                </p>
+                <h2 className="mt-1 font-medium text-xl">Planned demos</h2>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {roadmapDemoCatalogEntries.map((demo) => (
+                  <DemoGalleryCard demo={demo} key={demo.slug} />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </main>

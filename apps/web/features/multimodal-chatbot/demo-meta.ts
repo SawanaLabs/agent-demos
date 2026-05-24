@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const multimodalChatbotDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "violet",
+    label: "Mixed input",
+    steps: ["Image", "PDF", "Chat"],
+  },
   slug: "multimodal-chatbot",
   title: "Multi-Modal Chatbot",
   summary:

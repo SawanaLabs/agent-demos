@@ -1,7 +1,7 @@
 import { type UIMessage, validateUIMessages } from "ai";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
-import { getSkillsAgentSandboxSetupState } from "@/features/skills-agent/server/sandbox";
+import { getVercelSandboxSetupState } from "@/features/shared/vercel-sandbox/server/session";
 import { streamSandboxAgent } from "./chat";
 import { resolveSandboxAgentChatModel } from "./model";
 import { SANDBOX_AGENT_PREVIEW_PORT } from "./session";
@@ -63,7 +63,7 @@ export function getSandboxAgentRuntimeState(
   env: DemoEnv = process.env
 ): SandboxAgentRuntimeState {
   const gatewaySetup = getAiGatewaySetupState(env);
-  const sandboxSetup = getSkillsAgentSandboxSetupState(env);
+  const sandboxSetup = getVercelSandboxSetupState(env);
   const issues = [...gatewaySetup.issues, ...sandboxSetup.issues];
 
   return {

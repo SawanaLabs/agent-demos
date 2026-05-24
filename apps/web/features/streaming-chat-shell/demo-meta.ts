@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const streamingChatShellDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "sky",
+    label: "Streaming shell",
+    steps: ["Request", "Trace", "Replay"],
+  },
   slug: "streaming-chat-shell",
   title: "Streaming Chat Shell",
   summary:

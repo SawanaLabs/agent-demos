@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const skillsAgentDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "emerald",
+    label: "Skill drafting",
+    steps: ["Probe", "Align", "Draft"],
+  },
   slug: "skills-agent",
   title: "Skills Builder Agent",
   summary:

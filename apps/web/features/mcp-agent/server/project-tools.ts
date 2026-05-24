@@ -104,25 +104,15 @@ export function listDemoCatalogForMcp({
   return demoCatalogEntries
     .filter((entry) => (status ? entry.status === status : true))
     .filter((entry) => (pattern ? entry.pattern === pattern : true))
-    .map(
-      ({
-        href,
-        pattern: entryPattern,
-        slug,
-        source,
-        status: entryStatus,
-        summary,
-        title,
-      }) => ({
-        href,
-        pattern: entryPattern,
-        slug,
-        source,
-        status: entryStatus,
-        summary,
-        title,
-      })
-    );
+    .map((entry) => ({
+      href: entry.status === "ready" ? entry.href : undefined,
+      pattern: entry.pattern,
+      slug: entry.slug,
+      source: entry.source,
+      status: entry.status,
+      summary: entry.summary,
+      title: entry.title,
+    }));
 }
 
 export async function readDemoDocsForMcp({

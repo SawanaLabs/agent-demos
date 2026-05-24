@@ -1,7 +1,11 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
-import { ArrowClockwiseIcon, BookOpenIcon, RobotIcon, StopIcon } from "@phosphor-icons/react";
+import {
+  ArrowClockwiseIcon,
+  BookOpenIcon,
+  RobotIcon,
+  StopIcon,
+} from "@phosphor-icons/react";
 import {
   Conversation,
   ConversationContent,
@@ -36,14 +40,11 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  DefaultChatTransport,
-  type UIMessage,
-} from "ai";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 
 import {
   getGroundedSourceKey,
@@ -54,8 +55,8 @@ export interface RagChatbotWorkspaceProps {
   chatModel: string;
   isChatAvailable: boolean;
   nodeVersion: string;
-  sourceDocument: typeof ragChatbotSourceDocument;
   setupMessage: string | null;
+  sourceDocument: typeof ragChatbotSourceDocument;
 }
 
 export function RagChatbotWorkspace({
@@ -65,20 +66,18 @@ export function RagChatbotWorkspace({
   sourceDocument,
   setupMessage,
 }: RagChatbotWorkspaceProps) {
-  const [chat] = useState(
-    () =>
-      new Chat({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/rag-chatbot",
-        }),
-      })
-  );
-  const { error, messages, regenerate, sendMessage, status, stop } = useChat({
-    chat,
+  const {
+    error,
+    hasMessages,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    status,
+    stop,
+  } = useDemoChat({
+    api: "/api/demos/rag-chatbot",
   });
-
-  const hasMessages = messages.length > 0;
-  const isBusy = status === "submitted" || status === "streaming";
   const samplePrompts = useMemo(
     () => [
       "What does the manual say about the NASA logotype?",
@@ -124,7 +123,11 @@ export function RagChatbotWorkspace({
                             {projection.sources.map((source, index) => (
                               <Source
                                 href={source.documentUrl}
-                                key={getGroundedSourceKey(message.id, source, index)}
+                                key={getGroundedSourceKey(
+                                  message.id,
+                                  source,
+                                  index
+                                )}
                                 title={source.citationLabel}
                               >
                                 <span className="font-medium">
@@ -166,7 +169,9 @@ export function RagChatbotWorkspace({
                             />
                           )}
                           <ToolContent>
-                            {part.input ? <ToolInput input={part.input} /> : null}
+                            {part.input ? (
+                              <ToolInput input={part.input} />
+                            ) : null}
                             <ToolOutput
                               errorText={part.errorText}
                               output={part.output}
@@ -235,7 +240,7 @@ export function RagChatbotWorkspace({
               </PromptInputFooter>
             </PromptInput>
 
-            {!hasMessages ? (
+            {hasMessages ? null : (
               <div className="mt-3 flex flex-wrap gap-2">
                 {samplePrompts.map((prompt) => (
                   <Button
@@ -250,7 +255,7 @@ export function RagChatbotWorkspace({
                   </Button>
                 ))}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </section>
@@ -268,7 +273,7 @@ export function RagChatbotWorkspace({
               Source document
             </p>
             <p className="mt-1 font-medium text-sm">{sourceDocument.title}</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-muted-foreground text-sm">
               {sourceDocument.description}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">

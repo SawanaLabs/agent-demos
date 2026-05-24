@@ -1,21 +1,22 @@
-import { Sandbox } from "@vercel/sandbox";
-import { SKILLS_AGENT_WORKSPACE_ROOT } from "@/features/skills-agent/server/local-skill-catalog";
 import {
-  createSkillsAgentSessionRegistry,
-  getSkillsAgentSandboxSetupState,
-  SANDBOX_ARTIFACTS_ROOT,
-  SANDBOX_PROJECT_ROOT as SKILLS_AGENT_SANDBOX_PROJECT_ROOT,
-  type SkillsAgentSandboxHandle,
-  type SkillsAgentSession,
-  type SkillsAgentSessionRegistry,
-} from "@/features/skills-agent/server/sandbox";
+  createVercelSandbox,
+  createVercelSandboxSessionRegistry,
+  VERCEL_SANDBOX_ARTIFACTS_ROOT,
+  VERCEL_SANDBOX_PROJECT_ROOT,
+  VERCEL_SANDBOX_WORKSPACE_ROOT,
+  type VercelSandboxHandle,
+  type VercelSandboxSession,
+  type VercelSandboxSessionRegistry,
+} from "@/features/shared/vercel-sandbox/server/session";
 
 type DemoEnv = Record<string, string | undefined>;
+
+export const SANDBOX_PROJECT_ROOT = VERCEL_SANDBOX_PROJECT_ROOT;
+export const SANDBOX_ARTIFACTS_ROOT = VERCEL_SANDBOX_ARTIFACTS_ROOT;
 
 export const SANDBOX_AGENT_PREVIEW_PORT = 3000;
 export const SANDBOX_AGENT_PREVIEW_SERVER_PATH =
   ".sandbox-agent-preview-server.mjs";
-export const SANDBOX_PROJECT_ROOT = SKILLS_AGENT_SANDBOX_PROJECT_ROOT;
 
 const SANDBOX_AGENT_PREVIEW_SERVER_SOURCE = String.raw`
 import { createReadStream } from "node:fs";
@@ -80,7 +81,7 @@ createServer(async (request, response) => {
 }).listen(port, "0.0.0.0");
 `;
 
-type NamedSandboxHandle = SkillsAgentSandboxHandle & {
+type NamedSandboxHandle = VercelSandboxHandle & {
   domain: (port: number) => string;
 };
 
@@ -131,71 +132,6 @@ export interface SandboxAgentSessionRegistry {
   getDomain(sessionId: string, port: number): string;
   getSession(sessionId: string): SandboxAgentSession;
   stopSession(sessionId: string): Promise<void>;
-}
-
-function getTokenCredentials(env: DemoEnv) {
-  const { VERCEL_PROJECT_ID, VERCEL_TEAM_ID, VERCEL_TOKEN } = env;
-
-  if (!(VERCEL_PROJECT_ID && VERCEL_TEAM_ID && VERCEL_TOKEN)) {
-    throw new Error(
-      "Vercel Sandbox token credentials are incomplete. Expected VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID."
-    );
-  }
-
-  return {
-    projectId: VERCEL_PROJECT_ID,
-    teamId: VERCEL_TEAM_ID,
-    token: VERCEL_TOKEN,
-  };
-}
-
-async function createSandboxAgentSandbox(
-  sessionId: string,
-  env: DemoEnv = process.env
-): Promise<NamedSandboxHandle> {
-  const setupState = getSkillsAgentSandboxSetupState(env);
-
-  if (!setupState.isReady) {
-    throw new Error(setupState.issues.join(" "));
-  }
-
-  const baseOptions = {
-    name: sessionId,
-    persistent: true,
-    ports: [SANDBOX_AGENT_PREVIEW_PORT],
-    runtime: setupState.runtime,
-    timeout: 300_000,
-  };
-
-  if (setupState.authMode === "oidc") {
-    try {
-      return (await Sandbox.get({
-        name: sessionId,
-      })) as unknown as NamedSandboxHandle;
-    } catch {
-      return (await Sandbox.create(
-        baseOptions
-      )) as unknown as NamedSandboxHandle;
-    }
-  }
-
-  const tokenCredentials = getTokenCredentials(env);
-
-  try {
-    return (await Sandbox.get({
-      name: sessionId,
-      projectId: tokenCredentials.projectId,
-      teamId: tokenCredentials.teamId,
-      token: tokenCredentials.token,
-    })) as unknown as NamedSandboxHandle;
-  } catch {
-    return (await Sandbox.create({
-      ...baseOptions,
-      projectId: tokenCredentials.projectId,
-      teamId: tokenCredentials.teamId,
-      token: tokenCredentials.token,
-    })) as unknown as NamedSandboxHandle;
-  }
 }
 
 function quoteShell(value: string) {
@@ -313,14 +249,16 @@ export function createSandboxAgentSessionRegistry(
   env: DemoEnv = process.env
 ): SandboxAgentSessionRegistry {
   const sandboxHandles = new Map<string, NamedSandboxHandle>();
-  const baseRegistry: SkillsAgentSessionRegistry =
-    createSkillsAgentSessionRegistry({
+  const baseRegistry: VercelSandboxSessionRegistry =
+    createVercelSandboxSessionRegistry({
       createSandbox: async (sessionId) => {
-        const sandbox = await createSandboxAgentSandbox(sessionId, env);
+        const sandbox = (await createVercelSandbox(sessionId, env, {
+          ports: [SANDBOX_AGENT_PREVIEW_PORT],
+        })) as NamedSandboxHandle;
         sandboxHandles.set(sessionId, sandbox);
         return sandbox;
       },
-      workspaceRoot: SKILLS_AGENT_WORKSPACE_ROOT,
+      workspaceRoot: VERCEL_SANDBOX_WORKSPACE_ROOT,
     });
 
   const registry: SandboxAgentSessionRegistry = {
@@ -338,7 +276,7 @@ export function createSandboxAgentSessionRegistry(
     getSession(sessionId) {
       const baseSession = baseRegistry.getSession(
         sessionId
-      ) as SkillsAgentSession;
+      ) as VercelSandboxSession;
 
       return {
         artifactsRoot: SANDBOX_ARTIFACTS_ROOT,

@@ -17,12 +17,34 @@ export const demoStatuses = ["ready", "roadmap"] as const;
 
 export type DemoStatus = (typeof demoStatuses)[number];
 
-export interface DemoCatalogEntry {
-  href?: string;
+export interface DemoGalleryVisual {
+  accent: "amber" | "cyan" | "emerald" | "indigo" | "rose" | "sky" | "violet";
+  label: string;
+  steps: readonly [string, string, string];
+}
+
+interface DemoCatalogEntryBase {
+  galleryVisual: DemoGalleryVisual;
   pattern: DemoPattern;
   slug: string;
   source: string;
-  status: DemoStatus;
   summary: string;
   title: string;
+}
+
+export interface ReadyDemoCatalogEntry extends DemoCatalogEntryBase {
+  href: `/demos/${string}`;
+  status: "ready";
+}
+
+export interface RoadmapDemoCatalogEntry extends DemoCatalogEntryBase {
+  status: "roadmap";
+}
+
+export type DemoCatalogEntry = ReadyDemoCatalogEntry | RoadmapDemoCatalogEntry;
+
+export function isReadyDemoCatalogEntry(
+  entry: DemoCatalogEntry
+): entry is ReadyDemoCatalogEntry {
+  return entry.status === "ready";
 }

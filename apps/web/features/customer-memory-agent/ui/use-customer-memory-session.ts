@@ -1,9 +1,9 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
+import { Chat } from "@ai-sdk/react";
 import { type ChatStatus, DefaultChatTransport, type UIMessage } from "ai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 import { customerMemoryProfiles } from "../customer-profiles";
 import type { CustomerMemorySessionData } from "../session-data";
 import {
@@ -179,8 +179,18 @@ export function useCustomerMemorySession(
     [customerId]
   );
   const isReadonlyAccount = activeProfile?.accessMode === "shared_readonly";
-  const [chat] = useState(
-    () =>
+  const {
+    clearError,
+    error,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    setMessages,
+    status,
+    stop,
+  } = useDemoChat<UIMessage>({
+    createChat: () =>
       new Chat<UIMessage>({
         onFinish: ({ messages }) => {
           const latestPrompt = getLatestCustomerMemoryPrompt(messages);
@@ -212,23 +222,12 @@ export function useCustomerMemorySession(
             };
           },
         }),
-      })
-  );
-  const {
-    clearError,
-    error,
-    messages,
-    regenerate,
-    sendMessage,
-    setMessages,
-    status,
-    stop,
-  } = useChat({ chat });
+      }),
+  });
   const latestPrompt = useMemo(
     () => getLatestCustomerMemoryPrompt(messages),
     [messages]
   );
-  const isBusy = status === "submitted" || status === "streaming";
   const refreshSessionRef = useRef<
     (
       query?: string,

@@ -1,7 +1,6 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
-import { type ChatStatus, DefaultChatTransport, type UIMessage } from "ai";
+import type { ChatStatus, UIMessage } from "ai";
 import {
   type RefObject,
   useCallback,
@@ -10,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 import { convertFilesToParts } from "./convert-files-to-parts";
 import {
   buildPendingAttachmentId,
@@ -57,26 +57,24 @@ function clearFileInput(input: HTMLInputElement | null) {
 }
 
 export function useMultimodalChatbotWorkspace(): UseMultimodalChatbotWorkspaceController {
-  const [chat] = useState(
-    () =>
-      new Chat({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/multimodal-chatbot",
-        }),
-      })
-  );
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingAttachment[]
   >([]);
   const [composerError, setComposerError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingAttachmentsRef = useRef<PendingAttachment[]>([]);
-  const { error, messages, regenerate, sendMessage, status, stop } = useChat({
-    chat,
+  const {
+    error,
+    hasMessages,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    status,
+    stop,
+  } = useDemoChat({
+    api: "/api/demos/multimodal-chatbot",
   });
-
-  const hasMessages = messages.length > 0;
-  const isBusy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
     pendingAttachmentsRef.current = pendingAttachments;

@@ -1,6 +1,11 @@
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 export const contentReviewDemoMeta: DemoCatalogEntry = {
+  galleryVisual: {
+    accent: "indigo",
+    label: "Object review",
+    steps: ["Input", "Schema", "Review"],
+  },
   slug: "content-review",
   title: "Object Generation",
   summary:

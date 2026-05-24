@@ -12,6 +12,10 @@ describe("customer memory session runtime", () => {
         "http://localhost/api/demos/customer-memory-agent/session?customerId=acme-co&threadId=thread-1&query=plain-text"
       ),
       {
+        isReadonly: false,
+        visitorId: "demo-shared",
+      },
+      {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -31,10 +35,6 @@ describe("customer memory session runtime", () => {
           },
           threads: [],
         }),
-      },
-      {
-        isReadonly: false,
-        visitorId: "demo-shared",
       }
     );
 
@@ -53,6 +53,10 @@ describe("customer memory session runtime", () => {
         }),
         method: "POST",
       }),
+      {
+        isReadonly: false,
+        visitorId: "visitor-123",
+      },
       {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
@@ -82,10 +86,6 @@ describe("customer memory session runtime", () => {
           },
           threads: [],
         }),
-      },
-      {
-        isReadonly: false,
-        visitorId: "visitor-123",
       }
     );
 
@@ -105,15 +105,15 @@ describe("customer memory session runtime", () => {
         method: "POST",
       }),
       {
+        isReadonly: false,
+        visitorId: "visitor-123",
+      },
+      {
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
         createCustomerMemoryThread: vi.fn(),
         loadCustomerMemorySession: vi.fn(),
-      },
-      {
-        isReadonly: false,
-        visitorId: "visitor-123",
       }
     );
 

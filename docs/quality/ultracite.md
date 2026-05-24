@@ -23,8 +23,9 @@ updateAt: 2026-05-24
 - Type-aware Ultracite requires `strictNullChecks` to stay enabled in TypeScript configs.
 - `correctness.useImportExtensions` is disabled in `biome.jsonc`. Workspace export maps and path aliases expose package paths such as `@workspace/ui/postcss.config` without file extensions.
 - Biome's built-in Drizzle domain is enabled. The Drizzle nursery rules `noDrizzleDeleteWithoutWhere` and `noDrizzleUpdateWithoutWhere` are elevated to errors for `database` and `db` instances to catch accidental full-table writes.
+- Biome `style.noProcessEnv` is enabled at warning level. Treat direct `process.env` reads as migration debt unless the file itself is a `keys.ts` or `env.ts` contract module.
 - Biome's official `complexity.noExcessiveLinesPerFunction` rule is enabled only for `apps/web/features/**/*.tsx` with `maxLines: 150` and `skipBlankLines: true`. Treat a hit as a React maintainability signal: keep the workspace/page component thin, move state and actions into hooks, and move pure derivation into model/helper modules.
-- Keep targeted Biome overrides narrow. Current overrides cover config-file re-export patterns, known false positives for Next font virtual exports and `eslint-plugin-only-warn`, imported AI Elements component sources, and the Drizzle schema entrypoint shape in `packages/database/src/index.ts`.
+- Keep targeted Biome overrides narrow. Current overrides cover `keys.ts` and `env.ts` environment-contract entrypoints, config-file re-export patterns, known false positives for Next font virtual exports and `eslint-plugin-only-warn`, imported AI Elements component sources, and the Drizzle schema entrypoint shape in `packages/database/src/index.ts`.
 - Root `.eslintrc.js` and `.prettierrc` are not part of the current quality gate. Avoid reintroducing parallel root lint or format systems without a specific reason.
 
 ## Update Triggers

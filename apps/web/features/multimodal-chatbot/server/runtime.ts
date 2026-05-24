@@ -1,9 +1,10 @@
 import {
   convertToModelMessages,
   streamText,
-  validateUIMessages,
   type UIMessage,
+  validateUIMessages,
 } from "ai";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -34,13 +35,16 @@ export interface MultimodalChatbotRuntimeState {
 }
 
 interface MultimodalChatbotRequestDependencies {
-  streamMultimodalChatbot: (messages: UIMessage[], env: DemoEnv) => Promise<Response>;
+  streamMultimodalChatbot: (
+    messages: UIMessage[],
+    env: DemoEnv
+  ) => Promise<Response>;
 }
 
 const acceptedMediaTypes = ["application/pdf", "image/*"] as const;
 
 export function getMultimodalChatbotRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): MultimodalChatbotRuntimeState {
   const setup = getAiGatewaySetupState(env);
 
@@ -72,7 +76,9 @@ function assertAcceptedMediaTypes(messages: UIMessage[]) {
   }
 }
 
-async function readMultimodalChatbotMessages(body: unknown): Promise<UIMessage[]> {
+async function readMultimodalChatbotMessages(
+  body: unknown
+): Promise<UIMessage[]> {
   const { messages } = (body ?? {}) as MultimodalChatbotRequestBody;
 
   if (!Array.isArray(messages)) {
@@ -84,10 +90,7 @@ async function readMultimodalChatbotMessages(body: unknown): Promise<UIMessage[]
     assertAcceptedMediaTypes(validatedMessages);
     return validatedMessages;
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === unsupportedMediaTypeError
-    ) {
+    if (error instanceof Error && error.message === unsupportedMediaTypeError) {
       throw error;
     }
 
@@ -112,7 +115,7 @@ export async function streamMultimodalChatbot(
 
 export async function handleMultimodalChatbotRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: MultimodalChatbotRequestDependencies = {
     streamMultimodalChatbot,
   }

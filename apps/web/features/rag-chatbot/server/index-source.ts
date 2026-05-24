@@ -1,14 +1,15 @@
-import { embedMany } from "ai";
 import { createHash } from "node:crypto";
 import { count, eq } from "@workspace/database/drizzle";
+import { embedMany } from "ai";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 
 import {
   buildRagPdfChunks,
   downloadPdfDocument,
-  extractPdfPages,
   type ExtractedPdfPage,
+  extractPdfPages,
 } from "./ingestion";
 import { ragChatbotSourceDocument } from "./source-document";
 
@@ -17,9 +18,9 @@ type DemoEnv = Record<string, string | undefined>;
 const embeddingModelId = "openai/text-embedding-3-small";
 
 interface RagDatabaseModule {
-  database: (typeof import("@workspace/database"))["database"];
-  ragChatbotEmbeddings: (typeof import("@workspace/database"))["ragChatbotEmbeddings"];
-  ragChatbotResources: (typeof import("@workspace/database"))["ragChatbotResources"];
+  database: typeof import("@workspace/database")["database"];
+  ragChatbotEmbeddings: typeof import("@workspace/database")["ragChatbotEmbeddings"];
+  ragChatbotResources: typeof import("@workspace/database")["ragChatbotResources"];
 }
 
 interface IndexRagChatbotSourceDependencies {
@@ -74,7 +75,7 @@ function buildEmbeddingRows(
 }
 
 export async function indexRagChatbotSource(
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: IndexRagChatbotSourceDependencies = {
     downloadDocument: downloadPdfDocument,
     extractPages: extractPdfPages,
@@ -143,9 +144,9 @@ export async function indexRagChatbotSource(
       await transaction
         .delete(ragChatbotEmbeddings)
         .where(eq(ragChatbotEmbeddings.resourceId, existingResource.id));
-      await transaction.insert(ragChatbotEmbeddings).values(
-        buildEmbeddingRows(chunks, embeddings, existingResource.id)
-      );
+      await transaction
+        .insert(ragChatbotEmbeddings)
+        .values(buildEmbeddingRows(chunks, embeddings, existingResource.id));
     });
   } else {
     await database.transaction(async (transaction) => {
@@ -160,9 +161,9 @@ export async function indexRagChatbotSource(
         );
       }
 
-      await transaction.insert(ragChatbotEmbeddings).values(
-        buildEmbeddingRows(chunks, embeddings, resource.id)
-      );
+      await transaction
+        .insert(ragChatbotEmbeddings)
+        .values(buildEmbeddingRows(chunks, embeddings, resource.id));
     });
   }
 

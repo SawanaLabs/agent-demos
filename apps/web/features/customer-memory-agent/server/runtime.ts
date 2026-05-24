@@ -1,8 +1,10 @@
 import type { UIMessage } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
 import { getCustomerMemoryProfile } from "../customer-profiles";
+import { customerMemoryCompactionThreshold } from "./compaction";
 import {
   invalidCustomerIdError,
   invalidMessagesError,
@@ -11,12 +13,11 @@ import {
   malformedJsonError,
   readCustomerMemoryChatRequest,
 } from "./contract";
-import { customerMemoryCompactionThreshold } from "./compaction";
 import { streamCustomerMemoryConversation } from "./conversation";
 import { createCustomerMemoryThreadStore } from "./thread-store";
 import {
-  getReadonlyCustomerMemoryError,
   type CustomerMemoryViewerContext,
+  getReadonlyCustomerMemoryError,
   resolveCustomerMemoryViewerContext,
 } from "./viewer-context";
 
@@ -57,7 +58,7 @@ function getCustomerMemoryDatabaseIssue(env: DemoEnv) {
 }
 
 export function getCustomerMemoryRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): CustomerMemoryRuntimeState {
   const setup = getAiGatewaySetupState(env);
   const issues = [...setup.issues];
@@ -82,9 +83,8 @@ async function ensureCustomerMemoryThreadOwnership(input: {
   threadId: string;
   visitorId: string;
 }) {
-  const snapshot = await createCustomerMemoryThreadStore().loadThreadForViewer(
-    input
-  );
+  const snapshot =
+    await createCustomerMemoryThreadStore().loadThreadForViewer(input);
 
   if (!snapshot) {
     throw new Error(
@@ -95,11 +95,11 @@ async function ensureCustomerMemoryThreadOwnership(input: {
 
 export async function handleCustomerMemoryChatRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  viewer: CustomerMemoryViewerContext,
+  env: DemoEnv = appEnv,
   dependencies: CustomerMemoryChatRequestDependencies = {
     streamCustomerMemoryConversation,
-  },
-  viewer: CustomerMemoryViewerContext
+  }
 ) {
   const runtimeState = getCustomerMemoryRuntimeState(env);
 
@@ -184,7 +184,10 @@ export async function handleCustomerMemoryChatRequest(
       );
     }
 
-    if (error instanceof Error && error.message.startsWith("No customer-memory thread found")) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith("No customer-memory thread found")
+    ) {
       return Response.json(
         {
           error: error.message,

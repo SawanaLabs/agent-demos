@@ -1,4 +1,5 @@
-import { Output, streamText, type LanguageModelUsage } from "ai";
+import { type LanguageModelUsage, Output, streamText } from "ai";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -7,10 +8,10 @@ import {
 } from "@/features/shared/ai-gateway/server/env";
 
 import {
+  type ContentReviewRequest,
   contentReviewAcceptedMediaTypes,
   contentReviewRequestSchema,
   contentReviewResultSchema,
-  type ContentReviewRequest,
 } from "../schema";
 import { startRecordedReviewRun } from "./recorded-review-run";
 
@@ -45,7 +46,7 @@ interface ContentReviewRequestDependencies {
   createContentReviewStream: (
     input: ContentReviewRequest,
     env: DemoEnv
-  ) => Promise<ContentReviewStreamResult>;
+  ) => ContentReviewStreamResult | Promise<ContentReviewStreamResult>;
 }
 
 export interface ContentReviewStreamResult {
@@ -109,7 +110,7 @@ function buildReviewMessages(input: ContentReviewRequest) {
 }
 
 export function getContentReviewRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): ContentReviewRuntimeState {
   const setup = getAiGatewaySetupState(env);
 
@@ -123,10 +124,10 @@ export function getContentReviewRuntimeState(
   };
 }
 
-export async function createContentReviewStream(
+export function createContentReviewStream(
   input: ContentReviewRequest,
   env: DemoEnv
-) : Promise<ContentReviewStreamResult> {
+): Promise<ContentReviewStreamResult> {
   const gateway = createAiGateway(env);
   const { chatModel } = getAiGatewayConfig(env);
 
@@ -142,15 +143,15 @@ export async function createContentReviewStream(
     system: reviewSystemPrompt,
   });
 
-  return {
+  return Promise.resolve({
     textStream: result.textStream,
     totalUsage: result.totalUsage,
-  };
+  });
 }
 
 export async function handleContentReviewRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: ContentReviewRequestDependencies = {
     createContentReviewStream,
   }

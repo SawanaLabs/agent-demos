@@ -6,6 +6,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -27,7 +28,7 @@ const systemPrompt = [
 
 export async function streamRagChatbot(
   messages: UIMessage[],
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ) {
   const gateway = createAiGateway(env);
   const { chatModel } = getAiGatewayConfig(env);

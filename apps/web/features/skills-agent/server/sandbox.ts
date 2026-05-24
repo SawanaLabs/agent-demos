@@ -1,9 +1,13 @@
 import path, { posix as posixPath } from "node:path";
+import { env as appEnv } from "@/env";
+import {
+  getVercelSandboxSetupState,
+  type VercelSandboxSetupState,
+} from "@/features/shared/vercel-sandbox/server/env";
 import {
   copyLocalPathToSandbox,
   createVercelSandbox,
   createVercelSandboxSessionRegistry,
-  getVercelSandboxSetupState,
   VERCEL_SANDBOX_AGENTS_FILE,
   VERCEL_SANDBOX_ARTIFACTS_ROOT,
   VERCEL_SANDBOX_PROJECT_ROOT,
@@ -12,7 +16,6 @@ import {
   type VercelSandboxHandle,
   type VercelSandboxSession,
   type VercelSandboxSessionRegistry,
-  type VercelSandboxSetupState,
 } from "@/features/shared/vercel-sandbox/server/session";
 import { SKILLS_AGENT_WORKSPACE_ROOT } from "./local-skill-catalog";
 import {
@@ -198,9 +201,7 @@ export function createSkillsAgentSessionRegistry({
 
 let sharedRegistry: SkillsAgentSessionRegistry | null = null;
 
-export function getSharedSkillsAgentSessionRegistry(
-  env: DemoEnv = process.env
-) {
+export function getSharedSkillsAgentSessionRegistry(env: DemoEnv = appEnv) {
   sharedRegistry ??= createSkillsAgentSessionRegistry({
     createSandbox: (sessionId) => createVercelSandbox(sessionId, env),
   });

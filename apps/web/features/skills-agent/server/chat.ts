@@ -5,6 +5,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 import {
@@ -41,7 +42,7 @@ export const skillsAgentInstructions = [
 export async function streamSkillsAgent(
   messages: UIMessage[],
   {
-    env = process.env,
+    env = appEnv,
     sessionId,
     skills,
   }: {

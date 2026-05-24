@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 const DEFAULT_MCP_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 
 export const MCP_AGENT_PROVIDER_OPTIONS = {
@@ -9,8 +11,6 @@ export const MCP_AGENT_PROVIDER_OPTIONS = {
 
 type McpAgentEnv = Record<string, string | undefined>;
 
-export function resolveMcpAgentChatModel(
-  env: McpAgentEnv = process.env
-): string {
+export function resolveMcpAgentChatModel(env: McpAgentEnv = appEnv): string {
   return env.AI_GATEWAY_CHAT_MODEL || DEFAULT_MCP_AGENT_CHAT_MODEL;
 }

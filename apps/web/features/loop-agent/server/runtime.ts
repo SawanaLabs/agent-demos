@@ -1,4 +1,5 @@
 import { type UIMessage, validateUIMessages } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
@@ -45,7 +46,7 @@ async function readLoopAgentMessages(body: unknown): Promise<UIMessage[]> {
 }
 
 export function getLoopAgentRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): LoopAgentRuntimeState {
   const setup = getAiGatewaySetupState(env);
 
@@ -60,7 +61,7 @@ export function getLoopAgentRuntimeState(
 
 export async function handleLoopAgentRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: LoopAgentRequestDependencies = {
     streamLoopAgent,
   }

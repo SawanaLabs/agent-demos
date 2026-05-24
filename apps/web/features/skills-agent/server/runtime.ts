@@ -1,4 +1,5 @@
 import { type UIMessage, validateUIMessages } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
@@ -63,7 +64,7 @@ async function readSkillsAgentRequest(
 }
 
 export async function getSkillsAgentRuntimeState(
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: {
     discoverSkills: () => Promise<SkillMetadata[]>;
   } = {
@@ -97,7 +98,7 @@ export async function getSkillsAgentRuntimeState(
 
 export async function handleSkillsAgentRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: Partial<SkillsAgentRequestDependencies> = {
     discoverSkills: discoverWorkspaceSkills,
     streamSkillsAgent: (messages, options) =>

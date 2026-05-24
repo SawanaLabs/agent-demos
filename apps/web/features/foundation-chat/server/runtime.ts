@@ -1,4 +1,5 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -42,7 +43,7 @@ function buildFoundationChatRuntimeState(
 }
 
 export function getFoundationChatRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): FoundationChatRuntimeState {
   return buildFoundationChatRuntimeState(env);
 }
@@ -72,7 +73,7 @@ async function streamFoundationChat(messages: UIMessage[], env: DemoEnv) {
 
 export async function handleFoundationChatRequest(
   request: Request,
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ) {
   const runtimeState = getFoundationChatRuntimeState(env);
 

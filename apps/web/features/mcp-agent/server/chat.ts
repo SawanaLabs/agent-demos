@@ -4,6 +4,7 @@ import {
   ToolLoopAgent,
   type UIMessage,
 } from "ai";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 import { createMcpAgentToolbox } from "./mcp-clients";
@@ -23,7 +24,7 @@ export const mcpAgentInstructions = [
 export async function streamMcpAgent(
   messages: UIMessage[],
   {
-    env = process.env,
+    env = appEnv,
     origin,
   }: {
     env?: DemoEnv;

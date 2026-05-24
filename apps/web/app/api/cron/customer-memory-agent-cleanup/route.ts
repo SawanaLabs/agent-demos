@@ -1,11 +1,13 @@
+import { env as appEnv } from "@/env";
+
 import {
   cleanupExpiredCustomerMemoryThreads,
   customerMemoryCleanupCronScheduleUtc,
 } from "@/features/customer-memory-agent/server/cleanup";
-
-function getCronSecretError() {
-  return "CRON_SECRET is missing. Customer-memory cleanup cron requires an authenticated secret.";
-}
+import {
+  getCronSecret,
+  getCronSecretError,
+} from "@/features/shared/cron/server/env";
 
 function isAuthorizedCronRequest(request: Request, cronSecret: string) {
   const authorizationHeader = request.headers.get("authorization");
@@ -14,12 +16,14 @@ function isAuthorizedCronRequest(request: Request, cronSecret: string) {
 }
 
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
+  let cronSecret: string;
 
-  if (!cronSecret) {
+  try {
+    cronSecret = getCronSecret(appEnv);
+  } catch (error) {
     return Response.json(
       {
-        error: getCronSecretError(),
+        error: error instanceof Error ? error.message : getCronSecretError(),
       },
       { status: 500 }
     );
@@ -44,7 +48,10 @@ export async function GET(request: Request) {
   } catch (error) {
     return Response.json(
       {
-        error: error instanceof Error ? error.message : "Customer-memory cleanup failed.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Customer-memory cleanup failed.",
       },
       { status: 500 }
     );

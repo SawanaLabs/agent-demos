@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 import { handleCustomerMemorySessionRequest } from "@/features/customer-memory-agent/server/session-runtime";
 import {
   buildCustomerMemoryVisitorCookie,
@@ -8,12 +10,12 @@ export async function GET(request: Request) {
   const visitor = getOrCreateCustomerMemoryVisitorId(request);
   const response = await handleCustomerMemorySessionRequest(
     request,
-    process.env,
-    {},
     {
       isReadonly: false,
       visitorId: visitor.visitorId,
-    }
+    },
+    appEnv,
+    {}
   );
 
   if (visitor.shouldSetCookie) {

@@ -11,6 +11,9 @@ vi.mock("@/features/rag-chatbot/server/index-source", () => ({
 import { POST } from "./route";
 
 const originalEnv = { ...process.env };
+const productionDisabledPattern = /disabled in production/i;
+const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingDatabaseUrlPattern = /DATABASE_URL/i;
 
 describe("rag chatbot index route", () => {
   afterEach(() => {
@@ -26,7 +29,7 @@ describe("rag chatbot index route", () => {
     expect(response.status).toBe(403);
     expect(indexRagChatbotSourceMock).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/disabled in production/i),
+      error: expect.stringMatching(productionDisabledPattern),
     });
   });
 
@@ -43,7 +46,7 @@ describe("rag chatbot index route", () => {
     expect(response.status).toBe(500);
     expect(indexRagChatbotSourceMock).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/AI_GATEWAY_API_KEY/i),
+      error: expect.stringMatching(missingGatewayKeyPattern),
     });
   });
 
@@ -60,7 +63,7 @@ describe("rag chatbot index route", () => {
     expect(response.status).toBe(500);
     expect(indexRagChatbotSourceMock).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/DATABASE_URL/i),
+      error: expect.stringMatching(missingDatabaseUrlPattern),
     });
   });
 

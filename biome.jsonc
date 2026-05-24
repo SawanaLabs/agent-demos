@@ -15,6 +15,9 @@
         // Package export maps and TS path aliases do not always expose runtime file extensions.
         "useImportExtensions": "off"
       },
+      "style": {
+        "noProcessEnv": "warn"
+      },
       "nursery": {
         "noDrizzleDeleteWithoutWhere": {
           "level": "error",
@@ -32,6 +35,16 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["**/env.ts", "**/keys.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    },
     {
       "includes": ["apps/web/features/**/*.tsx"],
       "linter": {

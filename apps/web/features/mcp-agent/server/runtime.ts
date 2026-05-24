@@ -1,4 +1,5 @@
 import { type UIMessage, validateUIMessages } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 import { streamMcpAgent } from "./chat";
@@ -97,7 +98,7 @@ async function readMcpAgentRequest(
 }
 
 export function getMcpAgentRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): McpAgentRuntimeState {
   const gatewaySetup = getAiGatewaySetupState(env);
   const issues = [...gatewaySetup.issues];
@@ -115,7 +116,7 @@ export function getMcpAgentRuntimeState(
 
 export async function handleMcpAgentRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: Partial<McpAgentRequestDependencies> = {
     streamMcpAgent: (messages, options) =>
       streamMcpAgent(messages, {

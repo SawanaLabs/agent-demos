@@ -9,6 +9,7 @@ import {
   sql,
 } from "@workspace/database/drizzle";
 import { embed, embedMany } from "ai";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 
@@ -172,7 +173,7 @@ async function findCustomerMemoryMatches(
 
 export async function generateCustomerMemoryEmbedding(
   value: string,
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): Promise<number[]> {
   const gateway = createAiGateway(env);
   const normalizedValue = value.replaceAll("\n", " ").trim();
@@ -186,7 +187,7 @@ export async function generateCustomerMemoryEmbedding(
 
 export async function generateCustomerMemoryEmbeddings(
   values: string[],
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): Promise<number[][]> {
   const gateway = createAiGateway(env);
   const { embeddings } = await embedMany({
@@ -212,7 +213,7 @@ export async function indexCustomerMemories(
   const generateEmbeddings =
     dependencies.generateEmbeddings ?? generateCustomerMemoryEmbeddings;
   const contents = memories.map(buildEmbeddingContent);
-  const embeddings = await generateEmbeddings(contents, process.env);
+  const embeddings = await generateEmbeddings(contents, appEnv);
 
   await persistence.replaceEmbeddings(
     memories.map((memory, index) => {
@@ -237,7 +238,7 @@ export const indexCustomerMemoryEntries = indexCustomerMemories;
 
 export async function findRelevantCustomerMemory(
   input: FindRelevantCustomerMemoryInput,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: CustomerMemoryRecallDependencies = {}
 ) {
   const normalizedQuery = input.query.trim();

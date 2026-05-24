@@ -1,12 +1,12 @@
-import { validateUIMessages, type UIMessage } from "ai";
+import { type UIMessage, validateUIMessages } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
-
+import { streamRagChatbot } from "./chat";
 import {
   getRagKnowledgeBaseStatus,
   type RagKnowledgeBaseStatus,
 } from "./knowledge-base-status";
-import { streamRagChatbot } from "./chat";
 import { ragChatbotSourceDocument } from "./source-document";
 
 type DemoEnv = Record<string, string | undefined>;
@@ -19,8 +19,8 @@ export interface RagChatbotRuntimeState {
   chatModel: string;
   isChatAvailable: boolean;
   nodeVersion: string;
-  sourceDocument: typeof ragChatbotSourceDocument;
   setupMessage: string | null;
+  sourceDocument: typeof ragChatbotSourceDocument;
   statusLabel: "Index required" | "Ready" | "Setup required";
 }
 
@@ -38,7 +38,7 @@ const invalidUiMessagesError =
 const malformedJsonError = "Expected a valid JSON request body.";
 
 export async function getRagChatbotRuntimeState(
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: RagChatbotRuntimeDependencies = {
     getKnowledgeBaseStatus: getRagKnowledgeBaseStatus,
   }
@@ -84,7 +84,7 @@ async function readRagChatbotMessages(body: unknown): Promise<UIMessage[]> {
 
 export async function handleRagChatbotRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: RagChatbotRequestDependencies = {
     getKnowledgeBaseStatus: getRagKnowledgeBaseStatus,
     streamRagChatbot,

@@ -5,12 +5,14 @@ import {
   handleCustomerMemoryChatRequest,
 } from "./runtime";
 
+const missingGatewaySetupPattern = /AI_GATEWAY_API_KEY/i;
+
 describe("customer memory runtime", () => {
   it("reports setup requirements when gateway or database config is missing", () => {
     expect(getCustomerMemoryRuntimeState({})).toMatchObject({
       compactionThreshold: 3,
       isChatAvailable: false,
-      setupMessage: expect.stringMatching(/AI_GATEWAY_API_KEY/i),
+      setupMessage: expect.stringMatching(missingGatewaySetupPattern),
       statusLabel: "Setup required",
     });
   });
@@ -42,7 +44,9 @@ describe("customer memory runtime", () => {
           messages: [
             {
               id: "user-1",
-              parts: [{ text: "Remember our plain-text email policy.", type: "text" }],
+              parts: [
+                { text: "Remember our plain-text email policy.", type: "text" },
+              ],
               role: "user",
             },
           ],
@@ -51,16 +55,16 @@ describe("customer memory runtime", () => {
         method: "POST",
       }),
       {
+        isReadonly: false,
+        visitorId: "visitor-123",
+      },
+      {
         AI_GATEWAY_API_KEY: "test-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
         ensureThreadOwnership: vi.fn().mockResolvedValue(undefined),
         streamCustomerMemoryConversation,
-      },
-      {
-        isReadonly: false,
-        visitorId: "visitor-123",
       }
     );
 
@@ -87,13 +91,12 @@ describe("customer memory runtime", () => {
         method: "POST",
       }),
       {
-        AI_GATEWAY_API_KEY: "test-key",
-        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
-      },
-      undefined,
-      {
         isReadonly: false,
         visitorId: "visitor-123",
+      },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       }
     );
 
@@ -120,6 +123,10 @@ describe("customer memory runtime", () => {
         method: "POST",
       }),
       {
+        isReadonly: false,
+        visitorId: "demo-shared",
+      },
+      {
         AI_GATEWAY_API_KEY: "test-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
@@ -132,16 +139,13 @@ describe("customer memory runtime", () => {
             )
           ),
         streamCustomerMemoryConversation: vi.fn(),
-      },
-      {
-        isReadonly: false,
-        visitorId: "demo-shared",
       }
     );
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({
-      error: "No customer-memory thread found for thread-404 under demo-sandbox.",
+      error:
+        "No customer-memory thread found for thread-404 under demo-sandbox.",
     });
   });
 
@@ -153,7 +157,9 @@ describe("customer memory runtime", () => {
           messages: [
             {
               id: "user-1",
-              parts: [{ text: "Can you draft a new status update?", type: "text" }],
+              parts: [
+                { text: "Can you draft a new status update?", type: "text" },
+              ],
               role: "user",
             },
           ],
@@ -162,15 +168,15 @@ describe("customer memory runtime", () => {
         method: "POST",
       }),
       {
+        isReadonly: false,
+        visitorId: "visitor-123",
+      },
+      {
         AI_GATEWAY_API_KEY: "test-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
         streamCustomerMemoryConversation: vi.fn(),
-      },
-      {
-        isReadonly: false,
-        visitorId: "visitor-123",
       }
     );
 

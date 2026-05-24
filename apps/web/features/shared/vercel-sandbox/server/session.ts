@@ -1,7 +1,12 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import path, { posix as posixPath } from "node:path";
-
 import { Sandbox } from "@vercel/sandbox";
+import { env as appEnv } from "@/env";
+import {
+  getVercelSandboxSetupState,
+  getVercelSandboxTokenCredentials,
+  type VercelSandboxEnv,
+} from "./env";
 
 export const VERCEL_SANDBOX_WORKSPACE_ROOT = path.resolve(
   process.cwd(),
@@ -11,8 +16,6 @@ export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
 export const VERCEL_SANDBOX_SKILLS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
 export const VERCEL_SANDBOX_ARTIFACTS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
 export const VERCEL_SANDBOX_AGENTS_FILE = `${VERCEL_SANDBOX_PROJECT_ROOT}/AGENTS.md`;
-
-type DemoEnv = Record<string, string | undefined>;
 
 interface SandboxFs {
   exists(path: string): Promise<boolean>;
@@ -38,14 +41,6 @@ export interface VercelSandboxHandle {
 export type VercelSandboxFactory = (
   sessionId: string
 ) => Promise<VercelSandboxHandle>;
-
-export interface VercelSandboxSetupState {
-  authMode: "missing" | "oidc" | "token";
-  isReady: boolean;
-  issues: string[];
-  providerLabel: "Vercel Sandbox";
-  runtime: "node24";
-}
 
 export interface VercelSandboxSession {
   readonly artifactsRoot: string;
@@ -80,59 +75,9 @@ interface SessionEntry {
   seededBaseWorkspace: boolean;
 }
 
-function hasTokenCredentials(env: DemoEnv) {
-  return Boolean(
-    env.VERCEL_PROJECT_ID && env.VERCEL_TEAM_ID && env.VERCEL_TOKEN
-  );
-}
-
-function getTokenCredentials(env: DemoEnv) {
-  const { VERCEL_PROJECT_ID, VERCEL_TEAM_ID, VERCEL_TOKEN } = env;
-
-  if (!(VERCEL_PROJECT_ID && VERCEL_TEAM_ID && VERCEL_TOKEN)) {
-    throw new Error(
-      "Vercel Sandbox token credentials are incomplete. Expected VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID."
-    );
-  }
-
-  return {
-    projectId: VERCEL_PROJECT_ID,
-    teamId: VERCEL_TEAM_ID,
-    token: VERCEL_TOKEN,
-  };
-}
-
-export function getVercelSandboxSetupState(
-  env: DemoEnv = process.env
-): VercelSandboxSetupState {
-  const issues: string[] = [];
-  const hasOidc = Boolean(env.VERCEL_OIDC_TOKEN);
-  let authMode: VercelSandboxSetupState["authMode"] = "missing";
-
-  if (hasOidc) {
-    authMode = "oidc";
-  } else if (hasTokenCredentials(env)) {
-    authMode = "token";
-  }
-
-  if (authMode === "missing") {
-    issues.push(
-      "Vercel Sandbox credentials are missing. Add VERCEL_OIDC_TOKEN or the VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID trio."
-    );
-  }
-
-  return {
-    authMode,
-    isReady: issues.length === 0,
-    issues,
-    providerLabel: "Vercel Sandbox",
-    runtime: "node24",
-  };
-}
-
 export async function createVercelSandbox(
   sessionId: string,
-  env: DemoEnv = process.env,
+  env: VercelSandboxEnv = appEnv,
   options: {
     ports?: number[];
   } = {}
@@ -163,7 +108,7 @@ export async function createVercelSandbox(
     }
   }
 
-  const tokenCredentials = getTokenCredentials(env);
+  const tokenCredentials = getVercelSandboxTokenCredentials(env);
 
   try {
     return (await Sandbox.get({
@@ -511,7 +456,7 @@ export function createVercelSandboxSessionRegistry({
 let sharedRegistry: VercelSandboxSessionRegistry | null = null;
 
 export function getSharedVercelSandboxSessionRegistry(
-  env: DemoEnv = process.env
+  env: VercelSandboxEnv = appEnv
 ) {
   sharedRegistry ??= createVercelSandboxSessionRegistry({
     createSandbox: (sessionId) => createVercelSandbox(sessionId, env),

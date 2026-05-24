@@ -1,17 +1,18 @@
+import { env as appEnv } from "@/env";
+import { getCustomerMemoryProfile } from "../customer-profiles";
 import {
   invalidCustomerIdError,
   malformedJsonError,
   readCustomerMemorySessionQuery,
   readCustomerMemoryThreadCreateRequest,
 } from "./contract";
-import { getCustomerMemoryProfile } from "../customer-profiles";
 import {
   createCustomerMemoryThread,
   loadCustomerMemorySession,
 } from "./session";
 import {
-  getReadonlyCustomerMemoryError,
   type CustomerMemoryViewerContext,
+  getReadonlyCustomerMemoryError,
   resolveCustomerMemoryViewerContext,
 } from "./viewer-context";
 
@@ -36,9 +37,9 @@ function getDatabaseSetupError(env: DemoEnv) {
 
 export async function handleCustomerMemorySessionRequest(
   request: Request,
-  env: DemoEnv = process.env,
-  dependencies: CustomerMemorySessionRequestDependencies = {},
-  viewer: CustomerMemoryViewerContext
+  viewer: CustomerMemoryViewerContext,
+  env: DemoEnv = appEnv,
+  dependencies: CustomerMemorySessionRequestDependencies = {}
 ) {
   const setupError = getDatabaseSetupError(env);
 
@@ -64,10 +65,7 @@ export async function handleCustomerMemorySessionRequest(
   } catch (error) {
     if (
       error instanceof Error &&
-      [
-        invalidCustomerIdError,
-        malformedJsonError,
-      ].includes(error.message)
+      [invalidCustomerIdError, malformedJsonError].includes(error.message)
     ) {
       return Response.json(
         {
@@ -81,7 +79,9 @@ export async function handleCustomerMemorySessionRequest(
       error instanceof Error &&
       (error.message.startsWith("Unknown customer-memory profile") ||
         error.message.startsWith("No customer-memory thread found") ||
-        error.message.startsWith("No shared customer-memory demo thread is available"))
+        error.message.startsWith(
+          "No shared customer-memory demo thread is available"
+        ))
     ) {
       return Response.json(
         {
@@ -97,9 +97,9 @@ export async function handleCustomerMemorySessionRequest(
 
 export async function handleCustomerMemoryThreadCreateRequest(
   request: Request,
-  env: DemoEnv = process.env,
-  dependencies: CustomerMemoryThreadCreateRequestDependencies = {},
-  viewer: CustomerMemoryViewerContext
+  viewer: CustomerMemoryViewerContext,
+  env: DemoEnv = appEnv,
+  dependencies: CustomerMemoryThreadCreateRequestDependencies = {}
 ) {
   const setupError = getDatabaseSetupError(env);
 

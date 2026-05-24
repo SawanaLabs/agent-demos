@@ -33,6 +33,7 @@ updateAt: 2026-05-22
 
 - Shared components, Tailwind primitives, UI hooks, and shared UI utilities belong in `packages/ui`.
 - Application routes, app-specific providers, and app-specific wrappers belong in `apps/web`.
+- Environment-variable contracts belong in `keys.ts` and `env.ts` modules. Feature routes, runtime modules, and model/chat helpers should consume those modules instead of reading `process.env` directly.
 - Quality tooling is rooted at the repository root. Package scripts should delegate to the root quality gate when they need the shared Ultracite config.
 - Package export paths are runtime contracts. Do not add file extensions to workspace export-map imports unless the package export map actually exposes those paths.
 - Keep docs maps complete. Adding or removing a first-level domain requires `docs/index.md` updates, and adding or removing a subdomain file requires the matching `docs/<domain>/index.md` update.

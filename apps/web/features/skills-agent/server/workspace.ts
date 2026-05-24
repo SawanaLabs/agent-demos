@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { env as appEnv } from "@/env";
 
 import { SKILLS_AGENT_WORKSPACE_ROOT } from "./local-skill-catalog";
 import {
@@ -60,7 +61,7 @@ export function formatVisibleSkillCatalog(skills: VisibleSkillMetadata[]) {
 
 export async function createSkillsAgentWorkspace(
   {
-    env = process.env,
+    env = appEnv,
     sessionId,
     skills,
   }: {

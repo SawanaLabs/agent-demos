@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 const DEFAULT_SKILLS_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 
 export const SKILLS_AGENT_PROVIDER_OPTIONS = {
@@ -10,7 +12,7 @@ export const SKILLS_AGENT_PROVIDER_OPTIONS = {
 type SkillsAgentEnv = Record<string, string | undefined>;
 
 export function resolveSkillsAgentChatModel(
-  env: SkillsAgentEnv = process.env
+  env: SkillsAgentEnv = appEnv
 ): string {
   return env.AI_GATEWAY_CHAT_MODEL || DEFAULT_SKILLS_AGENT_CHAT_MODEL;
 }

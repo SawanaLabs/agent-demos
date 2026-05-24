@@ -1,9 +1,14 @@
+import { env as appEnv } from "@/env";
+
 import { indexRagChatbotSource } from "@/features/rag-chatbot/server/index-source";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-function getIndexSetupIssue(env: NodeJS.ProcessEnv): string | null {
+function getIndexSetupIssue(env: {
+  AI_GATEWAY_API_KEY?: string;
+  DATABASE_URL?: string;
+}): string | null {
   if (!env.AI_GATEWAY_API_KEY) {
     return "AI_GATEWAY_API_KEY is missing. Source indexing requires embedding generation through AI Gateway.";
   }
@@ -16,7 +21,7 @@ function getIndexSetupIssue(env: NodeJS.ProcessEnv): string | null {
 }
 
 export async function POST(_request: Request) {
-  if (process.env.NODE_ENV === "production") {
+  if (appEnv.NODE_ENV === "production") {
     return Response.json(
       {
         error:
@@ -26,7 +31,7 @@ export async function POST(_request: Request) {
     );
   }
 
-  const setupIssue = getIndexSetupIssue(process.env);
+  const setupIssue = getIndexSetupIssue(appEnv);
 
   if (setupIssue) {
     return Response.json(

@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 import {
   createVercelSandbox,
   createVercelSandboxSessionRegistry,
@@ -246,7 +248,7 @@ export async function launchDetachedSandboxPreview({
 }
 
 export function createSandboxAgentSessionRegistry(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): SandboxAgentSessionRegistry {
   const sandboxHandles = new Map<string, NamedSandboxHandle>();
   const baseRegistry: VercelSandboxSessionRegistry =
@@ -347,9 +349,7 @@ export function createSandboxAgentSessionRegistry(
 
 let sharedRegistry: SandboxAgentSessionRegistry | null = null;
 
-export function getSharedSandboxAgentSessionRegistry(
-  env: DemoEnv = process.env
-) {
+export function getSharedSandboxAgentSessionRegistry(env: DemoEnv = appEnv) {
   sharedRegistry ??= createSandboxAgentSessionRegistry(env);
 
   return sharedRegistry;

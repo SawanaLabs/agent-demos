@@ -1,4 +1,3 @@
-import { embed } from "ai";
 import {
   and,
   cosineDistance,
@@ -8,11 +7,13 @@ import {
   sql,
 } from "@workspace/database/drizzle";
 
+import { embed } from "ai";
+import { env as appEnv } from "@/env";
+
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 
 import {
   ensureRagKnowledgeBaseReady,
-  loadRagChatbotDatabase,
   type RagDatabaseModule,
 } from "./knowledge-base-status";
 import { ragChatbotSourceDocument } from "./source-document";
@@ -49,16 +50,16 @@ export interface RagToolResult {
 }
 
 interface RagRetrievalDatabaseModule extends RagDatabaseModule {
-  ragChatbotEmbeddings: (typeof import("@workspace/database"))["ragChatbotEmbeddings"];
+  ragChatbotEmbeddings: typeof import("@workspace/database")["ragChatbotEmbeddings"];
 }
 
 interface FindRelevantContentDependencies {
   ensureKnowledgeBaseReady?: (env: DemoEnv) => Promise<void>;
-  generateEmbedding: (value: string, env: DemoEnv) => Promise<number[]>;
   findMatches?: (input: {
     queryEmbedding: number[];
     sourceSlug: string;
   }) => Promise<RetrievedRagContent[]>;
+  generateEmbedding: (value: string, env: DemoEnv) => Promise<number[]>;
   loadDatabase?: () => Promise<RagRetrievalDatabaseModule>;
 }
 
@@ -147,7 +148,7 @@ async function findMatchesForSource(
 
 export async function generateRagEmbedding(
   value: string,
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): Promise<number[]> {
   const gateway = createAiGateway(env);
   const normalizedValue = value.replaceAll("\n", " ").trim();
@@ -161,7 +162,7 @@ export async function generateRagEmbedding(
 
 export async function findRelevantContent(
   userQuery: string,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: FindRelevantContentDependencies = {
     generateEmbedding: generateRagEmbedding,
   }

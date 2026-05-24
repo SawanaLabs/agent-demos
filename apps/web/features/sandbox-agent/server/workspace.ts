@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 import {
   createSandboxAgentToolset,
   type SandboxAgentToolset,
@@ -32,7 +34,7 @@ export function formatSuggestedUseCases(useCases: readonly string[]) {
 
 export async function createSandboxAgentWorkspace(
   {
-    env = process.env,
+    env = appEnv,
     sessionId,
     suggestedUseCases = defaultSandboxAgentSuggestedUseCases,
   }: {

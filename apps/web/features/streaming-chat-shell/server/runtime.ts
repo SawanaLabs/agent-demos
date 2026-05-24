@@ -1,4 +1,5 @@
-import { type UIMessage } from "ai";
+import type { UIMessage } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
@@ -7,8 +8,8 @@ import {
   invalidUiMessagesError,
   malformedJsonError,
   readStreamingChatShellRequest,
-  supportedAudiences,
   type StreamingAudience,
+  supportedAudiences,
 } from "./contract";
 import { createStreamingTurnUiMessageResponse } from "./streaming-turn";
 
@@ -36,7 +37,7 @@ interface StreamingChatShellRequestDependencies {
 }
 
 export function getStreamingChatShellRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ): StreamingChatShellRuntimeState {
   const setup = getAiGatewaySetupState(env);
 
@@ -50,7 +51,7 @@ export function getStreamingChatShellRuntimeState(
   };
 }
 
-export async function streamStreamingChatShell(
+export function streamStreamingChatShell(
   messages: UIMessage[],
   env: DemoEnv,
   options: StreamingChatShellRequestOptions
@@ -60,7 +61,7 @@ export async function streamStreamingChatShell(
 
 export async function handleStreamingChatShellRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: StreamingChatShellRequestDependencies = {
     streamStreamingChatShell,
   }

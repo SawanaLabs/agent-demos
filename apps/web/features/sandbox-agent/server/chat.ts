@@ -4,6 +4,7 @@ import {
   ToolLoopAgent,
   type UIMessage,
 } from "ai";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 import {
@@ -26,7 +27,7 @@ export const sandboxAgentInstructions = [
 export async function streamSandboxAgent(
   messages: UIMessage[],
   {
-    env = process.env,
+    env = appEnv,
     sessionId,
     previewPort,
   }: {

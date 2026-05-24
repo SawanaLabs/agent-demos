@@ -6,6 +6,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
+import { env as appEnv } from "@/env";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 
@@ -132,10 +133,7 @@ function createSupportTriageTools() {
   };
 }
 
-export function streamLoopAgent(
-  messages: UIMessage[],
-  env: DemoEnv = process.env
-) {
+export function streamLoopAgent(messages: UIMessage[], env: DemoEnv = appEnv) {
   const gateway = createAiGateway(env);
   const chatModel = resolveLoopAgentChatModel(env);
   const agent = new ToolLoopAgent({

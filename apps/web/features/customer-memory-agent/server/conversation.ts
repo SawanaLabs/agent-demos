@@ -9,6 +9,7 @@ import {
   type UIMessageStreamOnFinishCallback,
 } from "ai";
 import { z } from "zod";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -336,7 +337,7 @@ async function createDefaultConversationResponse(
 
 export async function streamCustomerMemoryConversation(
   input: StreamCustomerMemoryConversationInput,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: StreamCustomerMemoryConversationDependencies = {}
 ) {
   const latestUserPrompt = getLatestUserPrompt(input.messages);

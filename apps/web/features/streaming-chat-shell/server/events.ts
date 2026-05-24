@@ -1,4 +1,5 @@
-import { type UIMessage } from "ai";
+import type { UIMessage } from "ai";
+import { env as appEnv } from "@/env";
 
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
@@ -11,8 +12,8 @@ import {
 } from "./contract";
 import {
   createStreamingTurnEventsResponse,
-  streamStreamingTurnEvents,
   type StreamingChatShellEvent,
+  streamStreamingTurnEvents,
 } from "./streaming-turn";
 
 type DemoEnv = Record<string, string | undefined>;
@@ -35,7 +36,7 @@ export async function* streamStreamingChatShellEvents(
 
 export async function handleStreamingChatShellEventsRequest(
   request: Request,
-  env: DemoEnv = process.env,
+  env: DemoEnv = appEnv,
   dependencies: StreamingChatShellEventsDependencies = {
     streamStreamingChatShellEvents,
   }
@@ -58,15 +59,21 @@ export async function handleStreamingChatShellEventsRequest(
     const { audience, messages } = await readStreamingChatShellRequest(
       await request.json()
     );
-    if (dependencies.streamStreamingChatShellEvents === streamStreamingChatShellEvents) {
+    if (
+      dependencies.streamStreamingChatShellEvents ===
+      streamStreamingChatShellEvents
+    ) {
       return createStreamingTurnEventsResponse(messages, env, audience);
     }
 
     const encoder = new TextEncoder();
-    const eventStream =
-      await dependencies.streamStreamingChatShellEvents(messages, env, {
+    const eventStream = await dependencies.streamStreamingChatShellEvents(
+      messages,
+      env,
+      {
         audience,
-      });
+      }
+    );
 
     return new Response(
       new ReadableStream({

@@ -1,4 +1,5 @@
 import { generateText, getToolName, isToolUIPart, type UIMessage } from "ai";
+import { env as appEnv } from "@/env";
 
 import {
   createAiGateway,
@@ -134,7 +135,7 @@ export async function generateCustomerMemoryCompactionSummary(
     messages: UIMessage[];
     previousHandoff?: string | null;
   },
-  env: DemoEnv = process.env
+  env: DemoEnv = appEnv
 ) {
   const gateway = createAiGateway(env);
   const { chatModel } = getAiGatewayConfig(env);

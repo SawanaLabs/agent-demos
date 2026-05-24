@@ -1,6 +1,6 @@
 import { embedMany } from "ai";
 import { createHash } from "node:crypto";
-import { count, eq } from "drizzle-orm";
+import { count, eq } from "@workspace/database/drizzle";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 

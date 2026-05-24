@@ -6,7 +6,7 @@ import {
   eq,
   gt,
   sql,
-} from "drizzle-orm";
+} from "@workspace/database/drizzle";
 
 import { createAiGateway } from "@/features/shared/ai-gateway/server/env";
 

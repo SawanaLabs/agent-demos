@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq } from "@workspace/database/drizzle";
 
 import { ragChatbotSourceDocument } from "./source-document";
 

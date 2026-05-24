@@ -13,15 +13,23 @@ import {
   LOOP_AGENT_PROVIDER_OPTIONS,
   resolveLoopAgentChatModel,
 } from "./model";
-import { runSupportTriageLoop } from "./support-triage";
+import {
+  buildSupportEscalationApprovalRequest,
+  recordSupportEscalationApproval,
+  runSupportTriageLoop,
+} from "./support-triage";
 
 type DemoEnv = Record<string, string | undefined>;
 
 const loopAgentInstructions = [
   "You are the loop-agent demo for a support operations team.",
   "Triage support tickets by using tools before making a recommendation.",
+  "For questions about the default case, tool sequence, parallel lookups, SLA decision, approval flow, or next support action, use the tools before answering.",
+  "Do not answer those workflow questions from the instructions alone.",
   "Start by gathering independent account context, recent tickets, and entitlement information.",
   "Then calculate SLA risk before giving the final action, priority, and rationale.",
+  "If the SLA recommendation is a high-priority escalation, call requestHumanApproval with the approvalRequest returned by calculateSlaRisk before the final answer.",
+  "If approval is denied, do not retry the approval tool; explain that the escalation was not performed.",
   "Keep the final answer concise and make the tool sequence easy for an engineer to inspect.",
 ].join(" ");
 
@@ -37,6 +45,7 @@ function createSupportTriageTools() {
         const triage = runSupportTriageLoop();
 
         return {
+          approvalRequest: buildSupportEscalationApprovalRequest(triage),
           recommendation: triage.recommendation,
           risk: triage.risk,
         };
@@ -96,6 +105,29 @@ function createSupportTriageTools() {
           ],
         };
       },
+    }),
+    requestHumanApproval: tool({
+      description:
+        "Request human approval before performing the recommended high-priority support escalation.",
+      inputSchema: z.object({
+        action: z.literal("escalate").describe("The approved action to take."),
+        caseId: z.string().describe("The support case identifier."),
+        customerName: z.string().describe("The customer name."),
+        customerUpdate: z
+          .string()
+          .describe("The message the support team will send to the customer."),
+        internalHandoff: z
+          .string()
+          .describe("The internal escalation handoff note."),
+        priority: z.literal("high").describe("The escalation priority."),
+        rationale: z
+          .array(z.string())
+          .min(1)
+          .describe("The reasons the escalation needs human approval."),
+      }),
+      needsApproval: true,
+      execute: (approvalRequest) =>
+        recordSupportEscalationApproval(approvalRequest),
     }),
   };
 }

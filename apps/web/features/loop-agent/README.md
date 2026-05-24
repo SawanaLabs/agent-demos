@@ -7,8 +7,9 @@
 - Triage a default support case for an enterprise customer.
 - Use multiple business tools before producing the recommendation.
 - Show independent context lookups before the dependent SLA decision.
+- Gate the high-priority escalation with an AI SDK tool approval request.
 - Stream the agent through `ToolLoopAgent` with a bounded `stepCountIs(6)` loop.
-- Render tool calls and tool results in the AI Elements workspace.
+- Render tool calls, tool results, and approval states in the AI Elements workspace.
 
 ## Feature Slice
 
@@ -40,5 +41,7 @@ apps/web/app/api/demos/loop-agent/route.ts
 - `https://ai-sdk.dev/resources/recipes/next/call-tools-multiple-steps`
 - `https://ai-sdk.dev/resources/recipes/node/call-tools-in-parallel`
 - `https://ai-sdk.dev/resources/recipes/node/manual-agent-loop`
+- `https://ai-sdk.dev/cookbook/next/human-in-the-loop`
 - `https://ai-sdk.dev/docs/reference/ai-sdk-core/tool-loop-agent`
 - `https://ai-sdk.dev/docs/reference/ai-sdk-core/create-agent-ui-stream-response`
+- `https://elements.ai-sdk.dev/components/confirmation`

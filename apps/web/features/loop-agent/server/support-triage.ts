@@ -16,6 +16,23 @@ export interface SupportTriageRecommendation {
   rationale: string[];
 }
 
+export interface SupportTriageApprovalRequest {
+  action: "escalate";
+  caseId: string;
+  customerName: string;
+  customerUpdate: string;
+  internalHandoff: string;
+  priority: "high";
+  rationale: string[];
+}
+
+export interface SupportTriageApprovalResult
+  extends SupportTriageApprovalRequest {
+  approvalStatus: "approved";
+  handoffChannel: "priority escalation";
+  nextStep: string;
+}
+
 export interface SupportTriageResult {
   caseId: string;
   customer: SupportTriageCustomer;
@@ -80,6 +97,45 @@ export function runSupportTriageLoop(): SupportTriageResult {
         label: "Dependent SLA decision",
         tools: ["calculateSlaRisk"],
       },
+      {
+        execution: "sequential",
+        label: "Human approval checkpoint",
+        tools: ["requestHumanApproval"],
+      },
     ],
+  };
+}
+
+export function buildSupportEscalationApprovalRequest(
+  triage: SupportTriageResult = runSupportTriageLoop()
+): SupportTriageApprovalRequest {
+  if (
+    triage.recommendation.action !== "escalate" ||
+    triage.recommendation.priority !== "high"
+  ) {
+    throw new Error("Support escalation approval requires a high escalation.");
+  }
+
+  return {
+    action: "escalate",
+    caseId: triage.caseId,
+    customerName: triage.customer.name,
+    customerUpdate:
+      "We are escalating your export timeout incident to priority support because the SLA window is at risk.",
+    internalHandoff: `Route ${triage.ticket.id} to priority support with ${triage.risk.minutesRemaining} minutes remaining in the response SLA.`,
+    priority: "high",
+    rationale: triage.recommendation.rationale,
+  };
+}
+
+export function recordSupportEscalationApproval(
+  approvalRequest: SupportTriageApprovalRequest
+): SupportTriageApprovalResult {
+  return {
+    ...approvalRequest,
+    approvalStatus: "approved",
+    handoffChannel: "priority escalation",
+    nextStep:
+      "Open the priority escalation, send the customer update, and attach the SLA risk summary.",
   };
 }

@@ -3,9 +3,11 @@
 import { Chat, useChat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
+  CheckCircleIcon,
   GitBranchIcon,
   StopIcon,
   WrenchIcon,
+  XCircleIcon,
 } from "@phosphor-icons/react";
 import {
   ChainOfThought,
@@ -15,6 +17,15 @@ import {
   ChainOfThoughtSearchResults,
   ChainOfThoughtStep,
 } from "@workspace/ui/components/ai-elements/chain-of-thought";
+import {
+  Confirmation,
+  ConfirmationAccepted,
+  ConfirmationAction,
+  ConfirmationActions,
+  ConfirmationRejected,
+  ConfirmationRequest,
+  ConfirmationTitle,
+} from "@workspace/ui/components/ai-elements/confirmation";
 import {
   Conversation,
   ConversationContent,
@@ -51,9 +62,11 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import {
+  type ChatAddToolApproveResponseFunction,
   DefaultChatTransport,
   isReasoningUIPart,
   isToolUIPart,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
   type UIMessage,
 } from "ai";
 import { type ReactNode, useMemo, useState } from "react";
@@ -94,7 +107,8 @@ function getBatchStatus(toolNames: string[], toolParts: ToolPart[]) {
   }
 
   const isComplete = batchParts.every(
-    (part) => part.state === "output-available"
+    (part) =>
+      part.state === "output-available" || part.state === "output-denied"
   );
 
   if (isComplete) {
@@ -108,11 +122,139 @@ function getBatchDescription(
   batch: SupportTriageResult["toolBatches"][number],
   triage: SupportTriageResult
 ) {
+  if (batch.tools.includes("requestHumanApproval")) {
+    return `Requests human approval before escalating ${triage.caseId}.`;
+  }
+
   if (batch.execution === "parallel") {
     return `Checks account context in parallel before the SLA decision for ${triage.caseId}.`;
   }
 
   return `Uses the completed account context to assess SLA risk for ${triage.caseId}.`;
+}
+
+interface ApprovalToolInput {
+  action?: string;
+  caseId?: string;
+  customerName?: string;
+  customerUpdate?: string;
+  internalHandoff?: string;
+  priority?: string;
+  rationale?: string[];
+}
+
+function getApprovalToolInput(part: ToolPart): ApprovalToolInput {
+  if (
+    typeof part.input !== "object" ||
+    part.input === null ||
+    Array.isArray(part.input)
+  ) {
+    return {};
+  }
+
+  return part.input as ApprovalToolInput;
+}
+
+function useLoopAgentChat() {
+  const [chat] = useState(
+    () =>
+      new Chat({
+        sendAutomaticallyWhen:
+          lastAssistantMessageIsCompleteWithApprovalResponses,
+        transport: new DefaultChatTransport({
+          api: "/api/demos/loop-agent",
+        }),
+      })
+  );
+
+  return useChat({ chat });
+}
+
+interface HumanApprovalConfirmationProps {
+  onApprovalResponse: ChatAddToolApproveResponseFunction;
+  part: ToolPart;
+  triage: SupportTriageResult;
+}
+
+function HumanApprovalConfirmation({
+  onApprovalResponse,
+  part,
+  triage,
+}: HumanApprovalConfirmationProps) {
+  const approval = part.approval;
+
+  if (!approval) {
+    return null;
+  }
+
+  const input = getApprovalToolInput(part);
+  const target = input.customerName
+    ? `${input.customerName} / ${input.caseId ?? triage.caseId}`
+    : (input.caseId ?? triage.caseId);
+  const action = input.action ?? triage.recommendation.action;
+  const priority = input.priority ?? triage.recommendation.priority;
+
+  return (
+    <Confirmation
+      approval={approval}
+      className="border-amber-500/30 bg-amber-500/5"
+      state={part.state}
+    >
+      <ConfirmationTitle>Human approval checkpoint</ConfirmationTitle>
+      <ConfirmationRequest>
+        <div className="space-y-2 text-sm">
+          <p>
+            Approve {priority} priority {action} for {target}?
+          </p>
+          {input.customerUpdate ? (
+            <p className="text-muted-foreground">{input.customerUpdate}</p>
+          ) : null}
+          {input.rationale?.length ? (
+            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+              {input.rationale.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </ConfirmationRequest>
+      <ConfirmationAccepted>
+        <CheckCircleIcon className="size-4" />
+        <span>Approved. The agent can execute the escalation handoff.</span>
+      </ConfirmationAccepted>
+      <ConfirmationRejected>
+        <XCircleIcon className="size-4" />
+        <span>Rejected. The agent will continue without escalating.</span>
+      </ConfirmationRejected>
+      <ConfirmationActions>
+        <ConfirmationAction
+          onClick={() =>
+            onApprovalResponse({
+              approved: false,
+              id: approval.id,
+              reason: "Reviewer rejected the support escalation.",
+            })
+          }
+          variant="outline"
+        >
+          <XCircleIcon className="size-3.5" />
+          Reject
+        </ConfirmationAction>
+        <ConfirmationAction
+          onClick={() =>
+            onApprovalResponse({
+              approved: true,
+              id: approval.id,
+              reason: "Reviewer approved the support escalation.",
+            })
+          }
+        >
+          <CheckCircleIcon className="size-3.5" />
+          Approve
+        </ConfirmationAction>
+      </ConfirmationActions>
+    </Confirmation>
+  );
 }
 
 export interface LoopAgentWorkspaceProps {
@@ -127,6 +269,7 @@ interface AssistantTraceProps {
   isLastMessage: boolean;
   isStreaming: boolean;
   message: UIMessage;
+  onApprovalResponse: ChatAddToolApproveResponseFunction;
   triage: SupportTriageResult;
 }
 
@@ -134,6 +277,7 @@ function AssistantTrace({
   isLastMessage,
   isStreaming,
   message,
+  onApprovalResponse,
   triage,
 }: AssistantTraceProps) {
   const text = getTextContent(message);
@@ -196,30 +340,37 @@ function AssistantTrace({
         </ChainOfThought>
       ) : null}
 
-      {bodyContent}
-
       {toolParts.map((part) => (
-        <Tool key={part.toolCallId}>
-          {part.type === "dynamic-tool" ? (
-            <ToolHeader
-              state={part.state}
-              title="Support Triage Tool"
-              toolName={part.toolName}
-              type={part.type}
-            />
-          ) : (
-            <ToolHeader
-              state={part.state}
-              title="Support Triage Tool"
-              type={part.type}
-            />
-          )}
-          <ToolContent>
-            {part.input ? <ToolInput input={part.input} /> : null}
-            <ToolOutput errorText={part.errorText} output={part.output} />
-          </ToolContent>
-        </Tool>
+        <div className="space-y-3" key={part.toolCallId}>
+          <HumanApprovalConfirmation
+            onApprovalResponse={onApprovalResponse}
+            part={part}
+            triage={triage}
+          />
+          <Tool>
+            {part.type === "dynamic-tool" ? (
+              <ToolHeader
+                state={part.state}
+                title="Support Triage Tool"
+                toolName={part.toolName}
+                type={part.type}
+              />
+            ) : (
+              <ToolHeader
+                state={part.state}
+                title="Support Triage Tool"
+                type={part.type}
+              />
+            )}
+            <ToolContent>
+              {part.input ? <ToolInput input={part.input} /> : null}
+              <ToolOutput errorText={part.errorText} output={part.output} />
+            </ToolContent>
+          </Tool>
+        </div>
       ))}
+
+      {bodyContent}
     </>
   );
 }
@@ -231,24 +382,22 @@ export function LoopAgentWorkspace({
   setupMessage,
   triage,
 }: LoopAgentWorkspaceProps) {
-  const [chat] = useState(
-    () =>
-      new Chat({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/loop-agent",
-        }),
-      })
-  );
-  const { error, messages, regenerate, sendMessage, status, stop } = useChat({
-    chat,
-  });
+  const {
+    addToolApprovalResponse,
+    error,
+    messages,
+    regenerate,
+    sendMessage,
+    status,
+    stop,
+  } = useLoopAgentChat();
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
   const samplePrompts = useMemo(
     () => [
       `Triage ${triage.caseId} and explain the tool sequence.`,
-      "Which lookups can run in parallel before the SLA decision?",
-      "What should the support team do next?",
+      `Triage ${triage.caseId} and show which lookups ran in parallel before the SLA decision.`,
+      `Triage ${triage.caseId}, request human approval before escalation, then finalize.`,
     ],
     [triage.caseId]
   );
@@ -284,6 +433,7 @@ export function LoopAgentWorkspace({
                         isLastMessage={index === messages.length - 1}
                         isStreaming={isBusy}
                         message={message}
+                        onApprovalResponse={addToolApprovalResponse}
                         triage={triage}
                       />
                     ) : (
@@ -318,6 +468,7 @@ export function LoopAgentWorkspace({
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">ToolLoopAgent</Badge>
                   <Badge variant="outline">Tools</Badge>
+                  <Badge variant="outline">Human approval</Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">

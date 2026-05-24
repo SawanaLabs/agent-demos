@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
 description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
-updateAt: 2026-05-23
+updateAt: 2026-05-24
 ---
 
 # AI SDK Recipes Checklist
@@ -98,7 +98,7 @@ updateAt: 2026-05-23
 - [ ] Deferred from the original first-wave sketch:
   - [ ] A user-driven knowledge-base add flow in the product UI.
   - [ ] An `addResource` tool exposed in the demo workspace.
-- [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path; human approval remains deferred.
+- [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path and the Human-in-the-Loop approval path.
 - [x] Current next recommended wave after the completed RAG, multimodal, streaming, memory, loop, skills, and sandbox demos: Batch 7 - remaining MCP and external integrations.
 
 ## Prerequisite Configuration Matrix
@@ -146,7 +146,7 @@ updateAt: 2026-05-23
 - [x] Multi-step tool calls.
 - [x] Manual agent loop as contrast/reference.
 - [ ] Web search agent only if the provider/tool route is stable.
-- [ ] Human approval as a follow-up once the loop demo is stable.
+- [x] Human approval as a follow-up once the loop demo is stable. `loop-agent` gates the high-priority escalation through AI SDK `needsApproval` and AI Elements `Confirmation`.
 
 ### Batch 3 - Chat And Streaming Shell
 
@@ -286,7 +286,7 @@ updateAt: 2026-05-23
 - [x] `01-next/72-call-tools-multiple-steps.mdx` - Call Tools in Multiple Steps - Batch 2.
 - [ ] `01-next/73-mcp-tools.mdx` - Model Context Protocol (MCP) Tools - Batch 7.
 - [x] `01-next/74-use-shared-chat-context.mdx` - Share useChat State Across Components - Batch 3.
-- [ ] `01-next/75-human-in-the-loop.mdx` - Human-in-the-Loop with Next.js - Batch 2 or 7.
+- [x] `01-next/75-human-in-the-loop.mdx` - Human-in-the-Loop with Next.js - Batch 2.
 - [ ] `01-next/77-track-agent-token-usage.mdx` - Track Agent Token Usage - Batch 8.
 - [x] `01-next/80-send-custom-body-from-use-chat.mdx` - Send Custom Body from useChat - Batch 3.
 - [x] `01-next/85-custom-stream-format.mdx` - Streaming with Custom Format - Batch 3.

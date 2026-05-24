@@ -17,12 +17,13 @@ export function LoopAgentScreen() {
               Demo / Loop Agent
             </p>
             <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
-              Multi-step support triage agent with visible tool orchestration
+              Multi-step support triage agent with human approval
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               This slice turns the official AI SDK tool-calling and loop-control
               recipes into an inspectable support workflow: independent context
-              lookups, a dependent SLA decision, and a bounded agent loop.
+              lookups, a dependent SLA decision, a human approval checkpoint,
+              and a bounded agent loop.
             </p>
           </div>
 

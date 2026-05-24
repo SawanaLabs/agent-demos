@@ -1,4 +1,5 @@
 import { contentReviewDemoMeta } from "@/features/content-review/demo-meta";
+import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
   DemoCatalogEntry,
   DemoPattern,
@@ -29,6 +30,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
   contentReviewDemoMeta,
+  customerMemoryAgentDemoMeta,
   streamingChatShellDemoMeta,
   loopAgentDemoMeta,
   skillsAgentDemoMeta,

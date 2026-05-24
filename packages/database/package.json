@@ -16,6 +16,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./drizzle": "./src/drizzle.ts",
     "./keys": "./src/keys.ts",
     "./schema": "./src/schema.ts"
   },

@@ -26,7 +26,7 @@ updateAt: 2026-05-22
   - `pnpm lint` and `pnpm check` run `ultracite check`.
   - `pnpm format` and `pnpm fix` run `ultracite fix`.
   - `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:pull`, `pnpm db:push`, and `pnpm db:studio` delegate to `@workspace/database`.
-- For a single-package web dev server, use `pnpm --filter web dev`. If the default port is occupied, use `pnpm --filter web exec next dev --turbopack --port <port>`.
+- `pnpm --filter web dev` runs the web app on port `3000`. If that port is occupied, stop the stale process before starting another dev server.
 - For database package work, keep `DATABASE_URL` in `packages/database/.env.local`, root `.env.local`, `packages/database/.env`, or root `.env`; `packages/database/drizzle.config.ts` loads those files in that precedence order.
 
 ## Update Triggers

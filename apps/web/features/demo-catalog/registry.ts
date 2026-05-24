@@ -6,6 +6,7 @@ import type {
 } from "@/features/demo-catalog/types";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
 import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
+import { mcpAgentDemoMeta } from "@/features/mcp-agent/demo-meta";
 import { multimodalChatbotDemoMeta } from "@/features/multimodal-chatbot/demo-meta";
 import { ragChatbotDemoMeta } from "@/features/rag-chatbot/demo-meta";
 import { sandboxAgentDemoMeta } from "@/features/sandbox-agent/demo-meta";
@@ -35,6 +36,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   loopAgentDemoMeta,
   skillsAgentDemoMeta,
   sandboxAgentDemoMeta,
+  mcpAgentDemoMeta,
 ];
 
 export const readyDemoCatalogEntries = demoCatalogEntries.filter(

@@ -13,6 +13,7 @@ updateAt: 2026-05-24
 - First public RAG source checked: `https://ai-sdk.dev/resources/recipes/guides/rag-chatbot`.
 - Current check on 2026-05-22: the `/cookbook` root redirects to `/resources/recipes`; use "Recipes" as the public section label. The `/cookbook/guides/*` routes still return 200 and are sitemap-listed, but they are not the primary entrypoint.
 - RAG source coverage: the public RAG Agent page covers AI SDK, Vercel AI Gateway, Drizzle ORM, Postgres with `pgvector`, shadcn-ui, and TailwindCSS.
+- Batch 8 docs checked on 2026-05-24: AI SDK Telemetry and DevTools are still experimental; DevTools is local-development only; AI SDK Testing exposes `ai/test` mocks for deterministic core tests; Observability Integrations is a provider matrix for later exporter work.
 - Do not treat stale copied URLs, canary routes, versioned preview routes, or `main` branch snippets as current without re-verifying the matching stable public recipe page.
 - Use the stable public Recipes URL as the authority. `content/cookbook/**/*.mdx` paths below are source lookup aliases only and must be verified against the matching stable public route before implementation.
 - Treat recipe inventory as drift-prone. Refresh the stable recipes index, the target recipe or guide page, and the relevant docs/reference pages before starting each new batch.
@@ -26,7 +27,7 @@ updateAt: 2026-05-24
 - `apps/web/app/page.tsx` is now the Demo Gallery. The catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
 - `packages/database` now exports the RAG demo schema from `packages/database/src/schemas/rag-chatbot.ts` and remains the shared Drizzle/Neon workspace package.
-- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, `skills-agent`, and `sandbox-agent`.
+- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, `skills-agent`, `sandbox-agent`, and `mcp-agent`.
 
 ## Non-Negotiable Workflow
 
@@ -99,7 +100,7 @@ updateAt: 2026-05-24
   - [ ] A user-driven knowledge-base add flow in the product UI.
   - [ ] An `addResource` tool exposed in the demo workspace.
 - [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path and the Human-in-the-Loop approval path.
-- [x] Current next recommended wave after the completed RAG, multimodal, streaming, memory, loop, skills, and sandbox demos: Batch 7 - remaining MCP and external integrations.
+- [x] Current next recommended demo after the completed RAG, multimodal, streaming, memory, loop, skills, sandbox, and first MCP demos: Batch 8 - Trace and Eval Agent. Batch 7 external integrations and deeper MCP follow-ups remain backlog work.
 
 ## Prerequisite Configuration Matrix
 
@@ -114,7 +115,7 @@ updateAt: 2026-05-24
 - [ ] MCP test server config before the MCP batch. Prefer a local safe server first, then add third-party MCP examples.
 - [ ] External Postgres sandbox before Natural Language Postgres. Use a non-production database with read-only or tightly scoped credentials.
 - [ ] Persistence database tables before memory, message save/restore, and context compaction demos.
-- [ ] Observability target before telemetry demos. Decide whether this project uses Vercel Observability, local logs, or a small demo-local event table.
+- [ ] Observability target before telemetry demos. Start the Trace and Eval Agent with a local in-app trace and deterministic eval result model; add Vercel Observability, AI SDK Observability Integrations providers, or a database-backed event table only after the local contract is stable.
 - [ ] Browser verification setup for every UI demo: desktop and mobile viewports.
 
 ## Merge Plan
@@ -191,8 +192,8 @@ updateAt: 2026-05-24
 
 ### Batch 7 - MCP And External Integrations
 
-- [ ] MCP tools in Next.js.
-- [ ] MCP tools in Node.
+- [x] MCP tools in Next.js. `mcp-agent` now connects to `next-devtools-mcp` as an optional stdio MCP server for local Next.js runtime diagnostics.
+- [x] MCP tools in Node. `mcp-agent` now connects to a built-in HTTP MCP server for repository docs and demo catalog questions.
 - [ ] MCP elicitation.
 - [ ] MCP Apps docs review.
 - [ ] Slackbot agent.
@@ -204,13 +205,18 @@ updateAt: 2026-05-24
 ### Batch 8 - Reliability, Cost, And Observability
 
 - [ ] Track agent token usage.
+- [ ] Trace and Eval Agent.
+  - [ ] Show a local trace for run, steps, tool calls, token usage, latency, finish reason, and errors.
+  - [ ] Run fixed eval scenarios with deterministic checks before adding external eval SaaS: required tool sequence, expected evidence, token budget, refusal/error behavior, and final answer shape.
+  - [ ] Preserve the official AI SDK source core: `experimental_telemetry` with `functionId`, metadata, and privacy-conscious `recordInputs` / `recordOutputs`; `messageMetadata` for usage; and AI SDK Testing mocks for core contracts.
+  - [ ] Keep external observability providers behind a small exporter boundary. Treat Laminar, Langfuse, Braintrust, Patronus-style eval providers, and similar integrations as follow-ups once the local trace/eval contract is stable.
 - [ ] Caching middleware.
 - [ ] Local caching middleware.
 - [ ] Dynamic prompt caching.
 - [ ] Intercept fetch requests.
 - [ ] Repair malformed JSON.
 - [ ] Error handling.
-- [ ] Telemetry and DevTools.
+- [ ] Telemetry and DevTools. Use AI SDK DevTools only for local inspection, and keep generated `.devtools` data out of git if the package is introduced.
 
 ### Batch 9 - Generative UI And RSC
 
@@ -287,7 +293,7 @@ updateAt: 2026-05-24
 - [ ] `01-next/73-mcp-tools.mdx` - Model Context Protocol (MCP) Tools - Batch 7.
 - [x] `01-next/74-use-shared-chat-context.mdx` - Share useChat State Across Components - Batch 3.
 - [x] `01-next/75-human-in-the-loop.mdx` - Human-in-the-Loop with Next.js - Batch 2.
-- [ ] `01-next/77-track-agent-token-usage.mdx` - Track Agent Token Usage - Batch 8.
+- [ ] `01-next/77-track-agent-token-usage.mdx` - Track Agent Token Usage - Batch 8 source core for agent usage metadata and call-options feedback.
 - [x] `01-next/80-send-custom-body-from-use-chat.mdx` - Send Custom Body from useChat - Batch 3.
 - [x] `01-next/85-custom-stream-format.mdx` - Streaming with Custom Format - Batch 3.
 - [ ] `01-next/90-render-visual-interface-in-chat.mdx` - Render Visual Interface in Chat - Batch 9.
@@ -347,6 +353,13 @@ updateAt: 2026-05-24
 - [ ] `20-rsc/90-render-visual-interface-in-chat.mdx` - Render Visual Interface in Chat - Batch 9.
 - [ ] `20-rsc/91-stream-updates-to-visual-interfaces.mdx` - Stream Updates to Visual Interfaces - Batch 9.
 - [ ] `20-rsc/92-stream-ui-record-token-usage.mdx` - Record Token Usage after Streaming User Interfaces - Batch 9.
+
+### AI SDK Core Docs And Observability
+
+- [ ] `https://ai-sdk.dev/docs/ai-sdk-core/telemetry` - AI SDK Telemetry - Batch 8. Use `experimental_telemetry`, function IDs, metadata, lifecycle integration hooks, and OpenTelemetry spans as the official trace source core.
+- [ ] `https://ai-sdk.dev/docs/ai-sdk-core/devtools` - AI SDK DevTools - Batch 8. Local development inspection only; useful for run, step, tool call, token usage, timing, and raw provider payload shape.
+- [ ] `https://ai-sdk.dev/docs/ai-sdk-core/testing` - AI SDK Testing - Batch 8 test contract. Use `ai/test` mocks and `simulateReadableStream` for deterministic trace/eval tests.
+- [ ] `https://ai-sdk.dev/providers/observability` - AI SDK Observability Integrations - Batch 8 follow-up provider matrix after the local trace/eval contract is stable.
 
 ## Update Triggers
 

@@ -21,6 +21,7 @@ describe("demo catalog registry", () => {
       "loop-agent",
       "skills-agent",
       "sandbox-agent",
+      "mcp-agent",
     ]);
   });
 
@@ -35,6 +36,7 @@ describe("demo catalog registry", () => {
       "loop-agent",
       "skills-agent",
       "sandbox-agent",
+      "mcp-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
   });

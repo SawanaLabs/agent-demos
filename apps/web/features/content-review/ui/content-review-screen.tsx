@@ -16,12 +16,12 @@ export function ContentReviewScreen() {
               Demo / Object Generation
             </p>
             <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
-              Stream a structured object directly inside the assistant message
+              Generate a structured object directly inside the assistant message
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               This slice keeps AI SDK structured output front and center:
-              multimodal content-review input goes in, and a review object
-              progressively renders the assistant card inside the thread.
+              multimodal inputs go in, and the generated object progressively
+              renders inside the assistant card in the thread.
             </p>
           </div>
 

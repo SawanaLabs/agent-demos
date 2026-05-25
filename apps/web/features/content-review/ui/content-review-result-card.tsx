@@ -51,13 +51,13 @@ function getDecisionVariant(
 function getStatusCopy(status: ReviewCardStatus) {
   switch (status) {
     case "streaming":
-      return "Streaming structured review";
+      return "Streaming object";
     case "ready":
-      return "Review complete";
+      return "Object ready";
     case "stopped":
-      return "Review stopped";
+      return "Generation stopped";
     case "error":
-      return "Review failed";
+      return "Generation failed";
   }
 }
 
@@ -292,7 +292,7 @@ export function ContentReviewResultCard({
           )}
         >
           {errorMessage ??
-            "Waiting for the structured review object to accumulate fields."}
+            "Waiting for the structured object to accumulate fields."}
         </p>
       ) : null}
 

@@ -21,14 +21,15 @@ const malformedJsonError = "Expected a valid JSON request body.";
 const unsupportedMediaTypeError =
   "Only image attachments and PDF attachments are supported.";
 const missingReviewInputError =
-  "Provide review text, at least one attachment, or both.";
+  "Provide text guidance, at least one attachment, or both.";
 
 type DemoEnv = Record<string, string | undefined>;
 
 const reviewSystemPrompt = [
-  "You are the structured-output content review demo in a production-ready agent demos monorepo.",
-  "Review the provided text, images, and PDFs for policy, trust, and brand-safety issues.",
-  "Return only the structured content review result requested by the output schema.",
+  "You are the Object Generation structured-output demo in a production-ready agent demos monorepo.",
+  "Generate the requested object from the provided text, images, and PDFs.",
+  "Evaluate policy, trust, and brand-safety issues before filling the object fields.",
+  "Return only the structured object requested by the output schema.",
   "Use approved when the content is safe to publish as-is, needs_review when it needs human review or minor changes, and blocked when it should not be published.",
   "Ground every finding in provided evidence and keep summaries concise.",
 ].join(" ");
@@ -89,11 +90,11 @@ function buildReviewMessages(input: ContentReviewRequest) {
       content: [
         {
           text: [
-            "Review the provided content submission.",
+            "Generate the structured object for the provided content submission.",
             "Focus on safety, policy, trust, unsupported claims, and editorial risk.",
             input.prompt
               ? `Requester guidance: ${input.prompt}`
-              : "Requester guidance: Review the provided attachments only.",
+              : "Requester guidance: Use the provided attachments only.",
           ].join("\n"),
           type: "text" as const,
         },
@@ -136,8 +137,8 @@ export function createContentReviewStream(
     messages: buildReviewMessages(input),
     output: Output.object({
       description:
-        "A structured review decision with grounded findings and evidence.",
-      name: "ContentReviewResult",
+        "A structured object with grounded findings, evidence, and next action.",
+      name: "ObjectGenerationResult",
       schema: contentReviewResultSchema,
     }),
     system: reviewSystemPrompt,

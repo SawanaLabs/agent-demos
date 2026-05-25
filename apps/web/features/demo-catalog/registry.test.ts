@@ -6,6 +6,8 @@ import {
   roadmapDemoCatalogEntries,
 } from "./registry";
 
+const readableWordPattern = /[A-Za-z]{2,}/;
+
 describe("demo catalog registry", () => {
   it("aggregates one demo catalog entry per demo slug", () => {
     const slugs = demoCatalogEntries.map((entry) => entry.slug);
@@ -17,11 +19,14 @@ describe("demo catalog registry", () => {
       "multimodal-chatbot",
       "content-review",
       "customer-memory-agent",
+      "persistent-agent",
       "streaming-chat-shell",
       "loop-agent",
       "skills-agent",
       "sandbox-agent",
       "mcp-agent",
+      "openai-agents-sdk-demo",
+      "trace-eval-agent",
     ]);
   });
 
@@ -32,11 +37,14 @@ describe("demo catalog registry", () => {
       "multimodal-chatbot",
       "content-review",
       "customer-memory-agent",
+      "persistent-agent",
       "streaming-chat-shell",
       "loop-agent",
       "skills-agent",
       "sandbox-agent",
       "mcp-agent",
+      "openai-agents-sdk-demo",
+      "trace-eval-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
   });
@@ -44,9 +52,36 @@ describe("demo catalog registry", () => {
   it("requires every ready entry to provide an active route and gallery visual", () => {
     expect(
       readyDemoCatalogEntries.every(
-        (entry) =>
-          entry.href.startsWith("/demos/") &&
-          entry.galleryVisual.steps.length === 3
+        (entry) => entry.href.startsWith("/demos/") && !!entry.galleryVisual.ascii
+      )
+    ).toBe(true);
+  });
+
+  it("tracks demos migrated to ASCII gallery visuals", () => {
+    const asciiEntries = demoCatalogEntries.filter(
+      (entry) => entry.galleryVisual.ascii
+    );
+
+    expect(asciiEntries.map((entry) => entry.slug)).toEqual([
+      "foundation-chat",
+      "rag-chatbot",
+      "multimodal-chatbot",
+      "content-review",
+      "customer-memory-agent",
+      "persistent-agent",
+      "streaming-chat-shell",
+      "loop-agent",
+      "skills-agent",
+      "sandbox-agent",
+      "mcp-agent",
+      "openai-agents-sdk-demo",
+      "trace-eval-agent",
+    ]);
+    expect(
+      asciiEntries.every((entry) =>
+        entry.slug === "openai-agents-sdk-demo"
+          ? true
+          : !readableWordPattern.test(entry.galleryVisual.ascii ?? "")
       )
     ).toBe(true);
   });
@@ -76,7 +111,7 @@ describe("demo catalog registry", () => {
       },
       {
         accent: "indigo",
-        label: "Object review",
+        label: "Structured object",
         slug: "content-review",
       },
       {
@@ -85,18 +120,23 @@ describe("demo catalog registry", () => {
         slug: "customer-memory-agent",
       },
       {
+        accent: "amber",
+        label: "Persistent chat",
+        slug: "persistent-agent",
+      },
+      {
         accent: "sky",
         label: "Streaming shell",
         slug: "streaming-chat-shell",
       },
       {
         accent: "amber",
-        label: "Loop control",
+        label: "Approval gate",
         slug: "loop-agent",
       },
       {
         accent: "emerald",
-        label: "Skill drafting",
+        label: "Skill folder",
         slug: "skills-agent",
       },
       {
@@ -106,8 +146,18 @@ describe("demo catalog registry", () => {
       },
       {
         accent: "cyan",
-        label: "Runtime doctor",
+        label: "Connector hub",
         slug: "mcp-agent",
+      },
+      {
+        accent: "indigo",
+        label: "Official bridge",
+        slug: "openai-agents-sdk-demo",
+      },
+      {
+        accent: "cyan",
+        label: "Trace + eval",
+        slug: "trace-eval-agent",
       },
     ]);
   });

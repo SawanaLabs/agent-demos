@@ -293,7 +293,7 @@ describe("content review runtime", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
-      error: "Provide review text, at least one attachment, or both.",
+      error: "Provide text guidance, at least one attachment, or both.",
     });
   });
 });

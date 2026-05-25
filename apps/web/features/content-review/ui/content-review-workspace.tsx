@@ -88,9 +88,9 @@ export function ContentReviewWorkspace({
 
   const samplePrompts = useMemo(
     () => [
-      "Review this pricing page draft for risky claims and unsupported promises.",
-      "Check this PDF policy one-pager and screenshot for anything a moderator should escalate.",
-      "Read the attached assets and tell me whether the content is publishable as-is.",
+      "Generate a launch-risk object for this pricing page draft and flag unsupported claims.",
+      "Read this policy PDF and screenshot, then generate a publishability object with evidence.",
+      "Turn the attached assets into a structured moderation object with findings and next action.",
     ],
     []
   );
@@ -130,7 +130,7 @@ export function ContentReviewWorkspace({
                           <MessageResponse>{entry.prompt}</MessageResponse>
                         ) : (
                           <p className="text-muted-foreground text-sm">
-                            Attachment-only review request.
+                            Attachment-only object generation request.
                           </p>
                         )}
 
@@ -171,7 +171,7 @@ export function ContentReviewWorkspace({
                               variant="outline"
                             >
                               <ArrowClockwiseIcon className="size-3.5" />
-                              Replay review
+                              Replay generation
                             </Button>
                           </div>
                         ) : null}
@@ -182,9 +182,9 @@ export function ContentReviewWorkspace({
               })
             ) : (
               <ConversationEmptyState
-                description="Send text, screenshots, or PDFs. The assistant message streams a structured review result object directly into the thread."
+                description="Send text, screenshots, or PDFs. The assistant message streams a structured object directly into the thread."
                 icon={<ShieldCheckIcon className="size-5" />}
-                title="Structured review workspace is ready"
+                title="Object generation workspace is ready"
               />
             )}
           </ConversationContent>
@@ -220,7 +220,7 @@ export function ContentReviewWorkspace({
                 ) : null}
                 <PromptInputTextarea
                   disabled={!isReviewAvailable || isLoading}
-                  placeholder="Describe what should be reviewed, attach images or PDFs, and watch the structured review object stream into the assistant message."
+                  placeholder="Describe the object you want, attach images or PDFs, and watch the structured object stream into the assistant message."
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
@@ -305,7 +305,7 @@ export function ContentReviewWorkspace({
           </p>
           <p className="text-muted-foreground text-sm/relaxed">
             One request can combine freeform text with image and PDF
-            attachments. The backend streams a single content-review object.
+            attachments. The backend streams a single structured object.
           </p>
           <div className="flex flex-wrap gap-2">
             {acceptedMediaTypes.map((mediaType) => (

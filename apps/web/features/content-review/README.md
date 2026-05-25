@@ -1,6 +1,6 @@
-# Content Review
+# Object Generation
 
-Streams a structured content-review result from multimodal inputs and renders the live object inside the assistant message.
+Generates a structured object from multimodal inputs and renders the live object inside the assistant message.
 
 ## File Tree
 

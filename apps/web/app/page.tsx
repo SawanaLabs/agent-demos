@@ -21,6 +21,7 @@ import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
+  const { ascii } = demo.galleryVisual;
 
   return (
     <div className={cn("space-y-3 border p-3", styles.panel)}>
@@ -37,19 +38,20 @@ function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
           {demoPatternLabels[demo.pattern]}
         </span>
       </div>
-      <div className="grid gap-2 sm:grid-cols-3">
-        {demo.galleryVisual.steps.map((step) => (
-          <div
-            className={cn(
-              "border px-2 py-3 text-center text-[11px] uppercase tracking-[0.18em]",
-              styles.step
-            )}
-            key={step}
-          >
-            {step}
-          </div>
-        ))}
-      </div>
+      {ascii ? (
+        <div
+          aria-label={`${demo.title} ASCII gallery visual`}
+          className={cn(
+            "flex aspect-video items-center justify-center overflow-hidden border p-3 [container-type:inline-size]",
+            styles.ascii
+          )}
+          role="img"
+        >
+          <pre className="m-0 select-none whitespace-pre font-mono text-[clamp(8.5px,3.2cqw,12px)] leading-[1.05] [letter-spacing:0]">
+            {ascii}
+          </pre>
+        </div>
+      ) : null}
     </div>
   );
 }

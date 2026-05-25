@@ -19,8 +19,8 @@ export type DemoStatus = (typeof demoStatuses)[number];
 
 export interface DemoGalleryVisual {
   accent: "amber" | "cyan" | "emerald" | "indigo" | "rose" | "sky" | "violet";
+  ascii?: string;
   label: string;
-  steps: readonly [string, string, string];
 }
 
 interface DemoCatalogEntryBase {

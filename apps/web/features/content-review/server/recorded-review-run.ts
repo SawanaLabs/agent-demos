@@ -6,7 +6,7 @@ import {
 } from "./review-records";
 import type { ContentReviewStreamResult } from "./runtime";
 
-const parseReviewObjectError = "Failed to parse final review object.";
+const parseReviewObjectError = "Failed to parse final structured object.";
 const recordTokenUsageError = "Failed to record token usage.";
 const contentReviewStreamError = "Content review stream failed.";
 

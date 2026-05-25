@@ -23,11 +23,10 @@ export function PersistentAgentScreen({
         <header className="grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
           <div className="space-y-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Demo / Persistent Agent
+              Demo / Persistent &amp; Resume Agent
             </p>
             <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
-              URL-backed chat persistence with refresh restore and live stream
-              resume
+              Persistent &amp; Resume Agent
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               This demo focuses on one contract: a chat becomes an addressable

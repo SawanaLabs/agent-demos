@@ -1,10 +1,10 @@
 ---
-title: Persistent Agent
+title: Persistent & Resume Agent
 description: Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams.
 updateAt: 2026-05-25
 ---
 
-# Persistent Agent
+# Persistent & Resume Agent
 
 ## Scope
 

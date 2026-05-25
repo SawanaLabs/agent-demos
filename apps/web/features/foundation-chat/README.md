@@ -21,8 +21,9 @@ foundation-chat/
     foundation-chat-workspace.tsx
 ```
 
-Future registry distribution:
+Registry distribution:
 
 ```bash
-pnpm dlx shadcn@latest add https://your-registry.example.com/r/foundation-chat.json
+pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
+pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 ```

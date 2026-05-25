@@ -1,0 +1,58 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "foundation-chat",
+      "type": "registry:block",
+      "title": "Foundation Chat",
+      "description": "A production-ready AI Gateway chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
+      "dependencies": ["@ai-sdk/react", "ai", "lucide-react"],
+      "registryDependencies": [
+        "badge",
+        "button",
+        "tooltip",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/foundation-chat/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/foundation-chat/page.tsx"
+        },
+        {
+          "path": "app/api/demos/foundation-chat/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/foundation-chat/route.ts"
+        },
+        {
+          "path": "components/foundation-chat/foundation-chat-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/foundation-chat/foundation-chat-screen.tsx"
+        },
+        {
+          "path": "components/foundation-chat/foundation-chat-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/foundation-chat/foundation-chat-workspace.tsx"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/foundation-chat/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/foundation-chat/runtime.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item explicitly declares every shadcn and AI Elements primitive it consumes, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local."
+    }
+  ]
+}

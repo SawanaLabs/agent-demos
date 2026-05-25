@@ -1,0 +1,6 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "ai-sdk-6-ai-elements-demos",
+  "homepage": "https://github.com/openclaw/ai-sdk-6-ai-elements-demos",
+  "include": ["registry/foundation-chat/registry.json"]
+}

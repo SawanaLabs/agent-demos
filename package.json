@@ -18,6 +18,7 @@
     "dev": "turbo dev",
     "lint": "ultracite check",
     "format": "ultracite fix",
+    "registry:build": "pnpm --dir packages/ui exec shadcn build registry.json -o apps/web/public/r -c ../..",
     "typecheck": "turbo typecheck",
     "check": "ultracite check",
     "fix": "ultracite fix"

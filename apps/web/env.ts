@@ -4,11 +4,12 @@ import { z } from "zod";
 import { keys as aiGateway } from "@/features/shared/ai-gateway/server/keys";
 import { keys as cron } from "@/features/shared/cron/server/keys";
 import { keys as database } from "@/features/shared/database/server/keys";
+import { keys as redis } from "@/features/shared/redis/server/keys";
 import { keys as vercelSandbox } from "@/features/shared/vercel-sandbox/server/keys";
 
 function createAppEnv() {
   return createEnv({
-    extends: [aiGateway(), cron(), database(), vercelSandbox()],
+    extends: [aiGateway(), cron(), database(), redis(), vercelSandbox()],
     server: {
       NODE_ENV: z.enum(["development", "production", "test"]).optional(),
     },

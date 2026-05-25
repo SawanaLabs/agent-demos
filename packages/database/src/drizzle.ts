@@ -8,6 +8,7 @@ export {
   eq,
   gt,
   inArray,
+  lt,
   ne,
   sql,
 } from "drizzle-orm";

@@ -1,16 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createAiGatewayMock, embedManyMock } = vi.hoisted(() => ({
-  createAiGatewayMock: vi.fn(),
+const { createGatewayMock, embedManyMock } = vi.hoisted(() => ({
+  createGatewayMock: vi.fn(),
   embedManyMock: vi.fn(),
 }));
 
 vi.mock("ai", () => ({
+  createGateway: createGatewayMock,
   embedMany: embedManyMock,
-}));
-
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  createAiGateway: createAiGatewayMock,
 }));
 
 import { indexRagChatbotSource } from "./index-source";
@@ -242,8 +239,8 @@ function createDatabaseDouble(options: {
 describe("indexRagChatbotSource", () => {
   beforeEach(() => {
     embedManyMock.mockReset();
-    createAiGatewayMock.mockReset();
-    createAiGatewayMock.mockReturnValue({
+    createGatewayMock.mockReset();
+    createGatewayMock.mockReturnValue({
       embeddingModel: vi.fn().mockReturnValue("embedding-model"),
     });
   });
@@ -333,6 +330,10 @@ describe("indexRagChatbotSource", () => {
         "Logotype usage. Use the logotype consistently across approved layouts.",
         "Seal usage. Reserve the seal for official and ceremonial applications.",
       ],
+    });
+    expect(createGatewayMock).toHaveBeenCalledWith({
+      apiKey: "test-key",
+      baseURL: "https://ai-gateway.vercel.sh/v3/ai",
     });
     expect(databaseDouble.state.deletedResourceIds).toEqual([]);
     expect(databaseDouble.state.resourceUpdates).toHaveLength(1);

@@ -75,6 +75,139 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local.",
       "type": "registry:block"
+    },
+    {
+      "name": "rag-chatbot",
+      "title": "RAG Chatbot",
+      "description": "A grounded document support chatbot with preindexed PDF ingestion, pgvector retrieval, and visible tool traces.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "lucide-react",
+        "pdfjs-dist",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/rag-chatbot/app/demos/rag-chatbot/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/rag-chatbot/page.tsx"
+        },
+        {
+          "path": "registry/rag-chatbot/app/api/demos/rag-chatbot/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/rag-chatbot/route.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/app/api/demos/rag-chatbot/index/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/rag-chatbot/index/route.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/components/rag-chatbot/rag-chatbot-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/rag-chatbot/rag-chatbot-screen.tsx"
+        },
+        {
+          "path": "registry/rag-chatbot/components/rag-chatbot/rag-chatbot-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/rag-chatbot/rag-chatbot-workspace.tsx"
+        },
+        {
+          "path": "registry/rag-chatbot/components/rag-chatbot/use-rag-chatbot.ts",
+          "type": "registry:component",
+          "target": "@components/rag-chatbot/use-rag-chatbot.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/components/rag-chatbot/grounded-response.ts",
+          "type": "registry:component",
+          "target": "@components/rag-chatbot/grounded-response.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/chat.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/database.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/env.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/env-source.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/ingestion.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/ingestion.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/index-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/index-source.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/knowledge-base-status.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/knowledge-base-status.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/retrieval.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/retrieval.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/runtime.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/schema.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/source-document.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/source-document.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
+        "AI_GATEWAY_EMBEDDING_MODEL": "openai/text-embedding-3-small",
+        "DATABASE_URL": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, pgvector-backed retrieval logic, and the AI Gateway plus DATABASE_URL env vars required for indexing and grounded chat.",
+      "type": "registry:block"
     }
   ]
 }

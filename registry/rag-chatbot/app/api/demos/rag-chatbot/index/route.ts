@@ -1,8 +1,8 @@
 import {
   getRagChatbotEnv,
   getRagChatbotIndexSetupIssue,
-} from "@/features/rag-chatbot/server/env";
-import { indexRagChatbotSource } from "@/features/rag-chatbot/server/index-source";
+} from "@/lib/rag-chatbot/env";
+import { indexRagChatbotSource } from "@/lib/rag-chatbot/index-source";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;

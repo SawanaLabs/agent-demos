@@ -11,39 +11,39 @@ import {
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
-} from "@workspace/ui/components/ai-elements/conversation";
+} from "@/components/ai-elements/conversation";
 import {
   Message,
   MessageContent,
   MessageResponse,
-} from "@workspace/ui/components/ai-elements/message";
+} from "@/components/ai-elements/message";
 import {
   PromptInput,
   PromptInputBody,
   PromptInputFooter,
   PromptInputSubmit,
   PromptInputTextarea,
-} from "@workspace/ui/components/ai-elements/prompt-input";
+} from "@/components/ai-elements/prompt-input";
 import {
   Source,
   Sources,
   SourcesContent,
   SourcesTrigger,
-} from "@workspace/ui/components/ai-elements/sources";
+} from "@/components/ai-elements/sources";
 import {
   Tool,
   ToolContent,
   ToolHeader,
   ToolInput,
   ToolOutput,
-} from "@workspace/ui/components/ai-elements/tool";
-import { Badge } from "@workspace/ui/components/badge";
-import { Button, buttonVariants } from "@workspace/ui/components/button";
-import { cn } from "@workspace/ui/lib/utils";
+} from "@/components/ai-elements/tool";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
 
-import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
+import type { ragChatbotSourceDocument } from "@/lib/rag-chatbot/source-document";
 
 import {
   getGroundedSourceKey,

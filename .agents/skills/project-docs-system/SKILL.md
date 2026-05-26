@@ -1,6 +1,6 @@
 ---
 name: project-docs-system
-description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including `docs/DOCS.md`, `docs/index.md`, `docs/<domain>/DOCS.md`, domain index files, and subdomain docs. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain two-level docs maps, add or update project conventions, capture durable non-obvious practices, or sync AGENTS.md docs-system rules.
+description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including repository DOCS, domain DOCS, docs index files, domain index files, and subdomain docs. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain two-level docs maps, add or update project conventions, capture durable non-obvious practices, or sync AGENTS.md docs-system rules.
 ---
 
 # Project Docs System
@@ -40,13 +40,14 @@ This docs system borrows from Domain-Driven Design: organize durable knowledge a
 <!-- BEGIN:docs-system-rules -->
 # This is NOT the docs system you know
 
-This repository maintains project-specific knowledge and conventions in `docs/`; start with `docs/index.md` and `docs/DOCS.md`, then follow links into `docs/<domain>/index.md` and `docs/<domain>/<subdomain>.md` as needed, treat `docs/` as the source of durable non-obvious project practices, and use the installed `$project-docs-system` skill when initializing, maintaining, or updating this docs system.
+This repository maintains project-specific knowledge and conventions in `docs/`; start with `docs/index.md` and `docs/DOCS.md`, then follow links into `docs/<domain>/DOCS.md`, `docs/<domain>/index.md`, and `docs/<domain>/<subdomain>.md` as needed, treat `docs/` as the source of durable non-obvious project practices, and use the installed `$project-docs-system` skill when initializing, maintaining, or updating this docs system.
 <!-- END:docs-system-rules -->
 ```
 
    - If `docs/` is not initialized yet, do not add the rules block yet.
 
 5. Keep maps complete.
+   - When adding a first-level domain, create both `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
    - When adding, renaming, merging, or removing `docs/<domain>/<subdomain>.md` files, update `docs/<domain>/index.md` in the same change.
    - When adding, renaming, merging, or removing first-level domains, update `docs/index.md` in the same change.
 
@@ -63,10 +64,12 @@ This repository maintains project-specific knowledge and conventions in `docs/`;
 - Keep `## Domain Language` short: use one-sentence definitions, optional `_Avoid_: ...`, and optional `Related: ...`; skip the section when no confirmed terms are needed.
 - Reference concrete files, routes, or modules when that makes the docs more reusable.
 
-## Final Check
+## Final Verification
 
 - Confirm the core docs files exist and are linked together.
 - Confirm every docs document starts with frontmatter.
+- Confirm every first-level domain has `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
 - Confirm `docs/index.md` covers every first-level domain.
 - Confirm each `docs/<domain>/index.md` covers every `docs/<domain>/<subdomain>.md` file.
+- When shell access is available, run `scripts/verify-docs-system.sh <repo-root-or-docs-dir>` to verify the docs structure.
 - Summarize what was created or updated and why.

@@ -13,10 +13,10 @@ Use this layout when bootstrapping or repairing a project docs system:
   - Store cross-domain language, collaboration conventions, and boundary principles.
 - `docs/index.md`
   - Act as the map for first-level domains.
+- `docs/<domain>/DOCS.md`
+  - Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
 - `docs/<domain>/index.md`
   - Act as the map for second-level docs in one domain.
-- `docs/<domain>/DOCS.md` when needed
-  - Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
 - `docs/<domain>/<subdomain>.md`
   - Store durable knowledge that only applies to one subdomain.
 
@@ -28,7 +28,7 @@ Treat `docs/` as initialized only when compatible `docs/DOCS.md` (Project Knowle
 <!-- BEGIN:docs-system-rules -->
 # This is NOT the docs system you know
 
-This repository maintains project-specific knowledge and conventions in `docs/`; start with `docs/index.md` and `docs/DOCS.md`, then follow links into `docs/<domain>/index.md` and `docs/<domain>/<subdomain>.md` as needed, treat `docs/` as the source of durable non-obvious project practices, and use the installed `$project-docs-system` skill when initializing, maintaining, or updating this docs system.
+This repository maintains project-specific knowledge and conventions in `docs/`; start with `docs/index.md` and `docs/DOCS.md`, then follow links into `docs/<domain>/DOCS.md`, `docs/<domain>/index.md`, and `docs/<domain>/<subdomain>.md` as needed, treat `docs/` as the source of durable non-obvious project practices, and use the installed `$project-docs-system` skill when initializing, maintaining, or updating this docs system.
 <!-- END:docs-system-rules -->
 ```
 
@@ -101,6 +101,10 @@ Use this minimal map template:
 - [Domain Name](./domain/index.md): When to consult this domain.
 ```
 
+### `docs/<domain>/DOCS.md`
+
+Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
+
 ### `docs/<domain>/index.md`
 
 Include:
@@ -118,10 +122,6 @@ Use this minimal map template:
 
 - [Subdomain Name](./subdomain.md): When to consult this doc.
 ```
-
-### `docs/<domain>/DOCS.md`
-
-Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
 
 ### `docs/<domain>/<subdomain>.md`
 
@@ -165,3 +165,7 @@ Also update map files whenever docs files change:
 
 - Update `docs/<domain>/index.md` when its subdomain files change.
 - Update `docs/index.md` when first-level domains change.
+
+## Verification Helper
+
+When shell access is available and structure has changed, optionally run `scripts/verify-docs-system.sh <repo-root-or-docs-dir>` from this skill bundle to verify the minimum docs-system contract.

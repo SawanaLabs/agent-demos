@@ -96,6 +96,7 @@ export const ultraChatbotAgentDocuments = pgTable(
   "ultra_chatbot_agent_documents",
   {
     id: uuid("id").notNull().defaultRandom(),
+    chatId: uuid("chat_id"),
     visitorId: varchar("visitor_id", { length: 191 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
     title: text("title").notNull(),
@@ -112,6 +113,14 @@ export const ultraChatbotAgentDocuments = pgTable(
       columns: [table.id, table.createdAt],
       name: "ultra_chatbot_agent_documents_pk",
     }),
+    chatCreatedIndex: index(
+      "ultra_chatbot_agent_documents_chat_created_idx"
+    ).on(table.chatId, table.createdAt),
+    chatForeignKey: foreignKey({
+      columns: [table.chatId],
+      foreignColumns: [ultraChatbotAgentChats.id],
+      name: "ultra_chatbot_agent_documents_chat_fk",
+    }).onDelete("cascade"),
   })
 );
 

@@ -16,10 +16,12 @@ foundation-chat/
   demo-meta.ts
   README.md
   server/
+    env.ts
     runtime.ts
   ui/
     foundation-chat-screen.tsx
     foundation-chat-workspace.tsx
+    use-foundation-chat.ts
 ```
 
 Registry distribution:
@@ -28,6 +30,8 @@ Registry distribution:
 pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
 pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 ```
+
+Author-side registry maintenance for this demo follows [docs/frontend/registry-sync.md](/Users/openclaw/projects/Playground/ai-sdk-6-ai-elements-demos/docs/frontend/registry-sync.md) and starts from [scripts/registry-sync/foundation-chat.sh](/Users/openclaw/projects/Playground/ai-sdk-6-ai-elements-demos/scripts/registry-sync/foundation-chat.sh).
 
 Fresh app bootstrap:
 

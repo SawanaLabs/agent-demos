@@ -45,6 +45,10 @@ interface PromptInputSubmitProps
   status?: PromptStatus;
 }
 
+type PromptInputClickEvent = Parameters<
+  Exclude<ComponentProps<typeof Button>["onClick"], undefined>
+>[0];
+
 const PromptInputContext = createContext<PromptInputContextValue | null>(null);
 
 function usePromptInputContext() {
@@ -113,7 +117,7 @@ export function PromptInputBody({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("grid", className)} {...props} />;
+  return <div className={cn("grid gap-3", className)} {...props} />;
 }
 
 export function PromptInputFooter({
@@ -133,10 +137,7 @@ export function PromptInputTextarea({
 
   return (
     <Textarea
-      className={cn(
-        "min-h-16 resize-none rounded-none border-0 px-3 py-3 shadow-none focus-visible:ring-0",
-        className
-      )}
+      className={cn("min-h-16 resize-none", className)}
       disabled={disabled}
       onChange={(event) => {
         context.setText(event.currentTarget.value);
@@ -175,7 +176,7 @@ export function PromptInputSubmit({
       aria-label={isBusy ? "Stop" : "Submit"}
       className={cn(className)}
       disabled={isDisabled}
-      onClick={(event) => {
+      onClick={(event: PromptInputClickEvent) => {
         if (isBusy && onStop) {
           event.preventDefault();
           onStop();

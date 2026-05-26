@@ -57,7 +57,9 @@ updateAt: 2026-05-26
 - Keep shared functions outside a feature slice only after reuse is real; do not prematurely create shared abstractions between demos.
 - Treat a feature slice plus its thin route/API entries as the default copy boundary for migrating a demo into another compatible project.
 - Preserve compatibility with future shadcn registry distribution by keeping demo-owned files grouped and avoiding hidden cross-demo dependencies.
+- When a demo is maintained app-first for registry distribution, treat `apps/web/features/<demo-slug>/` as the source of truth only after the slice is copy-ready under the rules in [Registry Sync](./registry-sync.md).
 - When a demo is published through the shadcn registry, keep a portable registry source copy under `registry/<demo-slug>/` if the app feature slice depends on monorepo-only imports.
+- Keep registry sync tooling outside feature slices under `scripts/registry-sync/` so author tooling does not become part of the runtime or distribution boundary.
 - Use `foundation-chat` as the baseline registry reference when publishing the next demo. Reuse its registry directory shape, validation flow, and fresh-consumer acceptance path unless the registry distribution doc records a newer standard.
 - Do not put `@workspace/*` imports or cross-demo shared feature imports in registry source files.
 - Document the working registry install command in the feature-local `README.md` after the registry item exists.

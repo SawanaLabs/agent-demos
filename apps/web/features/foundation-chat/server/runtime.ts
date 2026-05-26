@@ -1,11 +1,11 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { env as appEnv } from "@/env";
 
 import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
+  createFoundationChatGateway,
+  getFoundationChatConfig,
+  getFoundationChatSetupState,
+  type FoundationChatEnv,
+} from "./env";
 
 const systemPrompt = [
   "You are the foundation chat demo in a production-ready agent demos monorepo.",
@@ -13,8 +13,6 @@ const systemPrompt = [
   "When a request is ambiguous, surface the assumption clearly and keep moving.",
 ].join(" ");
 const invalidMessagesError = 'Expected a JSON body with a "messages" array.';
-
-type DemoEnv = Record<string, string | undefined>;
 
 interface FoundationChatRequestBody {
   messages?: UIMessage[];
@@ -28,10 +26,10 @@ export interface FoundationChatRuntimeState {
   statusLabel: "Ready" | "Setup required";
 }
 
-function buildFoundationChatRuntimeState(
-  env: DemoEnv
+export function getFoundationChatRuntimeState(
+  env?: FoundationChatEnv
 ): FoundationChatRuntimeState {
-  const setup = getAiGatewaySetupState(env);
+  const setup = getFoundationChatSetupState(env);
 
   return {
     chatModel: setup.config.chatModel,
@@ -40,12 +38,6 @@ function buildFoundationChatRuntimeState(
     setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,
     statusLabel: setup.isReady ? "Ready" : "Setup required",
   };
-}
-
-export function getFoundationChatRuntimeState(
-  env: DemoEnv = appEnv
-): FoundationChatRuntimeState {
-  return buildFoundationChatRuntimeState(env);
 }
 
 function readFoundationChatMessages(body: unknown): UIMessage[] {
@@ -58,9 +50,12 @@ function readFoundationChatMessages(body: unknown): UIMessage[] {
   return messages;
 }
 
-async function streamFoundationChat(messages: UIMessage[], env: DemoEnv) {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+async function streamFoundationChat(
+  messages: UIMessage[],
+  env?: FoundationChatEnv
+) {
+  const gateway = createFoundationChatGateway(env);
+  const { chatModel } = getFoundationChatConfig(env);
 
   const result = streamText({
     model: gateway(chatModel),
@@ -73,7 +68,7 @@ async function streamFoundationChat(messages: UIMessage[], env: DemoEnv) {
 
 export async function handleFoundationChatRequest(
   request: Request,
-  env: DemoEnv = appEnv
+  env?: FoundationChatEnv
 ) {
   const runtimeState = getFoundationChatRuntimeState(env);
 

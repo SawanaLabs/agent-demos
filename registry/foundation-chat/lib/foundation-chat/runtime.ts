@@ -1,15 +1,18 @@
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+
 import {
-  convertToModelMessages,
-  createGateway,
-  streamText,
-  type UIMessage,
-} from "ai";
+  createFoundationChatGateway,
+  getFoundationChatConfig,
+  getFoundationChatSetupState,
+  type FoundationChatEnv,
+} from "./env";
 
-const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
-const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
+const systemPrompt = [
+  "You are the foundation chat demo in a production-ready agent demos monorepo.",
+  "Keep answers concise, direct, and useful to engineers evaluating the stack.",
+  "When a request is ambiguous, surface the assumption clearly and keep moving.",
+].join(" ");
 const invalidMessagesError = 'Expected a JSON body with a "messages" array.';
-
-type FoundationChatEnv = Record<string, string | undefined>;
 
 interface FoundationChatRequestBody {
   messages?: UIMessage[];
@@ -23,48 +26,17 @@ export interface FoundationChatRuntimeState {
   statusLabel: "Ready" | "Setup required";
 }
 
-function readRequiredEnv(env: FoundationChatEnv, name: string) {
-  const value = env[name];
-
-  if (!value) {
-    throw new Error(`Missing ${name}. Add it to .env.local before using chat.`);
-  }
-
-  return value;
-}
-
-function readFoundationChatEnv(): FoundationChatEnv {
-  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.
-  return process.env;
-}
-
-function getFoundationChatConfig(
-  env: FoundationChatEnv = readFoundationChatEnv()
-) {
-  return {
-    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
-    baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
-  };
-}
-
 export function getFoundationChatRuntimeState(
-  env: FoundationChatEnv = readFoundationChatEnv()
+  env?: FoundationChatEnv
 ): FoundationChatRuntimeState {
-  const issues: string[] = [];
-
-  if (!env.AI_GATEWAY_API_KEY) {
-    issues.push(
-      "AI_GATEWAY_API_KEY is missing. The page can render, but chat requests will fail until it is configured."
-    );
-  }
+  const setup = getFoundationChatSetupState(env);
 
   return {
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
-    isChatAvailable: issues.length === 0,
-    nodeVersion: process.version,
-    setupMessage: issues.length > 0 ? issues.join(" ") : null,
-    statusLabel: issues.length === 0 ? "Ready" : "Setup required",
+    chatModel: setup.config.chatModel,
+    isChatAvailable: setup.isReady,
+    nodeVersion: setup.nodeVersion,
+    setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,
+    statusLabel: setup.isReady ? "Ready" : "Setup required",
   };
 }
 
@@ -80,17 +52,14 @@ function readFoundationChatMessages(body: unknown): UIMessage[] {
 
 async function streamFoundationChat(
   messages: UIMessage[],
-  env: FoundationChatEnv
+  env?: FoundationChatEnv
 ) {
-  const { apiKey, baseURL, chatModel } = getFoundationChatConfig(env);
-  const gateway = createGateway({ apiKey, baseURL });
+  const gateway = createFoundationChatGateway(env);
+  const { chatModel } = getFoundationChatConfig(env);
+
   const result = streamText({
     model: gateway(chatModel),
-    system: [
-      "You are the foundation chat demo in a production-ready agent demos project.",
-      "Keep answers concise, direct, and useful to engineers evaluating the stack.",
-      "When a request is ambiguous, surface the assumption clearly and keep moving.",
-    ].join(" "),
+    system: systemPrompt,
     messages: await convertToModelMessages(messages),
   });
 
@@ -99,7 +68,7 @@ async function streamFoundationChat(
 
 export async function handleFoundationChatRequest(
   request: Request,
-  env: FoundationChatEnv = readFoundationChatEnv()
+  env?: FoundationChatEnv
 ) {
   const runtimeState = getFoundationChatRuntimeState(env);
 

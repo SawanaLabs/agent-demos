@@ -1,9 +1,6 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
 import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
-import { useState } from "react";
 import {
   Conversation,
   ConversationContent,
@@ -24,34 +21,18 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import type { UIMessage } from "ai";
+
+import { useFoundationChat } from "./use-foundation-chat";
 
 function getTextContent(message: UIMessage) {
   return message.parts
     .filter((part) => part.type === "text")
     .map((part) => part.text)
     .join("\n");
-}
-
-function useFoundationChat() {
-  const [chat] = useState(
-    () =>
-      new Chat<UIMessage>({
-        transport: new DefaultChatTransport({
-          api: "/api/demos/foundation-chat",
-        }),
-      })
-  );
-  const controller = useChat({ chat });
-  const hasMessages = controller.messages.length > 0;
-  const isBusy =
-    controller.status === "submitted" || controller.status === "streaming";
-
-  return {
-    ...controller,
-    hasMessages,
-    isBusy,
-  };
 }
 
 export interface FoundationChatWorkspaceProps {
@@ -80,17 +61,23 @@ export function FoundationChatWorkspace({
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal">
         {isChatAvailable ? null : (
-          <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
-            {setupMessage}
-          </div>
+          <>
+            <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
+              {setupMessage}
+            </div>
+            <Separator />
+          </>
         )}
 
         {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
+          <>
+            <div className="px-4 py-3 text-destructive text-xs/relaxed">
+              {error.message}
+            </div>
+            <Separator />
+          </>
         ) : null}
 
         <Conversation>
@@ -119,7 +106,7 @@ export function FoundationChatWorkspace({
               })
             ) : (
               <ConversationEmptyState
-                description="Ask about the stack, implementation tradeoffs, or the next agent capability to build."
+                description="Ask about the project, the stack, or any capability you want to turn into the next demo."
                 icon={<BotIcon className="size-5" />}
                 title="Foundation workspace is ready"
               />
@@ -128,19 +115,21 @@ export function FoundationChatWorkspace({
           <ConversationScrollButton />
         </Conversation>
 
-        <div className="border-foreground/10 border-t px-4 py-4">
+        <Separator />
+        <div className="px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
             <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask this demo to explain the stack or shape the next agent."
+                  placeholder="Ask this demo to explain the stack or help shape the next agent."
                 />
               </PromptInputBody>
-              <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
+              <Separator className="mt-3" />
+              <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">AI SDK 6</Badge>
-                  <Badge variant="outline">AI Gateway</Badge>
+                  <Badge variant="outline">Gateway</Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -175,36 +164,37 @@ export function FoundationChatWorkspace({
             </PromptInput>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <aside className="border border-foreground/10 bg-background p-4">
+      <Card className="bg-background p-4 text-base text-foreground leading-normal">
         <div className="space-y-4">
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
               Runtime
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
               Contract
             </p>
-            <p className="mt-1 text-sm">
-              Next.js route, AI Gateway provider wiring, AI Elements workspace,
-              and explicit setup errors.
+            <p className="mt-1 text-muted-foreground text-sm">
+              This slot proves the minimum copy-paste baseline: Next.js route,
+              AI Gateway provider wiring, AI Elements workspace, and explicit
+              setup errors.
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Install target
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+              Demo role
             </p>
-            <p className="mt-1 text-sm">
-              A clean shadcn/ui App Router project with AI SDK dependencies
-              installed by the registry item.
+            <p className="mt-1 text-muted-foreground text-sm">
+              Future demos can duplicate this slice and replace only feature
+              logic, route path, metadata, and model behavior.
             </p>
           </div>
         </div>
-      </aside>
+      </Card>
     </div>
   );
 }

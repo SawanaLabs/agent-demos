@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwiseIcon, RobotIcon, StopIcon } from "@phosphor-icons/react";
+import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
 import {
   Conversation,
   ConversationContent,
@@ -21,10 +21,12 @@ import {
 } from "@workspace/ui/components/ai-elements/prompt-input";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
+import { Card } from "@workspace/ui/components/card";
+import { Separator } from "@workspace/ui/components/separator";
 import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
 
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
+import { useFoundationChat } from "./use-foundation-chat";
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -55,23 +57,27 @@ export function FoundationChatWorkspace({
     sendMessage,
     status,
     stop,
-  } = useDemoChat({
-    api: "/api/demos/foundation-chat",
-  });
+  } = useFoundationChat();
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal">
         {isChatAvailable ? null : (
-          <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
-            {setupMessage}
-          </div>
+          <>
+            <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
+              {setupMessage}
+            </div>
+            <Separator />
+          </>
         )}
 
         {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
+          <>
+            <div className="px-4 py-3 text-destructive text-xs/relaxed">
+              {error.message}
+            </div>
+            <Separator />
+          </>
         ) : null}
 
         <Conversation>
@@ -101,7 +107,7 @@ export function FoundationChatWorkspace({
             ) : (
               <ConversationEmptyState
                 description="Ask about the project, the stack, or any capability you want to turn into the next demo."
-                icon={<RobotIcon className="size-5" />}
+                icon={<BotIcon className="size-5" />}
                 title="Foundation workspace is ready"
               />
             )}
@@ -109,7 +115,8 @@ export function FoundationChatWorkspace({
           <ConversationScrollButton />
         </Conversation>
 
-        <div className="border-foreground/10 border-t px-4 py-4">
+        <Separator />
+        <div className="px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
             <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
               <PromptInputBody>
@@ -118,7 +125,8 @@ export function FoundationChatWorkspace({
                   placeholder="Ask this demo to explain the stack or help shape the next agent."
                 />
               </PromptInputBody>
-              <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
+              <Separator className="mt-3" />
+              <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">AI SDK 6</Badge>
                   <Badge variant="outline">Gateway</Badge>
@@ -132,7 +140,7 @@ export function FoundationChatWorkspace({
                       type="button"
                       variant="outline"
                     >
-                      <StopIcon className="size-3.5" />
+                      <SquareIcon className="size-3.5" />
                       Stop
                     </Button>
                   ) : null}
@@ -143,7 +151,7 @@ export function FoundationChatWorkspace({
                       type="button"
                       variant="outline"
                     >
-                      <ArrowClockwiseIcon className="size-3.5" />
+                      <RefreshCwIcon className="size-3.5" />
                       Retry
                     </Button>
                   ) : null}
@@ -156,37 +164,37 @@ export function FoundationChatWorkspace({
             </PromptInput>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <aside className="border border-foreground/10 bg-background p-4">
+      <Card className="bg-background p-4 text-base text-foreground leading-normal">
         <div className="space-y-4">
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
               Runtime
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
               Contract
             </p>
-            <p className="mt-1 text-sm">
+            <p className="mt-1 text-muted-foreground text-sm">
               This slot proves the minimum copy-paste baseline: Next.js route,
               AI Gateway provider wiring, AI Elements workspace, and explicit
               setup errors.
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
               Demo role
             </p>
-            <p className="mt-1 text-sm">
+            <p className="mt-1 text-muted-foreground text-sm">
               Future demos can duplicate this slice and replace only feature
               logic, route path, metadata, and model behavior.
             </p>
           </div>
         </div>
-      </aside>
+      </Card>
     </div>
   );
 }

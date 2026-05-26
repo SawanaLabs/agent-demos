@@ -17,7 +17,9 @@ updateAt: 2026-05-26
 - Keep `registry.json` as the root source registry and compose demo-owned registries with `include`.
 - Put one demo's portable registry source under `registry/<demo-slug>/`.
 - Build static registry output with `pnpm registry:build`; the output is served by the web app from `/r/<name>.json`.
+- Treat `pnpm registry:build` as a packaging step only. It turns source `registry.json` files into distributable JSON. It does not derive registry source files from `apps/web/features/*`.
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
+- Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
 - Registry source should import shadcn and AI Elements code through consumer-project aliases such as `@/components/ui/*`, `@/components/ai-elements/*`, and `@/lib/*`.
 - Use `files[].target` placeholders such as `@components/` and `@lib/` for files that can follow the consumer project's `components.json`.
@@ -27,7 +29,19 @@ updateAt: 2026-05-26
 - Finish the consumer project's own `pnpm dlx shadcn@latest init` flow before installing any demo item. That step installs the base preset dependencies behind official primitives such as `button`, including `@base-ui/react` and `class-variance-authority`.
 - Use external AI Elements registry URLs in `registryDependencies` when they install cleanly. `foundation-chat` keeps `conversation` and `message` external, but ships its own `prompt-input` because the upstream registry version currently fails TypeScript checks against the current shadcn/Base UI stack.
 - Explicitly list every package imported by registry-owned files in `dependencies`. Keep the consumer host contract narrow and documented, then let the package manager resolve duplicates.
+- Treat fresh consumer acceptance as the final dependency-closure check. In the current CLI flow, nested `registryDependencies` did not reliably pull every transitive npm package into a clean consumer app, so each demo item must still declare the runtime packages its installed files need.
 - Use `envVars` only for local development examples such as `AI_GATEWAY_API_KEY`; do not encode production secrets or production-only values.
+- Do not hand-edit generated files under `apps/web/public/r/`. Rebuild them from source registry files with `pnpm registry:build`.
+
+## Source Ownership
+
+- `shadcn build` and the producer-side `shadcn/registry` loaders both consume source registry files. They solve distribution. They do not remove the need for a maintained source registry tree.
+- This means the repo still needs an explicit ownership model for demo preview code versus registry source code. Current `foundation-chat` keeps an app preview implementation and a registry implementation because the registry copy uses consumer-project aliases and cannot import workspace-only modules.
+- The current preferred ownership model is app-first plus explicit sync, once a demo is copy-ready under [Registry Sync](./registry-sync.md).
+- Keep per-demo sync tooling under `scripts/registry-sync/`.
+- Keep registry-only wiring files under registry ownership even in an app-first model. That includes `registry/<demo-slug>/registry.json`, route-entry files, vendored exception files, and generated output under `apps/web/public/r/`.
+- If a demo is not copy-ready yet, fix the slice before introducing sync tooling. Do not use sync as a workaround for a tangled boundary.
+- Until a sync step exists for a given demo, update the app preview files and the registry source files in the same change and verify both paths.
 
 ## Foundation Chat Item
 

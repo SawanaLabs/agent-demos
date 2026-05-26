@@ -1,0 +1,109 @@
+{
+  "demo": "foundation-chat",
+  "entries": [
+    {
+      "source": "apps/web/features/foundation-chat/ui/foundation-chat-screen.tsx",
+      "target": "registry/foundation-chat/components/foundation-chat/foundation-chat-screen.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/card\";",
+          "to": "from \"@/components/ui/card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/tooltip\";",
+          "to": "from \"@/components/ui/tooltip\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/foundation-chat/server/runtime\";",
+          "to": "from \"@/lib/foundation-chat/runtime\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/foundation-chat/ui/foundation-chat-workspace\";",
+          "to": "from \"@/components/foundation-chat/foundation-chat-workspace\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/", "@/features/foundation-chat/"]
+    },
+    {
+      "source": "apps/web/features/foundation-chat/ui/foundation-chat-workspace.tsx",
+      "target": "registry/foundation-chat/components/foundation-chat/foundation-chat-workspace.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/conversation\";",
+          "to": "from \"@/components/ai-elements/conversation\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/message\";",
+          "to": "from \"@/components/ai-elements/message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/prompt-input\";",
+          "to": "from \"@/components/ai-elements/prompt-input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/card\";",
+          "to": "from \"@/components/ui/card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/separator\";",
+          "to": "from \"@/components/ui/separator\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/", "@/features/foundation-chat/"]
+    },
+    {
+      "source": "apps/web/features/foundation-chat/ui/use-foundation-chat.ts",
+      "target": "registry/foundation-chat/components/foundation-chat/use-foundation-chat.ts"
+    },
+    {
+      "source": "apps/web/features/foundation-chat/server/runtime.ts",
+      "target": "registry/foundation-chat/lib/foundation-chat/runtime.ts"
+    },
+    {
+      "source": "apps/web/features/foundation-chat/server/env.ts",
+      "target": "registry/foundation-chat/lib/foundation-chat/env.ts",
+      "transforms": [
+        {
+          "from": "import { env as appEnv } from \"@/env\";\n\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "function readFoundationChatEnv(): FoundationChatEnv {\n  return appEnv;\n}\n",
+          "to": "function readFoundationChatEnv(): FoundationChatEnv {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+    }
+  ]
+}

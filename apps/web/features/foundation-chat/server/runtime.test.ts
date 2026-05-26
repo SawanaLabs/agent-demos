@@ -8,7 +8,7 @@ import {
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
 
 describe("foundation chat runtime", () => {
-  it("maps shared gateway setup into a feature-local runtime state", () => {
+  it("maps feature-local gateway setup into a feature-local runtime state", () => {
     expect(
       getFoundationChatRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",

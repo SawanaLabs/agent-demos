@@ -6,12 +6,19 @@
       "type": "registry:block",
       "title": "Foundation Chat",
       "description": "A production-ready AI Gateway chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
-      "dependencies": ["@ai-sdk/react", "ai", "lucide-react"],
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
       "registryDependencies": [
         "utils",
         "badge",
         "button",
         "button-group",
+        "card",
         "separator",
         "textarea",
         "tooltip",
@@ -45,9 +52,19 @@
           "target": "@components/foundation-chat/foundation-chat-workspace.tsx"
         },
         {
+          "path": "components/foundation-chat/use-foundation-chat.ts",
+          "type": "registry:component",
+          "target": "@components/foundation-chat/use-foundation-chat.ts"
+        },
+        {
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/foundation-chat/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/foundation-chat/env.ts"
         },
         {
           "path": "lib/foundation-chat/runtime.ts",

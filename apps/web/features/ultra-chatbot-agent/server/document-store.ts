@@ -1,6 +1,7 @@
 import { and, desc, eq, gt } from "@workspace/database/drizzle";
 
 export interface UltraChatbotAgentDocumentRecord {
+  chatId: string | null;
   content: string | null;
   createdAt: string;
   id: string;
@@ -19,6 +20,7 @@ function toIsoString(value: Date | string) {
 }
 
 function normalizeDocumentRecord(record: {
+  chatId: string | null;
   content: string | null;
   createdAt: Date | string;
   id: string;
@@ -27,6 +29,7 @@ function normalizeDocumentRecord(record: {
   visitorId: string;
 }) {
   return {
+    chatId: record.chatId,
     content: record.content,
     createdAt: toIsoString(record.createdAt),
     id: record.id,
@@ -47,12 +50,20 @@ async function loadUltraChatbotAgentDocumentDatabase(): Promise<UltraChatbotAgen
 
 export function createUltraChatbotAgentDocumentStore() {
   return {
-    async loadLatestDocument(input: { documentId: string; visitorId: string }) {
+    async loadLatestDocument(input: {
+      chatId: string;
+      documentId: string;
+      visitorId: string;
+    }) {
       const versions = await this.listDocumentVersions(input);
 
       return versions[0] ?? null;
     },
-    async listDocumentVersions(input: { documentId: string; visitorId: string }) {
+    async listDocumentVersions(input: {
+      chatId: string;
+      documentId: string;
+      visitorId: string;
+    }) {
       const { database, ultraChatbotAgentDocuments } =
         await loadUltraChatbotAgentDocumentDatabase();
       const rows = await database
@@ -60,6 +71,7 @@ export function createUltraChatbotAgentDocumentStore() {
         .from(ultraChatbotAgentDocuments)
         .where(
           and(
+            eq(ultraChatbotAgentDocuments.chatId, input.chatId),
             eq(ultraChatbotAgentDocuments.id, input.documentId),
             eq(ultraChatbotAgentDocuments.visitorId, input.visitorId)
           )
@@ -68,7 +80,8 @@ export function createUltraChatbotAgentDocumentStore() {
 
       return rows.map(normalizeDocumentRecord);
     },
-    async listLatestDocumentsForVisitor(input: {
+    async listLatestDocumentsForChat(input: {
+      chatId: string;
       limit: number;
       visitorId: string;
     }) {
@@ -77,7 +90,12 @@ export function createUltraChatbotAgentDocumentStore() {
       const rows = await database
         .select()
         .from(ultraChatbotAgentDocuments)
-        .where(eq(ultraChatbotAgentDocuments.visitorId, input.visitorId))
+        .where(
+          and(
+            eq(ultraChatbotAgentDocuments.chatId, input.chatId),
+            eq(ultraChatbotAgentDocuments.visitorId, input.visitorId)
+          )
+        )
         .orderBy(desc(ultraChatbotAgentDocuments.createdAt));
 
       const latestById = new Map<string, UltraChatbotAgentDocumentRecord>();
@@ -97,6 +115,7 @@ export function createUltraChatbotAgentDocumentStore() {
       return [...latestById.values()];
     },
     async saveDocument(input: {
+      chatId: string;
       content: string;
       documentId: string;
       kind: "code" | "image" | "sheet" | "text";
@@ -108,6 +127,7 @@ export function createUltraChatbotAgentDocumentStore() {
       const [row] = await database
         .insert(ultraChatbotAgentDocuments)
         .values({
+          chatId: input.chatId,
           content: input.content,
           createdAt: new Date(),
           id: input.documentId,
@@ -124,6 +144,7 @@ export function createUltraChatbotAgentDocumentStore() {
       return normalizeDocumentRecord(row);
     },
     async deleteDocumentVersionsAfterTimestamp(input: {
+      chatId: string;
       documentId: string;
       timestamp: Date;
       visitorId: string;
@@ -134,6 +155,7 @@ export function createUltraChatbotAgentDocumentStore() {
         .delete(ultraChatbotAgentDocuments)
         .where(
           and(
+            eq(ultraChatbotAgentDocuments.chatId, input.chatId),
             eq(ultraChatbotAgentDocuments.id, input.documentId),
             eq(ultraChatbotAgentDocuments.visitorId, input.visitorId),
             gt(ultraChatbotAgentDocuments.createdAt, input.timestamp)

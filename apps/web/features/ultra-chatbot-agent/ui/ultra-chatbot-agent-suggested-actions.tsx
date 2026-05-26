@@ -13,14 +13,11 @@ export function UltraChatbotAgentSuggestedActions({
   onSelect: (value: string) => void | Promise<void>;
 }) {
   return (
-    <div className="w-full space-y-3" data-testid="suggested-actions">
-      <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Suggested actions
-      </p>
-      <Suggestions>
+    <div className="w-full" data-testid="suggested-actions">
+      <Suggestions className="w-full flex-wrap items-stretch">
         {ultraChatbotAgentSuggestedActions.map((suggestion) => (
           <Suggestion
-            className="h-auto whitespace-normal rounded-xl border border-foreground/10 px-4 py-3 text-left text-xs/relaxed hover:border-foreground/30"
+            className="h-auto max-w-full justify-start whitespace-normal rounded-none px-4 text-left text-sm leading-6"
             key={suggestion}
             onClick={onSelect}
             suggestion={suggestion}

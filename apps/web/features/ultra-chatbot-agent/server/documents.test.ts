@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const storeState = vi.hoisted(() => ({
   deleteDocumentVersionsAfterTimestamp: vi.fn(),
   listDocumentVersions: vi.fn(),
-  listLatestDocumentsForVisitor: vi.fn(),
+  listLatestDocumentsForChat: vi.fn(),
   saveDocument: vi.fn(),
 }));
 
@@ -20,9 +20,9 @@ describe("ultra chatbot agent document route contract", () => {
     vi.resetModules();
     storeState.deleteDocumentVersionsAfterTimestamp.mockReset();
     storeState.listDocumentVersions.mockReset();
-    storeState.listLatestDocumentsForVisitor.mockReset();
+    storeState.listLatestDocumentsForChat.mockReset();
     storeState.saveDocument.mockReset();
-    storeState.listLatestDocumentsForVisitor.mockResolvedValue([]);
+    storeState.listLatestDocumentsForChat.mockResolvedValue([]);
     storeState.listDocumentVersions.mockResolvedValue([
       {
         content: "Draft",
@@ -46,7 +46,27 @@ describe("ultra chatbot agent document route contract", () => {
     });
   });
 
-  it("lists latest visitor documents when no id is provided", async () => {
+  it("lists latest thread documents when no id is provided", async () => {
+    const documentsModule = await importDocumentsModule();
+
+    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
+      new Request(
+        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da"
+      ),
+      {
+        visitorId: "visitor-1",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(storeState.listLatestDocumentsForChat).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
+      limit: 12,
+      visitorId: "visitor-1",
+    });
+  });
+
+  it("requires chatId for document requests", async () => {
     const documentsModule = await importDocumentsModule();
 
     const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
@@ -56,10 +76,9 @@ describe("ultra chatbot agent document route contract", () => {
       }
     );
 
-    expect(response.status).toBe(200);
-    expect(storeState.listLatestDocumentsForVisitor).toHaveBeenCalledWith({
-      limit: 12,
-      visitorId: "visitor-1",
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: 'Expected the "chatId" search parameter.',
     });
   });
 
@@ -68,7 +87,7 @@ describe("ultra chatbot agent document route contract", () => {
 
     const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
       new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
         {
           body: JSON.stringify({
             content: 42,
@@ -91,7 +110,7 @@ describe("ultra chatbot agent document route contract", () => {
 
     const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
       new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
         {
           body: JSON.stringify({
             content: "Draft",
@@ -108,6 +127,7 @@ describe("ultra chatbot agent document route contract", () => {
 
     expect(response.status).toBe(200);
     expect(storeState.saveDocument).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       content: "Draft",
       documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
       kind: "text",
@@ -121,7 +141,7 @@ describe("ultra chatbot agent document route contract", () => {
 
     const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
       new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?id=2ae89d54-68d8-4948-afca-1880b9ef2690&timestamp=2026-05-25T00:00:00.000Z",
+        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690&timestamp=2026-05-25T00:00:00.000Z",
         {
           method: "DELETE",
         }
@@ -135,6 +155,7 @@ describe("ultra chatbot agent document route contract", () => {
     expect(
       storeState.deleteDocumentVersionsAfterTimestamp
     ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
       timestamp: new Date("2026-05-25T00:00:00.000Z"),
       visitorId: "visitor-1",

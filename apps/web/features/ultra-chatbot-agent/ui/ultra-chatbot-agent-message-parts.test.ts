@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import {
   getUltraChatbotAgentFileParts,
   getUltraChatbotAgentReasoningText,
+  hasUltraChatbotAgentVisibleMessageContent,
+  isUltraChatbotAgentDocumentResult,
 } from "./ultra-chatbot-agent-message-parts";
 
 describe("ultra chatbot agent message parts", () => {
@@ -62,5 +64,40 @@ describe("ultra chatbot agent message parts", () => {
         url: "https://blob.example/hero.png",
       },
     ]);
+  });
+
+  it("treats tool-only assistant messages as visible content", () => {
+    const message = {
+      id: "assistant-1",
+      metadata: undefined,
+      parts: [
+        {
+          input: { title: "Draft" },
+          output: { id: "doc-1", kind: "text", title: "Draft" },
+          state: "output-available",
+          toolCallId: "tool-1",
+          type: "tool-createDocument",
+        },
+      ],
+      role: "assistant",
+    } satisfies UIMessage;
+
+    expect(hasUltraChatbotAgentVisibleMessageContent(message)).toBe(true);
+  });
+
+  it("recognizes document tool outputs by id, kind, and title", () => {
+    expect(
+      isUltraChatbotAgentDocumentResult({
+        id: "doc-1",
+        kind: "text",
+        title: "Draft",
+      })
+    ).toBe(true);
+    expect(
+      isUltraChatbotAgentDocumentResult({
+        id: "doc-1",
+        title: "Draft",
+      } as never)
+    ).toBe(false);
   });
 });

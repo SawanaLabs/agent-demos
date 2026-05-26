@@ -36,6 +36,15 @@ export function closeUltraChatbotAgentArtifact(
   };
 }
 
+export function refreshUltraChatbotAgentArtifact(
+  state: UltraChatbotAgentArtifactState
+): UltraChatbotAgentArtifactState {
+  return {
+    ...state,
+    refreshToken: state.refreshToken + 1,
+  };
+}
+
 export function setUltraChatbotAgentArtifactMode(
   state: UltraChatbotAgentArtifactState,
   mode: UltraChatbotAgentArtifactMode

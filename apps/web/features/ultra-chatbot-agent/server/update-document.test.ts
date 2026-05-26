@@ -5,7 +5,7 @@ const aiState = vi.hoisted(() => ({
 }));
 
 const documentStoreState = vi.hoisted(() => ({
-  listLatestDocumentsForVisitor: vi.fn(),
+  listLatestDocumentsForChat: vi.fn(),
   saveDocument: vi.fn(),
 }));
 
@@ -30,10 +30,10 @@ describe("ultra chatbot agent update document tool", () => {
   beforeEach(() => {
     vi.resetModules();
     aiState.generateText.mockReset();
-    documentStoreState.listLatestDocumentsForVisitor.mockReset();
+    documentStoreState.listLatestDocumentsForChat.mockReset();
     documentStoreState.saveDocument.mockReset();
 
-    documentStoreState.listLatestDocumentsForVisitor.mockResolvedValue([
+    documentStoreState.listLatestDocumentsForChat.mockResolvedValue([
       {
         content:
           "The rollout will happen soon. Teams should prepare and communicate carefully.",
@@ -64,6 +64,7 @@ describe("ultra chatbot agent update document tool", () => {
       await importUpdateDocumentModule();
 
     const artifactTool = createUltraChatbotAgentUpdateDocumentTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: { provider: "mock" } as never,
       visitorId: "visitor-1",
     });
@@ -76,7 +77,8 @@ describe("ultra chatbot agent update document tool", () => {
       {} as never
     );
 
-    expect(documentStoreState.listLatestDocumentsForVisitor).toHaveBeenCalledWith({
+    expect(documentStoreState.listLatestDocumentsForChat).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       limit: 24,
       visitorId: "visitor-1",
     });
@@ -88,6 +90,7 @@ describe("ultra chatbot agent update document tool", () => {
       })
     );
     expect(documentStoreState.saveDocument).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       content:
         "The rollout will proceed in phased waves. Teams should communicate in plain, factual language and confirm approvals before each wave.",
       documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
@@ -105,9 +108,10 @@ describe("ultra chatbot agent update document tool", () => {
   it("returns a concrete error when no matching document exists", async () => {
     const { createUltraChatbotAgentUpdateDocumentTool } =
       await importUpdateDocumentModule();
-    documentStoreState.listLatestDocumentsForVisitor.mockResolvedValueOnce([]);
+    documentStoreState.listLatestDocumentsForChat.mockResolvedValueOnce([]);
 
     const artifactTool = createUltraChatbotAgentUpdateDocumentTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: { provider: "mock" } as never,
       visitorId: "visitor-1",
     });

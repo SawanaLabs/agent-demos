@@ -5,7 +5,7 @@ import { createUltraChatbotAgentChatStore } from "./chat-store";
 const ultraChatbotAgentVoteSchema = z.object({
   chatId: z.string().uuid(),
   messageId: z.string().min(1),
-  type: z.enum(["up", "down"]),
+  type: z.enum(["up", "down", "clear"]),
 });
 
 function notFoundResponse() {
@@ -72,12 +72,20 @@ export async function handleUltraChatbotAgentVotePatchRequest(
     return notFoundResponse();
   }
 
-  await chatStore.saveVote({
-    chatId: parsedBody.data.chatId,
-    isUpvoted: parsedBody.data.type === "up",
-    messageId: parsedBody.data.messageId,
-    visitorId: viewer.visitorId,
-  });
+  if (parsedBody.data.type === "clear") {
+    await chatStore.deleteVote({
+      chatId: parsedBody.data.chatId,
+      messageId: parsedBody.data.messageId,
+      visitorId: viewer.visitorId,
+    });
+  } else {
+    await chatStore.saveVote({
+      chatId: parsedBody.data.chatId,
+      isUpvoted: parsedBody.data.type === "up",
+      messageId: parsedBody.data.messageId,
+      visitorId: viewer.visitorId,
+    });
+  }
 
   return new Response("Message voted", { status: 200 });
 }

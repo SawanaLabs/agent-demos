@@ -48,7 +48,7 @@ describe("ultra chatbot agent suggestions route contract", () => {
     ]);
   });
 
-  it("requires a document id", async () => {
+  it("requires a chatId and document id", async () => {
     const suggestionsModule = await importSuggestionsModule();
 
     const response =
@@ -69,7 +69,7 @@ describe("ultra chatbot agent suggestions route contract", () => {
     const response =
       await suggestionsModule.handleUltraChatbotAgentSuggestionsRequest(
         new Request(
-          "http://localhost/api/demos/ultra-chatbot-agent/suggestions?id=2ae89d54-68d8-4948-afca-1880b9ef2690"
+          "http://localhost/api/demos/ultra-chatbot-agent/suggestions?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690"
         ),
         {
           visitorId: "visitor-1",
@@ -78,6 +78,7 @@ describe("ultra chatbot agent suggestions route contract", () => {
 
     expect(response.status).toBe(200);
     expect(documentStoreState.loadLatestDocument).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
       visitorId: "visitor-1",
     });

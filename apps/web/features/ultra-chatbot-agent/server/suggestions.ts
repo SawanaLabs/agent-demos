@@ -14,7 +14,15 @@ export async function handleUltraChatbotAgentSuggestionsRequest(
   }
 
   const url = new URL(request.url);
+  const chatId = url.searchParams.get("chatId");
   const documentId = url.searchParams.get("id");
+
+  if (!chatId) {
+    return Response.json(
+      { error: 'Expected the "chatId" search parameter.' },
+      { status: 400 }
+    );
+  }
 
   if (!documentId) {
     return Response.json(
@@ -25,6 +33,7 @@ export async function handleUltraChatbotAgentSuggestionsRequest(
 
   const latestDocument =
     await createUltraChatbotAgentDocumentStore().loadLatestDocument({
+      chatId,
       documentId,
       visitorId: viewer.visitorId,
     });

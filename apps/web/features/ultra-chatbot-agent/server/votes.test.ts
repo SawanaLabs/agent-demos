@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const storeState = vi.hoisted(() => ({
+  deleteVote: vi.fn(),
   listVotesForChat: vi.fn(),
   loadChatSession: vi.fn(),
   saveVote: vi.fn(),
@@ -20,6 +21,7 @@ describe("ultra chatbot agent vote route contract", () => {
     storeState.listVotesForChat.mockReset();
     storeState.loadChatSession.mockReset();
     storeState.saveVote.mockReset();
+    storeState.deleteVote.mockReset();
     storeState.listVotesForChat.mockResolvedValue([]);
     storeState.loadChatSession.mockResolvedValue({
       chat: {
@@ -35,6 +37,7 @@ describe("ultra chatbot agent vote route contract", () => {
       messages: [],
     });
     storeState.saveVote.mockResolvedValue(undefined);
+    storeState.deleteVote.mockResolvedValue(undefined);
   });
 
   it("requires chatId to list votes", async () => {
@@ -123,5 +126,32 @@ describe("ultra chatbot agent vote route contract", () => {
       messageId: "assistant-1",
       visitorId: "visitor-1",
     });
+  });
+
+  it("clears an existing visitor-owned message vote", async () => {
+    const { handleUltraChatbotAgentVotePatchRequest } =
+      await importVotesModule();
+
+    const response = await handleUltraChatbotAgentVotePatchRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent/vote", {
+        body: JSON.stringify({
+          chatId: "5bd4e261-60f6-4b0f-b6f4-73e64bb2d5f5",
+          messageId: "assistant-1",
+          type: "clear",
+        }),
+        method: "PATCH",
+      }),
+      {
+        visitorId: "visitor-1",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(storeState.deleteVote).toHaveBeenCalledWith({
+      chatId: "5bd4e261-60f6-4b0f-b6f4-73e64bb2d5f5",
+      messageId: "assistant-1",
+      visitorId: "visitor-1",
+    });
+    expect(storeState.saveVote).not.toHaveBeenCalled();
   });
 });

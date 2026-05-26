@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const documentStoreState = vi.hoisted(() => ({
-  listLatestDocumentsForVisitor: vi.fn(),
+  listLatestDocumentsForChat: vi.fn(),
 }));
 
 const suggestionStoreState = vi.hoisted(() => ({
@@ -36,11 +36,11 @@ function importRequestSuggestionsModule() {
 describe("ultra chatbot agent request suggestions tool", () => {
   beforeEach(() => {
     vi.resetModules();
-    documentStoreState.listLatestDocumentsForVisitor.mockReset();
+    documentStoreState.listLatestDocumentsForChat.mockReset();
     suggestionStoreState.replaceSuggestionsForDocumentVersion.mockReset();
     aiState.generateObject.mockReset();
 
-    documentStoreState.listLatestDocumentsForVisitor.mockResolvedValue([
+    documentStoreState.listLatestDocumentsForChat.mockResolvedValue([
       {
         content: "The launch is good but the rollout paragraph is vague.",
         createdAt: "2026-05-25T00:00:00.000Z",
@@ -82,6 +82,7 @@ describe("ultra chatbot agent request suggestions tool", () => {
       await importRequestSuggestionsModule();
 
     const artifactTool = createUltraChatbotAgentRequestSuggestionsTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: { provider: "mock" } as never,
       visitorId: "visitor-1",
     });
@@ -92,7 +93,8 @@ describe("ultra chatbot agent request suggestions tool", () => {
       {} as never
     );
 
-    expect(documentStoreState.listLatestDocumentsForVisitor).toHaveBeenCalledWith({
+    expect(documentStoreState.listLatestDocumentsForChat).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       limit: 24,
       visitorId: "visitor-1",
     });
@@ -128,9 +130,10 @@ describe("ultra chatbot agent request suggestions tool", () => {
   it("returns a concrete error when no matching document exists", async () => {
     const { createUltraChatbotAgentRequestSuggestionsTool } =
       await importRequestSuggestionsModule();
-    documentStoreState.listLatestDocumentsForVisitor.mockResolvedValueOnce([]);
+    documentStoreState.listLatestDocumentsForChat.mockResolvedValueOnce([]);
 
     const artifactTool = createUltraChatbotAgentRequestSuggestionsTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: { provider: "mock" } as never,
       visitorId: "visitor-1",
     });

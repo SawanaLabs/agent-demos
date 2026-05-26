@@ -1,13 +1,14 @@
 "use client";
 
 import { CaretDownIcon, CheckIcon, GlobeIcon, LockIcon } from "@phosphor-icons/react";
-import { Button } from "@workspace/ui/components/button";
+import { buttonVariants } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
+import { cn } from "@workspace/ui/lib/utils";
 import { useState } from "react";
 
 type UltraChatbotAgentVisibility = "private" | "public";
@@ -103,17 +104,20 @@ export function UltraChatbotAgentVisibilitySelector({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button
-          disabled={disabled || isPending}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          <SelectedIcon className="size-3.5" />
-          {selectedVisibility.label}
-          <CaretDownIcon className="size-3" />
-        </Button>
+      <DropdownMenuTrigger
+        className={cn(
+          buttonVariants({
+            size: "sm",
+            variant: "outline",
+          }),
+          "data-[popup-open]:bg-muted data-[popup-open]:text-foreground"
+        )}
+        disabled={disabled || isPending}
+        type="button"
+      >
+        <SelectedIcon className="size-3.5" />
+        {selectedVisibility.label}
+        <CaretDownIcon className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
         {ultraChatbotAgentVisibilities.map((visibility) => {

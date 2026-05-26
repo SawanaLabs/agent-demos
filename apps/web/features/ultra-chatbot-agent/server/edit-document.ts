@@ -16,6 +16,7 @@ const editDocumentInputSchema = z.object({
 });
 
 export function createUltraChatbotAgentEditDocumentTool(input: {
+  chatId: string;
   visitorId: string;
 }) {
   return tool({
@@ -30,7 +31,8 @@ export function createUltraChatbotAgentEditDocumentTool(input: {
       replaceAll,
     }) => {
       const documentStore = createUltraChatbotAgentDocumentStore();
-      const latestDocuments = await documentStore.listLatestDocumentsForVisitor({
+      const latestDocuments = await documentStore.listLatestDocumentsForChat({
+        chatId: input.chatId,
         limit: 24,
         visitorId: input.visitorId,
       });
@@ -61,6 +63,7 @@ export function createUltraChatbotAgentEditDocumentTool(input: {
         : matchedDocument.content.replace(oldText, newText);
 
       const savedDocument = await documentStore.saveDocument({
+        chatId: input.chatId,
         content: nextContent,
         documentId: matchedDocument.id,
         kind: matchedDocument.kind,

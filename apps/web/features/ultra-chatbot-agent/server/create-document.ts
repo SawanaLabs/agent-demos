@@ -10,6 +10,7 @@ const createDocumentInputSchema = z.object({
 });
 
 export function createUltraChatbotAgentCreateDocumentTool(input: {
+  chatId: string;
   visitorId: string;
 }) {
   return tool({
@@ -19,6 +20,7 @@ export function createUltraChatbotAgentCreateDocumentTool(input: {
     execute: async ({ content, kind, title }) => {
       const savedDocument =
         await createUltraChatbotAgentDocumentStore().saveDocument({
+          chatId: input.chatId,
           content,
           documentId: crypto.randomUUID(),
           kind,

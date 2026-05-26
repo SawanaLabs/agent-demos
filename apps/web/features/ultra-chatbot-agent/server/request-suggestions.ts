@@ -25,6 +25,7 @@ const requestSuggestionsInputSchema = z.object({
 });
 
 export function createUltraChatbotAgentRequestSuggestionsTool(input: {
+  chatId: string;
   model: Parameters<typeof generateObject>[0]["model"];
   visitorId: string;
 }) {
@@ -34,7 +35,8 @@ export function createUltraChatbotAgentRequestSuggestionsTool(input: {
     inputSchema: requestSuggestionsInputSchema,
     execute: async ({ documentId, documentTitle }) => {
       const documentStore = createUltraChatbotAgentDocumentStore();
-      const latestDocuments = await documentStore.listLatestDocumentsForVisitor({
+      const latestDocuments = await documentStore.listLatestDocumentsForChat({
+        chatId: input.chatId,
         limit: 24,
         visitorId: input.visitorId,
       });

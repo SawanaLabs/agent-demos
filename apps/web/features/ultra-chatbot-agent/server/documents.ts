@@ -20,13 +20,22 @@ export async function handleUltraChatbotAgentDocumentRequest(
   viewer: { visitorId: string }
 ) {
   const url = new URL(request.url);
+  const chatId = url.searchParams.get("chatId");
   const documentId = url.searchParams.get("id");
   const store = createUltraChatbotAgentDocumentStore();
+
+  if (!chatId) {
+    return Response.json(
+      { error: 'Expected the "chatId" search parameter.' },
+      { status: 400 }
+    );
+  }
 
   if (request.method === "GET") {
     if (!documentId) {
       return Response.json(
-        await store.listLatestDocumentsForVisitor({
+        await store.listLatestDocumentsForChat({
+          chatId,
           limit: 12,
           visitorId: viewer.visitorId,
         })
@@ -34,6 +43,7 @@ export async function handleUltraChatbotAgentDocumentRequest(
     }
 
     const documents = await store.listDocumentVersions({
+      chatId,
       documentId,
       visitorId: viewer.visitorId,
     });
@@ -68,6 +78,7 @@ export async function handleUltraChatbotAgentDocumentRequest(
     }
 
     const existingDocuments = await store.listDocumentVersions({
+      chatId,
       documentId,
       visitorId: viewer.visitorId,
     });
@@ -81,6 +92,7 @@ export async function handleUltraChatbotAgentDocumentRequest(
     }
 
     const savedDocument = await store.saveDocument({
+      chatId,
       content: body.content,
       documentId,
       kind: latestDocument?.kind ?? body.kind,
@@ -118,6 +130,7 @@ export async function handleUltraChatbotAgentDocumentRequest(
     }
 
     const existingDocuments = await store.listDocumentVersions({
+      chatId,
       documentId,
       visitorId: viewer.visitorId,
     });
@@ -131,6 +144,7 @@ export async function handleUltraChatbotAgentDocumentRequest(
 
     return Response.json(
       await store.deleteDocumentVersionsAfterTimestamp({
+        chatId,
         documentId,
         timestamp,
         visitorId: viewer.visitorId,

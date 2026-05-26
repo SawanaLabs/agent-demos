@@ -507,6 +507,24 @@ export function createUltraChatbotAgentChatStore() {
           ],
         });
     },
+    async deleteVote(input: {
+      chatId: string;
+      messageId: string;
+      visitorId: string;
+    }) {
+      const { database, ultraChatbotAgentVotes } =
+        await loadUltraChatbotAgentDatabase();
+
+      await database
+        .delete(ultraChatbotAgentVotes)
+        .where(
+          and(
+            eq(ultraChatbotAgentVotes.chatId, input.chatId),
+            eq(ultraChatbotAgentVotes.messageId, input.messageId),
+            eq(ultraChatbotAgentVotes.visitorId, input.visitorId)
+          )
+        );
+    },
     async setChatVisibility(input: {
       chatId: string;
       visibility: "private" | "public";

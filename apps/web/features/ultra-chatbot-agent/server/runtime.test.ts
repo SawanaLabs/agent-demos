@@ -257,6 +257,7 @@ describe("ultra chatbot agent runtime", () => {
     expect(aiMockState.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: expect.anything(),
+        stopWhen: expect.any(Function),
         tools: expect.objectContaining({
           createDocument: expect.objectContaining({
             description: expect.any(String),
@@ -284,11 +285,13 @@ describe("ultra chatbot agent runtime", () => {
     expect(
       createDocumentToolState.createUltraChatbotAgentCreateDocumentTool
     ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-123",
     });
     expect(
       editDocumentToolState.createUltraChatbotAgentEditDocumentTool
     ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-123",
     });
     expect(
@@ -297,12 +300,14 @@ describe("ultra chatbot agent runtime", () => {
     expect(
       requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool
     ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: expect.anything(),
       visitorId: "visitor-123",
     });
     expect(
       updateDocumentToolState.createUltraChatbotAgentUpdateDocumentTool
     ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: expect.anything(),
       visitorId: "visitor-123",
     });

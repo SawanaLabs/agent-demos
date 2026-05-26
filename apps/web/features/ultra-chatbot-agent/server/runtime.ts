@@ -2,6 +2,7 @@ import {
   convertToModelMessages,
   createIdGenerator,
   generateId,
+  stepCountIs,
   streamText,
   UI_MESSAGE_STREAM_HEADERS,
   type UIMessage,
@@ -239,20 +240,25 @@ export async function handleUltraChatbotAgentChatRequest(
   const result = streamText({
     model: provider.gateway(modelId),
     messages: await convertToModelMessages(originalMessages),
+    stopWhen: stepCountIs(20),
     system: getUltraChatbotAgentSystemPrompt(),
     tools: {
       createDocument: createUltraChatbotAgentCreateDocumentTool({
+        chatId: input.id,
         visitorId: viewer.visitorId,
       }),
       editDocument: createUltraChatbotAgentEditDocumentTool({
+        chatId: input.id,
         visitorId: viewer.visitorId,
       }),
       getWeather: createUltraChatbotAgentGetWeatherTool(),
       requestSuggestions: createUltraChatbotAgentRequestSuggestionsTool({
+        chatId: input.id,
         model: provider.gateway(modelId),
         visitorId: viewer.visitorId,
       }),
       updateDocument: createUltraChatbotAgentUpdateDocumentTool({
+        chatId: input.id,
         model: provider.gateway(modelId),
         visitorId: viewer.visitorId,
       }),

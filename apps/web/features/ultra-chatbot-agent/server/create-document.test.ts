@@ -31,6 +31,7 @@ describe("ultra chatbot agent create document tool", () => {
       await importCreateDocumentModule();
 
     const artifactTool = createUltraChatbotAgentCreateDocumentTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-1",
     });
     const result = await artifactTool.execute?.({
@@ -42,6 +43,7 @@ describe("ultra chatbot agent create document tool", () => {
     );
 
     expect(storeState.saveDocument).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       content: "Draft launch brief",
       documentId: expect.any(String),
       kind: "text",

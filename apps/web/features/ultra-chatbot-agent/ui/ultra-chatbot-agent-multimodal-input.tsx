@@ -11,6 +11,11 @@ import {
   PromptInputTools,
   PromptInputSubmit,
 } from "@workspace/ui/components/ai-elements/prompt-input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
 import type { ChatStatus, UIMessage } from "ai";
 import type { ClipboardEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -84,6 +89,7 @@ async function uploadUltraChatbotAgentAttachment(file: File) {
 
 export interface UltraChatbotAgentMultimodalInputProps {
   disabled: boolean;
+  footerBelow?: ReactNode;
   footerLeading: ReactNode;
   onComposerErrorChange: (message: string | null) => void;
   onSend: (parts: UIMessage["parts"]) => Promise<void>;
@@ -94,6 +100,7 @@ export interface UltraChatbotAgentMultimodalInputProps {
 
 export function UltraChatbotAgentMultimodalInput({
   disabled,
+  footerBelow,
   footerLeading,
   onComposerErrorChange,
   onSend,
@@ -250,7 +257,7 @@ export function UltraChatbotAgentMultimodalInput({
   );
 
   return (
-    <>
+    <div className="space-y-3">
       <input
         accept={ultraChatbotAgentAcceptedUploadMediaTypes.join(",")}
         className="sr-only"
@@ -287,14 +294,20 @@ export function UltraChatbotAgentMultimodalInput({
           </div>
           <div className="flex items-center gap-2">
             <PromptInputTools>
-              <PromptInputButton
-                disabled={disabled || isUploading}
-                onClick={() => fileInputRef.current?.click()}
-                tooltip="Add image"
-                variant="outline"
-              >
-                <PaperclipIcon className="size-4" />
-              </PromptInputButton>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <PromptInputButton
+                      disabled={disabled || isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                    >
+                      <PaperclipIcon className="size-4" />
+                    </PromptInputButton>
+                  }
+                />
+                <TooltipContent>Add image</TooltipContent>
+              </Tooltip>
             </PromptInputTools>
             <PromptInputSubmit
               disabled={disabled || isUploading}
@@ -304,6 +317,7 @@ export function UltraChatbotAgentMultimodalInput({
           </div>
         </PromptInputFooter>
       </PromptInput>
-    </>
+      {footerBelow}
+    </div>
   );
 }

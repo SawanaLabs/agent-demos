@@ -2,10 +2,13 @@
 
 import {
   ArrowClockwiseIcon,
+  PencilSimpleIcon,
   CaretLeftIcon,
   CaretRightIcon,
+  FloppyDiskIcon,
   CornersOutIcon,
   RowsIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
@@ -14,17 +17,29 @@ import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifa
 
 export function UltraChatbotAgentVersionFooter({
   currentVersionIndex,
+  isEditing = false,
+  isLatestVersionView = false,
   mode,
   onChangeVersion,
+  onCancelEdit,
   onRestoreVersion,
+  onSaveVersion,
   onSetMode,
+  onStartEdit,
+  saveDisabled = false,
   totalVersions,
 }: {
   currentVersionIndex: number;
+  isEditing?: boolean;
+  isLatestVersionView?: boolean;
   mode: UltraChatbotAgentArtifactMode;
   onChangeVersion: (direction: "newer" | "older" | "latest") => void;
+  onCancelEdit?: () => void;
   onRestoreVersion: () => Promise<void> | void;
+  onSaveVersion?: () => Promise<void> | void;
   onSetMode: (mode: UltraChatbotAgentArtifactMode) => void;
+  onStartEdit?: () => void;
+  saveDisabled?: boolean;
   totalVersions: number;
 }) {
   const isLatestVersion = currentVersionIndex === 0;
@@ -62,7 +77,7 @@ export function UltraChatbotAgentVersionFooter({
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           onClick={() => onSetMode(mode === "diff" ? "edit" : "diff")}
           size="sm"
@@ -74,7 +89,7 @@ export function UltraChatbotAgentVersionFooter({
           ) : (
             <RowsIcon className="size-3.5" />
           )}
-          {mode === "diff" ? "Edit" : "Diff"}
+          {mode === "diff" ? "Preview" : "Diff"}
         </Button>
 
         <Button
@@ -97,6 +112,46 @@ export function UltraChatbotAgentVersionFooter({
         >
           Latest
         </Button>
+
+        {isLatestVersionView && onStartEdit && !isEditing ? (
+          <div className="ml-3">
+            <Button
+              disabled={saveDisabled || mode === "diff"}
+              onClick={onStartEdit}
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              <PencilSimpleIcon className="size-3.5" />
+              Edit
+            </Button>
+          </div>
+        ) : null}
+
+        {isLatestVersionView && isEditing && onSaveVersion ? (
+          <div className="ml-3 flex items-center gap-2">
+            <Button
+              disabled={saveDisabled}
+              onClick={onCancelEdit}
+              size="icon-sm"
+              type="button"
+              variant="outline"
+            >
+              <XIcon className="size-3.5" />
+              <span className="sr-only">Cancel</span>
+            </Button>
+            <Button
+              disabled={saveDisabled}
+              onClick={() => void onSaveVersion()}
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              <FloppyDiskIcon className="size-3.5" />
+              Save version
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

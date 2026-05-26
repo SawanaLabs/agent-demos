@@ -15,6 +15,7 @@ const updateDocumentInputSchema = z.object({
 });
 
 export function createUltraChatbotAgentUpdateDocumentTool(input: {
+  chatId: string;
   model: Parameters<typeof generateText>[0]["model"];
   visitorId: string;
 }) {
@@ -24,7 +25,8 @@ export function createUltraChatbotAgentUpdateDocumentTool(input: {
     inputSchema: updateDocumentInputSchema,
     execute: async ({ description, documentId, documentTitle }) => {
       const documentStore = createUltraChatbotAgentDocumentStore();
-      const latestDocuments = await documentStore.listLatestDocumentsForVisitor({
+      const latestDocuments = await documentStore.listLatestDocumentsForChat({
+        chatId: input.chatId,
         limit: 24,
         visitorId: input.visitorId,
       });
@@ -63,6 +65,7 @@ export function createUltraChatbotAgentUpdateDocumentTool(input: {
       }
 
       const savedDocument = await documentStore.saveDocument({
+        chatId: input.chatId,
         content: nextContent,
         documentId: matchedDocument.id,
         kind: matchedDocument.kind,

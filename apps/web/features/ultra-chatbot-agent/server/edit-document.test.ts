@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const documentStoreState = vi.hoisted(() => ({
-  listLatestDocumentsForVisitor: vi.fn(),
+  listLatestDocumentsForChat: vi.fn(),
   saveDocument: vi.fn(),
 }));
 
@@ -16,10 +16,10 @@ function importEditDocumentModule() {
 describe("ultra chatbot agent edit document tool", () => {
   beforeEach(() => {
     vi.resetModules();
-    documentStoreState.listLatestDocumentsForVisitor.mockReset();
+    documentStoreState.listLatestDocumentsForChat.mockReset();
     documentStoreState.saveDocument.mockReset();
 
-    documentStoreState.listLatestDocumentsForVisitor.mockResolvedValue([
+    documentStoreState.listLatestDocumentsForChat.mockResolvedValue([
       {
         content:
           "Launch in phased waves. Keep all rollout language plain and factual.",
@@ -46,6 +46,7 @@ describe("ultra chatbot agent edit document tool", () => {
       await importEditDocumentModule();
 
     const artifactTool = createUltraChatbotAgentEditDocumentTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-1",
     });
     const result = await artifactTool.execute?.(
@@ -59,11 +60,13 @@ describe("ultra chatbot agent edit document tool", () => {
       {} as never
     );
 
-    expect(documentStoreState.listLatestDocumentsForVisitor).toHaveBeenCalledWith({
+    expect(documentStoreState.listLatestDocumentsForChat).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       limit: 24,
       visitorId: "visitor-1",
     });
     expect(documentStoreState.saveDocument).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       content:
         "Launch in phased waves. Keep all rollout language compliance-safe, plain, and factual.",
       documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
@@ -83,6 +86,7 @@ describe("ultra chatbot agent edit document tool", () => {
       await importEditDocumentModule();
 
     const artifactTool = createUltraChatbotAgentEditDocumentTool({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-1",
     });
     const result = await artifactTool.execute?.(

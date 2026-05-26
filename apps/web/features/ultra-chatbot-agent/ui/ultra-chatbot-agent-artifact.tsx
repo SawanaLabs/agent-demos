@@ -3,30 +3,34 @@
 import { FileTextIcon } from "@phosphor-icons/react";
 import { Badge } from "@workspace/ui/components/badge";
 
-import { UltraChatbotAgentArtifactCloseButton } from "./ultra-chatbot-agent-artifact-close-button";
-import { UltraChatbotAgentDocumentPanel } from "./ultra-chatbot-agent-document-panel";
 import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifact-state";
+import { UltraChatbotAgentDocumentBrowser } from "./ultra-chatbot-agent-document-browser";
+import { UltraChatbotAgentDocumentDialog } from "./ultra-chatbot-agent-document-dialog";
 
 export function UltraChatbotAgentArtifact({
+  chatId,
   disabled,
   mode,
   onClose,
   onModeChange,
-  onSelectedDocumentIdChange,
+  onOpen,
+  onRefresh,
   refreshToken,
   selectedDocumentId,
 }: {
+  chatId: string;
   disabled: boolean;
   mode: UltraChatbotAgentArtifactMode;
   onClose: () => void;
   onModeChange: (mode: UltraChatbotAgentArtifactMode) => void;
-  onSelectedDocumentIdChange: (documentId: string | null) => void;
+  onOpen: (documentId: string) => void;
+  onRefresh: () => void;
   refreshToken: number;
   selectedDocumentId: string | null;
 }) {
   return (
-    <section className="space-y-4 border border-foreground/10 p-3">
-      <div className="flex items-start justify-between gap-3">
+    <>
+      <section className="space-y-4 border border-foreground/10 p-3">
         <div>
           <div className="flex items-center gap-2">
             <FileTextIcon className="size-4 text-muted-foreground" />
@@ -36,24 +40,29 @@ export function UltraChatbotAgentArtifact({
             <Badge variant="outline">text</Badge>
           </div>
           <p className="mt-1 text-sm">
-            Companion document surface for the Ultra artifact port. Current
-            slice focuses on versioned text artifacts first.
+            Companion browser for the Ultra artifact port. Open any document
+            into a dedicated detail dialog.
           </p>
         </div>
+        <UltraChatbotAgentDocumentBrowser
+          chatId={chatId}
+          disabled={disabled}
+          onOpen={onOpen}
+          refreshToken={refreshToken}
+          selectedDocumentId={selectedDocumentId}
+        />
+      </section>
 
-        {selectedDocumentId ? (
-          <UltraChatbotAgentArtifactCloseButton onClose={onClose} />
-        ) : null}
-      </div>
-
-      <UltraChatbotAgentDocumentPanel
+      <UltraChatbotAgentDocumentDialog
+        chatId={chatId}
         disabled={disabled}
+        documentId={selectedDocumentId}
         mode={mode}
+        onClose={onClose}
         onModeChange={onModeChange}
-        onSelectedDocumentIdChange={onSelectedDocumentIdChange}
+        onRefreshArtifact={onRefresh}
         refreshToken={refreshToken}
-        selectedDocumentId={selectedDocumentId}
       />
-    </section>
+    </>
   );
 }

@@ -7,6 +7,11 @@ import {
 
 type DemoEnv = Record<string, string | undefined>;
 
+export interface UltraChatbotAgentProvider {
+  gateway: ReturnType<typeof createAiGateway>;
+  resolveModelId: (selectedChatModel?: string) => string;
+}
+
 export function resolveUltraChatbotAgentSelectedModelId(input: {
   env: DemoEnv;
   selectedChatModel?: string;
@@ -27,7 +32,9 @@ export function resolveUltraChatbotAgentSelectedModelId(input: {
   return getUltraChatbotAgentDefaultModel();
 }
 
-export function createUltraChatbotAgentProvider(env: DemoEnv) {
+export function createUltraChatbotAgentProvider(
+  env: DemoEnv
+): UltraChatbotAgentProvider {
   const gateway = createAiGateway(env);
 
   return {

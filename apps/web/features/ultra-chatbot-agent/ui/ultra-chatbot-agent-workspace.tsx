@@ -5,31 +5,21 @@ import {
   ArrowClockwiseIcon,
   CaretDownIcon,
   RobotIcon,
+  SmileyIcon,
+  SmileySadIcon,
 } from "@phosphor-icons/react";
+import { Attachments } from "@workspace/ui/components/ai-elements/attachments";
 import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@workspace/ui/components/ai-elements/conversation";
-import { Attachments } from "@workspace/ui/components/ai-elements/attachments";
 import {
   Message,
   MessageContent,
   MessageResponse,
 } from "@workspace/ui/components/ai-elements/message";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@workspace/ui/components/ai-elements/reasoning";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@workspace/ui/components/ai-elements/tool";
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -42,13 +32,25 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@workspace/ui/components/ai-elements/model-selector";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@workspace/ui/components/ai-elements/reasoning";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@workspace/ui/components/ai-elements/tool";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
+import { Spinner } from "@workspace/ui/components/spinner";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { cn } from "@workspace/ui/lib/utils";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import Link from "next/link";
 import {
   type Dispatch,
@@ -57,19 +59,23 @@ import {
   useRef,
   useState,
 } from "react";
-
-import type { UltraChatbotAgentModel } from "../server/models";
 import type {
-  UltraChatbotAgentHistoryPage,
   UltraChatbotAgentChatRecord,
   UltraChatbotAgentChatSession,
+  UltraChatbotAgentHistoryPage,
   UltraChatbotAgentVoteRecord,
 } from "../server/chat-store";
+import type { UltraChatbotAgentModel } from "../server/models";
+import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-state";
 import { UltraChatbotAgentArtifact } from "./ultra-chatbot-agent-artifact";
+import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentHistorySidebar } from "./ultra-chatbot-agent-history-sidebar";
 import {
   getUltraChatbotAgentFileParts,
   getUltraChatbotAgentReasoningText,
+  getUltraChatbotAgentToolParts,
+  hasUltraChatbotAgentVisibleMessageContent,
+  isUltraChatbotAgentDocumentResult,
 } from "./ultra-chatbot-agent-message-parts";
 import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimodal-input";
 import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
@@ -77,7 +83,6 @@ import { UltraChatbotAgentSuggestedActions } from "./ultra-chatbot-agent-suggest
 import { UltraChatbotAgentVisibilitySelector } from "./ultra-chatbot-agent-visibility-selector";
 import { UltraChatbotAgentWeather } from "./ultra-chatbot-agent-weather";
 import { useUltraChatbotAgentArtifact } from "./use-ultra-chatbot-agent-artifact";
-import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-state";
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -86,37 +91,8 @@ function getTextContent(message: UIMessage) {
     .join("\n");
 }
 
-type UltraChatbotAgentToolPart = DynamicToolUIPart | ToolUIPart;
-
-function isUltraChatbotAgentToolPart(
-  part: UIMessage["parts"][number]
-): part is UltraChatbotAgentToolPart {
-  return part.type === "dynamic-tool" || part.type.startsWith("tool-");
-}
-
-function getUltraChatbotAgentToolParts(message: UIMessage) {
-  return message.parts.filter(isUltraChatbotAgentToolPart);
-}
-
-function isUltraChatbotAgentDocumentResult(
-  output: UltraChatbotAgentToolPart["output"]
-): output is { id: string; kind: string; title: string } {
-  if (!output || typeof output !== "object") {
-    return false;
-  }
-
-  return (
-    "id" in output &&
-    typeof output.id === "string" &&
-    "title" in output &&
-    typeof output.title === "string" &&
-    "kind" in output &&
-    typeof output.kind === "string"
-  );
-}
-
 function isUltraChatbotAgentWeatherResult(
-  output: UltraChatbotAgentToolPart["output"]
+  output: ReturnType<typeof getUltraChatbotAgentToolParts>[number]["output"]
 ): output is Parameters<typeof UltraChatbotAgentWeather>[0]["weather"] {
   if (!output || typeof output !== "object") {
     return false;
@@ -182,7 +158,7 @@ async function loadUltraChatbotAgentVotes(chatId: string) {
 async function saveUltraChatbotAgentVote(input: {
   chatId: string;
   messageId: string;
-  type: "down" | "up";
+  type: "clear" | "down" | "up";
 }) {
   const response = await fetch("/api/demos/ultra-chatbot-agent/vote", {
     body: JSON.stringify(input),
@@ -405,57 +381,60 @@ export function UltraChatbotAgentWorkspace({
     status,
     stop,
   } = useChat({
-      id: chatId,
-      messages: initialSession?.messages ?? [],
-      resume: initialSession?.chat.activeStreamId != null,
-      transport: new DefaultChatTransport({
-        api: "/api/demos/ultra-chatbot-agent",
+    id: chatId,
+    messages: initialSession?.messages ?? [],
+    resume: initialSession?.chat.activeStreamId != null,
+    transport: new DefaultChatTransport({
+      api: "/api/demos/ultra-chatbot-agent",
+      credentials: "include",
+      prepareReconnectToStreamRequest: ({ id }) => ({
+        api: `/api/demos/ultra-chatbot-agent/${id}/stream`,
         credentials: "include",
-        prepareReconnectToStreamRequest: ({ id }) => ({
-          api: `/api/demos/ultra-chatbot-agent/${id}/stream`,
-          credentials: "include",
-        }),
-        prepareSendMessagesRequest: ({ id, messages: nextMessages }) => ({
-          body: {
-            id,
-            message: nextMessages.at(-1),
-            selectedChatModel: chatMeta.selectedChatModel,
-            selectedVisibilityType: chatMeta.visibility,
-          },
-        }),
       }),
-    });
+      prepareSendMessagesRequest: ({ id, messages: nextMessages }) => ({
+        body: {
+          id,
+          message: nextMessages.at(-1),
+          selectedChatModel: chatMeta.selectedChatModel,
+          selectedVisibilityType: chatMeta.visibility,
+        },
+      }),
+    }),
+  });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
-  const [pendingVoteMessageId, setPendingVoteMessageId] = useState<
-    string | null
-  >(null);
+  const [pendingVote, setPendingVote] = useState<{
+    messageId: string;
+    target: "down" | "up";
+  } | null>(null);
   const {
     closeArtifact,
     mode: artifactMode,
     openArtifact,
+    refreshArtifact,
     refreshToken: artifactRefreshToken,
     selectedDocumentId,
-    setSelectedDocumentId,
     setMode: setArtifactMode,
   } = useUltraChatbotAgentArtifact();
   const [editError, setEditError] = useState<string | null>(null);
   const [composerError, setComposerError] = useState<string | null>(null);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
-  const [voteError, setVoteError] = useState<string | null>(null);
   const [votesByMessageId, setVotesByMessageId] = useState<
     Record<string, boolean>
   >({});
   const latestAssistant = [...messages]
     .reverse()
     .find((message) => message.role === "assistant");
+  const documentArtifactSignatureRef = useRef<string | null>(null);
   const latestMessageRole = messages.at(-1)?.role;
-  const latestAssistantText = latestAssistant
-    ? getTextContent(latestAssistant)
-    : "";
-  const showThinking = isBusy && latestAssistantText.length === 0;
+  const showThinking =
+    isBusy &&
+    !(
+      latestAssistant &&
+      hasUltraChatbotAgentVisibleMessageContent(latestAssistant)
+    );
   const showResumeThinking = shouldShowUltraChatbotAgentResumeThinking({
     initialSession,
     messages,
@@ -491,13 +470,12 @@ export function UltraChatbotAgentWorkspace({
   }, [messages.length]);
 
   useEffect(() => {
-    if (!hasMessages) {
+    if (messages.length < 2) {
       setVotesByMessageId({});
       return;
     }
 
     let isCancelled = false;
-    setVoteError(null);
 
     loadUltraChatbotAgentVotes(chatMeta.id)
       .then((votes) => {
@@ -516,15 +494,38 @@ export function UltraChatbotAgentWorkspace({
           return;
         }
 
-        setVoteError(
-          error instanceof Error ? error.message : "Failed to load message votes."
-        );
+        console.error("Failed to load ultra-chatbot-agent votes.", error);
       });
 
     return () => {
       isCancelled = true;
     };
-  }, [chatMeta.id, hasMessages]);
+  }, [chatMeta.id, messages.length]);
+
+  useEffect(() => {
+    const nextSignature = messages
+      .flatMap((message) =>
+        getUltraChatbotAgentToolParts(message).flatMap((part) =>
+          part.state === "output-available" &&
+          isUltraChatbotAgentDocumentResult(part.output)
+            ? [part.output.id]
+            : []
+        )
+      )
+      .join("|");
+
+    if (documentArtifactSignatureRef.current === null) {
+      documentArtifactSignatureRef.current = nextSignature;
+      return;
+    }
+
+    if (documentArtifactSignatureRef.current === nextSignature) {
+      return;
+    }
+
+    documentArtifactSignatureRef.current = nextSignature;
+    refreshArtifact();
+  }, [messages, refreshArtifact]);
 
   useResumeRecovery({
     chatId,
@@ -557,25 +558,39 @@ export function UltraChatbotAgentWorkspace({
   }
 
   async function handleVote(messageId: string, type: "down" | "up") {
-    setVoteError(null);
-    setPendingVoteMessageId(messageId);
+    const currentVote = votesByMessageId[messageId];
+    const nextType =
+      (type === "up" && currentVote === true) ||
+      (type === "down" && currentVote === false)
+        ? "clear"
+        : type;
+
+    setPendingVote({
+      messageId,
+      target: type,
+    });
 
     try {
       await saveUltraChatbotAgentVote({
         chatId: chatMeta.id,
         messageId,
-        type,
+        type: nextType,
       });
-      setVotesByMessageId((current) => ({
-        ...current,
-        [messageId]: type === "up",
-      }));
+      setVotesByMessageId((current) => {
+        if (nextType === "clear") {
+          const { [messageId]: _removed, ...rest } = current;
+          return rest;
+        }
+
+        return {
+          ...current,
+          [messageId]: nextType === "up",
+        };
+      });
     } catch (error) {
-      setVoteError(
-        error instanceof Error ? error.message : "Failed to save the message vote."
-      );
+      console.error("Failed to save ultra-chatbot-agent vote.", error);
     } finally {
-      setPendingVoteMessageId(null);
+      setPendingVote(null);
     }
   }
 
@@ -626,9 +641,10 @@ export function UltraChatbotAgentWorkspace({
     }
   }
 
-  function renderMessageBody(message: UIMessage) {
+  function renderMessageBody(message: UIMessage, isLastMessage: boolean) {
     const text = getTextContent(message);
     const fileParts = getUltraChatbotAgentFileParts(message);
+    const toolParts = getUltraChatbotAgentToolParts(message);
 
     if (text) {
       return (
@@ -675,8 +691,17 @@ export function UltraChatbotAgentWorkspace({
       );
     }
 
-    if (message.role === "assistant" && showThinking) {
+    if (
+      message.role === "assistant" &&
+      isLastMessage &&
+      toolParts.length === 0 &&
+      showThinking
+    ) {
       return <Shimmer className="text-sm">Thinking...</Shimmer>;
+    }
+
+    if (toolParts.length > 0) {
+      return null;
     }
 
     return (
@@ -721,12 +746,6 @@ export function UltraChatbotAgentWorkspace({
             {visibilityError}
           </div>
         ) : null}
-        {voteError ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {voteError}
-          </div>
-        ) : null}
-
         <div className="border-foreground/10 border-b px-4 py-3">
           <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
             <div>
@@ -739,7 +758,7 @@ export function UltraChatbotAgentWorkspace({
             </div>
             <UltraChatbotAgentVisibilitySelector
               chatId={chatMeta.id}
-              disabled={!initialSession && !hasMessages}
+              disabled={!(initialSession || hasMessages)}
               onChange={(visibility) =>
                 setChatMeta((current) => ({
                   ...current,
@@ -762,73 +781,106 @@ export function UltraChatbotAgentWorkspace({
                       ? getUltraChatbotAgentReasoningText(message)
                       : "";
                   const lastPart = message.parts.at(-1);
-                  const isLastMessage =
-                    messages[messages.length - 1]?.id === message.id;
+                  const isLastMessage = messages.at(-1)?.id === message.id;
                   const isReasoningStreaming =
                     message.role === "assistant" &&
                     isLastMessage &&
                     status === "streaming" &&
                     lastPart?.type === "reasoning";
 
+                  const currentVote = votesByMessageId[message.id];
+                  const isVotePending = pendingVote?.messageId === message.id;
+                  const isHelpfulPending =
+                    isVotePending && pendingVote.target === "up";
+                  const isNeedsWorkPending =
+                    isVotePending && pendingVote.target === "down";
+
                   return (
                     <Message from={message.role} key={message.id}>
                       <MessageContent
                         className={cn(
-                          message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
+                          message.role === "assistant"
+                            ? "max-w-3xl"
+                            : "max-w-2xl"
                         )}
                       >
                         {getUltraChatbotAgentToolParts(message).map((part) => {
-                        const documentResult =
-                          part.state === "output-available" &&
-                          isUltraChatbotAgentDocumentResult(part.output)
-                            ? part.output
-                            : null;
-                        const weatherResult =
-                          part.state === "output-available" &&
-                          isUltraChatbotAgentWeatherResult(part.output)
-                            ? part.output
-                            : null;
+                          const documentResult =
+                            part.state === "output-available" &&
+                            isUltraChatbotAgentDocumentResult(part.output)
+                              ? part.output
+                              : null;
+                          const weatherResult =
+                            part.state === "output-available" &&
+                            isUltraChatbotAgentWeatherResult(part.output)
+                              ? part.output
+                              : null;
+                          const isDocumentTool =
+                            part.type === "tool-createDocument" ||
+                            part.type === "tool-editDocument" ||
+                            part.type === "tool-updateDocument";
 
-                        return (
-                          <Tool defaultOpen={false} key={part.toolCallId}>
-                            {part.type === "dynamic-tool" ? (
-                              <ToolHeader
-                                state={part.state}
-                                toolName={part.toolName}
-                                type={part.type}
+                          if (
+                            isDocumentTool &&
+                            part.state === "output-available" &&
+                            part.output &&
+                            typeof part.output === "object" &&
+                            "error" in part.output
+                          ) {
+                            return (
+                              <div
+                                className="w-full rounded-xl border border-destructive/30 px-4 py-3 text-destructive text-sm"
+                                key={part.toolCallId}
+                              >
+                                {String(part.output.error)}
+                              </div>
+                            );
+                          }
+
+                          if (documentResult && isDocumentTool) {
+                            return (
+                              <UltraChatbotAgentDocumentPreview
+                                chatId={chatMeta.id}
+                                key={part.toolCallId}
+                                onOpen={openArtifact}
+                                result={documentResult}
                               />
-                            ) : (
-                              <ToolHeader state={part.state} type={part.type} />
-                            )}
-                            <ToolContent>
-                              {part.input ? <ToolInput input={part.input} /> : null}
-                              {weatherResult ? null : (
-                                <ToolOutput
-                                  errorText={part.errorText}
-                                  output={part.output}
+                            );
+                          }
+
+                          return (
+                            <Tool defaultOpen={false} key={part.toolCallId}>
+                              {part.type === "dynamic-tool" ? (
+                                <ToolHeader
+                                  state={part.state}
+                                  toolName={part.toolName}
+                                  type={part.type}
+                                />
+                              ) : (
+                                <ToolHeader
+                                  state={part.state}
+                                  type={part.type}
                                 />
                               )}
-                              {weatherResult ? (
-                                <UltraChatbotAgentWeather weather={weatherResult} />
-                              ) : null}
-                              {documentResult ? (
-                                <div className="flex items-center justify-end">
-                                  <Button
-                                    onClick={() =>
-                                      openArtifact(documentResult.id)
-                                    }
-                                    size="sm"
-                                    type="button"
-                                    variant="outline"
-                                  >
-                                    Open document
-                                  </Button>
-                                </div>
-                              ) : null}
-                            </ToolContent>
-                          </Tool>
-                        );
-                      })}
+                              <ToolContent>
+                                {part.input ? (
+                                  <ToolInput input={part.input} />
+                                ) : null}
+                                {weatherResult ? null : (
+                                  <ToolOutput
+                                    errorText={part.errorText}
+                                    output={part.output}
+                                  />
+                                )}
+                                {weatherResult ? (
+                                  <UltraChatbotAgentWeather
+                                    weather={weatherResult}
+                                  />
+                                ) : null}
+                              </ToolContent>
+                            </Tool>
+                          );
+                        })}
                         {reasoningText ? (
                           <Reasoning
                             className="w-full"
@@ -838,41 +890,84 @@ export function UltraChatbotAgentWorkspace({
                             <ReasoningContent>{reasoningText}</ReasoningContent>
                           </Reasoning>
                         ) : null}
-                      {editingMessageId === message.id ? (
-                        <div className="space-y-3">
-                          <Textarea
-                            onChange={(event) => setEditingText(event.target.value)}
-                            value={editingText}
-                          />
-                          <div className="flex items-center gap-2">
+                        {editingMessageId === message.id ? (
+                          <div className="space-y-3">
+                            <Textarea
+                              onChange={(event) =>
+                                setEditingText(event.target.value)
+                              }
+                              value={editingText}
+                            />
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                disabled={isBusy}
+                                onClick={() => handleSaveEdit(message)}
+                                size="sm"
+                                type="button"
+                                variant="outline"
+                              >
+                                Save and replay
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setEditingMessageId(null);
+                                  setEditingText("");
+                                  setEditError(null);
+                                }}
+                                size="sm"
+                                type="button"
+                                variant="ghost"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          renderMessageBody(message, isLastMessage)
+                        )}
+                        {message.role === "assistant" ? (
+                          <div className="mt-3 flex items-center gap-2">
                             <Button
-                              disabled={isBusy}
-                              onClick={() => handleSaveEdit(message)}
+                              disabled={isVotePending}
+                              onClick={() => handleVote(message.id, "up")}
                               size="sm"
                               type="button"
-                              variant="outline"
+                              variant={
+                                currentVote === true
+                                  ? "secondary"
+                                  : "outline"
+                              }
                             >
-                              Save and replay
+                              {isHelpfulPending ? (
+                                <Spinner className="size-3.5" />
+                              ) : currentVote === true ? (
+                                <SmileyIcon className="size-3.5 text-emerald-500" />
+                              ) : null}
+                              Helpful
                             </Button>
                             <Button
-                              onClick={() => {
-                                setEditingMessageId(null);
-                                setEditingText("");
-                                setEditError(null);
-                              }}
+                              disabled={isVotePending}
+                              onClick={() => handleVote(message.id, "down")}
                               size="sm"
                               type="button"
-                              variant="ghost"
+                              variant={
+                                currentVote === false
+                                  ? "secondary"
+                                  : "outline"
+                              }
                             >
-                              Cancel
+                              {isNeedsWorkPending ? (
+                                <Spinner className="size-3.5" />
+                              ) : currentVote === false ? (
+                                <SmileySadIcon className="size-3.5 text-rose-500" />
+                              ) : null}
+                              Needs work
                             </Button>
                           </div>
-                        </div>
-                      ) : (
-                        renderMessageBody(message)
-                      )}
+                        ) : null}
+                      </MessageContent>
                       {message.role === "user" && editingMessageId !== message.id ? (
-                        <div className="mt-3">
+                        <div className="mt-3 flex w-full justify-end">
                           <Button
                             disabled={isBusy}
                             onClick={() => {
@@ -888,37 +983,6 @@ export function UltraChatbotAgentWorkspace({
                           </Button>
                         </div>
                       ) : null}
-                      {message.role === "assistant" ? (
-                        <div className="mt-3 flex items-center gap-2">
-                          <Button
-                            disabled={pendingVoteMessageId === message.id}
-                            onClick={() => handleVote(message.id, "up")}
-                            size="sm"
-                            type="button"
-                            variant={
-                              votesByMessageId[message.id] === true
-                                ? "secondary"
-                                : "outline"
-                            }
-                          >
-                            Helpful
-                          </Button>
-                          <Button
-                            disabled={pendingVoteMessageId === message.id}
-                            onClick={() => handleVote(message.id, "down")}
-                            size="sm"
-                            type="button"
-                            variant={
-                              votesByMessageId[message.id] === false
-                                ? "secondary"
-                                : "outline"
-                            }
-                          >
-                            Needs work
-                          </Button>
-                        </div>
-                      ) : null}
-                      </MessageContent>
                     </Message>
                   );
                 })}
@@ -937,13 +1001,6 @@ export function UltraChatbotAgentWorkspace({
                   icon={<RobotIcon className="size-5" />}
                   title="Ultra route is ready"
                 />
-                <div className="w-full max-w-3xl px-4">
-                  <UltraChatbotAgentSuggestedActions
-                    onSelect={(value) =>
-                      handleSubmit([{ text: value, type: "text" as const }])
-                    }
-                  />
-                </div>
               </div>
             )}
           </ConversationContent>
@@ -954,6 +1011,15 @@ export function UltraChatbotAgentWorkspace({
           <div className="mx-auto w-full max-w-3xl">
             <UltraChatbotAgentMultimodalInput
               disabled={!isChatAvailable || isBusy}
+              footerBelow={
+                hasMessages ? null : (
+                  <UltraChatbotAgentSuggestedActions
+                    onSelect={(value) =>
+                      handleSubmit([{ text: value, type: "text" as const }])
+                    }
+                  />
+                )
+              }
               footerLeading={
                 <>
                   <Badge variant="outline">Visitor scoped</Badge>
@@ -969,10 +1035,15 @@ export function UltraChatbotAgentWorkspace({
                       </span>
                       <CaretDownIcon className="size-3" />
                     </ModelSelectorTrigger>
-                    <ModelSelectorContent className="sm:max-w-md" title="Select model">
+                    <ModelSelectorContent
+                      className="sm:max-w-md"
+                      title="Select model"
+                    >
                       <ModelSelectorInput placeholder="Search models..." />
                       <ModelSelectorList>
-                        <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                        <ModelSelectorEmpty>
+                          No models found.
+                        </ModelSelectorEmpty>
                         <ModelSelectorGroup heading="Available models">
                           {models.map((model) => (
                             <ModelSelectorItem
@@ -986,9 +1057,13 @@ export function UltraChatbotAgentWorkspace({
                               value={`${model.name} ${model.id}`}
                             >
                               <ModelSelectorLogo provider={model.provider} />
-                              <ModelSelectorName>{model.name}</ModelSelectorName>
+                              <ModelSelectorName>
+                                {model.name}
+                              </ModelSelectorName>
                               <span className="text-muted-foreground text-xs">
-                                {model.capabilities.reasoning ? "Reasoning" : "Chat"}
+                                {model.capabilities.reasoning
+                                  ? "Reasoning"
+                                  : "Chat"}
                               </span>
                             </ModelSelectorItem>
                           ))}
@@ -1087,11 +1162,13 @@ export function UltraChatbotAgentWorkspace({
           </div>
 
           <UltraChatbotAgentArtifact
+            chatId={chatMeta.id}
             disabled={!isChatAvailable || isBusy}
             mode={artifactMode}
             onClose={closeArtifact}
             onModeChange={setArtifactMode}
-            onSelectedDocumentIdChange={setSelectedDocumentId}
+            onOpen={openArtifact}
+            onRefresh={refreshArtifact}
             refreshToken={artifactRefreshToken}
             selectedDocumentId={selectedDocumentId}
           />

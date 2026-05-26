@@ -12,6 +12,7 @@ const aiMockState = vi.hoisted(() => ({
       messages: UIMessage[];
     }) => Promise<void>;
     originalMessages?: UIMessage[];
+    sendReasoning?: boolean;
   },
   streamText: vi.fn(),
 }));
@@ -257,6 +258,12 @@ describe("ultra chatbot agent runtime", () => {
     expect(aiMockState.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: expect.anything(),
+        providerOptions: {
+          openai: {
+            reasoningEffort: "medium",
+            reasoningSummary: "auto",
+          },
+        },
         stopWhen: expect.any(Function),
         tools: expect.objectContaining({
           createDocument: expect.objectContaining({
@@ -314,6 +321,7 @@ describe("ultra chatbot agent runtime", () => {
     expect(aiMockState.responseOptions?.originalMessages).toEqual([
       userMessage,
     ]);
+    expect(aiMockState.responseOptions?.sendReasoning).toBe(true);
     expect(aiMockState.responseOptions?.generateMessageId?.()).toMatch(
       ultraMessageIdPattern
     );

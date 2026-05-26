@@ -12,6 +12,13 @@ export interface UltraChatbotAgentProvider {
   resolveModelId: (selectedChatModel?: string) => string;
 }
 
+export const ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS = {
+  openai: {
+    reasoningEffort: "medium",
+    reasoningSummary: "auto",
+  },
+} as const;
+
 export function resolveUltraChatbotAgentSelectedModelId(input: {
   env: DemoEnv;
   selectedChatModel?: string;

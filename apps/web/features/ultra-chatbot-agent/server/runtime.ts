@@ -31,7 +31,10 @@ import {
   resolveUltraChatbotAgentDefaultModel,
 } from "./models";
 import { getUltraChatbotAgentSystemPrompt } from "./prompts";
-import { createUltraChatbotAgentProvider } from "./providers";
+import {
+  createUltraChatbotAgentProvider,
+  ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
+} from "./providers";
 
 const invalidRequestBodyError =
   'Expected a JSON body with a non-empty "id" string, "message" object, "selectedChatModel" string, and "selectedVisibilityType".';
@@ -240,6 +243,7 @@ export async function handleUltraChatbotAgentChatRequest(
   const result = streamText({
     model: provider.gateway(modelId),
     messages: await convertToModelMessages(originalMessages),
+    providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
     stopWhen: stepCountIs(20),
     system: getUltraChatbotAgentSystemPrompt(),
     tools: {
@@ -291,6 +295,7 @@ export async function handleUltraChatbotAgentChatRequest(
       });
     },
     originalMessages,
+    sendReasoning: true,
   });
 }
 

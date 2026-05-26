@@ -32,11 +32,6 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@workspace/ui/components/ai-elements/model-selector";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@workspace/ui/components/ai-elements/reasoning";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import {
   Tool,
@@ -70,6 +65,7 @@ import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-stat
 import { UltraChatbotAgentArtifact } from "./ultra-chatbot-agent-artifact";
 import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentHistorySidebar } from "./ultra-chatbot-agent-history-sidebar";
+import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message-reasoning";
 import {
   getUltraChatbotAgentFileParts,
   getUltraChatbotAgentReasoningText,
@@ -371,6 +367,14 @@ export function UltraChatbotAgentWorkspace({
     updatedAt: initialSession?.chat.updatedAt ?? null,
     visibility: initialSession?.chat.visibility ?? "private",
   }));
+  const selectedChatModelRef = useRef(chatMeta.selectedChatModel);
+  const selectedVisibilityRef = useRef(chatMeta.visibility);
+
+  useEffect(() => {
+    selectedChatModelRef.current = chatMeta.selectedChatModel;
+    selectedVisibilityRef.current = chatMeta.visibility;
+  }, [chatMeta.selectedChatModel, chatMeta.visibility]);
+
   const {
     error,
     messages,
@@ -395,8 +399,8 @@ export function UltraChatbotAgentWorkspace({
         body: {
           id,
           message: nextMessages.at(-1),
-          selectedChatModel: chatMeta.selectedChatModel,
-          selectedVisibilityType: chatMeta.visibility,
+          selectedChatModel: selectedChatModelRef.current,
+          selectedVisibilityType: selectedVisibilityRef.current,
         },
       }),
     }),
@@ -421,6 +425,7 @@ export function UltraChatbotAgentWorkspace({
   const [editError, setEditError] = useState<string | null>(null);
   const [composerError, setComposerError] = useState<string | null>(null);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const [votesByMessageId, setVotesByMessageId] = useState<
     Record<string, boolean>
   >({});
@@ -760,10 +765,13 @@ export function UltraChatbotAgentWorkspace({
               chatId={chatMeta.id}
               disabled={!(initialSession || hasMessages)}
               onChange={(visibility) =>
-                setChatMeta((current) => ({
-                  ...current,
-                  visibility,
-                }))
+                {
+                  selectedVisibilityRef.current = visibility;
+                  setChatMeta((current) => ({
+                    ...current,
+                    visibility,
+                  }));
+                }
               }
               onError={setVisibilityError}
               value={chatMeta.visibility}
@@ -794,6 +802,11 @@ export function UltraChatbotAgentWorkspace({
                     isVotePending && pendingVote.target === "up";
                   const isNeedsWorkPending =
                     isVotePending && pendingVote.target === "down";
+                  const showFeedbackButtons =
+                    message.role === "assistant" &&
+                    !(isLastMessage && status === "streaming") &&
+                    !(isLastMessage && status === "submitted") &&
+                    hasUltraChatbotAgentVisibleMessageContent(message);
 
                   return (
                     <Message from={message.role} key={message.id}>
@@ -882,13 +895,10 @@ export function UltraChatbotAgentWorkspace({
                           );
                         })}
                         {reasoningText ? (
-                          <Reasoning
-                            className="w-full"
-                            isStreaming={isReasoningStreaming}
-                          >
-                            <ReasoningTrigger />
-                            <ReasoningContent>{reasoningText}</ReasoningContent>
-                          </Reasoning>
+                          <UltraChatbotAgentMessageReasoning
+                            isLoading={isReasoningStreaming}
+                            reasoning={reasoningText}
+                          />
                         ) : null}
                         {editingMessageId === message.id ? (
                           <div className="space-y-3">
@@ -925,7 +935,7 @@ export function UltraChatbotAgentWorkspace({
                         ) : (
                           renderMessageBody(message, isLastMessage)
                         )}
-                        {message.role === "assistant" ? (
+                        {showFeedbackButtons ? (
                           <div className="mt-3 flex items-center gap-2">
                             <Button
                               disabled={isVotePending}
@@ -1025,7 +1035,10 @@ export function UltraChatbotAgentWorkspace({
                   <Badge variant="outline">Visitor scoped</Badge>
                   <Badge variant="outline">Postgres</Badge>
                   <Badge variant="outline">Blob uploads</Badge>
-                  <ModelSelector>
+                  <ModelSelector
+                    onOpenChange={setIsModelSelectorOpen}
+                    open={isModelSelectorOpen}
+                  >
                     <ModelSelectorTrigger className="inline-flex h-7 items-center gap-2 border border-input px-2 text-xs">
                       <ModelSelectorLogo
                         provider={selectedModel?.provider ?? "openai"}
@@ -1048,12 +1061,14 @@ export function UltraChatbotAgentWorkspace({
                           {models.map((model) => (
                             <ModelSelectorItem
                               key={model.id}
-                              onSelect={() =>
+                              onSelect={() => {
+                                selectedChatModelRef.current = model.id;
                                 setChatMeta((current) => ({
                                   ...current,
                                   selectedChatModel: model.id,
-                                }))
-                              }
+                                }));
+                                setIsModelSelectorOpen(false);
+                              }}
                               value={`${model.name} ${model.id}`}
                             >
                               <ModelSelectorLogo provider={model.provider} />

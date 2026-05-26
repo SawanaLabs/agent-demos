@@ -245,28 +245,7 @@ export function useTraceEvalJudge({
     stop();
     clear();
     setState(buildRunningJudgeState(null, 0));
-    submit({ snapshot }).catch((submitError: unknown) => {
-      if (activeEvaluationRef.current?.evaluationKey !== evaluationKey) {
-        return;
-      }
-
-      setState({
-        elapsedMs:
-          startedAtRef.current === null
-            ? null
-            : Math.max(0, Date.now() - startedAtRef.current),
-        error:
-          submitError instanceof Error
-            ? submitError.message
-            : "Trace eval judge request failed.",
-        partial: latestObjectRef.current,
-        progress: latestObjectRef.current
-          ? deriveTraceEvalJudgeProgress(latestObjectRef.current)
-          : null,
-        result: null,
-        status: "failed",
-      });
-    });
+    submit({ snapshot });
   }, [clear, evaluationKey, judgeModel, snapshot, stop, submit]);
 
   return state;

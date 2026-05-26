@@ -1,6 +1,7 @@
-import { and, inArray, sql } from "@workspace/database/drizzle";
+import { and, inArray, sql } from "drizzle-orm";
 
 import { getVisitorPrivateCustomerMemoryProfileIds } from "../customer-profiles";
+import { loadCustomerMemoryAgentDatabase } from "./database";
 import { customerMemorySharedVisitorId } from "./viewer-context";
 
 export const customerMemoryCleanupRetentionDays = 3;
@@ -46,23 +47,21 @@ interface CustomerMemoryCleanupInput {
 }
 
 interface CustomerMemoryCleanupDatabaseModule {
-  customerMemoryCompactions: (typeof import("@workspace/database"))["customerMemoryCompactions"];
-  customerMemoryMemories: (typeof import("@workspace/database"))["customerMemoryMemories"];
-  customerMemoryMessages: (typeof import("@workspace/database"))["customerMemoryMessages"];
-  customerMemoryThreads: (typeof import("@workspace/database"))["customerMemoryThreads"];
-  database: (typeof import("@workspace/database"))["database"];
-}
-
-async function loadCustomerMemoryAgentDatabase(): Promise<CustomerMemoryCleanupDatabaseModule> {
-  const databaseModule = await import("@workspace/database");
-
-  return {
-    customerMemoryCompactions: databaseModule.customerMemoryCompactions,
-    customerMemoryMemories: databaseModule.customerMemoryMemories,
-    customerMemoryMessages: databaseModule.customerMemoryMessages,
-    customerMemoryThreads: databaseModule.customerMemoryThreads,
-    database: databaseModule.database,
-  };
+  customerMemoryCompactions: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryCompactions"];
+  customerMemoryMemories: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryMemories"];
+  customerMemoryMessages: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryMessages"];
+  customerMemoryThreads: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryThreads"];
+  database: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["database"];
 }
 
 function toIsoString(value: Date | string) {

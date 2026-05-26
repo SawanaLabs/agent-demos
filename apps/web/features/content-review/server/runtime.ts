@@ -1,11 +1,11 @@
 import { type LanguageModelUsage, Output, streamText } from "ai";
-import { env as appEnv } from "@/env";
-
 import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
+  createContentReviewGateway,
+  getContentReviewConfig,
+  getContentReviewEnv,
+  getContentReviewSetupState,
+  type ContentReviewEnv,
+} from "./env";
 
 import {
   type ContentReviewRequest,
@@ -22,8 +22,6 @@ const unsupportedMediaTypeError =
   "Only image attachments and PDF attachments are supported.";
 const missingReviewInputError =
   "Provide text guidance, at least one attachment, or both.";
-
-type DemoEnv = Record<string, string | undefined>;
 
 const reviewSystemPrompt = [
   "You are the Object Generation structured-output demo in a production-ready agent demos monorepo.",
@@ -44,9 +42,9 @@ export interface ContentReviewRuntimeState {
 }
 
 interface ContentReviewRequestDependencies {
-  createContentReviewStream: (
-    input: ContentReviewRequest,
-    env: DemoEnv
+    createContentReviewStream: (
+      input: ContentReviewRequest,
+    env: ContentReviewEnv
   ) => ContentReviewStreamResult | Promise<ContentReviewStreamResult>;
 }
 
@@ -111,9 +109,9 @@ function buildReviewMessages(input: ContentReviewRequest) {
 }
 
 export function getContentReviewRuntimeState(
-  env: DemoEnv = appEnv
+  env: ContentReviewEnv = getContentReviewEnv()
 ): ContentReviewRuntimeState {
-  const setup = getAiGatewaySetupState(env);
+  const setup = getContentReviewSetupState(env);
 
   return {
     acceptedMediaTypes: [...contentReviewAcceptedMediaTypes],
@@ -127,10 +125,10 @@ export function getContentReviewRuntimeState(
 
 export function createContentReviewStream(
   input: ContentReviewRequest,
-  env: DemoEnv
+  env: ContentReviewEnv
 ): Promise<ContentReviewStreamResult> {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+  const gateway = createContentReviewGateway(env);
+  const { chatModel } = getContentReviewConfig(env);
 
   const result = streamText({
     model: gateway(chatModel),
@@ -152,7 +150,7 @@ export function createContentReviewStream(
 
 export async function handleContentReviewRequest(
   request: Request,
-  env: DemoEnv = appEnv,
+  env: ContentReviewEnv = getContentReviewEnv(),
   dependencies: ContentReviewRequestDependencies = {
     createContentReviewStream,
   }

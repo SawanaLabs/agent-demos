@@ -9,12 +9,6 @@ import {
   type UIMessageStreamOnFinishCallback,
 } from "ai";
 import { z } from "zod";
-import { env as appEnv } from "@/env";
-
-import {
-  createAiGateway,
-  getAiGatewayConfig,
-} from "@/features/shared/ai-gateway/server/env";
 
 import type { CustomerMemoryProfile } from "../customer-profiles";
 import {
@@ -28,6 +22,12 @@ import {
   type CustomerMemoryCompactionRecord,
   createCustomerMemoryCompactionStore,
 } from "./compaction-store";
+import {
+  createCustomerMemoryAgentGateway,
+  getCustomerMemoryAgentConfig,
+  getCustomerMemoryAgentEnv,
+  type CustomerMemoryAgentEnv,
+} from "./env";
 import { createCustomerMemoryLifecycle } from "./memory-lifecycle";
 import {
   findRelevantCustomerMemory,
@@ -35,8 +35,6 @@ import {
 } from "./memory-recall";
 import type { CustomerMemoryRecord } from "./memory-store";
 import { createCustomerMemoryThreadStore } from "./thread-store";
-
-type DemoEnv = Record<string, string | undefined>;
 
 const customerMemoryInstructions = [
   "You are the customer-memory-agent demo for a customer success and support team.",
@@ -171,7 +169,7 @@ interface StreamCustomerMemoryConversationDependencies {
   ) => Promise<CustomerMemoryRecord[]>;
   createConversationResponse?: (
     input: CreateConversationResponseInput,
-    env: DemoEnv
+    env: CustomerMemoryAgentEnv
   ) => Promise<Response>;
   findRelevantMemory?: typeof findRelevantCustomerMemory;
   getLatestCompaction?: (
@@ -305,10 +303,10 @@ async function maybeCompactCustomerMemoryThread(input: {
 
 async function createDefaultConversationResponse(
   input: CreateConversationResponseInput,
-  env: DemoEnv
+  env: CustomerMemoryAgentEnv
 ) {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+  const gateway = createCustomerMemoryAgentGateway(env);
+  const { chatModel } = getCustomerMemoryAgentConfig(env);
   const result = streamText({
     model: gateway(chatModel),
     system: input.systemPrompt,
@@ -337,7 +335,7 @@ async function createDefaultConversationResponse(
 
 export async function streamCustomerMemoryConversation(
   input: StreamCustomerMemoryConversationInput,
-  env: DemoEnv = appEnv,
+  env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv(),
   dependencies: StreamCustomerMemoryConversationDependencies = {}
 ) {
   const latestUserPrompt = getLatestUserPrompt(input.messages);

@@ -4,6 +4,9 @@
   "homepage": "https://github.com/openclaw/ai-sdk-6-ai-elements-demos",
   "include": [
     "registry/foundation-chat/registry.json",
-    "registry/rag-chatbot/registry.json"
+    "registry/rag-chatbot/registry.json",
+    "registry/multimodal-chatbot/registry.json",
+    "registry/content-review/registry.json",
+    "registry/customer-memory-agent/registry.json"
   ]
 }

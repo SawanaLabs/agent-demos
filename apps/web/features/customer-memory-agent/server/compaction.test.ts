@@ -16,11 +16,12 @@ vi.mock("ai", () => ({
     part.type === "dynamic-tool" || part.type.startsWith("tool-"),
 }));
 
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  createAiGateway: () => (modelId: string) => ({ modelId }),
-  getAiGatewayConfig: () => ({
+vi.mock("./env", () => ({
+  createCustomerMemoryAgentGateway: () => (modelId: string) => ({ modelId }),
+  getCustomerMemoryAgentConfig: () => ({
     chatModel: "openai/gpt-4.1-mini",
   }),
+  getCustomerMemoryAgentEnv: () => ({}),
 }));
 
 function createMessages(): UIMessage[] {

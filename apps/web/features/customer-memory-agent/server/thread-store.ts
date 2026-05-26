@@ -1,5 +1,7 @@
 import type { UIMessage } from "ai";
-import { and, asc, desc, eq, sql } from "@workspace/database/drizzle";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+
+import { loadCustomerMemoryAgentDatabase } from "./database";
 
 export interface CustomerMemoryThreadRecord {
   createdAt: string;
@@ -55,9 +57,15 @@ interface CustomerMemoryThreadStoreDependencies {
 }
 
 interface CustomerMemoryThreadDatabaseModule {
-  customerMemoryMessages: (typeof import("@workspace/database"))["customerMemoryMessages"];
-  customerMemoryThreads: (typeof import("@workspace/database"))["customerMemoryThreads"];
-  database: (typeof import("@workspace/database"))["database"];
+  customerMemoryMessages: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryMessages"];
+  customerMemoryThreads: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["customerMemoryThreads"];
+  database: Awaited<
+    ReturnType<typeof loadCustomerMemoryAgentDatabase>
+  >["database"];
 }
 
 export function getMissingCustomerMemoryThreadError(threadId: string) {
@@ -66,16 +74,6 @@ export function getMissingCustomerMemoryThreadError(threadId: string) {
 
 export function getInvalidCustomerMemoryMessageIdError(messageIndex: number) {
   return `Expected customer-memory message ${messageIndex} to have a non-empty id before persistence.`;
-}
-
-async function loadCustomerMemoryAgentDatabase(): Promise<CustomerMemoryThreadDatabaseModule> {
-  const databaseModule = await import("@workspace/database");
-
-  return {
-    customerMemoryMessages: databaseModule.customerMemoryMessages,
-    customerMemoryThreads: databaseModule.customerMemoryThreads,
-    database: databaseModule.database,
-  };
 }
 
 function toIsoString(value: Date | string) {

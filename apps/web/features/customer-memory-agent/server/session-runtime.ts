@@ -1,5 +1,8 @@
-import { env as appEnv } from "@/env";
 import { getCustomerMemoryProfile } from "../customer-profiles";
+import {
+  getCustomerMemoryAgentEnv,
+  type CustomerMemoryAgentEnv,
+} from "./env";
 import {
   invalidCustomerIdError,
   malformedJsonError,
@@ -16,8 +19,6 @@ import {
   resolveCustomerMemoryViewerContext,
 } from "./viewer-context";
 
-type DemoEnv = Record<string, string | undefined>;
-
 interface CustomerMemorySessionRequestDependencies {
   loadCustomerMemorySession?: typeof loadCustomerMemorySession;
 }
@@ -27,7 +28,7 @@ interface CustomerMemoryThreadCreateRequestDependencies {
   loadCustomerMemorySession?: typeof loadCustomerMemorySession;
 }
 
-function getDatabaseSetupError(env: DemoEnv) {
+function getDatabaseSetupError(env: CustomerMemoryAgentEnv) {
   if (env.DATABASE_URL) {
     return null;
   }
@@ -38,7 +39,7 @@ function getDatabaseSetupError(env: DemoEnv) {
 export async function handleCustomerMemorySessionRequest(
   request: Request,
   viewer: CustomerMemoryViewerContext,
-  env: DemoEnv = appEnv,
+  env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv(),
   dependencies: CustomerMemorySessionRequestDependencies = {}
 ) {
   const setupError = getDatabaseSetupError(env);
@@ -98,7 +99,7 @@ export async function handleCustomerMemorySessionRequest(
 export async function handleCustomerMemoryThreadCreateRequest(
   request: Request,
   viewer: CustomerMemoryViewerContext,
-  env: DemoEnv = appEnv,
+  env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv(),
   dependencies: CustomerMemoryThreadCreateRequestDependencies = {}
 ) {
   const setupError = getDatabaseSetupError(env);

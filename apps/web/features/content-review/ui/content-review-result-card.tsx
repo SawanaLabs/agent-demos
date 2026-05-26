@@ -2,10 +2,7 @@
 
 import type { DeepPartial } from "ai";
 import { Badge } from "@workspace/ui/components/badge";
-import {
-  Progress,
-  ProgressLabel,
-} from "@workspace/ui/components/progress";
+import { Progress } from "@workspace/ui/components/progress";
 import { cn } from "@workspace/ui/lib/utils";
 
 import type { ContentReviewRecord } from "../record";
@@ -102,12 +99,15 @@ export function ContentReviewResultCard({
       </div>
 
       {riskScore !== null ? (
-        <Progress value={riskScore}>
-          <ProgressLabel>Risk score</ProgressLabel>
-          <span className="ml-auto text-muted-foreground text-xs tabular-nums">
-            {riskScore}
-          </span>
-        </Progress>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs">
+            <span>Risk score</span>
+            <span className="ml-auto text-muted-foreground tabular-nums">
+              {riskScore}
+            </span>
+          </div>
+          <Progress value={riskScore} />
+        </div>
       ) : null}
 
       {record ? (

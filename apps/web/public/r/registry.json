@@ -208,6 +208,388 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, pgvector-backed retrieval logic, and the AI Gateway plus DATABASE_URL env vars required for indexing and grounded chat.",
       "type": "registry:block"
+    },
+    {
+      "name": "multimodal-chatbot",
+      "title": "Multimodal Chatbot",
+      "description": "An AI Gateway chat workspace for ad-hoc image and PDF questions with inline file parts.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "files": [
+        {
+          "path": "registry/multimodal-chatbot/app/demos/multimodal-chatbot/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/multimodal-chatbot/page.tsx"
+        },
+        {
+          "path": "registry/multimodal-chatbot/app/api/demos/multimodal-chatbot/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/multimodal-chatbot/route.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/multimodal-chatbot-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-screen.tsx"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/multimodal-chatbot-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-workspace.tsx"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/use-multimodal-chatbot.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/use-multimodal-chatbot.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/use-multimodal-chatbot-workspace.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/use-multimodal-chatbot-workspace.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/convert-files-to-parts.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/convert-files-to-parts.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/multimodal-chatbot/multimodal-chatbot-session.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-session.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/multimodal-chatbot/lib/multimodal-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/multimodal-chatbot/env.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/lib/multimodal-chatbot/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/multimodal-chatbot/runtime.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and AI Gateway env vars required for image and PDF chat.",
+      "type": "registry:block"
+    },
+    {
+      "name": "content-review",
+      "title": "Object Generation",
+      "description": "A structured-output review workspace that streams a generated object directly inside the assistant message.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "progress",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "files": [
+        {
+          "path": "registry/content-review/app/demos/content-review/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/content-review/page.tsx"
+        },
+        {
+          "path": "registry/content-review/app/api/demos/content-review/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/content-review/route.ts"
+        },
+        {
+          "path": "registry/content-review/app/api/demos/content-review/records/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/content-review/records/route.ts"
+        },
+        {
+          "path": "registry/content-review/components/content-review/content-review-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/content-review/content-review-screen.tsx"
+        },
+        {
+          "path": "registry/content-review/components/content-review/content-review-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/content-review/content-review-workspace.tsx"
+        },
+        {
+          "path": "registry/content-review/components/content-review/content-review-result-card.tsx",
+          "type": "registry:component",
+          "target": "@components/content-review/content-review-result-card.tsx"
+        },
+        {
+          "path": "registry/content-review/components/content-review/content-review-session.ts",
+          "type": "registry:component",
+          "target": "@components/content-review/content-review-session.ts"
+        },
+        {
+          "path": "registry/content-review/components/content-review/use-content-review-session.ts",
+          "type": "registry:component",
+          "target": "@components/content-review/use-content-review-session.ts"
+        },
+        {
+          "path": "registry/content-review/components/content-review/convert-files-to-review-attachments.ts",
+          "type": "registry:component",
+          "target": "@components/content-review/convert-files-to-review-attachments.ts"
+        },
+        {
+          "path": "registry/content-review/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/env.ts"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/runtime.ts"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/recorded-review-run.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/recorded-review-run.ts"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/review-records.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/review-records.ts"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/record.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/record.ts"
+        },
+        {
+          "path": "registry/content-review/lib/content-review/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/content-review/schema.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and AI Gateway env vars required for structured output over text, image, and PDF inputs.",
+      "type": "registry:block"
+    },
+    {
+      "name": "customer-memory-agent",
+      "title": "Memory & Persistence Agent",
+      "description": "A database-backed support workspace with persistent threads, explicit saved memories, retrieval, and compaction checkpoints.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "skeleton",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/checkpoint.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/customer-memory-agent/app/demos/customer-memory-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/customer-memory-agent/page.tsx"
+        },
+        {
+          "path": "registry/customer-memory-agent/app/api/demos/customer-memory-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/route.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/app/api/demos/customer-memory-agent/session/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/session/route.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/app/api/demos/customer-memory-agent/threads/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/threads/route.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/customer-memory-agent/customer-memory-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-agent-screen.tsx"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/customer-memory-agent/customer-memory-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/customer-memory-agent/customer-memory-session.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-session.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/customer-memory-agent/use-customer-memory-chat.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/use-customer-memory-chat.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/customer-memory-agent/use-customer-memory-session.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/use-customer-memory-session.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/compaction-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/compaction-store.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/compaction.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/compaction.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/contract.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/conversation.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/conversation.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/customer-profiles.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/customer-profiles.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/database.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/env-source.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/env.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/memory-lifecycle.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-lifecycle.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/memory-recall.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-recall.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/memory-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-store.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/runtime.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/schema.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/session-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session-data.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/session-runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session-runtime.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/shared-demo-seed.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/shared-demo-seed.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/thread-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/thread-store.ts"
+        },
+        {
+          "path": "registry/customer-memory-agent/lib/customer-memory-agent/viewer-context.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/viewer-context.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
+        "DATABASE_URL": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped persistence, saved-memory retrieval, compaction checkpoints, and the Postgres plus AI Gateway env vars required for end-to-end chat. The database must support pgvector.",
+      "type": "registry:block"
     }
   ]
 }

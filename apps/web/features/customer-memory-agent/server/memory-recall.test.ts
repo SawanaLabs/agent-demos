@@ -51,7 +51,7 @@ describe("customer memory recall", () => {
         "constraint\nEmail restriction\nAcme cannot send HTML email.",
         "constraint\nWeekly updates\nAcme cannot send HTML email.",
       ],
-      process.env
+      expect.any(Object)
     );
     expect(replaceEmbeddings).toHaveBeenCalledWith([
       {

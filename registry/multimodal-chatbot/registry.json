@@ -1,0 +1,91 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "multimodal-chatbot",
+      "type": "registry:block",
+      "title": "Multimodal Chatbot",
+      "description": "An AI Gateway chat workspace for ad-hoc image and PDF questions with inline file parts.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/multimodal-chatbot/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/multimodal-chatbot/page.tsx"
+        },
+        {
+          "path": "app/api/demos/multimodal-chatbot/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/multimodal-chatbot/route.ts"
+        },
+        {
+          "path": "components/multimodal-chatbot/multimodal-chatbot-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-screen.tsx"
+        },
+        {
+          "path": "components/multimodal-chatbot/multimodal-chatbot-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-workspace.tsx"
+        },
+        {
+          "path": "components/multimodal-chatbot/use-multimodal-chatbot.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/use-multimodal-chatbot.ts"
+        },
+        {
+          "path": "components/multimodal-chatbot/use-multimodal-chatbot-workspace.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/use-multimodal-chatbot-workspace.ts"
+        },
+        {
+          "path": "components/multimodal-chatbot/convert-files-to-parts.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/convert-files-to-parts.ts"
+        },
+        {
+          "path": "components/multimodal-chatbot/multimodal-chatbot-session.ts",
+          "type": "registry:component",
+          "target": "@components/multimodal-chatbot/multimodal-chatbot-session.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/multimodal-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/multimodal-chatbot/env.ts"
+        },
+        {
+          "path": "lib/multimodal-chatbot/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/multimodal-chatbot/runtime.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and AI Gateway env vars required for image and PDF chat."
+    }
+  ]
+}

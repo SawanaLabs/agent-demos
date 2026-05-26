@@ -26,6 +26,7 @@ updateAt: 2026-05-26
 - Next.js route targets still need explicit `app/...` paths because shadcn registry target aliases do not provide an App Router placeholder.
 - Prefer `registryDependencies` for shadcn primitives and support modules such as `utils`. In a `base-*` consumer project, plain names like `button`, `tooltip`, and `utils` resolve against the official shadcn registry for the active style.
 - Registry-owned demo shell components should inherit the consumer project's shadcn language. Compose `button`, `badge`, `card`, `textarea`, theme tokens, and related primitives instead of hard-coding top-level panel geometry or writing local styling that overrides the preset's default radius and border character without a clear product reason.
+- Registry-owned demo components must target the public contract of the official shadcn primitive they declare in `registryDependencies`. Do not rely on workspace-local extensions such as extra slot exports or child composition APIs unless the registry item vendors that primitive itself.
 - Finish the consumer project's own `pnpm dlx shadcn@latest init` flow before installing any demo item. That step installs the base preset dependencies behind official primitives such as `button`, including `@base-ui/react` and `class-variance-authority`.
 - Use external AI Elements registry URLs in `registryDependencies` when they install cleanly. `foundation-chat` keeps `conversation` and `message` external, but ships its own `prompt-input` because the upstream registry version currently fails TypeScript checks against the current shadcn/Base UI stack.
 - Explicitly list every package imported by registry-owned files in `dependencies`. Keep the consumer host contract narrow and documented, then let the package manager resolve duplicates.
@@ -56,6 +57,28 @@ updateAt: 2026-05-26
 pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
 pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 ```
+
+## Reusable Success Pattern
+
+Use `foundation-chat` as the reusable pattern for the next registry-backed demo.
+
+1. Start with a working app-first demo slice under `apps/web/features/<demo-slug>/`.
+2. Make the slice copy-ready before building sync tooling or expanding registry scope:
+   - move env access behind feature-local `env.ts`
+   - move UI-facing chat/runtime seams behind feature-local hook or runtime helpers
+   - remove monorepo-only imports from files that need a portable registry copy
+   - reduce app and registry file differences to one-to-one copies plus a small whitelist of explicit transforms
+3. Create a portable registry source under `registry/<demo-slug>/`:
+   - keep route entry files thin
+   - keep registry source on consumer aliases such as `@/components/ui/*` and `@/lib/*`
+   - keep registry-only wiring, vendored exceptions, and generated output under registry ownership
+4. Use official shadcn primitives through `registryDependencies` whenever they install cleanly.
+5. Vendor only the exceptions that are still broken against the current consumer stack. Current example: `foundation-chat` keeps AI Elements `conversation` and `message` external, but ships its own `prompt-input`.
+6. Explicitly declare every runtime package imported by registry-owned files in `dependencies`, even when a nested registry dependency also uses that package.
+7. Validate the source registry, build distributable JSON, then prove the install path in a fresh consumer app.
+8. Add author-side sync tooling only after the slice is copy-ready. `foundation-chat` is the first example and is documented in [Registry Sync](./registry-sync.md).
+
+If a new demo fails at step 2, stop there and fix the slice. Do not use registry wiring or sync tooling to cover a tangled boundary.
 
 ## Reference Pattern
 
@@ -142,3 +165,17 @@ pnpm dev
 ```
 
 Do not treat a registry item as finished until the fresh consumer path passes. Validation and build prove schema correctness. The fresh consumer app proves distribution correctness.
+
+## Reusable Checklist
+
+Use this condensed checklist when the next demo starts registry work:
+
+- app-first demo already runs inside `apps/web`
+- feature slice is copy-ready
+- portable registry source exists under `registry/<demo-slug>/`
+- direct npm imports are listed in `dependencies`
+- shadcn primitives are listed in `registryDependencies`
+- `pnpm --dir packages/ui exec shadcn registry validate registry.json -c ../..` passes
+- `pnpm registry:build` passes
+- fresh consumer `shadcn add` install passes
+- fresh consumer `pnpm exec tsc --noEmit`, `pnpm build`, and `pnpm dev` pass

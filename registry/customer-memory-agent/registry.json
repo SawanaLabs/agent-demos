@@ -1,0 +1,188 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "customer-memory-agent",
+      "type": "registry:block",
+      "title": "Memory & Persistence Agent",
+      "description": "A database-backed support workspace with persistent threads, explicit saved memories, retrieval, and compaction checkpoints.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "skeleton",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/checkpoint.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
+        "DATABASE_URL": ""
+      },
+      "files": [
+        {
+          "path": "app/demos/customer-memory-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/customer-memory-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/customer-memory-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/route.ts"
+        },
+        {
+          "path": "app/api/demos/customer-memory-agent/session/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/session/route.ts"
+        },
+        {
+          "path": "app/api/demos/customer-memory-agent/threads/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/customer-memory-agent/threads/route.ts"
+        },
+        {
+          "path": "components/customer-memory-agent/customer-memory-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-agent-screen.tsx"
+        },
+        {
+          "path": "components/customer-memory-agent/customer-memory-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-agent-workspace.tsx"
+        },
+        {
+          "path": "components/customer-memory-agent/customer-memory-session.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/customer-memory-session.ts"
+        },
+        {
+          "path": "components/customer-memory-agent/use-customer-memory-chat.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/use-customer-memory-chat.ts"
+        },
+        {
+          "path": "components/customer-memory-agent/use-customer-memory-session.ts",
+          "type": "registry:component",
+          "target": "@components/customer-memory-agent/use-customer-memory-session.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/customer-memory-agent/compaction-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/compaction-store.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/compaction.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/compaction.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/contract.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/conversation.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/conversation.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/customer-profiles.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/customer-profiles.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/database.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/env-source.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/env.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/memory-lifecycle.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-lifecycle.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/memory-recall.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-recall.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/memory-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/memory-store.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/runtime.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/schema.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/session-data.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session-data.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/session-runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session-runtime.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/session.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/shared-demo-seed.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/shared-demo-seed.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/thread-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/thread-store.ts"
+        },
+        {
+          "path": "lib/customer-memory-agent/viewer-context.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/viewer-context.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped persistence, saved-memory retrieval, compaction checkpoints, and the Postgres plus AI Gateway env vars required for end-to-end chat. The database must support pgvector."
+    }
+  ]
+}

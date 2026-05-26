@@ -1,7 +1,4 @@
 import type { UIMessage } from "ai";
-import { env as appEnv } from "@/env";
-
-import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 
 import { getCustomerMemoryProfile } from "../customer-profiles";
 import { customerMemoryCompactionThreshold } from "./compaction";
@@ -14,14 +11,17 @@ import {
   readCustomerMemoryChatRequest,
 } from "./contract";
 import { streamCustomerMemoryConversation } from "./conversation";
+import {
+  getCustomerMemoryAgentEnv,
+  getCustomerMemoryAgentSetupState,
+  type CustomerMemoryAgentEnv,
+} from "./env";
 import { createCustomerMemoryThreadStore } from "./thread-store";
 import {
   type CustomerMemoryViewerContext,
   getReadonlyCustomerMemoryError,
   resolveCustomerMemoryViewerContext,
 } from "./viewer-context";
-
-type DemoEnv = Record<string, string | undefined>;
 
 interface CustomerMemoryChatRequestDependencies {
   ensureThreadOwnership?: (input: {
@@ -36,7 +36,7 @@ interface CustomerMemoryChatRequestDependencies {
       threadId: string;
       visitorId: string;
     },
-    env: DemoEnv
+    env: CustomerMemoryAgentEnv
   ) => Promise<Response>;
 }
 
@@ -49,32 +49,18 @@ export interface CustomerMemoryRuntimeState {
   statusLabel: "Ready" | "Setup required";
 }
 
-function getCustomerMemoryDatabaseIssue(env: DemoEnv) {
-  if (env.DATABASE_URL) {
-    return null;
-  }
-
-  return "DATABASE_URL is missing. The customer-memory agent requires a writable Postgres database.";
-}
-
 export function getCustomerMemoryRuntimeState(
-  env: DemoEnv = appEnv
+  env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv()
 ): CustomerMemoryRuntimeState {
-  const setup = getAiGatewaySetupState(env);
-  const issues = [...setup.issues];
-  const databaseIssue = getCustomerMemoryDatabaseIssue(env);
-
-  if (databaseIssue) {
-    issues.push(databaseIssue);
-  }
+  const setup = getCustomerMemoryAgentSetupState(env);
 
   return {
     chatModel: setup.config.chatModel,
     compactionThreshold: customerMemoryCompactionThreshold,
-    isChatAvailable: issues.length === 0,
+    isChatAvailable: setup.isReady,
     nodeVersion: setup.nodeVersion,
-    setupMessage: issues.length > 0 ? issues.join(" ") : null,
-    statusLabel: issues.length === 0 ? "Ready" : "Setup required",
+    setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,
+    statusLabel: setup.isReady ? "Ready" : "Setup required",
   };
 }
 
@@ -96,7 +82,7 @@ async function ensureCustomerMemoryThreadOwnership(input: {
 export async function handleCustomerMemoryChatRequest(
   request: Request,
   viewer: CustomerMemoryViewerContext,
-  env: DemoEnv = appEnv,
+  env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv(),
   dependencies: CustomerMemoryChatRequestDependencies = {
     streamCustomerMemoryConversation,
   }

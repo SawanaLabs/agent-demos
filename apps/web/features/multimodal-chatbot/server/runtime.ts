@@ -4,13 +4,14 @@ import {
   type UIMessage,
   validateUIMessages,
 } from "ai";
-import { env as appEnv } from "@/env";
 
 import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
+  createMultimodalChatbotGateway,
+  getMultimodalChatbotConfig,
+  getMultimodalChatbotEnv,
+  getMultimodalChatbotSetupState,
+  type MultimodalChatbotEnv,
+} from "./env";
 
 const invalidMessagesError = 'Expected a JSON body with a "messages" array.';
 const invalidUiMessagesError =
@@ -18,8 +19,6 @@ const invalidUiMessagesError =
 const malformedJsonError = "Expected a valid JSON request body.";
 const unsupportedMediaTypeError =
   "Only image attachments and PDF attachments are supported.";
-
-type DemoEnv = Record<string, string | undefined>;
 
 interface MultimodalChatbotRequestBody {
   messages?: UIMessage[];
@@ -37,16 +36,16 @@ export interface MultimodalChatbotRuntimeState {
 interface MultimodalChatbotRequestDependencies {
   streamMultimodalChatbot: (
     messages: UIMessage[],
-    env: DemoEnv
+    env: MultimodalChatbotEnv
   ) => Promise<Response>;
 }
 
 const acceptedMediaTypes = ["application/pdf", "image/*"] as const;
 
 export function getMultimodalChatbotRuntimeState(
-  env: DemoEnv = appEnv
+  env: MultimodalChatbotEnv = getMultimodalChatbotEnv()
 ): MultimodalChatbotRuntimeState {
-  const setup = getAiGatewaySetupState(env);
+  const setup = getMultimodalChatbotSetupState(env);
 
   return {
     acceptedMediaTypes: [...acceptedMediaTypes],
@@ -100,10 +99,10 @@ async function readMultimodalChatbotMessages(
 
 export async function streamMultimodalChatbot(
   messages: UIMessage[],
-  env: DemoEnv
+  env: MultimodalChatbotEnv
 ) {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+  const gateway = createMultimodalChatbotGateway(env);
+  const { chatModel } = getMultimodalChatbotConfig(env);
 
   const result = streamText({
     model: gateway(chatModel),
@@ -115,7 +114,7 @@ export async function streamMultimodalChatbot(
 
 export async function handleMultimodalChatbotRequest(
   request: Request,
-  env: DemoEnv = appEnv,
+  env: MultimodalChatbotEnv = getMultimodalChatbotEnv(),
   dependencies: MultimodalChatbotRequestDependencies = {
     streamMultimodalChatbot,
   }

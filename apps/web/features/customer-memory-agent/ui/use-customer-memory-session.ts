@@ -3,7 +3,6 @@
 import { Chat } from "@ai-sdk/react";
 import { type ChatStatus, DefaultChatTransport, type UIMessage } from "ai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 import { customerMemoryProfiles } from "../customer-profiles";
 import type { CustomerMemorySessionData } from "../session-data";
 import {
@@ -11,6 +10,7 @@ import {
   getLatestCustomerMemoryPrompt,
   removeEmptyCustomerMemoryAssistantMessages,
 } from "./customer-memory-session";
+import { useCustomerMemoryChat } from "./use-customer-memory-chat";
 
 async function fetchCustomerMemorySession(input: {
   customerId: string;
@@ -189,7 +189,7 @@ export function useCustomerMemorySession(
     setMessages,
     status,
     stop,
-  } = useDemoChat<UIMessage>({
+  } = useCustomerMemoryChat<UIMessage>({
     createChat: () =>
       new Chat<UIMessage>({
         onFinish: ({ messages }) => {

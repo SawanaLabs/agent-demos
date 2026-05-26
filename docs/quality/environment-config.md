@@ -20,6 +20,7 @@ updateAt: 2026-05-24
 - Feature code should import `env.ts` or `@/env` and pass those typed objects through public function parameters. Route handlers, runtime modules, model helpers, and chat helpers should not read `process.env` directly.
 - Keep package-level contracts strict when the package cannot operate without the variable, and keep app-level contracts soft when the UI can render in a setup-required state.
 - `apps/web/env.ts` is the app-level aggregation point for shared optional environment contracts that multiple features consume.
+- Shared optional infrastructure contracts such as Redis, Vercel Sandbox, and Vercel Blob should each live in `apps/web/features/shared/<capability>/server/keys.ts`, then flow into `apps/web/env.ts` for app-level aggregation.
 - Biome `style.noProcessEnv` is enabled at warning level across the repository. The only standing override is for `**/env.ts` and `**/keys.ts` files, where direct `process.env` reads are part of the contract layer by design.
 - Existing warnings in tests or untouched parallel work are acceptable during migration, but new production code should follow the contract-layer pattern immediately.
 

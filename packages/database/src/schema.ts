@@ -2,3 +2,4 @@
 export * from "./schemas/customer-memory-agent";
 export * from "./schemas/persistent-agent";
 export * from "./schemas/rag-chatbot";
+export * from "./schemas/ultra-chatbot-agent";

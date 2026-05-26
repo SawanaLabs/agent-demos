@@ -18,6 +18,7 @@ import { sandboxAgentDemoMeta } from "@/features/sandbox-agent/demo-meta";
 import { skillsAgentDemoMeta } from "@/features/skills-agent/demo-meta";
 import { streamingChatShellDemoMeta } from "@/features/streaming-chat-shell/demo-meta";
 import { traceEvalAgentDemoMeta } from "@/features/trace-eval-agent/demo-meta";
+import { ultraChatbotAgentDemoMeta } from "@/features/ultra-chatbot-agent/demo-meta";
 
 export const demoPatternLabels: Record<DemoPattern, string> = {
   foundation: "Foundation",
@@ -46,6 +47,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   mcpAgentDemoMeta,
   openAiAgentsSdkDemoMeta,
   traceEvalAgentDemoMeta,
+  ultraChatbotAgentDemoMeta,
 ];
 
 export const readyDemoCatalogEntries: ReadyDemoCatalogEntry[] =

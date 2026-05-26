@@ -1,0 +1,46 @@
+import { createUltraChatbotAgentDocumentStore } from "./document-store";
+import { createUltraChatbotAgentSuggestionStore } from "./suggestion-store";
+
+function getUltraChatbotAgentSuggestionNotFoundError(documentId: string) {
+  return `No ultra-chatbot-agent document found for ${documentId}.`;
+}
+
+export async function handleUltraChatbotAgentSuggestionsRequest(
+  request: Request,
+  viewer: { visitorId: string }
+) {
+  if (request.method !== "GET") {
+    return Response.json({ error: "Method not allowed." }, { status: 405 });
+  }
+
+  const url = new URL(request.url);
+  const documentId = url.searchParams.get("id");
+
+  if (!documentId) {
+    return Response.json(
+      { error: 'Expected the "id" search parameter.' },
+      { status: 400 }
+    );
+  }
+
+  const latestDocument =
+    await createUltraChatbotAgentDocumentStore().loadLatestDocument({
+      documentId,
+      visitorId: viewer.visitorId,
+    });
+
+  if (!latestDocument) {
+    return Response.json(
+      { error: getUltraChatbotAgentSuggestionNotFoundError(documentId) },
+      { status: 404 }
+    );
+  }
+
+  return Response.json(
+    await createUltraChatbotAgentSuggestionStore().listSuggestionsForDocumentVersion({
+      documentCreatedAt: latestDocument.createdAt,
+      documentId,
+      visitorId: viewer.visitorId,
+    })
+  );
+}

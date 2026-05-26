@@ -27,6 +27,7 @@ describe("demo catalog registry", () => {
       "mcp-agent",
       "openai-agents-sdk-demo",
       "trace-eval-agent",
+      "ultra-chatbot-agent",
     ]);
   });
 
@@ -45,6 +46,7 @@ describe("demo catalog registry", () => {
       "mcp-agent",
       "openai-agents-sdk-demo",
       "trace-eval-agent",
+      "ultra-chatbot-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
   });
@@ -76,6 +78,7 @@ describe("demo catalog registry", () => {
       "mcp-agent",
       "openai-agents-sdk-demo",
       "trace-eval-agent",
+      "ultra-chatbot-agent",
     ]);
     expect(
       asciiEntries.every((entry) =>
@@ -158,6 +161,11 @@ describe("demo catalog registry", () => {
         accent: "cyan",
         label: "Trace + eval",
         slug: "trace-eval-agent",
+      },
+      {
+        accent: "violet",
+        label: "App-shape port",
+        slug: "ultra-chatbot-agent",
       },
     ]);
   });

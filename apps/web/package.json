@@ -20,6 +20,7 @@
     "@openai/agents-extensions": "^0.11.5",
     "@phosphor-icons/react": "^2.1.10",
     "@t3-oss/env-nextjs": "^0.13.11",
+    "@vercel/blob": "^2.4.0",
     "@vercel/sandbox": "^2.0.0",
     "@workspace/database": "workspace:^",
     "@workspace/ui": "workspace:*",

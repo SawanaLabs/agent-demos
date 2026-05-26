@@ -5,8 +5,8 @@ import {
   ArrowClockwiseIcon,
   CaretDownIcon,
   RobotIcon,
-  SmileyIcon,
-  SmileySadIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
 } from "@phosphor-icons/react";
 import { Attachments } from "@workspace/ui/components/ai-elements/attachments";
 import {
@@ -950,10 +950,12 @@ export function UltraChatbotAgentWorkspace({
                         {showFeedbackButtons ? (
                           <div className="mt-3 flex items-center gap-2">
                             <Button
+                              aria-label="Helpful"
                               disabled={isVotePending}
                               onClick={() => handleVote(message.id, "up")}
                               size="sm"
                               type="button"
+                              title="Helpful"
                               variant={
                                 currentVote === true
                                   ? "secondary"
@@ -963,15 +965,21 @@ export function UltraChatbotAgentWorkspace({
                               {isHelpfulPending ? (
                                 <Spinner className="size-3.5" />
                               ) : currentVote === true ? (
-                                <SmileyIcon className="size-3.5 text-emerald-500" />
+                                <ThumbsUpIcon className="size-3.5 text-emerald-500" />
+                              ) : (
+                                <ThumbsUpIcon className="size-3.5" />
+                              )}
+                              {currentVote === true && !isHelpfulPending ? (
+                                <span>Helpful</span>
                               ) : null}
-                              Helpful
                             </Button>
                             <Button
+                              aria-label="Needs work"
                               disabled={isVotePending}
                               onClick={() => handleVote(message.id, "down")}
                               size="sm"
                               type="button"
+                              title="Needs work"
                               variant={
                                 currentVote === false
                                   ? "secondary"
@@ -981,9 +989,13 @@ export function UltraChatbotAgentWorkspace({
                               {isNeedsWorkPending ? (
                                 <Spinner className="size-3.5" />
                               ) : currentVote === false ? (
-                                <SmileySadIcon className="size-3.5 text-rose-500" />
+                                <ThumbsDownIcon className="size-3.5 text-rose-500" />
+                              ) : (
+                                <ThumbsDownIcon className="size-3.5" />
+                              )}
+                              {currentVote === false && !isNeedsWorkPending ? (
+                                <span>Needs work</span>
                               ) : null}
-                              Needs work
                             </Button>
                           </div>
                         ) : null}

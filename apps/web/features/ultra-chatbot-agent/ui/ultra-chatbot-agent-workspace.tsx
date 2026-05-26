@@ -69,12 +69,14 @@ import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message
 import {
   getUltraChatbotAgentFileParts,
   getUltraChatbotAgentReasoningText,
+  getUltraChatbotAgentSourceParts,
   getUltraChatbotAgentToolParts,
   hasUltraChatbotAgentVisibleMessageContent,
   isUltraChatbotAgentDocumentResult,
 } from "./ultra-chatbot-agent-message-parts";
 import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimodal-input";
 import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
+import { UltraChatbotAgentSources } from "./ultra-chatbot-agent-sources";
 import { UltraChatbotAgentSuggestedActions } from "./ultra-chatbot-agent-suggested-actions";
 import { UltraChatbotAgentVisibilitySelector } from "./ultra-chatbot-agent-visibility-selector";
 import { UltraChatbotAgentWeather } from "./ultra-chatbot-agent-weather";
@@ -649,6 +651,7 @@ export function UltraChatbotAgentWorkspace({
   function renderMessageBody(message: UIMessage, isLastMessage: boolean) {
     const text = getTextContent(message);
     const fileParts = getUltraChatbotAgentFileParts(message);
+    const sourceParts = getUltraChatbotAgentSourceParts(message);
     const toolParts = getUltraChatbotAgentToolParts(message);
 
     if (text) {
@@ -706,6 +709,10 @@ export function UltraChatbotAgentWorkspace({
     }
 
     if (toolParts.length > 0) {
+      return null;
+    }
+
+    if (sourceParts.length > 0) {
       return null;
     }
 
@@ -788,6 +795,10 @@ export function UltraChatbotAgentWorkspace({
                     message.role === "assistant"
                       ? getUltraChatbotAgentReasoningText(message)
                       : "";
+                  const sources =
+                    message.role === "assistant"
+                      ? getUltraChatbotAgentSourceParts(message)
+                      : [];
                   const lastPart = message.parts.at(-1);
                   const isLastMessage = messages.at(-1)?.id === message.id;
                   const isReasoningStreaming =
@@ -900,6 +911,7 @@ export function UltraChatbotAgentWorkspace({
                             reasoning={reasoningText}
                           />
                         ) : null}
+                        <UltraChatbotAgentSources sources={sources} />
                         {editingMessageId === message.id ? (
                           <div className="space-y-3">
                             <Textarea

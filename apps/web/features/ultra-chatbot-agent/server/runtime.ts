@@ -15,6 +15,7 @@ import { env as appEnv } from "@/env";
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 import { getDatabaseSetupState } from "@/features/shared/database/server/env";
 
+import { projectUltraChatbotAgentHistoryForModel } from "./chat-history";
 import {
   createUltraChatbotAgentChatStore,
   getUltraChatbotAgentChatNotFoundError,
@@ -38,6 +39,7 @@ import {
 
 const invalidRequestBodyError =
   'Expected a JSON body with a non-empty "id" string, "message" object, "selectedChatModel" string, and "selectedVisibilityType".';
+const ultraChatbotAgentSearchToolName = "web_search";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -217,6 +219,8 @@ export async function handleUltraChatbotAgentChatRequest(
   const originalMessages = existingSession
     ? [...existingSession.messages, input.message]
     : [input.message];
+  const replayableMessages =
+    projectUltraChatbotAgentHistoryForModel(originalMessages);
 
   try {
     await store.saveIncomingUserMessage({
@@ -241,8 +245,8 @@ export async function handleUltraChatbotAgentChatRequest(
   const modelId = provider.resolveModelId(input.selectedChatModel);
 
   const result = streamText({
-    model: provider.gateway(modelId),
-    messages: await convertToModelMessages(originalMessages),
+    model: provider.hostedToolsGateway(modelId),
+    messages: await convertToModelMessages(replayableMessages),
     providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
     stopWhen: stepCountIs(20),
     system: getUltraChatbotAgentSystemPrompt(),
@@ -261,6 +265,10 @@ export async function handleUltraChatbotAgentChatRequest(
         model: provider.gateway(modelId),
         visitorId: viewer.visitorId,
       }),
+      [ultraChatbotAgentSearchToolName]:
+        provider.hostedToolsGateway.tools.webSearch({
+          searchContextSize: "medium",
+        }),
       updateDocument: createUltraChatbotAgentUpdateDocumentTool({
         chatId: input.id,
         model: provider.gateway(modelId),
@@ -296,6 +304,7 @@ export async function handleUltraChatbotAgentChatRequest(
     },
     originalMessages,
     sendReasoning: true,
+    sendSources: true,
   });
 }
 

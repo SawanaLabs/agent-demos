@@ -13,6 +13,7 @@ const aiMockState = vi.hoisted(() => ({
     }) => Promise<void>;
     originalMessages?: UIMessage[];
     sendReasoning?: boolean;
+    sendSources?: boolean;
   },
   streamText: vi.fn(),
 }));
@@ -121,6 +122,39 @@ function createUserMessage(): UIMessage {
       },
     ],
     role: "user",
+  };
+}
+
+function createAssistantSearchMessage(): UIMessage {
+  return {
+    id: "assistant-search-1",
+    parts: [
+      {
+        text: "Searching",
+        type: "reasoning",
+      },
+      {
+        input: { query: "Tesla latest" },
+        output: {
+          results: [{ title: "Tesla", url: "https://www.tesla.com" }],
+        },
+        state: "output-available",
+        toolCallId: "call_1",
+        type: "tool-web_search",
+      },
+      {
+        providerMetadata: undefined,
+        sourceId: "src_1",
+        title: "Tesla",
+        type: "source-url",
+        url: "https://www.tesla.com",
+      },
+      {
+        text: "Tesla is a public company focused on EVs and energy.",
+        type: "text",
+      },
+    ],
+    role: "assistant",
   };
 }
 
@@ -262,6 +296,7 @@ describe("ultra chatbot agent runtime", () => {
           openai: {
             reasoningEffort: "medium",
             reasoningSummary: "auto",
+            textVerbosity: "low",
           },
         },
         stopWhen: expect.any(Function),
@@ -286,6 +321,7 @@ describe("ultra chatbot agent runtime", () => {
             description: expect.any(String),
             execute: expect.any(Function),
           }),
+          web_search: expect.anything(),
         }),
       })
     );
@@ -322,6 +358,7 @@ describe("ultra chatbot agent runtime", () => {
       userMessage,
     ]);
     expect(aiMockState.responseOptions?.sendReasoning).toBe(true);
+    expect(aiMockState.responseOptions?.sendSources).toBe(true);
     expect(aiMockState.responseOptions?.generateMessageId?.()).toMatch(
       ultraMessageIdPattern
     );
@@ -363,5 +400,70 @@ describe("ultra chatbot agent runtime", () => {
       ]),
       visitorId: "visitor-123",
     });
+  });
+
+  it("projects replay history before sending multi-turn search chats to the model", async () => {
+    const { handleUltraChatbotAgentChatRequest } = await importRuntimeModule();
+    const followUpMessage: UIMessage = {
+      id: "user-2",
+      parts: [{ text: "Compare it with BYD.", type: "text" }],
+      role: "user",
+    };
+
+    storeState.loadChatSession.mockResolvedValue({
+      chat: {
+        activeStreamId: null,
+        createdAt: new Date("2026-05-27T00:00:00.000Z"),
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        selectedChatModel: "openai/gpt-4.1-mini",
+        selectedVisibilityType: "private",
+        title: "Tesla research",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+        visitorId: "visitor-123",
+      },
+      messages: [createUserMessage(), createAssistantSearchMessage()],
+    });
+
+    const response = await handleUltraChatbotAgentChatRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: followUpMessage,
+          selectedChatModel: "openai/gpt-4.1-mini",
+          selectedVisibilityType: "private",
+        }),
+        method: "POST",
+      }),
+      { visitorId: "visitor-123" },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(aiMockState.streamText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: expect.arrayContaining([
+          expect.objectContaining({
+            content: expect.any(Array),
+            role: "assistant",
+          }),
+        ]),
+      })
+    );
+
+    const runtimeInput = aiMockState.streamText.mock.calls.at(-1)?.[0];
+    const assistantMessage = runtimeInput?.messages.find(
+      (message: { role: string }) => message.role === "assistant"
+    );
+
+    expect(assistantMessage).toBeDefined();
+    expect(JSON.stringify(assistantMessage)).toContain(
+      "Tesla is a public company focused on EVs and energy."
+    );
+    expect(JSON.stringify(assistantMessage)).not.toContain("tool-web_search");
+    expect(JSON.stringify(assistantMessage)).not.toContain("source-url");
   });
 });

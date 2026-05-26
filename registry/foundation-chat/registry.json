@@ -8,10 +8,13 @@
       "description": "A production-ready AI Gateway chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
       "dependencies": ["@ai-sdk/react", "ai", "lucide-react"],
       "registryDependencies": [
+        "utils",
         "badge",
         "button",
-        "tooltip",
+        "button-group",
+        "separator",
         "textarea",
+        "tooltip",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
         "https://elements.ai-sdk.dev/api/registry/message.json"
       ],
@@ -52,7 +55,7 @@
           "target": "@lib/foundation-chat/runtime.ts"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item explicitly declares every shadcn and AI Elements primitive it consumes, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local."
     }
   ]
 }

@@ -23,6 +23,8 @@ updateAt: 2026-05-26
 - `packages/ui` is the frontend primitive layer. Keep it generic, reusable, and update-friendly.
 - Do not change a shared primitive to satisfy one feature's product behavior, demo-specific layout, or bespoke styling.
 - Put feature and app customization beside the owning frontend module, usually under `apps/web/features/<demo-slug>/ui` or `apps/web/components`, by wrapping `packages/ui` primitives there.
+- Fundamental demo-shell UI under `apps/web/features/*`, `apps/web/components`, or `registry/*` should compose shadcn primitives and consumer theme tokens instead of hard-coding its own visual language. Let the consumer's chosen shadcn preset own panel shape, border density, and radius defaults whenever the product does not require a stronger decision.
+- Avoid feature-local styling that fights the active shadcn preset, especially layout chrome such as `rounded-none`, bespoke border colors, and bare `div` panels that duplicate `card`, `button`, `badge`, `textarea`, or related primitives without using their tokens.
 - Treat shadcn, AI Elements, Tailwind, hook, and utility primitives as periodically refreshable from upstream or repo-wide sources; feature behavior that would make those refreshes risky belongs outside `packages/ui`.
 - Move a component or helper into `packages/ui` only after reuse is real and the API is generic enough to survive unrelated feature work.
 

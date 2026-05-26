@@ -24,6 +24,7 @@ updateAt: 2026-05-26
 - App-specific wrappers belong in `apps/web/components`; `apps/web/components/theme-provider.tsx` is an example.
 - Demo-specific wrappers belong beside the owning feature, usually under `apps/web/features/<demo-slug>/ui`.
 - Do not add feature behavior, demo-specific layouts, or one-off product styling to `packages/ui`; [Frontend Knowledge Protocol](./DOCS.md) defines the shared primitive boundary.
+- Feature-local and registry-local shell components should still speak the active shadcn preset. Prefer composing primitives and theme tokens over hand-built panel chrome with hard-coded radius, border, or surface rules.
 - Add shadcn components with the repository pattern from `README.md`: `pnpm dlx shadcn@latest add button -c apps/web`.
 - Consume UI components through package exports, for example `@workspace/ui/components/button`.
 - `packages/ui/package.json` exports `./globals.css`, `./postcss.config`, `./lib/*`, `./components/*`, and `./hooks/*`.

@@ -38,6 +38,7 @@ updateAt: 2026-05-26
 - Build early demos from AI SDK Recipes, guide, and documentation examples through manual review before planning original demo batches.
 - Treat batch processing as a later workflow after the repository's demo style and copy boundary conventions are mature.
 - Preserve the official example's core backend code path when converting a docs-derived demo; prefer path, boundary, and integration adjustments over custom rewrites.
+- For demos whose backend source core comes from OpenAI Agents SDK, keep the official `@openai/agents` run path recognizable and prefer the official AI SDK UI bridge when the frontend stays on AI SDK UI.
 - When official backend code conflicts with repository style, resolve in this order: preserve the source core, keep the feature-slice copy boundary, add explicit errors and readability, then polish style and abstractions.
 - Avoid backend rewrites that make the official source core harder to recognize.
 - If an official source core is a large single file, split it into cohesive feature-slice modules when that improves maintainability; keep the behavior, core control flow, and key code recognizable so the split remains structural abstraction instead of custom rewriting.
@@ -56,6 +57,10 @@ updateAt: 2026-05-26
 - Keep shared functions outside a feature slice only after reuse is real; do not prematurely create shared abstractions between demos.
 - Treat a feature slice plus its thin route/API entries as the default copy boundary for migrating a demo into another compatible project.
 - Preserve compatibility with future shadcn registry distribution by keeping demo-owned files grouped and avoiding hidden cross-demo dependencies.
+- When a demo is published through the shadcn registry, keep a portable registry source copy under `registry/<demo-slug>/` if the app feature slice depends on monorepo-only imports.
+- Use `foundation-chat` as the baseline registry reference when publishing the next demo. Reuse its registry directory shape, validation flow, and fresh-consumer acceptance path unless the registry distribution doc records a newer standard.
+- Do not put `@workspace/*` imports or cross-demo shared feature imports in registry source files.
+- Document the working registry install command in the feature-local `README.md` after the registry item exists.
 
 ## Update Triggers
 

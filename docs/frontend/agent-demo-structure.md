@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-05-22
+updateAt: 2026-05-26
 ---
 
 # Agent Demo Structure
@@ -11,12 +11,13 @@ updateAt: 2026-05-22
 - Covers route, API, feature, UI, and agent-code organization for independent demos under `apps/web`.
 - Covers how demo-local UI relates to shared primitives in `packages/ui`.
 - Covers copy-boundary expectations for future reuse in compatible Next.js and shadcn monorepo projects.
+- Applies the frontend-wide primitive boundary from [Frontend Knowledge Protocol](./DOCS.md).
 
 ## Domain Language
 
 - **Feature slice**: A demo-owned directory under `apps/web/features/<demo-slug>` that contains the implementation files for one agent demo.
 - **Thin route entry**: A route file under `apps/web/app` that wires URL access to a feature slice without owning meaningful demo logic.
-- **UI primitive**: A shared low-level component or style primitive exported from `packages/ui`.
+- **UI primitive**: A shared low-level component, hook, style primitive, or UI utility exported from `packages/ui`.
 - **Demo UI component**: A feature-local component built from UI primitives for one agent demo's experience.
 - **Demo metadata module**: A feature-local `demo-meta.ts` file that exposes the canonical catalog and documentation metadata for one agent demo.
 
@@ -48,8 +49,10 @@ updateAt: 2026-05-22
 - Every implemented feature slice must include a lightweight `README.md`. Roadmap-only catalog stubs may contain only `demo-meta.ts` until implementation starts.
 - The feature-local `README.md` should describe the demo's business-facing capability, show a concise file tree for the feature slice, and later include the shadcn registry install command once registry distribution exists.
 - Do not turn the feature-local `README.md` into a dependency checklist or migration guide unless the user explicitly asks for that extra detail.
-- Put shadcn components, AI Elements primitives, Tailwind primitives, and other shared front-end primitives in `packages/ui`.
-- Use feature-local UI for components that compose shared primitives into one demo's product experience.
+- Put shadcn components, AI Elements primitives, Tailwind primitives, hooks, and other shared front-end primitives in `packages/ui`.
+- Keep `packages/ui` primitive-only under the shared boundary in [Frontend Knowledge Protocol](./DOCS.md).
+- Use feature-local UI for components that compose shared primitives into one demo's product experience, including wrappers around `packages/ui` primitives.
+- Keep demo-specific customization under `apps/web/features/<demo-slug>/ui` so shared primitives can be refreshed independently.
 - Keep shared functions outside a feature slice only after reuse is real; do not prematurely create shared abstractions between demos.
 - Treat a feature slice plus its thin route/API entries as the default copy boundary for migrating a demo into another compatible project.
 - Preserve compatibility with future shadcn registry distribution by keeping demo-owned files grouped and avoiding hidden cross-demo dependencies.

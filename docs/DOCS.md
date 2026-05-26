@@ -1,7 +1,7 @@
 ---
 title: Project Knowledge Protocol
 description: Cross-domain language, collaboration conventions, and repository boundary rules.
-updateAt: 2026-05-22
+updateAt: 2026-05-26
 ---
 
 # Project Knowledge Protocol
@@ -17,7 +17,7 @@ updateAt: 2026-05-22
 
 - **Workspace package**: A package under `apps/*` or `packages/*` managed by the root pnpm workspace.
 - **Root quality gate**: The root-level Ultracite check and fix workflow, exposed through `pnpm lint`, `pnpm check`, `pnpm format`, and `pnpm fix`.
-- **Shared UI package**: `packages/ui`, the reusable shadcn, AI Elements, and Tailwind component package consumed by `apps/web`.
+- **Shared UI package**: `packages/ui`, the frontend primitive layer for reusable shadcn, AI Elements, Tailwind, hook, and UI utility exports consumed by `apps/web`.
 
 ## Collaboration Conventions
 
@@ -31,7 +31,7 @@ updateAt: 2026-05-22
 
 ## Boundary Principles
 
-- Shared components, Tailwind primitives, UI hooks, and shared UI utilities belong in `packages/ui`.
+- Shared UI primitive and wrapper placement rules live in `docs/frontend/DOCS.md`; read that domain protocol before changing `packages/ui`, frontend wrappers, shadcn components, AI Elements components, Tailwind setup, or frontend imports.
 - Application routes, app-specific providers, and app-specific wrappers belong in `apps/web`.
 - Environment-variable contracts belong in `keys.ts` and `env.ts` modules. Feature routes, runtime modules, and model/chat helpers should consume those modules instead of reading `process.env` directly.
 - Quality tooling is rooted at the repository root. Package scripts should delegate to the root quality gate when they need the shared Ultracite config.

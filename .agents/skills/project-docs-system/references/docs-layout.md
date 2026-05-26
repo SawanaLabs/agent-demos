@@ -15,6 +15,8 @@ Use this layout when bootstrapping or repairing a project docs system:
   - Act as the map for first-level domains.
 - `docs/<domain>/index.md`
   - Act as the map for second-level docs in one domain.
+- `docs/<domain>/DOCS.md` when needed
+  - Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
 - `docs/<domain>/<subdomain>.md`
   - Store durable knowledge that only applies to one subdomain.
 
@@ -117,6 +119,10 @@ Use this minimal map template:
 - [Subdomain Name](./subdomain.md): When to consult this doc.
 ```
 
+### `docs/<domain>/DOCS.md`
+
+Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
+
 ### `docs/<domain>/<subdomain>.md`
 
 Store:
@@ -139,6 +145,7 @@ Prefer one clear subdomain per file, such as:
 Use this decision rule before writing:
 
 - If knowledge should apply across the repository, put it in `docs/DOCS.md`.
+- If knowledge is shared by multiple subdomain docs inside one domain, put it in `docs/<domain>/DOCS.md`.
 - If a confirmed project-specific term is needed in one docs file, put it in that file's optional `## Domain Language` section.
 - If it maps first-level navigation, put it in `docs/index.md`.
 - If it maps second-level navigation, put it in `docs/<domain>/index.md`.

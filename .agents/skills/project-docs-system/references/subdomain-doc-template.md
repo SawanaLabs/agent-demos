@@ -12,7 +12,7 @@ updateAt: 2026-03-24
 - Replace placeholder wording with concrete, durable project knowledge.
 - Keep the scope limited to one subdomain, module surface, workflow, or route cluster.
 - Delete the `Domain Language` section when no confirmed project-specific terms are needed.
-- Move cross-domain knowledge up into `docs/DOCS.md`.
+- Move knowledge shared by multiple subdomain docs into `docs/<domain>/DOCS.md`; move cross-domain knowledge up into `docs/DOCS.md`.
 
 ## Scope
 

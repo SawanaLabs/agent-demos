@@ -17,7 +17,7 @@
       "source": "multicul-silver-wolf/agent-docs-system-skill",
       "sourceType": "github",
       "skillPath": "skills/project-docs-system/SKILL.md",
-      "computedHash": "0f344e06638087eb461a6682a8af3cd83c63b1335bed058a70497fc630a445d7"
+      "computedHash": "966523193fe78aa1a5665512962ddaa619037448291111581979f0825d4ca947"
     },
     "tdd": {
       "source": "mattpocock/skills",

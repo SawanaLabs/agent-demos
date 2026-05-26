@@ -1,7 +1,7 @@
 ---
 title: Workspace UI
 description: Durable conventions for shared UI exports and Next.js app consumption.
-updateAt: 2026-05-24
+updateAt: 2026-05-26
 ---
 
 # Workspace UI
@@ -9,17 +9,21 @@ updateAt: 2026-05-24
 ## Scope
 
 - Covers `packages/ui`, `apps/web`, shared styles, shadcn component placement, and package export import paths.
+- Applies the frontend-wide primitive boundary from [Frontend Knowledge Protocol](./DOCS.md).
 
 ## Domain Language
 
 - **Export-map import**: An import path declared by `packages/ui/package.json` under `exports`.
+- **Shared UI primitive**: A low-level component, hook, Tailwind surface, or UI utility in `packages/ui` that stays generic enough to refresh without carrying one feature's behavior.
 - **App wrapper**: An app-specific component under `apps/web/components` that adapts shared UI or providers for the web app.
 
 ## Current Subdomain Docs
 
-- Shared components belong in `packages/ui/src/components`.
+- Shared UI primitives belong in `packages/ui/src/components`.
 - AI Elements components live in `packages/ui/src/components/ai-elements` and are consumed through the shared UI package export map.
 - App-specific wrappers belong in `apps/web/components`; `apps/web/components/theme-provider.tsx` is an example.
+- Demo-specific wrappers belong beside the owning feature, usually under `apps/web/features/<demo-slug>/ui`.
+- Do not add feature behavior, demo-specific layouts, or one-off product styling to `packages/ui`; [Frontend Knowledge Protocol](./DOCS.md) defines the shared primitive boundary.
 - Add shadcn components with the repository pattern from `README.md`: `pnpm dlx shadcn@latest add button -c apps/web`.
 - Consume UI components through package exports, for example `@workspace/ui/components/button`.
 - `packages/ui/package.json` exports `./globals.css`, `./postcss.config`, `./lib/*`, `./components/*`, and `./hooks/*`.
@@ -34,5 +38,5 @@ updateAt: 2026-05-24
 
 ## Update Triggers
 
-- Update this file when `packages/ui` exports change.
+- Update this file when `packages/ui` exports or primitive-boundary rules change.
 - Update this file when shared styles, app provider wiring, shadcn component placement, or the repository's default React maintainability rules change.

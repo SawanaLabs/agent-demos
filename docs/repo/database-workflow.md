@@ -12,7 +12,7 @@ updateAt: 2026-05-26
 
 ## Rules
 
-- Treat the database schema as a shared repository contract. Every schema change must originate from `packages/database/src/schema.ts` or the schema files it re-exports.
+- Treat the database schema as a shared repository contract. Every schema change must originate from the domain schema files under `packages/database/src/schemas/`.
 - Use CLI workflows only for database synchronization:
   - `pnpm db:generate`
   - `pnpm db:migrate`

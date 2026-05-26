@@ -156,9 +156,8 @@
       "linter": {
         "rules": {
           "performance": {
-            // Drizzle consumes the schema module as an object, and the package entrypoint re-exports schema by design.
-            "noBarrelFile": "off",
-            "noNamespaceImport": "off"
+            // The package entrypoint re-exports table contracts for app code.
+            "noBarrelFile": "off"
           }
         }
       }

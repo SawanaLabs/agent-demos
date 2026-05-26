@@ -20,7 +20,7 @@ for (const path of [
 }
 
 export default defineConfig({
-  schema: "./src/schema.ts",
+  schema: "./src/schemas/*",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {

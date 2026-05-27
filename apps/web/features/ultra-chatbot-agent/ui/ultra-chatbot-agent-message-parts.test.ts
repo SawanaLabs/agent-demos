@@ -92,6 +92,49 @@ describe("ultra chatbot agent message parts", () => {
     ]);
   });
 
+  it("falls back to web_search tool sources when source-url parts are absent", () => {
+    const message = {
+      id: "assistant-2b",
+      metadata: undefined,
+      parts: [
+        {
+          input: { query: "Tesla latest" },
+          output: {
+            query: "Tesla latest",
+            sources: [
+              {
+                title: "Tesla investor relations",
+                url: "https://ir.tesla.com",
+              },
+              {
+                title: "Reuters Tesla coverage",
+                url: "https://www.reuters.com/companies/TSLA.OQ",
+              },
+            ],
+            summary: "Tesla remains focused on EVs and energy.",
+          },
+          state: "output-available",
+          toolCallId: "tool-1",
+          type: "tool-web_search",
+        },
+      ],
+      role: "assistant",
+    } satisfies UIMessage;
+
+    expect(getUltraChatbotAgentSourceParts(message)).toEqual([
+      {
+        sourceId: "https://ir.tesla.com",
+        title: "Tesla investor relations",
+        url: "https://ir.tesla.com",
+      },
+      {
+        sourceId: "https://www.reuters.com/companies/TSLA.OQ",
+        title: "Reuters Tesla coverage",
+        url: "https://www.reuters.com/companies/TSLA.OQ",
+      },
+    ]);
+  });
+
   it("falls back to domain citations in assistant text when source-url parts are absent", () => {
     const message = {
       id: "assistant-3",

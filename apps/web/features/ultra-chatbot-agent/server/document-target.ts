@@ -1,7 +1,17 @@
 import type { UltraChatbotAgentDocumentRecord } from "./document-store";
 
+const placeholderDocumentId = "00000000-0000-0000-0000-000000000000";
+
 function normalizeTitle(value: string) {
   return value.trim().toLocaleLowerCase();
+}
+
+function normalizeDocumentId(value: string | undefined) {
+  if (!value || value === placeholderDocumentId) {
+    return undefined;
+  }
+
+  return value;
 }
 
 export function getUltraChatbotAgentDocumentLookupError(input: {
@@ -9,12 +19,14 @@ export function getUltraChatbotAgentDocumentLookupError(input: {
   documentTitle?: string;
   documentsCount: number;
 }) {
-  if (input.documentId) {
-    return `No document found for ${input.documentId}.`;
-  }
+  const documentId = normalizeDocumentId(input.documentId);
 
   if (input.documentTitle) {
     return `No document found with the title "${input.documentTitle}".`;
+  }
+
+  if (documentId) {
+    return `No document found for ${documentId}.`;
   }
 
   if (input.documentsCount === 0) {
@@ -29,10 +41,16 @@ export function findUltraChatbotAgentTargetDocument(input: {
   documentTitle?: string;
   latestDocuments: UltraChatbotAgentDocumentRecord[];
 }) {
-  const { documentId, documentTitle, latestDocuments } = input;
+  const documentId = normalizeDocumentId(input.documentId);
+  const { documentTitle, latestDocuments } = input;
 
   if (documentId) {
-    return latestDocuments.find((document) => document.id === documentId) ?? null;
+    const matchedById =
+      latestDocuments.find((document) => document.id === documentId) ?? null;
+
+    if (matchedById) {
+      return matchedById;
+    }
   }
 
   if (documentTitle) {

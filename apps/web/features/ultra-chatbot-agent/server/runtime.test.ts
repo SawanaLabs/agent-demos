@@ -15,7 +15,8 @@ const aiMockState = vi.hoisted(() => ({
     sendReasoning?: boolean;
     sendSources?: boolean;
   },
-  streamText: vi.fn(),
+  stream: vi.fn(),
+  ToolLoopAgent: vi.fn(),
 }));
 
 const resumableStreamFactoryState = vi.hoisted(() => ({
@@ -59,12 +60,16 @@ const updateDocumentToolState = vi.hoisted(() => ({
   createUltraChatbotAgentUpdateDocumentTool: vi.fn(),
 }));
 
+const webSearchToolState = vi.hoisted(() => ({
+  createUltraChatbotAgentWebSearchTool: vi.fn(),
+}));
+
 vi.mock("ai", async () => {
   const actual = await vi.importActual<typeof import("ai")>("ai");
 
   return {
     ...actual,
-    streamText: aiMockState.streamText,
+    ToolLoopAgent: aiMockState.ToolLoopAgent,
   };
 });
 
@@ -106,6 +111,11 @@ vi.mock("./request-suggestions", () => ({
 vi.mock("./update-document", () => ({
   createUltraChatbotAgentUpdateDocumentTool:
     updateDocumentToolState.createUltraChatbotAgentUpdateDocumentTool,
+}));
+
+vi.mock("./web-search", () => ({
+  createUltraChatbotAgentWebSearchTool:
+    webSearchToolState.createUltraChatbotAgentWebSearchTool,
 }));
 
 function importRuntimeModule() {
@@ -162,7 +172,8 @@ describe("ultra chatbot agent runtime", () => {
   beforeEach(() => {
     vi.resetModules();
     aiMockState.responseOptions = null;
-    aiMockState.streamText.mockReset();
+    aiMockState.stream.mockReset();
+    aiMockState.ToolLoopAgent.mockReset();
     resumableStreamFactoryState.createResumableStreamContext.mockReset();
     redisState.Redis.mockReset();
     resumableStreamState.createNewResumableStream.mockReset();
@@ -177,12 +188,20 @@ describe("ultra chatbot agent runtime", () => {
     getWeatherToolState.createUltraChatbotAgentGetWeatherTool.mockReset();
     requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool.mockReset();
     updateDocumentToolState.createUltraChatbotAgentUpdateDocumentTool.mockReset();
+    webSearchToolState.createUltraChatbotAgentWebSearchTool.mockReset();
 
-    aiMockState.streamText.mockReturnValue({
+    aiMockState.stream.mockResolvedValue({
       toUIMessageStreamResponse(options: typeof aiMockState.responseOptions) {
         aiMockState.responseOptions = options;
         return Response.json({ ok: true });
       },
+    });
+    aiMockState.ToolLoopAgent.mockImplementation(function MockToolLoopAgent(
+      this: { settings: unknown; stream: typeof aiMockState.stream },
+      settings: unknown
+    ) {
+      this.settings = settings;
+      this.stream = aiMockState.stream;
     });
     storeState.loadChatSession.mockResolvedValue(null);
     storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
@@ -216,6 +235,10 @@ describe("ultra chatbot agent runtime", () => {
         execute: vi.fn(),
       }
     );
+    webSearchToolState.createUltraChatbotAgentWebSearchTool.mockReturnValue({
+      description: "mock web search",
+      execute: vi.fn(),
+    });
     redisState.Redis.mockImplementation(function MockRedis() {
       return {};
     });
@@ -289,9 +312,10 @@ describe("ultra chatbot agent runtime", () => {
       selectedVisibilityType: "private",
       visitorId: "visitor-123",
     });
-    expect(aiMockState.streamText).toHaveBeenCalledWith(
+    expect(aiMockState.ToolLoopAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         model: expect.anything(),
+        instructions: expect.any(String),
         providerOptions: {
           openai: {
             reasoningEffort: "medium",
@@ -321,8 +345,16 @@ describe("ultra chatbot agent runtime", () => {
             description: expect.any(String),
             execute: expect.any(Function),
           }),
-          web_search: expect.anything(),
+          web_search: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
         }),
+      })
+    );
+    expect(aiMockState.stream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: expect.any(Array),
       })
     );
     expect(
@@ -353,6 +385,12 @@ describe("ultra chatbot agent runtime", () => {
       chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: expect.anything(),
       visitorId: "visitor-123",
+    });
+    expect(
+      webSearchToolState.createUltraChatbotAgentWebSearchTool
+    ).toHaveBeenCalledWith({
+      model: expect.anything(),
+      webSearchTool: expect.anything(),
     });
     expect(aiMockState.responseOptions?.originalMessages).toEqual([
       userMessage,
@@ -443,18 +481,15 @@ describe("ultra chatbot agent runtime", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(aiMockState.streamText).toHaveBeenCalledWith(
+    expect(aiMockState.stream).toHaveBeenCalledWith(
       expect.objectContaining({
         messages: expect.arrayContaining([
-          expect.objectContaining({
-            content: expect.any(Array),
-            role: "assistant",
-          }),
+          expect.objectContaining({ role: "assistant" }),
         ]),
       })
     );
 
-    const runtimeInput = aiMockState.streamText.mock.calls.at(-1)?.[0];
+    const runtimeInput = aiMockState.stream.mock.calls.at(-1)?.[0];
     const assistantMessage = runtimeInput?.messages.find(
       (message: { role: string }) => message.role === "assistant"
     );

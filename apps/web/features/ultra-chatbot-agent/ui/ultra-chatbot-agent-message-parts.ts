@@ -15,6 +15,15 @@ export interface UltraChatbotAgentDocumentToolResult {
   title: string;
 }
 
+interface UltraChatbotAgentSearchToolResult {
+  query: string;
+  sources: Array<{
+    title: string;
+    url: string;
+  }>;
+  summary: string;
+}
+
 export interface UltraChatbotAgentSourcePart {
   sourceId: string;
   title: string;
@@ -98,6 +107,23 @@ function collectTextCitationSources(message: UIMessage) {
   });
 }
 
+function isUltraChatbotAgentSearchResult(
+  output: UltraChatbotAgentToolPart["output"]
+): output is UltraChatbotAgentSearchToolResult {
+  if (!output || typeof output !== "object") {
+    return false;
+  }
+
+  return (
+    "query" in output &&
+    typeof output.query === "string" &&
+    "summary" in output &&
+    typeof output.summary === "string" &&
+    "sources" in output &&
+    Array.isArray(output.sources)
+  );
+}
+
 export function getUltraChatbotAgentReasoningText(message: UIMessage) {
   return message.parts
     .filter(isReasoningUIPart)
@@ -126,6 +152,22 @@ export function getUltraChatbotAgentSourceParts(message: UIMessage) {
 
   if (explicitSources.length > 0) {
     return explicitSources;
+  }
+
+  const toolSources = message.parts
+    .filter(isUltraChatbotAgentToolPart)
+    .flatMap((part) =>
+      part.state === "output-available" && isUltraChatbotAgentSearchResult(part.output)
+        ? part.output.sources.map((source) => ({
+            sourceId: source.url,
+            title: source.title,
+            url: source.url,
+          }))
+        : []
+    );
+
+  if (toolSources.length > 0) {
+    return toolSources;
   }
 
   return collectTextCitationSources(message);

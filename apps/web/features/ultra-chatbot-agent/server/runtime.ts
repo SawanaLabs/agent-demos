@@ -3,7 +3,7 @@ import {
   createIdGenerator,
   generateId,
   stepCountIs,
-  streamText,
+  ToolLoopAgent,
   UI_MESSAGE_STREAM_HEADERS,
   type UIMessage,
 } from "ai";
@@ -25,6 +25,7 @@ import { createUltraChatbotAgentEditDocumentTool } from "./edit-document";
 import { createUltraChatbotAgentGetWeatherTool } from "./get-weather";
 import { createUltraChatbotAgentRequestSuggestionsTool } from "./request-suggestions";
 import { createUltraChatbotAgentUpdateDocumentTool } from "./update-document";
+import { createUltraChatbotAgentWebSearchTool } from "./web-search";
 import {
   getUltraChatbotAgentDefaultModel,
   getUltraChatbotAgentModelCatalog,
@@ -244,12 +245,11 @@ export async function handleUltraChatbotAgentChatRequest(
   const provider = createUltraChatbotAgentProvider(env);
   const modelId = provider.resolveModelId(input.selectedChatModel);
 
-  const result = streamText({
-    model: provider.hostedToolsGateway(modelId),
-    messages: await convertToModelMessages(replayableMessages),
+  const agent = new ToolLoopAgent({
+    instructions: getUltraChatbotAgentSystemPrompt(),
+    model: provider.gateway(modelId),
     providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
     stopWhen: stepCountIs(20),
-    system: getUltraChatbotAgentSystemPrompt(),
     tools: {
       createDocument: createUltraChatbotAgentCreateDocumentTool({
         chatId: input.id,
@@ -265,16 +265,21 @@ export async function handleUltraChatbotAgentChatRequest(
         model: provider.gateway(modelId),
         visitorId: viewer.visitorId,
       }),
-      [ultraChatbotAgentSearchToolName]:
-        provider.hostedToolsGateway.tools.webSearch({
+      [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool({
+        model: provider.hostedToolsGateway(modelId),
+        webSearchTool: provider.hostedToolsGateway.tools.webSearch({
           searchContextSize: "medium",
         }),
+      }),
       updateDocument: createUltraChatbotAgentUpdateDocumentTool({
         chatId: input.id,
         model: provider.gateway(modelId),
         visitorId: viewer.visitorId,
       }),
     },
+  });
+  const result = await agent.stream({
+    messages: await convertToModelMessages(replayableMessages),
   });
 
   return result.toUIMessageStreamResponse({

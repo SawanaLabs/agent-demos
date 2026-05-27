@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const storeState = vi.hoisted(() => ({
   deleteAllChatsForVisitor: vi.fn(),
+  deleteChatForVisitor: vi.fn(),
   listChatsForVisitorPage: vi.fn(),
 }));
 
@@ -17,6 +18,7 @@ describe("ultra chatbot agent history route contract", () => {
   beforeEach(() => {
     vi.resetModules();
     storeState.deleteAllChatsForVisitor.mockReset();
+    storeState.deleteChatForVisitor.mockReset();
     storeState.listChatsForVisitorPage.mockReset();
     storeState.listChatsForVisitorPage.mockResolvedValue({
       chats: [],
@@ -24,6 +26,9 @@ describe("ultra chatbot agent history route contract", () => {
     });
     storeState.deleteAllChatsForVisitor.mockResolvedValue({
       deletedCount: 0,
+    });
+    storeState.deleteChatForVisitor.mockResolvedValue({
+      deletedCount: 1,
     });
   });
 
@@ -74,6 +79,50 @@ describe("ultra chatbot agent history route contract", () => {
     expect(response.status).toBe(200);
     expect(storeState.deleteAllChatsForVisitor).toHaveBeenCalledWith({
       visitorId: "visitor-1",
+    });
+  });
+
+  it("deletes one chat for the current visitor", async () => {
+    const { handleUltraChatbotAgentDeleteChatRequest } =
+      await importHistoryModule();
+
+    const response = await handleUltraChatbotAgentDeleteChatRequest("chat-1", {
+      visitorId: "visitor-1",
+    });
+
+    expect(response.status).toBe(200);
+    expect(storeState.deleteChatForVisitor).toHaveBeenCalledWith({
+      chatId: "chat-1",
+      visitorId: "visitor-1",
+    });
+  });
+
+  it("rejects empty chat ids for per-chat deletion", async () => {
+    const { handleUltraChatbotAgentDeleteChatRequest } =
+      await importHistoryModule();
+
+    const response = await handleUltraChatbotAgentDeleteChatRequest(" ", {
+      visitorId: "visitor-1",
+    });
+
+    expect(response.status).toBe(400);
+    expect(storeState.deleteChatForVisitor).not.toHaveBeenCalled();
+  });
+
+  it("returns not found when deleting a missing chat", async () => {
+    storeState.deleteChatForVisitor.mockResolvedValue({
+      deletedCount: 0,
+    });
+    const { handleUltraChatbotAgentDeleteChatRequest } =
+      await importHistoryModule();
+
+    const response = await handleUltraChatbotAgentDeleteChatRequest("chat-1", {
+      visitorId: "visitor-1",
+    });
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({
+      error: "Chat not found.",
     });
   });
 });

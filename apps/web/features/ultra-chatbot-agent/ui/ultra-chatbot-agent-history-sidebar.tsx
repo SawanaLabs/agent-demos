@@ -57,6 +57,17 @@ async function deleteAllHistory() {
   }
 }
 
+async function deleteHistoryChat(chatId: string) {
+  const response = await fetch(`/api/demos/ultra-chatbot-agent/${chatId}`, {
+    credentials: "include",
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete this chat.");
+  }
+}
+
 function mergeChatIntoHistory(
   chats: UltraChatbotAgentChatRecord[],
   incoming: UltraChatbotAgentChatRecord
@@ -78,6 +89,7 @@ export function UltraChatbotAgentHistorySidebar({
 }: UltraChatbotAgentHistorySidebarProps) {
   const router = useRouter();
   const [historyPage, setHistoryPage] = useState(initialHistoryPage);
+  const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -145,6 +157,31 @@ export function UltraChatbotAgentHistorySidebar({
     }
   }
 
+  async function handleDeleteChat(chat: UltraChatbotAgentChatRecord) {
+    setHistoryError(null);
+    setDeletingChatId(chat.id);
+
+    try {
+      await deleteHistoryChat(chat.id);
+      setHistoryPage((current) => ({
+        ...current,
+        chats: current.chats.filter((currentChat) => currentChat.id !== chat.id),
+      }));
+
+      if (chat.id === currentChatId) {
+        router.push(toRootPath());
+      } else {
+        router.refresh();
+      }
+    } catch (error) {
+      setHistoryError(
+        error instanceof Error ? error.message : "Failed to delete this chat."
+      );
+    } finally {
+      setDeletingChatId(null);
+    }
+  }
+
   return (
     <aside className="border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
       <div className="space-y-4">
@@ -187,7 +224,9 @@ export function UltraChatbotAgentHistorySidebar({
               <UltraChatbotAgentHistoryItem
                 chat={chat}
                 isActive={chat.id === currentChatId}
+                isDeleting={deletingChatId === chat.id}
                 key={chat.id}
+                onDelete={handleDeleteChat}
               />
             ))
           ) : (

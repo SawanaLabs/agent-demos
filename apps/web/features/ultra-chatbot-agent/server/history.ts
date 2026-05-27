@@ -50,3 +50,28 @@ export async function handleUltraChatbotAgentDeleteHistoryRequest(viewer: {
 
   return Response.json(result, { status: 200 });
 }
+
+export async function handleUltraChatbotAgentDeleteChatRequest(
+  chatId: string,
+  viewer: {
+    visitorId: string;
+  }
+) {
+  if (chatId.trim().length === 0) {
+    return Response.json(
+      { error: "A valid chat id is required." },
+      { status: 400 }
+    );
+  }
+
+  const result = await createUltraChatbotAgentChatStore().deleteChatForVisitor({
+    chatId,
+    visitorId: viewer.visitorId,
+  });
+
+  if (result.deletedCount === 0) {
+    return Response.json({ error: "Chat not found." }, { status: 404 });
+  }
+
+  return Response.json(result, { status: 200 });
+}

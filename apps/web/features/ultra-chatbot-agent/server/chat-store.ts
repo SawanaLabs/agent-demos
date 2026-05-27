@@ -652,5 +652,46 @@ export function createUltraChatbotAgentChatStore() {
         deletedCount: deletedChats.length,
       };
     },
+    async deleteChatForVisitor(input: { chatId: string; visitorId: string }) {
+      try {
+        const {
+          database,
+          ultraChatbotAgentChats,
+          ultraChatbotAgentVotes,
+        } = await import("@workspace/database");
+
+        const deletedChats = await database.transaction(async (tx) => {
+          const rows = await tx
+            .delete(ultraChatbotAgentChats)
+            .where(
+              and(
+                eq(ultraChatbotAgentChats.id, input.chatId),
+                eq(ultraChatbotAgentChats.visitorId, input.visitorId)
+              )
+            )
+            .returning({ id: ultraChatbotAgentChats.id });
+
+          if (rows.length > 0) {
+            await tx
+              .delete(ultraChatbotAgentVotes)
+              .where(eq(ultraChatbotAgentVotes.chatId, input.chatId));
+          }
+
+          return rows;
+        });
+
+        return {
+          deletedCount: deletedChats.length,
+        };
+      } catch (error) {
+        if (isInvalidUltraChatbotAgentChatIdError(error)) {
+          return {
+            deletedCount: 0,
+          };
+        }
+
+        throw error;
+      }
+    },
   };
 }

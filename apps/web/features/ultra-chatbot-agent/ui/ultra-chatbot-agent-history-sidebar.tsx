@@ -146,7 +146,7 @@ export function UltraChatbotAgentHistorySidebar({
   }
 
   return (
-    <aside className="border border-foreground/10 bg-background p-4">
+    <aside className="border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
           <div>

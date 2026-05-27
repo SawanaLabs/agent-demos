@@ -724,14 +724,14 @@ export function UltraChatbotAgentWorkspace({
   }
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)_20rem]">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[18rem_minmax(0,1fr)_20rem]">
       <UltraChatbotAgentHistorySidebar
         currentChatId={chatMeta.id}
         currentChatRecordHint={currentChatRecordHint}
         initialHistoryPage={initialHistoryPage}
       />
 
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}
@@ -786,7 +786,7 @@ export function UltraChatbotAgentWorkspace({
           </div>
         </div>
 
-        <Conversation>
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               <>
@@ -1043,21 +1043,20 @@ export function UltraChatbotAgentWorkspace({
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
+            {hasMessages ? null : (
+              <div className="mb-4">
+                <UltraChatbotAgentSuggestedActions
+                  onSelect={(value) =>
+                    handleSubmit([{ text: value, type: "text" as const }])
+                  }
+                />
+              </div>
+            )}
             <UltraChatbotAgentMultimodalInput
               disabled={!isChatAvailable || isBusy}
-              footerBelow={
-                hasMessages ? null : (
-                  <UltraChatbotAgentSuggestedActions
-                    onSelect={(value) =>
-                      handleSubmit([{ text: value, type: "text" as const }])
-                    }
-                  />
-                )
-              }
               footerLeading={
                 <>
                   <Badge variant="outline">Visitor scoped</Badge>
-                  <Badge variant="outline">Postgres</Badge>
                   <Badge variant="outline">Blob uploads</Badge>
                   <ModelSelector
                     onOpenChange={setIsModelSelectorOpen}
@@ -1122,7 +1121,7 @@ export function UltraChatbotAgentWorkspace({
         </div>
       </section>
 
-      <aside className="border border-foreground/10 bg-background p-4">
+      <aside className="border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-5">
           <div className="flex items-center justify-between gap-2">
             <div>

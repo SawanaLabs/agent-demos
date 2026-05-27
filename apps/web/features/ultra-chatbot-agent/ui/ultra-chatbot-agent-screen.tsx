@@ -20,7 +20,7 @@ export function UltraChatbotAgentScreen({
   return (
     <main className="min-h-svh bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6">
-        <header className="grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+        <header className="shrink-0 grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
           <div className="space-y-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
               Demo / Ultra Chatbot Agent
@@ -42,16 +42,18 @@ export function UltraChatbotAgentScreen({
           </div>
         </header>
 
-        <UltraChatbotAgentWorkspace
-          defaultChatModel={runtimeState.chatModel}
-          draftChatId={draftChatId}
-          initialHistoryPage={initialHistoryPage}
-          initialSession={initialSession}
-          isChatAvailable={runtimeState.isChatAvailable}
-          models={runtimeState.models}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <UltraChatbotAgentWorkspace
+            defaultChatModel={runtimeState.chatModel}
+            draftChatId={draftChatId}
+            initialHistoryPage={initialHistoryPage}
+            initialSession={initialSession}
+            isChatAvailable={runtimeState.isChatAvailable}
+            models={runtimeState.models}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

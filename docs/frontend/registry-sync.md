@@ -1,7 +1,7 @@
 ---
 title: Registry Sync
 description: Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries.
-updateAt: 2026-05-26
+updateAt: 2026-05-27
 ---
 
 # Registry Sync
@@ -29,12 +29,14 @@ updateAt: 2026-05-26
   - app-first files and registry target files have a clear one-to-one mapping
   - file differences are limited to whitelist transforms such as import-path rewrites, alias rewrites, and a small set of fixed literals
   - the registry copy no longer depends on monorepo-only modules or app-only aggregation entrypoints
+  - copied files do not rely on source-tree-relative imports that break after the file lands in the consumer target tree
   - the synced registry item still passes registry validation, registry build, and any required fresh-consumer acceptance checks
 - Keep the script narrow. It should check and copy already-clean files. It should not rescue a slice whose boundaries are still tangled.
 - Keep registry wiring files under registry ownership. `registry/<demo-slug>/registry.json`, route entry files, vendored exception files, and generated files under `apps/web/public/r/` stay outside v1 auto-sync.
 - Manifest transforms must be explicit and whitelist-based.
 - Unknown imports, unknown path shapes, unknown replacement patterns, or unexpected file drift must cause a hard failure.
 - Do not add fuzzy matching, inference, or fallback transforms.
+- If a copied file still needs structural edits such as route/runtime splits, delayed heavy imports, or dependency-surface cleanup to survive fresh-consumer builds, stop and fix the feature slice first. Do not hide that problem behind a sync transform.
 
 ## Execution Model
 
@@ -44,6 +46,7 @@ updateAt: 2026-05-26
 - Require an explicit mode. Exiting with an error on missing mode is preferred over guessing.
 - Run `pnpm registry:build` automatically after a successful `--write`.
 - Do not treat fresh-consumer acceptance as part of the sync script. Keep that as a separate author verification step.
+- Fresh-consumer acceptance should still probe both page and API reachability after `pnpm dev` starts, because registry drift often shows up only after route compilation.
 
 ## Foundation Chat Reference
 
@@ -75,6 +78,22 @@ Expected behavior:
 
 - `--check` exits non-zero when drift exists.
 - `--write` syncs the registry source files and then runs `pnpm registry:build`.
+
+Fresh-consumer acceptance remains separate and should currently cover:
+
+```bash
+pnpm build
+pnpm dev
+curl -I http://localhost:3000/demos/<demo-slug>
+curl -X POST http://localhost:3000/api/demos/<demo-slug> \
+  -H 'content-type: application/json' \
+  -d '{"prompt":"hello"}'
+```
+
+Expected current contract for shipped demos:
+
+- page probe returns `200`
+- invalid-body API probe returns the demo's request-validation error, currently `400`
 
 ## Update Triggers
 

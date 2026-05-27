@@ -1,0 +1,127 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "persistent-agent",
+      "type": "registry:block",
+      "title": "Persistent Agent",
+      "description": "An addressable chat resource that persists conversation state in Postgres and reconnects in-flight streams through Redis.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "ioredis",
+        "lucide-react",
+        "resumable-stream"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "DATABASE_URL": "",
+        "REDIS_URL": ""
+      },
+      "files": [
+        {
+          "path": "app/demos/persistent-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/persistent-agent/page.tsx"
+        },
+        {
+          "path": "app/demos/persistent-agent/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/persistent-agent/[id]/page.tsx"
+        },
+        {
+          "path": "app/api/demos/persistent-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/route.ts"
+        },
+        {
+          "path": "app/api/demos/persistent-agent/[id]/stream/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/[id]/stream/route.ts"
+        },
+        {
+          "path": "app/api/demos/persistent-agent/[id]/session/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/[id]/session/route.ts"
+        },
+        {
+          "path": "components/persistent-agent/persistent-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/persistent-agent-screen.tsx"
+        },
+        {
+          "path": "components/persistent-agent/persistent-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/persistent-agent-workspace.tsx"
+        },
+        {
+          "path": "components/persistent-agent/resume-pending-state.ts",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/resume-pending-state.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/persistent-agent/server/chat-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/chat-store.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/cleanup.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/cleanup.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/database.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/env.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/runtime.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/schema.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/session.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/viewer-context.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/viewer-context.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, Postgres-backed chat storage, Redis resumable stream support, and the AI Gateway plus DATABASE_URL and REDIS_URL env vars required for refresh-safe chat state."
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "streaming-chat-shell",
+      "type": "registry:block",
+      "title": "Streaming Chat Shell",
+      "description": "A developer-facing chat workspace with a shared chat session and replayable SSE trace.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "collapsible",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/streaming-chat-shell/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/streaming-chat-shell/page.tsx"
+        },
+        {
+          "path": "app/api/demos/streaming-chat-shell/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/streaming-chat-shell/route.ts"
+        },
+        {
+          "path": "app/api/demos/streaming-chat-shell/events/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/streaming-chat-shell/events/route.ts"
+        },
+        {
+          "path": "components/streaming-chat-shell/streaming-chat-shell-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-chat-shell-screen.tsx"
+        },
+        {
+          "path": "components/streaming-chat-shell/streaming-chat-shell-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-chat-shell-workspace.tsx"
+        },
+        {
+          "path": "components/streaming-chat-shell/streaming-replay.ts",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-replay.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/streaming-chat-shell/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/contract.ts"
+        },
+        {
+          "path": "lib/streaming-chat-shell/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/env.ts"
+        },
+        {
+          "path": "lib/streaming-chat-shell/events.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/events.ts"
+        },
+        {
+          "path": "lib/streaming-chat-shell/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/runtime.ts"
+        },
+        {
+          "path": "lib/streaming-chat-shell/streaming-turn.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/streaming-turn.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and AI Gateway env vars required for shared useChat and developer replay traces."
+    }
+  ]
+}

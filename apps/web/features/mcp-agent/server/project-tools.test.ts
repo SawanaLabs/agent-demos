@@ -7,8 +7,8 @@ import {
 } from "./project-tools";
 
 describe("project MCP tools", () => {
-  it("lists ready demos with mcp-agent included", () => {
-    const demos = listDemoCatalogForMcp({ status: "ready" });
+  it("lists ready demos with mcp-agent included", async () => {
+    const demos = await listDemoCatalogForMcp({ status: "ready" });
 
     expect(demos.some((demo) => demo.slug === "mcp-agent")).toBe(true);
     expect(demos.every((demo) => demo.status === "ready")).toBe(true);

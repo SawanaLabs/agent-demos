@@ -1,0 +1,178 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "trace-eval-agent",
+      "type": "registry:block",
+      "title": "Trace Eval Agent",
+      "description": "A live research chat that surfaces execution trace, deterministic eval checks, and an LLM judge over the same run.",
+      "dependencies": [
+        "@ai-sdk/openai",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/task.json",
+        "https://elements.ai-sdk.dev/api/registry/test-results.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/trace-eval-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/trace-eval-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/trace-eval-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/route.ts"
+        },
+        {
+          "path": "app/api/demos/trace-eval-agent/evaluate/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/evaluate/route.ts"
+        },
+        {
+          "path": "app/api/demos/trace-eval-agent/evaluate/stream/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/evaluate/stream/route.ts"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-screen.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-workspace.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-assistant-message.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-assistant-message.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-trace-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-trace-panel.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-eval-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-eval-panel.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-runtime-sidebar.tsx"
+        },
+        {
+          "path": "components/trace-eval-agent/trace-eval-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-model.ts"
+        },
+        {
+          "path": "components/trace-eval-agent/use-trace-eval-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/use-trace-eval-agent-chat.ts"
+        },
+        {
+          "path": "components/trace-eval-agent/use-trace-eval-judge.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/use-trace-eval-judge.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/trace-eval-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/server/evaluation.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/evaluation.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/env.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/model.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/runtime.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-chat-history.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-chat-history.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-judge-progress.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-judge-progress.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-judge.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-judge.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-prompt-intent.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-prompt-intent.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-run-outcome.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-outcome.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-run-record.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-record.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-run-state.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-state.ts"
+        },
+        {
+          "path": "lib/trace-eval-agent/model/trace-eval-snapshot.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-snapshot.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, research chat route, deterministic eval route, streamed judge route, client workspace, and AI Gateway env vars required for live search plus trace and eval inspection."
+    }
+  ]
+}

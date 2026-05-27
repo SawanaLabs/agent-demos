@@ -31,9 +31,14 @@ vi.mock("@ai-sdk/openai", () => ({
   createOpenAI: createOpenAIMock,
 }));
 
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  getAiGatewayConfig: getAiGatewayConfigMock,
-}));
+vi.mock("./env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./env")>();
+
+  return {
+    ...actual,
+    getTraceEvalAgentConfig: getAiGatewayConfigMock,
+  };
+});
 
 import { streamTraceEvalAgent } from "./chat";
 import { TRACE_EVAL_AGENT_PROVIDER_OPTIONS } from "./model";

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "mcp-agent",
+      "type": "registry:block",
+      "title": "MCP Agent",
+      "description": "An MCP-backed workspace that inspects installed project docs and optional local Next.js runtime state through AI SDK MCP clients.",
+      "dependencies": [
+        "@ai-sdk/mcp",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@modelcontextprotocol/sdk",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "next-devtools-mcp",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/mcp-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/mcp-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/mcp-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/mcp-agent/route.ts"
+        },
+        {
+          "path": "app/api/demos/mcp-agent/mcp/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/mcp-agent/mcp/route.ts"
+        },
+        {
+          "path": "components/mcp-agent/mcp-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-screen.tsx"
+        },
+        {
+          "path": "components/mcp-agent/mcp-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-workspace.tsx"
+        },
+        {
+          "path": "components/mcp-agent/mcp-agent-assistant-trace.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-assistant-trace.tsx"
+        },
+        {
+          "path": "components/mcp-agent/mcp-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-model.ts"
+        },
+        {
+          "path": "components/mcp-agent/mcp-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-runtime-sidebar.tsx"
+        },
+        {
+          "path": "components/mcp-agent/use-mcp-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/use-mcp-agent-chat.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/mcp-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/env.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/mcp-clients.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/mcp-clients.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/mcp-toolbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/mcp-toolbox.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/model.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/project-docs-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-docs-catalog.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/project-mcp-server.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-mcp-server.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/project-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-tools.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/runtime.ts"
+        },
+        {
+          "path": "docs/frontend/mcp-agent.md",
+          "type": "registry:file",
+          "target": "docs/frontend/mcp-agent.md"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the MCP agent page, chat route, built-in project-docs MCP route, client workspace, local project-docs discovery, and the AI Gateway env vars required for MCP-backed chat. The optional Next.js runtime MCP server becomes available after next-devtools-mcp can attach to a running Next.js dev server."
+    }
+  ]
+}

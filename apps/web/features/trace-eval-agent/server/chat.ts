@@ -6,16 +6,13 @@ import {
   type UIMessage,
 } from "ai";
 
-import { env as appEnv } from "@/env";
-import { getAiGatewayConfig } from "@/features/shared/ai-gateway/server/env";
 import { projectTraceEvalHistoryForModel } from "../model/trace-eval-chat-history";
+import { getTraceEvalAgentConfig, type TraceEvalAgentEnv } from "./env";
 import {
   resolveTraceEvalAgentChatModel,
   TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
   TRACE_EVAL_SEARCH_TOOL_NAME,
 } from "./model";
-
-type DemoEnv = Record<string, string | undefined>;
 
 const traceEvalAgentInstructions = [
   "You are the Trace and Eval research agent demo.",
@@ -54,9 +51,9 @@ function resolveOpenAICompatibleBaseURL(baseURL: string) {
 
 export async function streamTraceEvalAgent(
   messages: UIMessage[],
-  env: DemoEnv = appEnv
+  env: TraceEvalAgentEnv
 ) {
-  const { apiKey, baseURL } = getAiGatewayConfig(env);
+  const { apiKey, baseURL } = getTraceEvalAgentConfig(env);
   const chatModel = resolveTraceEvalAgentChatModel(env);
   const openai = createOpenAI({
     apiKey,

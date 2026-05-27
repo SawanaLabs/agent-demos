@@ -1,0 +1,46 @@
+import { Badge } from "@/components/ui/badge";
+
+import { getLoopAgentRuntimeState } from "@/lib/loop-agent/runtime";
+import { runSupportTriageLoop } from "@/lib/loop-agent/support-triage";
+import { LoopAgentWorkspace } from "@/components/loop-agent/loop-agent-workspace";
+
+export function LoopAgentScreen() {
+  const runtimeState = getLoopAgentRuntimeState();
+  const triage = runSupportTriageLoop();
+
+  return (
+    <main className="min-h-svh bg-background text-foreground">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6">
+        <header className="grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+          <div className="space-y-2">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+              Demo / Loop Agent
+            </p>
+            <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
+              Multi-step support triage agent with human approval
+            </h1>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              This slice turns the official AI SDK tool-calling and loop-control
+              recipes into an inspectable support workflow: independent context
+              lookups, a dependent SLA decision, a human approval checkpoint,
+              and a bounded agent loop.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+            <Badge variant="outline">{runtimeState.chatModel}</Badge>
+          </div>
+        </header>
+
+        <LoopAgentWorkspace
+          chatModel={runtimeState.chatModel}
+          isChatAvailable={runtimeState.isChatAvailable}
+          nodeVersion={runtimeState.nodeVersion}
+          setupMessage={runtimeState.setupMessage}
+          triage={triage}
+        />
+      </div>
+    </main>
+  );
+}

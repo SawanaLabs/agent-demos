@@ -43,8 +43,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { isReasoningUIPart, isToolUIPart, type UIMessage } from "ai";
 import { useMemo } from "react";
-
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
+import { useSkillsAgentChat } from "./use-skills-agent-chat";
 
 const configuredTools = [
   {
@@ -264,9 +263,7 @@ export function SkillsAgentWorkspace({
     sendMessage,
     status,
     stop,
-  } = useDemoChat({
-    api: "/api/demos/skills-agent",
-  });
+  } = useSkillsAgentChat();
   const samplePrompts = useMemo(
     () => [
       "Grill this rough idea for a docs chatbot.",

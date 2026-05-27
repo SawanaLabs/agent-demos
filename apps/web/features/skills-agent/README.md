@@ -21,8 +21,12 @@ apps/web/features/skills-agent/
 ├── demo-meta.ts
 ├── server/
 │   ├── chat.ts
+│   ├── env-source.ts
+│   ├── env.test.ts
+│   ├── env.ts
 │   ├── local-skill-catalog.ts
 │   ├── model.ts
+│   ├── official-tools.ts
 │   ├── runtime.test.ts
 │   ├── runtime.ts
 │   ├── sandbox.ts
@@ -30,6 +34,7 @@ apps/web/features/skills-agent/
 │   └── skill-catalog.ts
 └── ui/
     ├── skills-agent-screen.tsx
+    ├── use-skills-agent-chat.ts
     └── skills-agent-workspace.tsx
 ```
 

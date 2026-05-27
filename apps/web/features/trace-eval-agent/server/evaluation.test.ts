@@ -30,11 +30,16 @@ vi.mock("ai", async (importOriginal) => {
   };
 });
 
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  createAiGateway: createAiGatewayMock,
-  getAiGatewayConfig: getAiGatewayConfigMock,
-  getAiGatewaySetupState: getAiGatewaySetupStateMock,
-}));
+vi.mock("./env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./env")>();
+
+  return {
+    ...actual,
+    createTraceEvalAgentGateway: createAiGatewayMock,
+    getTraceEvalAgentConfig: getAiGatewayConfigMock,
+    getTraceEvalAgentSetupState: getAiGatewaySetupStateMock,
+  };
+});
 
 import { buildTraceEvalSnapshot } from "../model/trace-eval-snapshot";
 import {

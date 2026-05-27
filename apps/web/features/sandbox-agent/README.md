@@ -14,18 +14,24 @@ apps/web/features/sandbox-agent/
 ├── README.md
 ├── server/
 │   ├── chat.ts
+│   ├── env-source.ts
+│   ├── env.test.ts
+│   ├── env.ts
 │   ├── model.ts
 │   ├── official-tools.ts
 │   ├── runtime.test.ts
 │   ├── runtime.ts
 │   ├── session.ts
+│   ├── vercel-sandbox.ts
 │   ├── workspace.test.ts
 │   └── workspace.ts
 └── ui/
     ├── preview-state.ts
     ├── sandbox-agent-screen.tsx
     ├── sandbox-agent-workspace.test.tsx
-    └── sandbox-agent-workspace.tsx
+    ├── sandbox-agent-workspace.tsx
+    ├── use-sandbox-agent-chat.ts
+    └── use-sandbox-agent-workspace-view-model.ts
 ```
 
 ## Core contract

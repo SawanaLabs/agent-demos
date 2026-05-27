@@ -1,12 +1,6 @@
 import { generateText, Output, streamText } from "ai";
 import { z } from "zod";
 
-import { env as appEnv } from "@/env";
-import {
-  createAiGateway,
-  getAiGatewayConfig,
-  getAiGatewaySetupState,
-} from "@/features/shared/ai-gateway/server/env";
 import {
   buildTraceEvalJudgeContext,
   completeTraceEvalJudgeResult,
@@ -15,8 +9,13 @@ import {
   traceEvalJudgeStreamSchema,
 } from "../model/trace-eval-judge";
 import type { TraceEvalSnapshot } from "../model/trace-eval-snapshot";
-
-type DemoEnv = Record<string, string | undefined>;
+import {
+  createTraceEvalAgentGateway,
+  getTraceEvalAgentConfig,
+  getTraceEvalAgentEnv,
+  getTraceEvalAgentSetupState,
+  type TraceEvalAgentEnv,
+} from "./env";
 
 interface TraceEvalAgentEvaluationRequestBody {
   snapshot?: unknown;
@@ -111,12 +110,12 @@ function assertJudgeableRun({
 
 export async function evaluateTraceEvalRun(
   snapshot: TraceEvalSnapshot,
-  env: DemoEnv = appEnv
+  env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): Promise<{
   judge: TraceEvalJudgeResult;
 }> {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+  const gateway = createTraceEvalAgentGateway(env);
+  const { chatModel } = getTraceEvalAgentConfig(env);
   const context = buildTraceEvalJudgeContext(snapshot);
 
   assertJudgeableRun(context);
@@ -159,10 +158,10 @@ function createTraceEvalJudgeStreamResponse({
   env,
 }: {
   snapshot: TraceEvalSnapshot;
-  env: DemoEnv;
+  env: TraceEvalAgentEnv;
 }) {
-  const gateway = createAiGateway(env);
-  const { chatModel } = getAiGatewayConfig(env);
+  const gateway = createTraceEvalAgentGateway(env);
+  const { chatModel } = getTraceEvalAgentConfig(env);
   const context = buildTraceEvalJudgeContext(snapshot);
 
   assertJudgeableRun(context);
@@ -218,9 +217,9 @@ function createTraceEvalJudgeStreamResponse({
 
 export async function handleTraceEvalAgentEvaluationRequest(
   request: Request,
-  env: DemoEnv = appEnv
+  env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ) {
-  const setup = getAiGatewaySetupState(env);
+  const setup = getTraceEvalAgentSetupState(env);
 
   if (!setup.isReady) {
     return Response.json(
@@ -255,9 +254,9 @@ export async function handleTraceEvalAgentEvaluationRequest(
 
 export async function handleTraceEvalAgentEvaluationStreamRequest(
   request: Request,
-  env: DemoEnv = appEnv
+  env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ) {
-  const setup = getAiGatewaySetupState(env);
+  const setup = getTraceEvalAgentSetupState(env);
 
   if (!setup.isReady) {
     return Response.json(

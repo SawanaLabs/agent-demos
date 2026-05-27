@@ -23,12 +23,8 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { useDeferredValue } from "react";
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 import { classifyTraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
-import {
-  buildTraceEvalRunRecord,
-  type TraceEvalAgentMessage,
-} from "../model/trace-eval-run-record";
+import { buildTraceEvalRunRecord } from "../model/trace-eval-run-record";
 import { buildTraceEvalSnapshotFromRunRecord } from "../model/trace-eval-snapshot";
 import type { TraceEvalAgentRuntimeState } from "../server/runtime";
 import { TraceEvalAgentAssistantMessage } from "./trace-eval-agent-assistant-message";
@@ -39,6 +35,7 @@ import {
 } from "./trace-eval-agent-model";
 import { TraceEvalAgentRuntimeSidebar } from "./trace-eval-agent-runtime-sidebar";
 import { TraceEvalAgentTracePanel } from "./trace-eval-agent-trace-panel";
+import { useTraceEvalAgentChat } from "./use-trace-eval-agent-chat";
 import { useTraceEvalJudge } from "./use-trace-eval-judge";
 
 interface TraceEvalAgentWorkspaceProps {
@@ -58,9 +55,7 @@ export function TraceEvalAgentWorkspace({
     sendMessage,
     status,
     stop,
-  } = useDemoChat<TraceEvalAgentMessage>({
-    api: "/api/demos/trace-eval-agent",
-  });
+  } = useTraceEvalAgentChat();
   const deferredMessages = useDeferredValue(messages);
   const runRecord = buildTraceEvalRunRecord(deferredMessages, isBusy);
   const snapshot = buildTraceEvalSnapshotFromRunRecord(runRecord);

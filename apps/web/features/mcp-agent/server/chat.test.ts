@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   createAgentUIStreamResponseMock,
-  createAiGatewayMock,
+  createMcpAgentGatewayMock,
   createMcpAgentToolboxMock,
   stepCountIsMock,
   toolLoopAgentMock,
 } = vi.hoisted(() => ({
   createAgentUIStreamResponseMock: vi.fn(),
-  createAiGatewayMock: vi.fn(),
+  createMcpAgentGatewayMock: vi.fn(),
   createMcpAgentToolboxMock: vi.fn(),
   stepCountIsMock: vi.fn(),
   toolLoopAgentMock: vi.fn(),
@@ -20,9 +20,14 @@ vi.mock("ai", () => ({
   ToolLoopAgent: toolLoopAgentMock,
 }));
 
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  createAiGateway: createAiGatewayMock,
-}));
+vi.mock("./env", async () => {
+  const actual = await vi.importActual<typeof import("./env")>("./env");
+
+  return {
+    ...actual,
+    createMcpAgentGateway: createMcpAgentGatewayMock,
+  };
+});
 
 vi.mock("./mcp-clients", () => ({
   createMcpAgentToolbox: createMcpAgentToolboxMock,
@@ -34,7 +39,7 @@ import { MCP_AGENT_PROVIDER_OPTIONS } from "./model";
 describe("streamMcpAgent", () => {
   beforeEach(() => {
     createAgentUIStreamResponseMock.mockReset();
-    createAiGatewayMock.mockReset();
+    createMcpAgentGatewayMock.mockReset();
     createMcpAgentToolboxMock.mockReset();
     stepCountIsMock.mockReset();
     toolLoopAgentMock.mockReset();
@@ -42,7 +47,7 @@ describe("streamMcpAgent", () => {
     createAgentUIStreamResponseMock.mockReturnValue(
       Response.json({ ok: true })
     );
-    createAiGatewayMock.mockReturnValue(
+    createMcpAgentGatewayMock.mockReturnValue(
       vi.fn((modelId: string) => `gateway-model:${modelId}`)
     );
     createMcpAgentToolboxMock.mockResolvedValue({

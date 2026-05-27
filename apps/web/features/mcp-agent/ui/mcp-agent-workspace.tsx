@@ -22,12 +22,12 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 
 import type { McpAgentRuntimeState } from "../server/runtime";
 import { McpAgentAssistantTrace } from "./mcp-agent-assistant-trace";
 import { getTextContent, mcpAgentSamplePrompts } from "./mcp-agent-model";
 import { McpRuntimeSidebar } from "./mcp-runtime-sidebar";
+import { useMcpAgentChat } from "./use-mcp-agent-chat";
 
 interface McpAgentWorkspaceProps {
   chatModel: string;
@@ -55,9 +55,7 @@ export function McpAgentWorkspace({
     sendMessage,
     status,
     stop,
-  } = useDemoChat({
-    api: "/api/demos/mcp-agent",
-  });
+  } = useMcpAgentChat();
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">

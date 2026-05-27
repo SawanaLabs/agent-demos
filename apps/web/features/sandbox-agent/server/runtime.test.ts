@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getSandboxAgentRuntimeState,
-  handleSandboxAgentRequest,
-} from "./runtime";
+import { handleSandboxAgentRequest } from "./request";
+import { getSandboxAgentRuntimeState } from "./runtime";
 
 const missingSetupErrorPattern = /AI_GATEWAY_API_KEY|VERCEL_OIDC_TOKEN/i;
 

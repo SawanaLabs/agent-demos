@@ -7,6 +7,13 @@
     "registry/rag-chatbot/registry.json",
     "registry/multimodal-chatbot/registry.json",
     "registry/object-generation/registry.json",
-    "registry/customer-memory-agent/registry.json"
+    "registry/customer-memory-agent/registry.json",
+    "registry/streaming-chat-shell/registry.json",
+    "registry/loop-agent/registry.json",
+    "registry/trace-eval-agent/registry.json",
+    "registry/persistent-agent/registry.json",
+    "registry/sandbox-agent/registry.json",
+    "registry/skills-agent/registry.json",
+    "registry/mcp-agent/registry.json"
   ]
 }

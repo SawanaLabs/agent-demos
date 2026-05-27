@@ -63,16 +63,14 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import {
   type ChatAddToolApproveResponseFunction,
-  DefaultChatTransport,
   isReasoningUIPart,
   isToolUIPart,
-  lastAssistantMessageIsCompleteWithApprovalResponses,
   type UIMessage,
 } from "ai";
 import { type ReactNode, useMemo } from "react";
 
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
-import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
+import { useLoopAgentChat } from "./use-loop-agent-chat";
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -154,19 +152,6 @@ function getApprovalToolInput(part: ToolPart): ApprovalToolInput {
   }
 
   return part.input as ApprovalToolInput;
-}
-
-function useLoopAgentChat() {
-  return useDemoChat({
-    createChat: () =>
-      new Chat({
-        sendAutomaticallyWhen:
-          lastAssistantMessageIsCompleteWithApprovalResponses,
-        transport: new DefaultChatTransport({
-          api: "/api/demos/loop-agent",
-        }),
-      }),
-  });
 }
 
 interface HumanApprovalConfirmationProps {

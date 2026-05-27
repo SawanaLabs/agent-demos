@@ -1,0 +1,191 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "skills-agent",
+      "type": "registry:block",
+      "title": "Skills Agent",
+      "description": "A repo-local skills workspace that loads real SKILL.md packages on demand and turns rough ideas into durable agent assets.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "@vercel/sandbox",
+        "ai",
+        "bash-tool",
+        "class-variance-authority",
+        "just-bash",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "VERCEL_OIDC_TOKEN": "",
+        "VERCEL_PROJECT_ID": "",
+        "VERCEL_TEAM_ID": "",
+        "VERCEL_TOKEN": ""
+      },
+      "files": [
+        {
+          "path": "app/demos/skills-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/skills-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/skills-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/skills-agent/route.ts"
+        },
+        {
+          "path": "components/skills-agent/skills-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/skills-agent/skills-agent-screen.tsx"
+        },
+        {
+          "path": "components/skills-agent/skills-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/skills-agent/skills-agent-workspace.tsx"
+        },
+        {
+          "path": "components/skills-agent/use-skills-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/skills-agent/use-skills-agent-chat.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/skills-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/env.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/local-skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/local-skill-catalog.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/model.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/official-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/official-tools.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/runtime.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/request.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/request.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/sandbox.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/skill-catalog.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/vercel-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/vercel-sandbox.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/workspace.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/workspace.ts"
+        },
+        {
+          "path": ".agents/skills/grill-with-docs/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/SKILL.md"
+        },
+        {
+          "path": ".agents/skills/grill-with-docs/ADR-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/ADR-FORMAT.md"
+        },
+        {
+          "path": ".agents/skills/grill-with-docs/CONTEXT-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/CONTEXT-FORMAT.md"
+        },
+        {
+          "path": ".agents/skills/skill-creator/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/SKILL.md"
+        },
+        {
+          "path": ".agents/skills/skill-creator/agents/openai.yaml",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/agents/openai.yaml"
+        },
+        {
+          "path": ".agents/skills/skill-creator/assets/skill-creator-small.svg",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator-small.svg"
+        },
+        {
+          "path": ".agents/skills/skill-creator/assets/skill-creator.png",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator.png"
+        },
+        {
+          "path": ".agents/skills/skill-creator/license.txt",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/license.txt"
+        },
+        {
+          "path": ".agents/skills/skill-creator/references/openai_yaml.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/references/openai_yaml.md"
+        },
+        {
+          "path": ".agents/skills/skill-creator/scripts/generate_openai_yaml.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/generate_openai_yaml.py"
+        },
+        {
+          "path": ".agents/skills/skill-creator/scripts/init_skill.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/init_skill.py"
+        },
+        {
+          "path": ".agents/skills/skill-creator/scripts/quick_validate.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/quick_validate.py"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the skills-agent page, node runtime chat route, client workspace, sandbox-backed official skill tool surface, and the two primary skill packages under .agents/skills so the demo works immediately after env setup."
+    }
+  ]
+}

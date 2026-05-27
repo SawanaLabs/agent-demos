@@ -14,12 +14,17 @@ apps/web/features/mcp-agent/
   demo-meta.ts
   server/
     chat.ts
+    env-source.ts
+    env.test.ts
+    env.ts
     mcp-clients.ts
     mcp-toolbox.ts
+    project-docs-catalog.ts
     project-mcp-server.ts
     project-tools.ts
     runtime.ts
   ui/
+    use-mcp-agent-chat.ts
     mcp-agent-screen.tsx
     mcp-agent-workspace.tsx
     mcp-runtime-sidebar.tsx

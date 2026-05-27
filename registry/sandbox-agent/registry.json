@@ -1,0 +1,168 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "sandbox-agent",
+      "type": "registry:block",
+      "title": "Sandbox Agent",
+      "description": "A sandbox-backed prototype builder that gives each chat a persistent Vercel Sandbox and a live preview tab.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "@vercel/sandbox",
+        "ai",
+        "bash-tool",
+        "class-variance-authority",
+        "just-bash",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "tabs",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json",
+        "https://elements.ai-sdk.dev/api/registry/web-preview.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "VERCEL_OIDC_TOKEN": "",
+        "VERCEL_PROJECT_ID": "",
+        "VERCEL_TEAM_ID": "",
+        "VERCEL_TOKEN": ""
+      },
+      "files": [
+        {
+          "path": "app/demos/sandbox-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/sandbox-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/sandbox-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/route.ts"
+        },
+        {
+          "path": "app/api/demos/sandbox-agent/preview-status/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/preview-status/route.ts"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-screen.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-workspace.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-conversation-pane.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-conversation-pane.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-preview-pane.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-preview-pane.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-runtime-sidebar.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-agent-assistant-trace.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-assistant-trace.tsx"
+        },
+        {
+          "path": "components/sandbox-agent/sandbox-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-model.ts"
+        },
+        {
+          "path": "components/sandbox-agent/preview-state.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/preview-state.ts"
+        },
+        {
+          "path": "components/sandbox-agent/use-sandbox-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-agent-chat.ts"
+        },
+        {
+          "path": "components/sandbox-agent/use-sandbox-agent-workspace-view-model.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-agent-workspace-view-model.ts"
+        },
+        {
+          "path": "components/sandbox-agent/use-sandbox-preview-state.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-preview-state.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/sandbox-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/env.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/model.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/official-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/official-tools.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/runtime.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/request.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/request.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/session.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/vercel-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/vercel-sandbox.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/workspace.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/workspace.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, preview health route, client workspace, sandbox session registry, bash-backed tool surface, and the AI Gateway plus Vercel Sandbox env vars required for persistent previewable chat sessions."
+    }
+  ]
+}

@@ -590,6 +590,969 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped persistence, saved-memory retrieval, compaction checkpoints, and the Postgres plus AI Gateway env vars required for end-to-end chat. The database must support pgvector.",
       "type": "registry:block"
+    },
+    {
+      "name": "streaming-chat-shell",
+      "title": "Streaming Chat Shell",
+      "description": "A developer-facing chat workspace with a shared chat session and replayable SSE trace.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "collapsible",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "files": [
+        {
+          "path": "registry/streaming-chat-shell/app/demos/streaming-chat-shell/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/streaming-chat-shell/page.tsx"
+        },
+        {
+          "path": "registry/streaming-chat-shell/app/api/demos/streaming-chat-shell/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/streaming-chat-shell/route.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/app/api/demos/streaming-chat-shell/events/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/streaming-chat-shell/events/route.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/components/streaming-chat-shell/streaming-chat-shell-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-chat-shell-screen.tsx"
+        },
+        {
+          "path": "registry/streaming-chat-shell/components/streaming-chat-shell/streaming-chat-shell-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-chat-shell-workspace.tsx"
+        },
+        {
+          "path": "registry/streaming-chat-shell/components/streaming-chat-shell/streaming-replay.ts",
+          "type": "registry:component",
+          "target": "@components/streaming-chat-shell/streaming-replay.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/contract.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/env.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/events.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/events.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/runtime.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/streaming-turn.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/streaming-turn.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and AI Gateway env vars required for shared useChat and developer replay traces.",
+      "type": "registry:block"
+    },
+    {
+      "name": "loop-agent",
+      "title": "Loop Agent",
+      "description": "A support triage agent with parallel context gathering, SLA reasoning, and human approval.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/chain-of-thought.json",
+        "https://elements.ai-sdk.dev/api/registry/confirmation.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/loop-agent/app/demos/loop-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/loop-agent/page.tsx"
+        },
+        {
+          "path": "registry/loop-agent/app/api/demos/loop-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/loop-agent/route.ts"
+        },
+        {
+          "path": "registry/loop-agent/components/loop-agent/loop-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/loop-agent/loop-agent-screen.tsx"
+        },
+        {
+          "path": "registry/loop-agent/components/loop-agent/loop-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/loop-agent/loop-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/loop-agent/components/loop-agent/use-loop-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/loop-agent/use-loop-agent-chat.ts"
+        },
+        {
+          "path": "registry/loop-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/chat.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/env.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/model.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/runtime.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/support-triage.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/support-triage.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the loop-agent page, chat route, approval-aware chat workspace, support triage tools, and AI Gateway env vars required for the bounded tool loop.",
+      "type": "registry:block"
+    },
+    {
+      "name": "trace-eval-agent",
+      "title": "Trace Eval Agent",
+      "description": "A live research chat that surfaces execution trace, deterministic eval checks, and an LLM judge over the same run.",
+      "dependencies": [
+        "@ai-sdk/openai",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/task.json",
+        "https://elements.ai-sdk.dev/api/registry/test-results.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/trace-eval-agent/app/demos/trace-eval-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/trace-eval-agent/page.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/app/api/demos/trace-eval-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/route.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/app/api/demos/trace-eval-agent/evaluate/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/evaluate/route.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/app/api/demos/trace-eval-agent/evaluate/stream/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/trace-eval-agent/evaluate/stream/route.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-screen.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-assistant-message.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-assistant-message.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-trace-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-trace-panel.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-eval-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-eval-panel.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-runtime-sidebar.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/trace-eval-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/trace-eval-agent-model.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/use-trace-eval-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/use-trace-eval-agent-chat.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/trace-eval-agent/use-trace-eval-judge.ts",
+          "type": "registry:component",
+          "target": "@components/trace-eval-agent/use-trace-eval-judge.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/evaluation.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/evaluation.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/env.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/model.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-chat-history.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-chat-history.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-judge-progress.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-judge-progress.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-judge.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-judge.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-prompt-intent.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-prompt-intent.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-run-outcome.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-outcome.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-run-record.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-record.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-run-state.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-run-state.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/model/trace-eval-snapshot.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/model/trace-eval-snapshot.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, research chat route, deterministic eval route, streamed judge route, client workspace, and AI Gateway env vars required for live search plus trace and eval inspection.",
+      "type": "registry:block"
+    },
+    {
+      "name": "persistent-agent",
+      "title": "Persistent Agent",
+      "description": "An addressable chat resource that persists conversation state in Postgres and reconnects in-flight streams through Redis.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "ioredis",
+        "lucide-react",
+        "resumable-stream"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json"
+      ],
+      "files": [
+        {
+          "path": "registry/persistent-agent/app/demos/persistent-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/persistent-agent/page.tsx"
+        },
+        {
+          "path": "registry/persistent-agent/app/demos/persistent-agent/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/persistent-agent/[id]/page.tsx"
+        },
+        {
+          "path": "registry/persistent-agent/app/api/demos/persistent-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/route.ts"
+        },
+        {
+          "path": "registry/persistent-agent/app/api/demos/persistent-agent/[id]/stream/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/[id]/stream/route.ts"
+        },
+        {
+          "path": "registry/persistent-agent/app/api/demos/persistent-agent/[id]/session/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/persistent-agent/[id]/session/route.ts"
+        },
+        {
+          "path": "registry/persistent-agent/components/persistent-agent/persistent-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/persistent-agent-screen.tsx"
+        },
+        {
+          "path": "registry/persistent-agent/components/persistent-agent/persistent-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/persistent-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/persistent-agent/components/persistent-agent/resume-pending-state.ts",
+          "type": "registry:component",
+          "target": "@components/persistent-agent/resume-pending-state.ts"
+        },
+        {
+          "path": "registry/persistent-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/chat-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/chat-store.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/cleanup.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/cleanup.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/database.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/env.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/schema.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/session.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/viewer-context.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/viewer-context.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "DATABASE_URL": "",
+        "REDIS_URL": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, Postgres-backed chat storage, Redis resumable stream support, and the AI Gateway plus DATABASE_URL and REDIS_URL env vars required for refresh-safe chat state.",
+      "type": "registry:block"
+    },
+    {
+      "name": "sandbox-agent",
+      "title": "Sandbox Agent",
+      "description": "A sandbox-backed prototype builder that gives each chat a persistent Vercel Sandbox and a live preview tab.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "@vercel/sandbox",
+        "ai",
+        "bash-tool",
+        "class-variance-authority",
+        "just-bash",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "tabs",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json",
+        "https://elements.ai-sdk.dev/api/registry/web-preview.json"
+      ],
+      "files": [
+        {
+          "path": "registry/sandbox-agent/app/demos/sandbox-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/sandbox-agent/page.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/app/api/demos/sandbox-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/route.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/app/api/demos/sandbox-agent/preview-status/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/preview-status/route.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-screen.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-conversation-pane.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-conversation-pane.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-preview-pane.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-preview-pane.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-runtime-sidebar.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-agent-assistant-trace.tsx",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-assistant-trace.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/sandbox-agent-model.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/preview-state.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/preview-state.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/use-sandbox-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-agent-chat.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/use-sandbox-agent-workspace-view-model.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-agent-workspace-view-model.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/sandbox-agent/use-sandbox-preview-state.ts",
+          "type": "registry:component",
+          "target": "@components/sandbox-agent/use-sandbox-preview-state.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/env.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/model.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/official-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/official-tools.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/request.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/request.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/session.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/vercel-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/vercel-sandbox.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/workspace.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/workspace.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "VERCEL_OIDC_TOKEN": "",
+        "VERCEL_PROJECT_ID": "",
+        "VERCEL_TEAM_ID": "",
+        "VERCEL_TOKEN": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, preview health route, client workspace, sandbox session registry, bash-backed tool surface, and the AI Gateway plus Vercel Sandbox env vars required for persistent previewable chat sessions.",
+      "type": "registry:block"
+    },
+    {
+      "name": "skills-agent",
+      "title": "Skills Agent",
+      "description": "A repo-local skills workspace that loads real SKILL.md packages on demand and turns rough ideas into durable agent assets.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "@vercel/sandbox",
+        "ai",
+        "bash-tool",
+        "class-variance-authority",
+        "just-bash",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/skills-agent/app/demos/skills-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/skills-agent/page.tsx"
+        },
+        {
+          "path": "registry/skills-agent/app/api/demos/skills-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/skills-agent/route.ts"
+        },
+        {
+          "path": "registry/skills-agent/components/skills-agent/skills-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/skills-agent/skills-agent-screen.tsx"
+        },
+        {
+          "path": "registry/skills-agent/components/skills-agent/skills-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/skills-agent/skills-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/skills-agent/components/skills-agent/use-skills-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/skills-agent/use-skills-agent-chat.ts"
+        },
+        {
+          "path": "registry/skills-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/env.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/local-skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/local-skill-catalog.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/model.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/official-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/official-tools.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/request.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/request.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/sandbox.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/skill-catalog.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/vercel-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/vercel-sandbox.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/skills-agent/server/workspace.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/workspace.ts"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/grill-with-docs/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/SKILL.md"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/grill-with-docs/ADR-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/ADR-FORMAT.md"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/grill-with-docs/CONTEXT-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/CONTEXT-FORMAT.md"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/SKILL.md"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/agents/openai.yaml",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/agents/openai.yaml"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/assets/skill-creator-small.svg",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator-small.svg"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/assets/skill-creator.png",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator.png"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/license.txt",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/license.txt"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/references/openai_yaml.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/references/openai_yaml.md"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/scripts/generate_openai_yaml.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/generate_openai_yaml.py"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/scripts/init_skill.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/init_skill.py"
+        },
+        {
+          "path": "registry/skills-agent/.agents/skills/skill-creator/scripts/quick_validate.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/quick_validate.py"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "VERCEL_OIDC_TOKEN": "",
+        "VERCEL_PROJECT_ID": "",
+        "VERCEL_TEAM_ID": "",
+        "VERCEL_TOKEN": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the skills-agent page, node runtime chat route, client workspace, sandbox-backed official skill tool surface, and the two primary skill packages under .agents/skills so the demo works immediately after env setup.",
+      "type": "registry:block"
+    },
+    {
+      "name": "mcp-agent",
+      "title": "MCP Agent",
+      "description": "An MCP-backed workspace that inspects installed project docs and optional local Next.js runtime state through AI SDK MCP clients.",
+      "dependencies": [
+        "@ai-sdk/mcp",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@modelcontextprotocol/sdk",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "next-devtools-mcp",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mcp-agent/app/demos/mcp-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/mcp-agent/page.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/app/api/demos/mcp-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/mcp-agent/route.ts"
+        },
+        {
+          "path": "registry/mcp-agent/app/api/demos/mcp-agent/mcp/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/mcp-agent/mcp/route.ts"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/mcp-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-screen.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/mcp-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/mcp-agent-assistant-trace.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-assistant-trace.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/mcp-agent-model.ts",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-agent-model.ts"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/mcp-runtime-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/mcp-runtime-sidebar.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/components/mcp-agent/use-mcp-agent-chat.ts",
+          "type": "registry:component",
+          "target": "@components/mcp-agent/use-mcp-agent-chat.ts"
+        },
+        {
+          "path": "registry/mcp-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/env.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/mcp-clients.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/mcp-clients.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/mcp-toolbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/mcp-toolbox.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/model.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/project-docs-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-docs-catalog.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/project-mcp-server.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-mcp-server.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/project-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/project-tools.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/mcp-agent/docs/frontend/mcp-agent.md",
+          "type": "registry:file",
+          "target": "docs/frontend/mcp-agent.md"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the MCP agent page, chat route, built-in project-docs MCP route, client workspace, local project-docs discovery, and the AI Gateway env vars required for MCP-backed chat. The optional Next.js runtime MCP server becomes available after next-devtools-mcp can attach to a running Next.js dev server.",
+      "type": "registry:block"
     }
   ]
 }

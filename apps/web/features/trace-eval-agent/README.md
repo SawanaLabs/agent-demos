@@ -55,6 +55,9 @@ trace-eval-agent/
   server/
     chat.test.ts
     chat.ts
+    env-source.ts
+    env.test.ts
+    env.ts
     evaluation.test.ts
     evaluation.ts
     model.ts
@@ -67,6 +70,7 @@ trace-eval-agent/
     trace-eval-agent-screen.tsx
     trace-eval-agent-trace-panel.tsx
     trace-eval-agent-workspace.tsx
+    use-trace-eval-agent-chat.ts
     use-trace-eval-judge.ts
 ```
 

@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getSkillsAgentRuntimeState,
-  handleSkillsAgentRequest,
-} from "./runtime";
+import { handleSkillsAgentRequest } from "./request";
+import { getSkillsAgentRuntimeState } from "./runtime";
 import type { SkillMetadata } from "./skill-catalog";
 
 const missingSetupErrorPattern = /AI_GATEWAY_API_KEY|VERCEL_OIDC_TOKEN/i;

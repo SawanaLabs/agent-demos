@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   createAgentUIStreamResponseMock,
-  createAiGatewayMock,
+  createLoopAgentGatewayMock,
   stepCountIsMock,
   toolLoopAgentMock,
 } = vi.hoisted(() => ({
   createAgentUIStreamResponseMock: vi.fn(),
-  createAiGatewayMock: vi.fn(),
+  createLoopAgentGatewayMock: vi.fn(),
   stepCountIsMock: vi.fn(),
   toolLoopAgentMock: vi.fn(),
 }));
@@ -19,9 +19,14 @@ vi.mock("ai", () => ({
   tool: vi.fn((config) => config),
 }));
 
-vi.mock("@/features/shared/ai-gateway/server/env", () => ({
-  createAiGateway: createAiGatewayMock,
-}));
+vi.mock("./env", async () => {
+  const actual = await vi.importActual<typeof import("./env")>("./env");
+
+  return {
+    ...actual,
+    createLoopAgentGateway: createLoopAgentGatewayMock,
+  };
+});
 
 import { streamLoopAgent } from "./chat";
 import { LOOP_AGENT_PROVIDER_OPTIONS } from "./model";
@@ -29,14 +34,14 @@ import { LOOP_AGENT_PROVIDER_OPTIONS } from "./model";
 describe("streamLoopAgent", () => {
   beforeEach(() => {
     createAgentUIStreamResponseMock.mockReset();
-    createAiGatewayMock.mockReset();
+    createLoopAgentGatewayMock.mockReset();
     stepCountIsMock.mockReset();
     toolLoopAgentMock.mockReset();
 
     createAgentUIStreamResponseMock.mockReturnValue(
       Response.json({ ok: true })
     );
-    createAiGatewayMock.mockReturnValue(
+    createLoopAgentGatewayMock.mockReturnValue(
       vi.fn((modelId: string) => `gateway-model:${modelId}`)
     );
     stepCountIsMock.mockReturnValue("stop-when");

@@ -1,0 +1,118 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "object-generation",
+      "type": "registry:block",
+      "title": "Object Generation",
+      "description": "A structured-output review workspace that streams a generated object directly inside the assistant message.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "button",
+        "progress",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/object-generation/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/object-generation/page.tsx"
+        },
+        {
+          "path": "app/api/demos/object-generation/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/object-generation/route.ts"
+        },
+        {
+          "path": "app/api/demos/object-generation/records/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/object-generation/records/route.ts"
+        },
+        {
+          "path": "components/object-generation/object-generation-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/object-generation/object-generation-screen.tsx"
+        },
+        {
+          "path": "components/object-generation/object-generation-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/object-generation/object-generation-workspace.tsx"
+        },
+        {
+          "path": "components/object-generation/object-generation-result-card.tsx",
+          "type": "registry:component",
+          "target": "@components/object-generation/object-generation-result-card.tsx"
+        },
+        {
+          "path": "components/object-generation/object-generation-session.ts",
+          "type": "registry:component",
+          "target": "@components/object-generation/object-generation-session.ts"
+        },
+        {
+          "path": "components/object-generation/use-object-generation-session.ts",
+          "type": "registry:component",
+          "target": "@components/object-generation/use-object-generation-session.ts"
+        },
+        {
+          "path": "components/object-generation/convert-files-to-object-generation-inputs.ts",
+          "type": "registry:component",
+          "target": "@components/object-generation/convert-files-to-object-generation-inputs.ts"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/object-generation/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/env.ts"
+        },
+        {
+          "path": "lib/object-generation/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/runtime.ts"
+        },
+        {
+          "path": "lib/object-generation/recorded-object-generation-run.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/recorded-object-generation-run.ts"
+        },
+        {
+          "path": "lib/object-generation/object-generation-records.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/object-generation-records.ts"
+        },
+        {
+          "path": "lib/object-generation/record.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/record.ts"
+        },
+        {
+          "path": "lib/object-generation/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/schema.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and AI Gateway env vars required for structured output over text, image, and PDF inputs."
+    }
+  ]
+}

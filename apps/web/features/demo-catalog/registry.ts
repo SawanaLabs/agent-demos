@@ -1,4 +1,4 @@
-import { contentReviewDemoMeta } from "@/features/content-review/demo-meta";
+import { objectGenerationDemoMeta } from "@/features/object-generation/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
   DemoCatalogEntry,
@@ -37,7 +37,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   foundationChatDemoMeta,
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
-  contentReviewDemoMeta,
+  objectGenerationDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,

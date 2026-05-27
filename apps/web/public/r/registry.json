@@ -296,7 +296,7 @@
       "type": "registry:block"
     },
     {
-      "name": "content-review",
+      "name": "object-generation",
       "title": "Object Generation",
       "description": "A structured-output review workspace that streams a generated object directly inside the assistant message.",
       "dependencies": [
@@ -320,84 +320,84 @@
       ],
       "files": [
         {
-          "path": "registry/content-review/app/demos/content-review/page.tsx",
+          "path": "registry/object-generation/app/demos/object-generation/page.tsx",
           "type": "registry:page",
-          "target": "app/demos/content-review/page.tsx"
+          "target": "app/demos/object-generation/page.tsx"
         },
         {
-          "path": "registry/content-review/app/api/demos/content-review/route.ts",
+          "path": "registry/object-generation/app/api/demos/object-generation/route.ts",
           "type": "registry:page",
-          "target": "app/api/demos/content-review/route.ts"
+          "target": "app/api/demos/object-generation/route.ts"
         },
         {
-          "path": "registry/content-review/app/api/demos/content-review/records/route.ts",
+          "path": "registry/object-generation/app/api/demos/object-generation/records/route.ts",
           "type": "registry:page",
-          "target": "app/api/demos/content-review/records/route.ts"
+          "target": "app/api/demos/object-generation/records/route.ts"
         },
         {
-          "path": "registry/content-review/components/content-review/content-review-screen.tsx",
+          "path": "registry/object-generation/components/object-generation/object-generation-screen.tsx",
           "type": "registry:component",
-          "target": "@components/content-review/content-review-screen.tsx"
+          "target": "@components/object-generation/object-generation-screen.tsx"
         },
         {
-          "path": "registry/content-review/components/content-review/content-review-workspace.tsx",
+          "path": "registry/object-generation/components/object-generation/object-generation-workspace.tsx",
           "type": "registry:component",
-          "target": "@components/content-review/content-review-workspace.tsx"
+          "target": "@components/object-generation/object-generation-workspace.tsx"
         },
         {
-          "path": "registry/content-review/components/content-review/content-review-result-card.tsx",
+          "path": "registry/object-generation/components/object-generation/object-generation-result-card.tsx",
           "type": "registry:component",
-          "target": "@components/content-review/content-review-result-card.tsx"
+          "target": "@components/object-generation/object-generation-result-card.tsx"
         },
         {
-          "path": "registry/content-review/components/content-review/content-review-session.ts",
+          "path": "registry/object-generation/components/object-generation/object-generation-session.ts",
           "type": "registry:component",
-          "target": "@components/content-review/content-review-session.ts"
+          "target": "@components/object-generation/object-generation-session.ts"
         },
         {
-          "path": "registry/content-review/components/content-review/use-content-review-session.ts",
+          "path": "registry/object-generation/components/object-generation/use-object-generation-session.ts",
           "type": "registry:component",
-          "target": "@components/content-review/use-content-review-session.ts"
+          "target": "@components/object-generation/use-object-generation-session.ts"
         },
         {
-          "path": "registry/content-review/components/content-review/convert-files-to-review-attachments.ts",
+          "path": "registry/object-generation/components/object-generation/convert-files-to-object-generation-inputs.ts",
           "type": "registry:component",
-          "target": "@components/content-review/convert-files-to-review-attachments.ts"
+          "target": "@components/object-generation/convert-files-to-object-generation-inputs.ts"
         },
         {
-          "path": "registry/content-review/components/ai-elements/prompt-input.tsx",
+          "path": "registry/object-generation/components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
         },
         {
-          "path": "registry/content-review/lib/content-review/env.ts",
+          "path": "registry/object-generation/lib/object-generation/env.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/env.ts"
+          "target": "@lib/object-generation/env.ts"
         },
         {
-          "path": "registry/content-review/lib/content-review/runtime.ts",
+          "path": "registry/object-generation/lib/object-generation/runtime.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/runtime.ts"
+          "target": "@lib/object-generation/runtime.ts"
         },
         {
-          "path": "registry/content-review/lib/content-review/recorded-review-run.ts",
+          "path": "registry/object-generation/lib/object-generation/recorded-object-generation-run.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/recorded-review-run.ts"
+          "target": "@lib/object-generation/recorded-object-generation-run.ts"
         },
         {
-          "path": "registry/content-review/lib/content-review/review-records.ts",
+          "path": "registry/object-generation/lib/object-generation/object-generation-records.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/review-records.ts"
+          "target": "@lib/object-generation/object-generation-records.ts"
         },
         {
-          "path": "registry/content-review/lib/content-review/record.ts",
+          "path": "registry/object-generation/lib/object-generation/record.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/record.ts"
+          "target": "@lib/object-generation/record.ts"
         },
         {
-          "path": "registry/content-review/lib/content-review/schema.ts",
+          "path": "registry/object-generation/lib/object-generation/schema.ts",
           "type": "registry:lib",
-          "target": "@lib/content-review/schema.ts"
+          "target": "@lib/object-generation/schema.ts"
         }
       ],
       "envVars": {

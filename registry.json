@@ -6,7 +6,7 @@
     "registry/foundation-chat/registry.json",
     "registry/rag-chatbot/registry.json",
     "registry/multimodal-chatbot/registry.json",
-    "registry/content-review/registry.json",
+    "registry/object-generation/registry.json",
     "registry/customer-memory-agent/registry.json"
   ]
 }

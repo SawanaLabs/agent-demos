@@ -26,6 +26,8 @@ export interface FoundationChatSetupState {
   nodeVersion: string;
 }
 
+export type FoundationChatGateway = ReturnType<typeof createGateway>;
+
 function parseNodeVersion(version: string): ParsedNodeVersion {
   const match = nodeVersionPattern.exec(version);
   const major = Number(match?.[1]);
@@ -143,7 +145,7 @@ export function getFoundationChatSetupState(
 
 export function createFoundationChatGateway(
   env: FoundationChatEnv = readFoundationChatEnv()
-) {
+): FoundationChatGateway {
   const { apiKey, baseURL } = getFoundationChatConfig(env);
 
   return createGateway({

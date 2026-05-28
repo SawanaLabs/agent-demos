@@ -207,7 +207,7 @@ export function getSandboxAgentSetupState(
 
 export function createSandboxAgentGateway(
   env: SandboxAgentEnv = getSandboxAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getSandboxAgentConfig(env);
 
   return createGateway({

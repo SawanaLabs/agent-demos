@@ -2,17 +2,20 @@ import type { UIMessage } from "ai";
 import { describe, expect, it } from "vitest";
 
 import {
+  type CustomerMemoryThreadPersistence,
+  type CustomerMemoryThreadRecord,
   createCustomerMemoryThreadStore,
   getInvalidCustomerMemoryMessageIdError,
   getMissingCustomerMemoryThreadError,
-  type CustomerMemoryThreadPersistence,
-  type CustomerMemoryThreadRecord,
   type PersistedCustomerMemoryMessage,
 } from "./thread-store";
 
 function createInMemoryPersistence(): CustomerMemoryThreadPersistence {
   const threads = new Map<string, CustomerMemoryThreadRecord>();
-  const messagesByThreadId = new Map<string, PersistedCustomerMemoryMessage[]>();
+  const messagesByThreadId = new Map<
+    string,
+    PersistedCustomerMemoryMessage[]
+  >();
   let threadCounter = 0;
   let messageCounter = 0;
 
@@ -94,7 +97,12 @@ function createMessages(): UIMessage[] {
     },
     {
       id: "assistant-1",
-      parts: [{ text: "Understood. I will remember the plain-text requirement.", type: "text" }],
+      parts: [
+        {
+          text: "Understood. I will remember the plain-text requirement.",
+          type: "text",
+        },
+      ],
       role: "assistant",
     },
   ];

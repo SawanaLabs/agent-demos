@@ -141,7 +141,7 @@ export function getMultimodalChatbotSetupState(
 
 export function createMultimodalChatbotGateway(
   env: MultimodalChatbotEnv = getMultimodalChatbotEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getMultimodalChatbotConfig(env);
 
   return createGateway({

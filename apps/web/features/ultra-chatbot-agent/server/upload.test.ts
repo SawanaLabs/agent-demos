@@ -16,10 +16,13 @@ function createUploadRequest(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  return new Request("http://localhost/api/demos/ultra-chatbot-agent/files/upload", {
-    body: formData,
-    method: "POST",
-  });
+  return new Request(
+    "http://localhost/api/demos/ultra-chatbot-agent/files/upload",
+    {
+      body: formData,
+      method: "POST",
+    }
+  );
 }
 
 describe("ultra chatbot agent upload route", () => {
@@ -29,7 +32,8 @@ describe("ultra chatbot agent upload route", () => {
   });
 
   it("rejects uploads when the blob token is missing", async () => {
-    const { handleUltraChatbotAgentFileUploadRequest } = await importUploadModule();
+    const { handleUltraChatbotAgentFileUploadRequest } =
+      await importUploadModule();
     const response = await handleUltraChatbotAgentFileUploadRequest(
       createUploadRequest(
         new File(["hello"], "hello.png", {
@@ -46,7 +50,8 @@ describe("ultra chatbot agent upload route", () => {
   });
 
   it("rejects unsupported file types", async () => {
-    const { handleUltraChatbotAgentFileUploadRequest } = await importUploadModule();
+    const { handleUltraChatbotAgentFileUploadRequest } =
+      await importUploadModule();
     const response = await handleUltraChatbotAgentFileUploadRequest(
       createUploadRequest(
         new File(["hello"], "notes.txt", {
@@ -72,7 +77,8 @@ describe("ultra chatbot agent upload route", () => {
       url: "https://blob.example/notes.pdf",
     });
 
-    const { handleUltraChatbotAgentFileUploadRequest } = await importUploadModule();
+    const { handleUltraChatbotAgentFileUploadRequest } =
+      await importUploadModule();
     const response = await handleUltraChatbotAgentFileUploadRequest(
       createUploadRequest(
         new File(["hello"], "notes.pdf", {
@@ -109,7 +115,8 @@ describe("ultra chatbot agent upload route", () => {
       url: "https://blob.example/example.png",
     });
 
-    const { handleUltraChatbotAgentFileUploadRequest } = await importUploadModule();
+    const { handleUltraChatbotAgentFileUploadRequest } =
+      await importUploadModule();
     const response = await handleUltraChatbotAgentFileUploadRequest(
       createUploadRequest(
         new File(["hello"], "example.png", {

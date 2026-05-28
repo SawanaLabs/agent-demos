@@ -72,6 +72,11 @@ function toConversationPath(chatId: string) {
 
 const nodeVersionPrefixPattern = /^v/;
 const resumeRecoveryAttemptLimit = 6;
+const persistentAgentSamplePrompts = [
+  "Create a short deployment checklist and persist it under this conversation URL.",
+  "Explain how route promotion and resume streams work in this persistent chat.",
+  "Draft a follow-up plan, then make it easy to verify after refreshing the page.",
+] as const;
 
 async function loadPersistentAgentSessionSnapshot(chatId: string) {
   const response = await fetch(
@@ -388,6 +393,25 @@ export function PersistentAgentWorkspace({
                 />
               </PromptInputFooter>
             </PromptInput>
+
+            {hasMessages ? null : (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {persistentAgentSamplePrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    onClick={() => {
+                      handleSubmit(prompt);
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <RobotIcon className="size-3.5" />
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

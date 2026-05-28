@@ -5,9 +5,7 @@ import {
   PaperclipIcon,
   ShieldCheckIcon,
   StopIcon,
-  XIcon,
 } from "@phosphor-icons/react";
-import type { FileUIPart } from "ai";
 import {
   Attachment,
   AttachmentInfo,
@@ -36,12 +34,11 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
+import type { FileUIPart } from "ai";
 import { useMemo, useRef } from "react";
 
 import { ObjectGenerationResultCard } from "./object-generation-result-card";
-import {
-  type DisplayReviewThreadEntry,
-} from "./object-generation-session";
+import type { DisplayReviewThreadEntry } from "./object-generation-session";
 import { useObjectGenerationSession } from "./use-object-generation-session";
 
 export interface ObjectGenerationWorkspaceProps {
@@ -52,7 +49,9 @@ export interface ObjectGenerationWorkspaceProps {
   setupMessage: string | null;
 }
 
-function getUserAttachmentParts(attachments: DisplayReviewThreadEntry["attachments"]) {
+function getUserAttachmentParts(
+  attachments: DisplayReviewThreadEntry["attachments"]
+) {
   return attachments.map(
     (attachment): FileUIPart => ({
       filename: attachment.filename,
@@ -120,12 +119,14 @@ export function ObjectGenerationWorkspace({
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               entries.map((entry) => {
-                const attachmentParts = getUserAttachmentParts(entry.attachments);
+                const attachmentParts = getUserAttachmentParts(
+                  entry.attachments
+                );
 
                 return (
                   <div className="space-y-4" key={entry.id}>
                     <Message from="user">
-                      <MessageContent className="space-y-4 max-w-2xl">
+                      <MessageContent className="max-w-2xl space-y-4">
                         {entry.prompt ? (
                           <MessageResponse>{entry.prompt}</MessageResponse>
                         ) : (
@@ -154,7 +155,7 @@ export function ObjectGenerationWorkspace({
                     </Message>
 
                     <Message from="assistant">
-                      <MessageContent className="space-y-3 max-w-3xl">
+                      <MessageContent className="max-w-3xl space-y-3">
                         <ObjectGenerationResultCard
                           errorMessage={entry.errorMessage}
                           record={entry.record}
@@ -162,7 +163,7 @@ export function ObjectGenerationWorkspace({
                           status={entry.liveStatus}
                         />
 
-                        {entry.liveStatus !== "streaming" ? (
+                        {entry.liveStatus === "streaming" ? null : (
                           <div className="flex justify-end">
                             <Button
                               onClick={() => retryReview(entry)}
@@ -174,7 +175,7 @@ export function ObjectGenerationWorkspace({
                               Replay generation
                             </Button>
                           </div>
-                        ) : null}
+                        )}
                       </MessageContent>
                     </Message>
                   </div>
@@ -259,12 +260,14 @@ export function ObjectGenerationWorkspace({
                       Stop
                     </Button>
                   ) : null}
-                  <PromptInputSubmit disabled={!isReviewAvailable || isLoading} />
+                  <PromptInputSubmit
+                    disabled={!isReviewAvailable || isLoading}
+                  />
                 </div>
               </PromptInputFooter>
             </PromptInput>
 
-            {!hasMessages ? (
+            {hasMessages ? null : (
               <div className="mt-3 flex flex-wrap gap-2">
                 {samplePrompts.map((prompt) => (
                   <Button
@@ -280,7 +283,7 @@ export function ObjectGenerationWorkspace({
                   </Button>
                 ))}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </section>
@@ -295,7 +298,9 @@ export function ObjectGenerationWorkspace({
               {isReviewAvailable ? "Ready" : "Setup required"}
             </Badge>
             <Badge variant="outline">{chatModel}</Badge>
-            <Badge variant="outline">Node {nodeVersion.replace(/^v/, "")}</Badge>
+            <Badge variant="outline">
+              Node {nodeVersion.replace(/^v/, "")}
+            </Badge>
           </div>
         </div>
 

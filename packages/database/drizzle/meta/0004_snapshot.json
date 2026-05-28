@@ -84,12 +84,8 @@
           "name": "cm_compactions_thread_fk",
           "tableFrom": "customer_memory_compactions",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -175,12 +171,8 @@
           "name": "cm_embeddings_memory_fk",
           "tableFrom": "customer_memory_embeddings",
           "tableTo": "customer_memory_memories",
-          "columnsFrom": [
-            "memory_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["memory_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -328,12 +320,8 @@
           "name": "cm_events_memory_fk",
           "tableFrom": "customer_memory_events",
           "tableTo": "customer_memory_memories",
-          "columnsFrom": [
-            "memory_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["memory_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -341,12 +329,8 @@
           "name": "cm_events_thread_fk",
           "tableFrom": "customer_memory_events",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -515,12 +499,8 @@
           "name": "cm_memories_thread_fk",
           "tableFrom": "customer_memory_memories",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -644,12 +624,8 @@
           "name": "cm_messages_thread_fk",
           "tableFrom": "customer_memory_messages",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -921,12 +897,8 @@
           "name": "persistent_agent_messages_chat_fk",
           "tableFrom": "persistent_agent_messages",
           "tableTo": "persistent_agent_chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1036,12 +1008,8 @@
           "name": "rag_chatbot_embeddings_resource_id_rag_chatbot_resources_id_fk",
           "tableFrom": "rag_chatbot_embeddings",
           "tableTo": "rag_chatbot_resources",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1309,12 +1277,8 @@
           "name": "ultra_chatbot_agent_documents_chat_fk",
           "tableFrom": "ultra_chatbot_agent_documents",
           "tableTo": "ultra_chatbot_agent_chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1322,10 +1286,7 @@
       "compositePrimaryKeys": {
         "ultra_chatbot_agent_documents_pk": {
           "name": "ultra_chatbot_agent_documents_pk",
-          "columns": [
-            "id",
-            "created_at"
-          ]
+          "columns": ["id", "created_at"]
         }
       },
       "uniqueConstraints": {},
@@ -1431,12 +1392,8 @@
           "name": "ultra_chatbot_agent_messages_chat_fk",
           "tableFrom": "ultra_chatbot_agent_messages",
           "tableTo": "ultra_chatbot_agent_chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1477,12 +1434,8 @@
           "name": "ultra_chatbot_agent_streams_chat_fk",
           "tableFrom": "ultra_chatbot_agent_streams",
           "tableTo": "ultra_chatbot_agent_chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1490,9 +1443,7 @@
       "compositePrimaryKeys": {
         "ultra_chatbot_agent_streams_pk": {
           "name": "ultra_chatbot_agent_streams_pk",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1560,14 +1511,8 @@
           "name": "ultra_chatbot_agent_suggestions_document_fk",
           "tableFrom": "ultra_chatbot_agent_suggestions",
           "tableTo": "ultra_chatbot_agent_documents",
-          "columnsFrom": [
-            "document_id",
-            "document_created_at"
-          ],
-          "columnsTo": [
-            "id",
-            "created_at"
-          ],
+          "columnsFrom": ["document_id", "document_created_at"],
+          "columnsTo": ["id", "created_at"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1575,9 +1520,7 @@
       "compositePrimaryKeys": {
         "ultra_chatbot_agent_suggestions_pk": {
           "name": "ultra_chatbot_agent_suggestions_pk",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1619,11 +1562,7 @@
       "compositePrimaryKeys": {
         "ultra_chatbot_agent_votes_pk": {
           "name": "ultra_chatbot_agent_votes_pk",
-          "columns": [
-            "chat_id",
-            "message_id",
-            "visitor_id"
-          ]
+          "columns": ["chat_id", "message_id", "visitor_id"]
         }
       },
       "uniqueConstraints": {},

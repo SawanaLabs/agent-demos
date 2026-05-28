@@ -1,17 +1,9 @@
-import {
-  and,
-  cosineDistance,
-  desc,
-  eq,
-  gt,
-  sql,
-} from "drizzle-orm";
-
 import { embed } from "ai";
+import { and, cosineDistance, desc, eq, gt, sql } from "drizzle-orm";
 
 import {
-  type RagChatbotDatabaseModule,
   loadRagChatbotDatabase,
+  type RagChatbotDatabaseModule,
 } from "./database";
 import {
   createRagChatbotGateway,
@@ -19,9 +11,7 @@ import {
   getRagChatbotEnv,
   type RagChatbotEnv,
 } from "./env";
-import {
-  ensureRagKnowledgeBaseReady,
-} from "./knowledge-base-status";
+import { ensureRagKnowledgeBaseReady } from "./knowledge-base-status";
 import { ragChatbotSourceDocument } from "./source-document";
 
 const matchLimit = 4;

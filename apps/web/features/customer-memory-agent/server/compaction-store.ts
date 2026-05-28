@@ -25,15 +25,6 @@ interface CustomerMemoryCompactionStoreDependencies {
   persistence?: CustomerMemoryCompactionPersistence;
 }
 
-interface CustomerMemoryDatabaseModule {
-  customerMemoryCompactions: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryCompactions"];
-  database: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["database"];
-}
-
 function toIsoString(value: Date | string) {
   return value instanceof Date ? value.toISOString() : value;
 }
@@ -103,10 +94,10 @@ export function createCustomerMemoryCompactionStore(
     dependencies.persistence ?? createDatabaseBackedPersistence();
 
   return {
-    async getLatestCompaction(threadId: string) {
+    getLatestCompaction(threadId: string) {
       return persistence.getLatestCompaction(threadId);
     },
-    async saveCompaction(input: {
+    saveCompaction(input: {
       messageCount: number;
       summary: string;
       threadId: string;

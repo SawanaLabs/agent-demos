@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  createUltraChatbotAgentDocumentStore,
-  type UltraChatbotAgentDocumentRecord,
-} from "./document-store";
+import { createUltraChatbotAgentDocumentStore } from "./document-store";
 
 const documentBodySchema = z.object({
   content: z.string(),

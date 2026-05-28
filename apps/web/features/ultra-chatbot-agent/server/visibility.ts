@@ -24,7 +24,10 @@ export async function handleUltraChatbotAgentVisibilityPatchRequest(
   }
 
   const chatStore = createUltraChatbotAgentChatStore();
-  const session = await chatStore.loadChatSession(viewer.chatId, viewer.visitorId);
+  const session = await chatStore.loadChatSession(
+    viewer.chatId,
+    viewer.visitorId
+  );
 
   if (!session) {
     return Response.json(

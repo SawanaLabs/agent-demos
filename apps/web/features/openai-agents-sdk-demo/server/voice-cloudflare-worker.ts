@@ -71,7 +71,8 @@ export function getOpenAiAgentsSdkDemoCloudflareWorkerProfile(
     openEventBehavior: "skipOpenEventListeners: true",
     runtimeEntryPoint: "Cloudflare Worker fetch()",
     sdkPrimitive: "CloudflareRealtimeTransportLayer + RealtimeSession",
-    sourceGuide: "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
+    sourceGuide:
+      "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
     status: env[openAiApiKeyEnvVar] ? "configured" : "setup-required",
     transport: "WebSocket",
     websocketUpgradePrimitive: "fetch() + Upgrade: websocket",

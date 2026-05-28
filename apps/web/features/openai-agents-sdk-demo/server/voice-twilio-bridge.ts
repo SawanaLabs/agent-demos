@@ -83,12 +83,13 @@ export function getOpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile(
 }
 
 export function createOpenAiAgentsSdkDemoTwilioMediaStreamBridge(
-  env: DemoEnv = process.env,
-  dependencies: OpenAiAgentsSdkDemoTwilioMediaStreamBridgeDependencies = {},
+  env: DemoEnv,
+  dependencies: OpenAiAgentsSdkDemoTwilioMediaStreamBridgeDependencies,
   twilioWebSocket: TwilioSocket
 ): OpenAiAgentsSdkDemoTwilioMediaStreamBridge {
   const buildSessionHandle =
-    dependencies.buildSessionHandle ?? buildOpenAiAgentsSdkDemoTwilioVoiceSession;
+    dependencies.buildSessionHandle ??
+    buildOpenAiAgentsSdkDemoTwilioVoiceSession;
   const handle = buildSessionHandle({
     env,
     twilioWebSocket,

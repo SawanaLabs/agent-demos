@@ -84,12 +84,8 @@
           "name": "cm_compactions_thread_fk",
           "tableFrom": "customer_memory_compactions",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -175,12 +171,8 @@
           "name": "cm_embeddings_memory_fk",
           "tableFrom": "customer_memory_embeddings",
           "tableTo": "customer_memory_memories",
-          "columnsFrom": [
-            "memory_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["memory_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -328,12 +320,8 @@
           "name": "cm_events_memory_fk",
           "tableFrom": "customer_memory_events",
           "tableTo": "customer_memory_memories",
-          "columnsFrom": [
-            "memory_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["memory_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -341,12 +329,8 @@
           "name": "cm_events_thread_fk",
           "tableFrom": "customer_memory_events",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -515,12 +499,8 @@
           "name": "cm_memories_thread_fk",
           "tableFrom": "customer_memory_memories",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -644,12 +624,8 @@
           "name": "cm_messages_thread_fk",
           "tableFrom": "customer_memory_messages",
           "tableTo": "customer_memory_threads",
-          "columnsFrom": [
-            "thread_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["thread_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -848,12 +824,8 @@
           "name": "rag_chatbot_embeddings_resource_id_rag_chatbot_resources_id_fk",
           "tableFrom": "rag_chatbot_embeddings",
           "tableTo": "rag_chatbot_resources",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

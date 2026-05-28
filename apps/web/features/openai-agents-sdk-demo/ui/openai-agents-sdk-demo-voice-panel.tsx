@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import type { RunToolApprovalItem } from "@openai/agents";
+import {
+  OpenAIRealtimeWebRTC,
+  type RealtimeAgent,
+  RealtimeSession,
+  type RealtimeSessionConnectOptions,
+} from "@openai/agents/realtime";
 import {
   MicrophoneIcon,
   MicrophoneSlashIcon,
@@ -9,14 +15,6 @@ import {
   StopCircleIcon,
   WaveformIcon,
 } from "@phosphor-icons/react";
-import {
-  OpenAIRealtimeWebRTC,
-  RealtimeAgent,
-  RealtimeSession,
-  type RealtimeSessionConnectOptions,
-} from "@openai/agents/realtime";
-import type { RunToolApprovalItem } from "@openai/agents";
-
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -26,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { OpenAiAgentsSdkDemoVoiceProfile } from "../server/voice";
 import {
@@ -40,14 +39,14 @@ import {
 } from "./openai-agents-sdk-demo-workspace-layout";
 
 interface OpenAiAgentsSdkDemoVoiceClientSecretResponse {
-  value?: string;
   error?: string;
+  value?: string;
 }
 
 interface PendingVoiceApproval {
   agentName: string;
-  arguments: string | null;
   approvalItem: RunToolApprovalItem;
+  arguments: string | null;
   toolName: string;
   type: "function_approval" | "mcp_approval_request";
 }
@@ -155,12 +154,13 @@ export function OpenAiAgentsSdkDemoVoicePanel({
     setPendingApproval(null);
   }, []);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       sessionRef.current?.close();
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
-    };
-  }, []);
+    },
+    []
+  );
 
   const connectVoiceSession = useCallback(async () => {
     if (voiceProfile.browserTransport.status !== "configured") {
@@ -208,7 +208,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
       const clientSecretBody =
         (await clientSecretResponse.json()) as OpenAiAgentsSdkDemoVoiceClientSecretResponse;
 
-      if (!clientSecretResponse.ok || !clientSecretBody.value) {
+      if (!(clientSecretResponse.ok && clientSecretBody.value)) {
         throw new Error(
           clientSecretBody.error ??
             "The realtime client-secret route did not return a usable ephemeral token."
@@ -372,22 +372,21 @@ export function OpenAiAgentsSdkDemoVoicePanel({
   const approvePendingToolCall = useCallback(async () => {
     const session = sessionRef.current;
 
-    if (!session || !pendingApproval) {
+    if (!(session && pendingApproval)) {
       return;
     }
 
     await session.approve(pendingApproval.approvalItem);
     setPendingApproval(null);
-    setRealtimeEventFeed((current) => [
-      `tool_approved:${pendingApproval.toolName}`,
-      ...current,
-    ].slice(0, 8));
+    setRealtimeEventFeed((current) =>
+      [`tool_approved:${pendingApproval.toolName}`, ...current].slice(0, 8)
+    );
   }, [pendingApproval]);
 
   const rejectPendingToolCall = useCallback(async () => {
     const session = sessionRef.current;
 
-    if (!session || !pendingApproval) {
+    if (!(session && pendingApproval)) {
       return;
     }
 
@@ -395,10 +394,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
       message: "The operator rejected this external publish request.",
     });
     setPendingApproval(null);
-    setRealtimeEventFeed((current) => [
-      `tool_rejected:${pendingApproval.toolName}`,
-      ...current,
-    ].slice(0, 8));
+    setRealtimeEventFeed((current) =>
+      [`tool_rejected:${pendingApproval.toolName}`, ...current].slice(0, 8)
+    );
   }, [pendingApproval]);
 
   const providerStatusClassName =
@@ -415,7 +413,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
     <>
       <div className="border-foreground/10 border-b p-4">
         <div className="flex flex-col gap-2">
-          <div className="flex min-w-0 w-full flex-col gap-3 border border-foreground/10 bg-background px-3 py-3">
+          <div className="flex w-full min-w-0 flex-col gap-3 border border-foreground/10 bg-background px-3 py-3">
             <div className="flex w-full min-w-0 items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
                 <p className="font-medium text-sm">
@@ -607,7 +605,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                     <span>{isMuted ? "yes" : "no"}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Audio playback</span>
+                    <span className="text-muted-foreground">
+                      Audio playback
+                    </span>
                     <span>{isAudioPlaying ? "active" : "idle"}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
@@ -658,7 +658,8 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                       Latest assistant transcript
                     </p>
                     <p className="min-h-12 text-sm/relaxed">
-                      {lastAssistantTranscript ?? "No assistant transcript yet."}
+                      {lastAssistantTranscript ??
+                        "No assistant transcript yet."}
                     </p>
                   </div>
                 </div>
@@ -685,12 +686,13 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                     <p className="font-medium text-sm">
                       Pending approval: {pendingApproval.toolName}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       Agent: {pendingApproval.agentName} · Kind:{" "}
                       {pendingApproval.type}
                     </p>
                     <p className="text-xs/relaxed">
-                      {pendingApproval.arguments ?? "No tool arguments captured."}
+                      {pendingApproval.arguments ??
+                        "No tool arguments captured."}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -712,9 +714,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-muted-foreground">
-                    No pending approval. Ask the voice agent to publish a research
-                    summary to trigger the official approval event.
+                  <p className="text-muted-foreground text-xs">
+                    No pending approval. Ask the voice agent to publish a
+                    research summary to trigger the official approval event.
                   </p>
                 )}
               </div>
@@ -747,10 +749,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   </Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {(
-                    realtimeEventFeed.length > 0
-                      ? realtimeEventFeed
-                      : laneProfile.emittedSessionEvents
+                  {(realtimeEventFeed.length > 0
+                    ? realtimeEventFeed
+                    : laneProfile.emittedSessionEvents
                   ).map((event) => (
                     <Badge key={event} variant="outline">
                       {event}
@@ -807,7 +808,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 </Badge>
                 <Badge variant="outline">
                   <WaveformIcon className="size-3.5" />
-                  RealtimeSession.connect({`{ apiKey }`})
+                  RealtimeSession.connect({"{ apiKey }"})
                 </Badge>
               </div>
             </div>

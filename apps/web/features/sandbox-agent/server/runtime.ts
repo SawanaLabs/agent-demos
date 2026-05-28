@@ -23,7 +23,8 @@ export function getSandboxAgentRuntimeState(
     nodeVersion: setupState.nodeVersion,
     previewPort: SANDBOX_AGENT_PREVIEW_PORT,
     sandboxProvider: setupState.sandboxProvider,
-    setupMessage: setupState.issues.length > 0 ? setupState.issues.join(" ") : null,
+    setupMessage:
+      setupState.issues.length > 0 ? setupState.issues.join(" ") : null,
     statusLabel: setupState.isReady ? "Ready" : "Setup required",
   };
 }

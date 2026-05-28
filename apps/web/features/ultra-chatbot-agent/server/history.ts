@@ -21,8 +21,7 @@ export async function handleUltraChatbotAgentHistoryRequest(
   if (startingAfter && endingBefore) {
     return Response.json(
       {
-        error:
-          "Only one of starting_after or ending_before can be provided.",
+        error: "Only one of starting_after or ending_before can be provided.",
       },
       { status: 400 }
     );
@@ -42,11 +41,10 @@ export async function handleUltraChatbotAgentHistoryRequest(
 export async function handleUltraChatbotAgentDeleteHistoryRequest(viewer: {
   visitorId: string;
 }) {
-  const result = await createUltraChatbotAgentChatStore().deleteAllChatsForVisitor(
-    {
+  const result =
+    await createUltraChatbotAgentChatStore().deleteAllChatsForVisitor({
       visitorId: viewer.visitorId,
-    }
-  );
+    });
 
   return Response.json(result, { status: 200 });
 }

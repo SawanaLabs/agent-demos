@@ -4,12 +4,11 @@ import {
   ToolLoopAgent,
   type UIMessage,
 } from "ai";
-
+import { createSandboxAgentGateway, getSandboxAgentEnv } from "./env";
 import {
   resolveSandboxAgentChatModel,
   SANDBOX_AGENT_PROVIDER_OPTIONS,
 } from "./model";
-import { createSandboxAgentGateway, getSandboxAgentEnv } from "./env";
 import { createSandboxAgentWorkspace } from "./workspace";
 
 export const sandboxAgentInstructions = [

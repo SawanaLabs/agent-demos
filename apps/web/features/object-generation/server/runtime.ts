@@ -1,18 +1,17 @@
 import { type LanguageModelUsage, Output, streamText } from "ai";
 import {
+  type ObjectGenerationRequest,
+  objectGenerationAcceptedMediaTypes,
+  objectGenerationRequestSchema,
+  objectGenerationResultSchema,
+} from "../schema";
+import {
   createObjectGenerationGateway,
   getObjectGenerationConfig,
   getObjectGenerationEnv,
   getObjectGenerationSetupState,
   type ObjectGenerationEnv,
 } from "./env";
-
-import {
-  type ObjectGenerationRequest,
-  objectGenerationAcceptedMediaTypes,
-  objectGenerationRequestSchema,
-  objectGenerationResultSchema,
-} from "../schema";
 import { startRecordedObjectGenerationRun } from "./recorded-object-generation-run";
 
 const invalidBodyError =
@@ -42,8 +41,8 @@ export interface ObjectGenerationRuntimeState {
 }
 
 interface ObjectGenerationRequestDependencies {
-    createObjectGenerationStream: (
-      input: ObjectGenerationRequest,
+  createObjectGenerationStream: (
+    input: ObjectGenerationRequest,
     env: ObjectGenerationEnv
   ) => ObjectGenerationStreamResult | Promise<ObjectGenerationStreamResult>;
 }

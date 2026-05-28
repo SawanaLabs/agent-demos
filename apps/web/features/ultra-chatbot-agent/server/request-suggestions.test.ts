@@ -55,26 +55,30 @@ describe("ultra chatbot agent request suggestions tool", () => {
         suggestions: [
           {
             description: "Names the rollout constraint explicitly.",
-            originalText: "The launch is good but the rollout paragraph is vague.",
+            originalText:
+              "The launch is good but the rollout paragraph is vague.",
             suggestedText:
               "The launch brief is solid, but the rollout paragraph should state the guardrails and approval steps explicitly.",
           },
         ],
       },
     });
-    suggestionStoreState.replaceSuggestionsForDocumentVersion.mockResolvedValue([
-      {
-        createdAt: "2026-05-25T00:01:00.000Z",
-        description: "Names the rollout constraint explicitly.",
-        documentCreatedAt: "2026-05-25T00:00:00.000Z",
-        documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
-        id: "s-1",
-        originalText: "The launch is good but the rollout paragraph is vague.",
-        suggestedText:
-          "The launch brief is solid, but the rollout paragraph should state the guardrails and approval steps explicitly.",
-        visitorId: "visitor-1",
-      },
-    ]);
+    suggestionStoreState.replaceSuggestionsForDocumentVersion.mockResolvedValue(
+      [
+        {
+          createdAt: "2026-05-25T00:01:00.000Z",
+          description: "Names the rollout constraint explicitly.",
+          documentCreatedAt: "2026-05-25T00:00:00.000Z",
+          documentId: "2ae89d54-68d8-4948-afca-1880b9ef2690",
+          id: "s-1",
+          originalText:
+            "The launch is good but the rollout paragraph is vague.",
+          suggestedText:
+            "The launch brief is solid, but the rollout paragraph should state the guardrails and approval steps explicitly.",
+          visitorId: "visitor-1",
+        },
+      ]
+    );
   });
 
   it("resolves a visitor-owned document by title, generates suggestions, and persists them", async () => {
@@ -112,7 +116,8 @@ describe("ultra chatbot agent request suggestions tool", () => {
       suggestions: [
         {
           description: "Names the rollout constraint explicitly.",
-          originalText: "The launch is good but the rollout paragraph is vague.",
+          originalText:
+            "The launch is good but the rollout paragraph is vague.",
           suggestedText:
             "The launch brief is solid, but the rollout paragraph should state the guardrails and approval steps explicitly.",
         },

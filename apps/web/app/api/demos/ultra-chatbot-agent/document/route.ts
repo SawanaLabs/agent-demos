@@ -6,12 +6,9 @@ import {
 
 export async function GET(request: Request) {
   const viewer = getOrCreateUltraChatbotAgentVisitorId(request);
-  const response = await handleUltraChatbotAgentDocumentRequest(
-    request,
-    {
-      visitorId: viewer.visitorId,
-    }
-  );
+  const response = await handleUltraChatbotAgentDocumentRequest(request, {
+    visitorId: viewer.visitorId,
+  });
 
   if (viewer.shouldSetCookie) {
     response.headers.append(
@@ -25,12 +22,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const viewer = getOrCreateUltraChatbotAgentVisitorId(request);
-  const response = await handleUltraChatbotAgentDocumentRequest(
-    request,
-    {
-      visitorId: viewer.visitorId,
-    }
-  );
+  const response = await handleUltraChatbotAgentDocumentRequest(request, {
+    visitorId: viewer.visitorId,
+  });
 
   if (viewer.shouldSetCookie) {
     response.headers.append(
@@ -44,12 +38,9 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const viewer = getOrCreateUltraChatbotAgentVisitorId(request);
-  const response = await handleUltraChatbotAgentDocumentRequest(
-    request,
-    {
-      visitorId: viewer.visitorId,
-    }
-  );
+  const response = await handleUltraChatbotAgentDocumentRequest(request, {
+    visitorId: viewer.visitorId,
+  });
 
   if (viewer.shouldSetCookie) {
     response.headers.append(

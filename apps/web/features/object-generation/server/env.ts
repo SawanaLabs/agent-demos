@@ -141,7 +141,7 @@ export function getObjectGenerationSetupState(
 
 export function createObjectGenerationGateway(
   env: ObjectGenerationEnv = getObjectGenerationEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getObjectGenerationConfig(env);
 
   return createGateway({

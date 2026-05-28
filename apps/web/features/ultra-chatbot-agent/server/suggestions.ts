@@ -46,10 +46,12 @@ export async function handleUltraChatbotAgentSuggestionsRequest(
   }
 
   return Response.json(
-    await createUltraChatbotAgentSuggestionStore().listSuggestionsForDocumentVersion({
-      documentCreatedAt: latestDocument.createdAt,
-      documentId,
-      visitorId: viewer.visitorId,
-    })
+    await createUltraChatbotAgentSuggestionStore().listSuggestionsForDocumentVersion(
+      {
+        documentCreatedAt: latestDocument.createdAt,
+        documentId,
+        visitorId: viewer.visitorId,
+      }
+    )
   );
 }

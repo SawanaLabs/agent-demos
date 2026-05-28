@@ -53,7 +53,9 @@ describe("ultra chatbot agent suggestions route contract", () => {
 
     const response =
       await suggestionsModule.handleUltraChatbotAgentSuggestionsRequest(
-        new Request("http://localhost/api/demos/ultra-chatbot-agent/suggestions"),
+        new Request(
+          "http://localhost/api/demos/ultra-chatbot-agent/suggestions"
+        ),
         {
           visitorId: "visitor-1",
         }

@@ -49,14 +49,15 @@ describe("ultra chatbot agent document route contract", () => {
   it("lists latest thread documents when no id is provided", async () => {
     const documentsModule = await importDocumentsModule();
 
-    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
-      new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da"
-      ),
-      {
-        visitorId: "visitor-1",
-      }
-    );
+    const response =
+      await documentsModule.handleUltraChatbotAgentDocumentRequest(
+        new Request(
+          "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da"
+        ),
+        {
+          visitorId: "visitor-1",
+        }
+      );
 
     expect(response.status).toBe(200);
     expect(storeState.listLatestDocumentsForChat).toHaveBeenCalledWith({
@@ -69,12 +70,13 @@ describe("ultra chatbot agent document route contract", () => {
   it("requires chatId for document requests", async () => {
     const documentsModule = await importDocumentsModule();
 
-    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
-      new Request("http://localhost/api/demos/ultra-chatbot-agent/document"),
-      {
-        visitorId: "visitor-1",
-      }
-    );
+    const response =
+      await documentsModule.handleUltraChatbotAgentDocumentRequest(
+        new Request("http://localhost/api/demos/ultra-chatbot-agent/document"),
+        {
+          visitorId: "visitor-1",
+        }
+      );
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
@@ -85,20 +87,21 @@ describe("ultra chatbot agent document route contract", () => {
   it("rejects malformed document create payloads", async () => {
     const documentsModule = await importDocumentsModule();
 
-    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
-      new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+    const response =
+      await documentsModule.handleUltraChatbotAgentDocumentRequest(
+        new Request(
+          "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+          {
+            body: JSON.stringify({
+              content: 42,
+            }),
+            method: "POST",
+          }
+        ),
         {
-          body: JSON.stringify({
-            content: 42,
-          }),
-          method: "POST",
+          visitorId: "visitor-1",
         }
-      ),
-      {
-        visitorId: "visitor-1",
-      }
-    );
+      );
 
     expect(response.status).toBe(400);
     expect(storeState.saveDocument).not.toHaveBeenCalled();
@@ -108,22 +111,23 @@ describe("ultra chatbot agent document route contract", () => {
     const documentsModule = await importDocumentsModule();
     storeState.listDocumentVersions.mockResolvedValueOnce([]);
 
-    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
-      new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+    const response =
+      await documentsModule.handleUltraChatbotAgentDocumentRequest(
+        new Request(
+          "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690",
+          {
+            body: JSON.stringify({
+              content: "Draft",
+              kind: "text",
+              title: "Launch note",
+            }),
+            method: "POST",
+          }
+        ),
         {
-          body: JSON.stringify({
-            content: "Draft",
-            kind: "text",
-            title: "Launch note",
-          }),
-          method: "POST",
+          visitorId: "visitor-1",
         }
-      ),
-      {
-        visitorId: "visitor-1",
-      }
-    );
+      );
 
     expect(response.status).toBe(200);
     expect(storeState.saveDocument).toHaveBeenCalledWith({
@@ -139,17 +143,18 @@ describe("ultra chatbot agent document route contract", () => {
   it("deletes newer versions after the selected timestamp", async () => {
     const documentsModule = await importDocumentsModule();
 
-    const response = await documentsModule.handleUltraChatbotAgentDocumentRequest(
-      new Request(
-        "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690&timestamp=2026-05-25T00:00:00.000Z",
+    const response =
+      await documentsModule.handleUltraChatbotAgentDocumentRequest(
+        new Request(
+          "http://localhost/api/demos/ultra-chatbot-agent/document?chatId=7dad003a-e507-448b-ac02-10937a0290da&id=2ae89d54-68d8-4948-afca-1880b9ef2690&timestamp=2026-05-25T00:00:00.000Z",
+          {
+            method: "DELETE",
+          }
+        ),
         {
-          method: "DELETE",
+          visitorId: "visitor-1",
         }
-      ),
-      {
-        visitorId: "visitor-1",
-      }
-    );
+      );
 
     expect(response.status).toBe(200);
     expect(

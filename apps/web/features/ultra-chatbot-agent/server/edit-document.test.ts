@@ -52,8 +52,7 @@ describe("ultra chatbot agent edit document tool", () => {
     const result = await artifactTool.execute?.(
       {
         documentTitle: "Launch brief",
-        newText:
-          "compliance-safe, plain, and factual",
+        newText: "compliance-safe, plain, and factual",
         oldText: "plain and factual",
         replaceAll: false,
       },

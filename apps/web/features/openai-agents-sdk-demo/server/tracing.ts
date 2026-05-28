@@ -70,8 +70,10 @@ function shouldIncludeSensitiveData(env: DemoEnv = process.env) {
 }
 
 function getLatestAssistantTraceSummary(messages: UIMessage[]) {
-  return ([...messages].reverse().find((message) => message.role === "assistant")
-    ?.metadata as OpenAiAgentsSdkDemoMessageMetadata | undefined)?.traceSummary;
+  return (
+    [...messages].reverse().find((message) => message.role === "assistant")
+      ?.metadata as OpenAiAgentsSdkDemoMessageMetadata | undefined
+  )?.traceSummary;
 }
 
 export function getOpenAiAgentsSdkDemoTraceProfile(
@@ -131,12 +133,10 @@ export function createOpenAiAgentsSdkDemoTraceRunConfig({
 }
 
 export function getOpenAiAgentsSdkDemoTraceUsageMetadata(
-  summary:
-    | z.infer<typeof openAiAgentsSdkDemoTraceSummarySchema>
-    | undefined
+  summary: z.infer<typeof openAiAgentsSdkDemoTraceSummarySchema> | undefined
 ) {
   if (!summary) {
-    return undefined;
+    return;
   }
 
   return {

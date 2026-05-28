@@ -9,7 +9,12 @@ import {
 import Redis from "ioredis";
 import { after } from "next/dist/server/after";
 import { createResumableStreamContext } from "resumable-stream/ioredis";
-
+import {
+  createPersistentAgentChatStore,
+  getPersistentAgentChatNotFoundError,
+  persistentAgentCleanupCronScheduleUtc,
+  persistentAgentCleanupRetentionDays,
+} from "./chat-store";
 import {
   createPersistentAgentGateway,
   getPersistentAgentConfig,
@@ -18,12 +23,6 @@ import {
   getPersistentAgentSetupState,
   type PersistentAgentEnv,
 } from "./env";
-import {
-  createPersistentAgentChatStore,
-  getPersistentAgentChatNotFoundError,
-  persistentAgentCleanupCronScheduleUtc,
-  persistentAgentCleanupRetentionDays,
-} from "./chat-store";
 
 const invalidRequestBodyError =
   'Expected a JSON body with a non-empty "id" string and a "message" object.';
@@ -256,7 +255,9 @@ export async function handlePersistentAgentStreamResumeRequest(
   }
 
   return new Response(
-    await getStreamContext(env).resumeExistingStream(session.chat.activeStreamId),
+    await getStreamContext(env).resumeExistingStream(
+      session.chat.activeStreamId
+    ),
     {
       headers: UI_MESSAGE_STREAM_HEADERS,
     }

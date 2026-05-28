@@ -10,11 +10,11 @@ interface UltraChatbotAgentWebSearchToolSource {
   url: string;
 }
 
-type UltraChatbotAgentGeneratedSource = {
+interface UltraChatbotAgentGeneratedSource {
   title?: string | null;
   type?: string | null;
   url?: string | null;
-};
+}
 
 const markdownLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
 const explicitUrlPattern = /\bhttps?:\/\/[^\s)]+/g;
@@ -86,7 +86,9 @@ function collectSourcesFromSummary(summary: string) {
 
 export function createUltraChatbotAgentWebSearchTool(input: {
   model: Parameters<typeof generateText>[0]["model"];
-  webSearchTool: NonNullable<Parameters<typeof generateText>[0]["tools"]>[string];
+  webSearchTool: NonNullable<
+    Parameters<typeof generateText>[0]["tools"]
+  >[string];
 }) {
   return tool({
     description:
@@ -111,8 +113,9 @@ export function createUltraChatbotAgentWebSearchTool(input: {
       const summary = result.text.trim();
       const explicitSources = result.sources
         .map(normalizeSearchSource)
-        .filter((source): source is UltraChatbotAgentWebSearchToolSource =>
-          source !== null
+        .filter(
+          (source): source is UltraChatbotAgentWebSearchToolSource =>
+            source !== null
         );
 
       return {

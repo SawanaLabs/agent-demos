@@ -2,16 +2,16 @@
 
 import {
   ArrowClockwiseIcon,
-  PencilSimpleIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  FloppyDiskIcon,
   CornersOutIcon,
+  FloppyDiskIcon,
+  PencilSimpleIcon,
   RowsIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 
 import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifact-state";
 
@@ -50,7 +50,7 @@ export function UltraChatbotAgentVersionFooter({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-foreground/10 border-t pt-3">
       <div className="flex items-center gap-2">
         <Button
           disabled={isLatestVersion}

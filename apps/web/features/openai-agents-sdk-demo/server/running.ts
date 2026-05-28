@@ -1,5 +1,5 @@
-import type { UIMessage } from "ai";
 import type { AgentInputItem } from "@openai/agents";
+import type { UIMessage } from "ai";
 
 import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 
@@ -25,11 +25,11 @@ export interface OpenAiAgentsSdkDemoRunRequestOptions {
 }
 
 export function getOpenAiAgentsSdkDemoRunProfile(
-  env: DemoEnv = process.env,
+  env: DemoEnv = process.env
 ): OpenAiAgentsSdkDemoRunProfile {
   const configuredMaxTurns = Number.parseInt(
     env.OPENAI_AGENTS_MAX_TURNS ?? "",
-    10,
+    10
   );
 
   return {
@@ -83,7 +83,7 @@ function convertToAgentInput(messages: UIMessage[]): AgentInputItem[] {
     items.push(
       message.role === "assistant"
         ? createAssistantInputItem(content)
-        : createUserInputItem(content),
+        : createUserInputItem(content)
     );
   }
 
@@ -96,7 +96,7 @@ function getLatestAssistantResponseId(messages: UIMessage[]) {
     .find((message) => message.role === "assistant");
 
   if (!latestAssistantMessage?.metadata) {
-    return undefined;
+    return;
   }
 
   return (latestAssistantMessage.metadata as OpenAiAgentsSdkDemoMessageMetadata)
@@ -137,8 +137,14 @@ function getLatestUserInput(messages: UIMessage[]) {
   return [createUserInputItem(content)];
 }
 
+function isUserAgentInputItem(
+  item: AgentInputItem
+): item is AgentInputItem & { role: "user" } {
+  return "role" in item && item.role === "user";
+}
+
 function assertHasUserInput(input: AgentInputItem[]) {
-  if (input.some((item) => item.role === "user")) {
+  if (input.some(isUserAgentInputItem)) {
     return;
   }
 
@@ -155,7 +161,7 @@ export function getOpenAiAgentsSdkDemoRunInputErrorMessage(error: unknown) {
 
 export function getOpenAiAgentsSdkDemoRunRequest(
   { messages, signal }: OpenAiAgentsSdkDemoRunRequestOptions,
-  env: DemoEnv = process.env,
+  env: DemoEnv = process.env
 ): {
   input: AgentInputItem[];
   options: {
@@ -168,7 +174,7 @@ export function getOpenAiAgentsSdkDemoRunRequest(
   const profile = getOpenAiAgentsSdkDemoRunProfile(env);
   const latestAssistantResponseId = getLatestAssistantResponseId(messages);
   const previousResponseId = isOpenAiResponsesResponseId(
-    latestAssistantResponseId,
+    latestAssistantResponseId
   )
     ? latestAssistantResponseId
     : undefined;
@@ -192,10 +198,10 @@ export function getOpenAiAgentsSdkDemoRunRequest(
 }
 
 export function getOpenAiAgentsSdkDemoRunningUsageMetadata(
-  lastResponseId?: string,
+  lastResponseId?: string
 ) {
   if (!lastResponseId) {
-    return undefined;
+    return;
   }
 
   return {

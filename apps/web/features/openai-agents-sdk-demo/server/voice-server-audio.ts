@@ -60,13 +60,13 @@ export interface OpenAiAgentsSdkDemoServerAudioLane {
 }
 
 interface OpenAiAgentsSdkDemoServerAudioLaneDependencies {
-  buildSessionHandle?: (
-    env: DemoEnv
-  ) => OpenAiAgentsSdkDemoServerVoiceSessionHandle | {
-    connectOptions: RealtimeSessionConnectOptions;
-    profile: OpenAiAgentsSdkDemoServerVoiceSessionHandle["profile"];
-    session: VoiceSessionLike;
-  };
+  buildSessionHandle?: (env: DemoEnv) =>
+    | OpenAiAgentsSdkDemoServerVoiceSessionHandle
+    | {
+        connectOptions: RealtimeSessionConnectOptions;
+        profile: OpenAiAgentsSdkDemoServerVoiceSessionHandle["profile"];
+        session: VoiceSessionLike;
+      };
 }
 
 function cloneAudioEvent(event: TransportLayerAudio): TransportLayerAudio {
@@ -102,7 +102,8 @@ export function buildOpenAiAgentsSdkDemoServerAudioLane(
   dependencies: OpenAiAgentsSdkDemoServerAudioLaneDependencies = {}
 ): OpenAiAgentsSdkDemoServerAudioLane {
   const buildSessionHandle =
-    dependencies.buildSessionHandle ?? buildOpenAiAgentsSdkDemoServerVoiceSession;
+    dependencies.buildSessionHandle ??
+    buildOpenAiAgentsSdkDemoServerVoiceSession;
   const handle = buildSessionHandle(env);
   const outputAudio: TransportLayerAudio[] = [];
   const transportEvents: TransportEvent[] = [];

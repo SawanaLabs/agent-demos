@@ -66,14 +66,14 @@ export function UltraChatbotAgentDiffView({
 
   return (
     <div className="max-h-96 overflow-auto border border-foreground/10 bg-muted/20">
-      <div className="border-b border-foreground/10 px-3 py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="border-foreground/10 border-b px-3 py-2 text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
         Diff preview
       </div>
       <div className="font-mono text-xs">
         {diffLines.map((line, index) => (
           <div
             className={cn(
-              "grid grid-cols-[3rem_1fr] gap-3 border-b border-foreground/5 px-3 py-2 last:border-b-0",
+              "grid grid-cols-[3rem_1fr] gap-3 border-foreground/5 border-b px-3 py-2 last:border-b-0",
               line.kind === "added" && "bg-emerald-500/10",
               line.kind === "changed" && "bg-amber-500/10",
               line.kind === "removed" && "bg-rose-500/10"

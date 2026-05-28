@@ -1,8 +1,8 @@
-import { handleUltraChatbotAgentVisibilityPatchRequest } from "@/features/ultra-chatbot-agent/server/visibility";
 import {
   buildUltraChatbotAgentVisitorCookie,
   getOrCreateUltraChatbotAgentVisitorId,
 } from "@/features/ultra-chatbot-agent/server/viewer-context";
+import { handleUltraChatbotAgentVisibilityPatchRequest } from "@/features/ultra-chatbot-agent/server/visibility";
 
 interface RouteContext {
   params: Promise<{

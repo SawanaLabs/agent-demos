@@ -1,11 +1,10 @@
 import { type UIMessage, validateUIMessages } from "ai";
-
+import { streamLoopAgent } from "./chat";
 import {
   getLoopAgentEnv,
   getLoopAgentSetupState,
   type LoopAgentEnv,
 } from "./env";
-import { streamLoopAgent } from "./chat";
 import { resolveLoopAgentChatModel } from "./model";
 
 interface LoopAgentRequestBody {

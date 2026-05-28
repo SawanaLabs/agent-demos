@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  getMcpAgentConfig,
-  getMcpAgentSetupState,
-} from "./env";
+import { getMcpAgentConfig, getMcpAgentSetupState } from "./env";
 
 describe("mcp-agent env", () => {
   it("returns chat config from the feature-local env contract", () => {

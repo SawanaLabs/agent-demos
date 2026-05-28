@@ -23,10 +23,10 @@ import {
   createCustomerMemoryCompactionStore,
 } from "./compaction-store";
 import {
+  type CustomerMemoryAgentEnv,
   createCustomerMemoryAgentGateway,
   getCustomerMemoryAgentConfig,
   getCustomerMemoryAgentEnv,
-  type CustomerMemoryAgentEnv,
 } from "./env";
 import { createCustomerMemoryLifecycle } from "./memory-lifecycle";
 import {

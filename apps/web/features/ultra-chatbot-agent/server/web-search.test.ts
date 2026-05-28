@@ -35,13 +35,14 @@ describe("ultra chatbot agent web search tool", () => {
       text: "Tesla investor relations.",
     });
 
-    const { createUltraChatbotAgentWebSearchTool } = await importWebSearchModule();
+    const { createUltraChatbotAgentWebSearchTool } =
+      await importWebSearchModule();
     const tool = createUltraChatbotAgentWebSearchTool({
       model: {} as never,
       webSearchTool: {} as never,
     });
 
-    const result = await tool.execute!(
+    const result = await tool.execute?.(
       { query: "Tesla latest" },
       {
         abortSignal: undefined,
@@ -72,13 +73,14 @@ describe("ultra chatbot agent web search tool", () => {
       ].join("\n"),
     });
 
-    const { createUltraChatbotAgentWebSearchTool } = await importWebSearchModule();
+    const { createUltraChatbotAgentWebSearchTool } =
+      await importWebSearchModule();
     const tool = createUltraChatbotAgentWebSearchTool({
       model: {} as never,
       webSearchTool: {} as never,
     });
 
-    const result = await tool.execute!(
+    const result = await tool.execute?.(
       { query: "Tesla latest" },
       {
         abortSignal: undefined,

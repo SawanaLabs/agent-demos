@@ -1,9 +1,9 @@
 "use client";
 
-import type { DeepPartial } from "ai";
 import { Badge } from "@workspace/ui/components/badge";
 import { Progress } from "@workspace/ui/components/progress";
 import { cn } from "@workspace/ui/lib/utils";
+import type { DeepPartial } from "ai";
 
 import type { ObjectGenerationRecord } from "../record";
 import type { ObjectGenerationResult } from "../schema";
@@ -93,12 +93,12 @@ export function ObjectGenerationResultCard({
             {toTitleCase(result.decision)}
           </Badge>
         ) : null}
-        {riskScore !== null ? (
+        {riskScore === null ? null : (
           <Badge variant="outline">Risk {riskScore}/100</Badge>
-        ) : null}
+        )}
       </div>
 
-      {riskScore !== null ? (
+      {riskScore === null ? null : (
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs">
             <span>Risk score</span>
@@ -108,7 +108,7 @@ export function ObjectGenerationResultCard({
           </div>
           <Progress value={riskScore} />
         </div>
-      ) : null}
+      )}
 
       {record ? (
         <section className="space-y-2">
@@ -116,32 +116,36 @@ export function ObjectGenerationResultCard({
             Recorded output
           </p>
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{getRecordStatusCopy(record.status)}</Badge>
+            <Badge variant="outline">
+              {getRecordStatusCopy(record.status)}
+            </Badge>
             <Badge variant="outline">Record {record.id.slice(0, 8)}</Badge>
             {record.recordedAt ? (
               <Badge variant="outline">
                 {new Date(record.recordedAt).toLocaleTimeString()}
               </Badge>
             ) : null}
-            {record.usage?.inputTokens !== undefined ? (
+            {record.usage?.inputTokens === undefined ? null : (
               <Badge variant="outline">Input {record.usage.inputTokens}</Badge>
-            ) : null}
-            {record.usage?.outputTokens !== undefined ? (
-              <Badge variant="outline">Output {record.usage.outputTokens}</Badge>
-            ) : null}
-            {record.usage?.totalTokens !== undefined ? (
+            )}
+            {record.usage?.outputTokens === undefined ? null : (
+              <Badge variant="outline">
+                Output {record.usage.outputTokens}
+              </Badge>
+            )}
+            {record.usage?.totalTokens === undefined ? null : (
               <Badge variant="outline">Total {record.usage.totalTokens}</Badge>
-            ) : null}
-            {record.usage?.reasoningTokens !== undefined ? (
+            )}
+            {record.usage?.reasoningTokens === undefined ? null : (
               <Badge variant="outline">
                 Reasoning {record.usage.reasoningTokens}
               </Badge>
-            ) : null}
-            {record.usage?.cachedInputTokens !== undefined ? (
+            )}
+            {record.usage?.cachedInputTokens === undefined ? null : (
               <Badge variant="outline">
                 Cache {record.usage.cachedInputTokens}
               </Badge>
-            ) : null}
+            )}
           </div>
           <p
             className={cn(
@@ -178,8 +182,12 @@ export function ObjectGenerationResultCard({
                 key={`${category.label ?? "category"}-${index}`}
                 variant="outline"
               >
-                <span className="font-medium">{category.label ?? "Category"}</span>
-                {category.severity ? ` · ${toTitleCase(category.severity)}` : ""}
+                <span className="font-medium">
+                  {category.label ?? "Category"}
+                </span>
+                {category.severity
+                  ? ` · ${toTitleCase(category.severity)}`
+                  : ""}
               </Badge>
             ))}
           </div>
@@ -198,9 +206,13 @@ export function ObjectGenerationResultCard({
                 key={`${finding.title ?? "finding"}-${index}`}
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-medium text-sm">{finding.title ?? "Finding"}</p>
+                  <p className="font-medium text-sm">
+                    {finding.title ?? "Finding"}
+                  </p>
                   {finding.severity ? (
-                    <Badge variant="outline">{toTitleCase(finding.severity)}</Badge>
+                    <Badge variant="outline">
+                      {toTitleCase(finding.severity)}
+                    </Badge>
                   ) : null}
                   {finding.policyLabel ? (
                     <Badge variant="outline">{finding.policyLabel}</Badge>

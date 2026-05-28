@@ -54,8 +54,6 @@ describe("ultra chatbot agent model catalog", () => {
 
   it("guards runtime requests against unknown model ids", () => {
     expect(isUltraChatbotAgentModelId("openai/gpt-5-mini")).toBe(true);
-    expect(isUltraChatbotAgentModelId("anthropic/claude-sonnet-4")).toBe(
-      false
-    );
+    expect(isUltraChatbotAgentModelId("anthropic/claude-sonnet-4")).toBe(false);
   });
 });

@@ -34,8 +34,8 @@ export async function RagChatbotScreen() {
           chatModel={runtimeState.chatModel}
           isChatAvailable={runtimeState.isChatAvailable}
           nodeVersion={runtimeState.nodeVersion}
-          sourceDocument={runtimeState.sourceDocument}
           setupMessage={runtimeState.setupMessage}
+          sourceDocument={runtimeState.sourceDocument}
         />
       </div>
     </main>

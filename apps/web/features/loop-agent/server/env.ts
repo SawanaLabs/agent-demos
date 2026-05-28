@@ -136,7 +136,7 @@ export function getLoopAgentSetupState(
 
 export function createLoopAgentGateway(
   env: LoopAgentEnv = getLoopAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getLoopAgentConfig(env);
 
   return createGateway({

@@ -1,11 +1,10 @@
 import { InputGuardrailTripwireTriggered } from "@openai/agents";
 import { describe, expect, it } from "vitest";
-
+import { OpenAiAgentsSdkDemoRunInputError } from "./running";
 import {
   getOpenAiAgentsSdkDemoRuntimeState,
   handleOpenAiAgentsSdkDemoRequest,
 } from "./runtime";
-import { OpenAiAgentsSdkDemoRunInputError } from "./running";
 
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
 
@@ -16,7 +15,7 @@ describe("openai agents sdk demo runtime", () => {
         body: JSON.stringify({ messages: [] }),
         method: "POST",
       }),
-      {},
+      {}
     );
 
     expect(response.status).toBe(500);
@@ -29,7 +28,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       aiSdkExtensionProfile: {
         modelAdapter: {
@@ -123,7 +122,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       chatModel: "openai/gpt-5.4-mini",
       isChatAvailable: true,
@@ -137,7 +136,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -169,7 +168,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -247,7 +246,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -268,7 +267,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -300,7 +299,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -340,7 +339,7 @@ describe("openai agents sdk demo runtime", () => {
         AI_GATEWAY_API_KEY: "gateway-key",
         OPENAI_AGENTS_DISABLE_TRACING: "1",
         OPENAI_AGENTS_TRACING_API_KEY: "trace-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -376,7 +375,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -403,7 +402,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       contextProfile: {
         localContextPrimitive: "RunContext",
@@ -437,7 +436,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         OPENAI_AGENTS_VECTOR_STORE_IDS: "vs_123, vs_456",
-      }).toolCatalog,
+      }).toolCatalog
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -445,7 +444,7 @@ describe("openai agents sdk demo runtime", () => {
           kind: "hosted",
           name: "file_search",
         }),
-      ]),
+      ])
     );
   });
 
@@ -454,7 +453,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
-      }).toolCatalog,
+      }).toolCatalog
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -467,7 +466,7 @@ describe("openai agents sdk demo runtime", () => {
           kind: "function",
           name: "draft_financial_follow_up",
         }),
-      ]),
+      ])
     );
   });
 
@@ -476,7 +475,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -510,7 +509,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -539,7 +538,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -573,7 +572,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -596,7 +595,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       aiSdkExtensionProfile: {
         modelAdapter: {
@@ -630,7 +629,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -653,7 +652,7 @@ describe("openai agents sdk demo runtime", () => {
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -674,7 +673,7 @@ describe("openai agents sdk demo runtime", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
-      }),
+      })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
         expect.objectContaining({
@@ -709,7 +708,7 @@ describe("openai agents sdk demo runtime", () => {
           ],
         }),
         method: "POST",
-      },
+      }
     );
     const response = await handleOpenAiAgentsSdkDemoRequest(
       request,
@@ -722,7 +721,7 @@ describe("openai agents sdk demo runtime", () => {
             messageCount: messages.length,
             signalMatches: options?.signal === request.signal,
           }),
-      },
+      }
     );
 
     expect(response.status).toBe(200);
@@ -769,7 +768,7 @@ describe("openai agents sdk demo runtime", () => {
             },
           });
         },
-      },
+      }
     );
 
     expect(response.status).toBe(400);
@@ -798,10 +797,10 @@ describe("openai agents sdk demo runtime", () => {
       {
         streamOpenAiAgentsSdkDemo: async () => {
           throw new OpenAiAgentsSdkDemoRunInputError(
-            "At least one user message is required before starting an agent run.",
+            "At least one user message is required before starting an agent run."
           );
         },
-      },
+      }
     );
 
     expect(response.status).toBe(400);
@@ -831,16 +830,16 @@ describe("openai agents sdk demo runtime", () => {
       {
         streamOpenAiAgentsSdkDemo: async () => {
           throw new Error(
-            "400 At least one user message is required in the input",
+            "400 At least one user message is required in the input"
           );
         },
-      },
+      }
     );
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
       error: expect.stringContaining(
-        "AI Gateway rejected the OpenAI Agents SDK function-tool continuation request",
+        "AI Gateway rejected the OpenAI Agents SDK function-tool continuation request"
       ),
     });
   });

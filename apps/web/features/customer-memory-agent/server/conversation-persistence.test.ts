@@ -39,7 +39,12 @@ function createMessages(): UIMessage[] {
   return [
     {
       id: "user-1",
-      parts: [{ text: "Remember that compliance edits are due Tuesday.", type: "text" }],
+      parts: [
+        {
+          text: "Remember that compliance edits are due Tuesday.",
+          type: "text",
+        },
+      ],
       role: "user",
     },
   ];
@@ -58,7 +63,8 @@ describe("customer memory conversation persistence", () => {
   });
 
   it("uses AI SDK server-side message id generation for persisted assistant responses", async () => {
-    const { streamCustomerMemoryConversation } = await importConversationModule();
+    const { streamCustomerMemoryConversation } =
+      await importConversationModule();
     const originalMessages = createMessages();
 
     const response = await streamCustomerMemoryConversation(
@@ -87,7 +93,8 @@ describe("customer memory conversation persistence", () => {
     );
 
     const firstGeneratedId = aiMockState.responseOptions?.generateMessageId?.();
-    const secondGeneratedId = aiMockState.responseOptions?.generateMessageId?.();
+    const secondGeneratedId =
+      aiMockState.responseOptions?.generateMessageId?.();
 
     expect(firstGeneratedId).toMatch(/^cm-msg/);
     expect(secondGeneratedId).toMatch(/^cm-msg/);

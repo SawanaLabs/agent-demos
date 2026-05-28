@@ -17,7 +17,8 @@ describe("openai agents sdk demo voice extension transports", () => {
         openAiApiKeyEnvVar: "OPENAI_API_KEY",
         runtimeContract: "cloudflare-worker-runtime",
         sdkPrimitive: "CloudflareRealtimeTransportLayer",
-        sourceGuide: "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
+        sourceGuide:
+          "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
         status: "setup-required",
         transport: "WebSocket",
         workflowName: "openai-agents-sdk-demo-voice-cloudflare",
@@ -29,7 +30,8 @@ describe("openai agents sdk demo voice extension transports", () => {
         openAiApiKeyEnvVar: "OPENAI_API_KEY",
         runtimeContract: "bring-your-own-websocket-server",
         sdkPrimitive: "TwilioRealtimeTransportLayer",
-        sourceGuide: "https://openai.github.io/openai-agents-js/extensions/twilio/",
+        sourceGuide:
+          "https://openai.github.io/openai-agents-js/extensions/twilio/",
         status: "setup-required",
         transport: "WebSocket",
         workflowName: "openai-agents-sdk-demo-voice-twilio",

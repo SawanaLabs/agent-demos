@@ -141,7 +141,7 @@ export function getTraceEvalAgentSetupState(
 
 export function createTraceEvalAgentGateway(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getTraceEvalAgentConfig(env);
 
   return createGateway({

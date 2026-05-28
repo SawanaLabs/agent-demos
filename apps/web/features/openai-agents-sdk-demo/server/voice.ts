@@ -1,42 +1,42 @@
+import { getOpenAiAgentsSdkDemoVoiceLaneProfile } from "../voice-lane";
+import {
+  getOpenAiAgentsSdkDemoCloudflareWorkerAppProfile,
+  type OpenAiAgentsSdkDemoCloudflareWorkerAppProfile,
+} from "./voice-cloudflare-app";
+import {
+  getOpenAiAgentsSdkDemoCloudflareWorkerProfile,
+  type OpenAiAgentsSdkDemoCloudflareWorkerProfile,
+} from "./voice-cloudflare-worker";
+import {
+  getOpenAiAgentsSdkDemoCloudflareWorkerModuleProfile,
+  type OpenAiAgentsSdkDemoCloudflareWorkerModuleProfile,
+} from "./voice-cloudflare-worker-module";
+import { getOpenAiAgentsSdkDemoVoiceExtensionProfiles } from "./voice-extensions";
 import { getOpenAiAgentsSdkDemoVoiceClientSecretRouteState } from "./voice-realtime";
 import {
   getOpenAiAgentsSdkDemoServerAudioLaneProfile,
   type OpenAiAgentsSdkDemoServerAudioLaneProfile,
 } from "./voice-server-audio";
 import {
-  getOpenAiAgentsSdkDemoServerVoiceSessionProfile,
-  type OpenAiAgentsSdkDemoServerVoiceSessionProfile,
-} from "./voice-websocket";
-import {
   getOpenAiAgentsSdkDemoSipVoiceSessionProfile,
   type OpenAiAgentsSdkDemoSipVoiceSessionProfile,
 } from "./voice-sip";
-import {
-  getOpenAiAgentsSdkDemoTwilioCallControlProfile,
-  type OpenAiAgentsSdkDemoTwilioCallControlProfile,
-} from "./voice-twilio-route";
-import {
-  getOpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile,
-  type OpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile,
-} from "./voice-twilio-bridge";
 import {
   getOpenAiAgentsSdkDemoTwilioMediaStreamServerProfile,
   type OpenAiAgentsSdkDemoTwilioMediaStreamServerProfile,
 } from "./voice-twilio-app";
 import {
-  getOpenAiAgentsSdkDemoCloudflareWorkerProfile,
-  type OpenAiAgentsSdkDemoCloudflareWorkerProfile,
-} from "./voice-cloudflare-worker";
+  getOpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile,
+  type OpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile,
+} from "./voice-twilio-bridge";
 import {
-  getOpenAiAgentsSdkDemoCloudflareWorkerAppProfile,
-  type OpenAiAgentsSdkDemoCloudflareWorkerAppProfile,
-} from "./voice-cloudflare-app";
+  getOpenAiAgentsSdkDemoTwilioCallControlProfile,
+  type OpenAiAgentsSdkDemoTwilioCallControlProfile,
+} from "./voice-twilio-route";
 import {
-  getOpenAiAgentsSdkDemoCloudflareWorkerModuleProfile,
-  type OpenAiAgentsSdkDemoCloudflareWorkerModuleProfile,
-} from "./voice-cloudflare-worker-module";
-import { getOpenAiAgentsSdkDemoVoiceExtensionProfiles } from "./voice-extensions";
-import { getOpenAiAgentsSdkDemoVoiceLaneProfile } from "../voice-lane";
+  getOpenAiAgentsSdkDemoServerVoiceSessionProfile,
+  type OpenAiAgentsSdkDemoServerVoiceSessionProfile,
+} from "./voice-websocket";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -51,25 +51,24 @@ export interface OpenAiAgentsSdkDemoVoiceProfile {
     status: "configured" | "setup-required";
     transport: "WebRTC";
   };
-  lane: ReturnType<typeof getOpenAiAgentsSdkDemoVoiceLaneProfile>;
-  notes: string;
   cloudflareWorkerApp: OpenAiAgentsSdkDemoCloudflareWorkerAppProfile;
   cloudflareWorkerModule: OpenAiAgentsSdkDemoCloudflareWorkerModuleProfile;
   cloudflareWorkerRuntime: OpenAiAgentsSdkDemoCloudflareWorkerProfile;
+  lane: ReturnType<typeof getOpenAiAgentsSdkDemoVoiceLaneProfile>;
+  notes: string;
   providerExtensions: ReturnType<
     typeof getOpenAiAgentsSdkDemoVoiceExtensionProfiles
   >;
   serverAudioLane: OpenAiAgentsSdkDemoServerAudioLaneProfile;
-  sipTransport: OpenAiAgentsSdkDemoSipVoiceSessionProfile;
   serverTransport: OpenAiAgentsSdkDemoServerVoiceSessionProfile & {
     credentialContract: "server-api-key";
-    sdkPrimitive:
-      "new OpenAIRealtimeWebSocket({ useInsecureApiKey: true }) + RealtimeSession";
+    sdkPrimitive: "new OpenAIRealtimeWebSocket({ useInsecureApiKey: true }) + RealtimeSession";
   };
   sessionPrimitive: "RealtimeSession";
+  sipTransport: OpenAiAgentsSdkDemoSipVoiceSessionProfile;
   sourceGuide: string;
-  supportedInsideCurrentWorkspace: true;
   supportedInsideCurrentChatRoute: false;
+  supportedInsideCurrentWorkspace: true;
   twilioCallControl: OpenAiAgentsSdkDemoTwilioCallControlProfile;
   twilioMediaStreamBridge: OpenAiAgentsSdkDemoTwilioMediaStreamBridgeProfile;
   twilioMediaStreamServer: OpenAiAgentsSdkDemoTwilioMediaStreamServerProfile;
@@ -100,8 +99,7 @@ export function getOpenAiAgentsSdkDemoVoiceProfile(
     cloudflareWorkerApp: getOpenAiAgentsSdkDemoCloudflareWorkerAppProfile(env),
     cloudflareWorkerModule:
       getOpenAiAgentsSdkDemoCloudflareWorkerModuleProfile(env),
-    cloudflareWorkerRuntime:
-      getOpenAiAgentsSdkDemoCloudflareWorkerProfile(env),
+    cloudflareWorkerRuntime: getOpenAiAgentsSdkDemoCloudflareWorkerProfile(env),
     providerExtensions: getOpenAiAgentsSdkDemoVoiceExtensionProfiles(env),
     serverAudioLane: getOpenAiAgentsSdkDemoServerAudioLaneProfile(env),
     sipTransport: sipTransportProfile,

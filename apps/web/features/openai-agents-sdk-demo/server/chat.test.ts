@@ -94,7 +94,7 @@ const {
     .fn()
     .mockImplementation(function MockMcpServer(
       this: { name: string; url: string },
-      options: { name: string; url: string },
+      options: { name: string; url: string }
     ) {
       this.name = options.name;
       this.url = options.url;
@@ -231,7 +231,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         handoffDescription: string;
         name: string;
       },
-      config: Record<string, unknown>,
+      config: Record<string, unknown>
     ) {
       this.asTool = ({ toolName }) => ({
         kind: "agent-as-tool",
@@ -250,7 +250,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         config: Record<string, unknown>;
         name: string;
       },
-      config: Record<string, unknown>,
+      config: Record<string, unknown>
     ) {
       this.asTool = ({ toolName }) => ({
         kind: "agent-as-tool",
@@ -262,14 +262,14 @@ describe("streamOpenAiAgentsSdkDemo", () => {
     });
     ManifestMock.mockImplementation(function MockManifest(
       this: { config: unknown },
-      config: unknown,
+      config: unknown
     ) {
       this.config = config;
     });
     UnixLocalSandboxClientMock.mockImplementation(
       function MockSandboxClient(this: { backendId: string }) {
         this.backendId = "unix_local";
-      },
+      }
     );
     localDirMock.mockImplementation((options: { src: string }) => ({
       kind: "local-dir",
@@ -280,7 +280,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         kind: "function-tool",
         name: options.name,
         needsApproval: options.needsApproval,
-      }),
+      })
     );
     webSearchToolMock.mockReturnValue({
       kind: "hosted-tool",
@@ -295,7 +295,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       name: "image_generation",
     });
     generateTraceIdMock.mockReturnValue(
-      "trace_demo_1234567890abcdef1234567890ab",
+      "trace_demo_1234567890abcdef1234567890ab"
     );
     handoffMock.mockImplementation(
       (
@@ -303,13 +303,13 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         options: {
           toolDescriptionOverride?: string;
           toolNameOverride?: string;
-        },
+        }
       ) => ({
         agentName: agent.name,
         kind: "handoff",
         toolDescription: options.toolDescriptionOverride,
         toolName: options.toolNameOverride ?? `transfer_to_${agent.name}`,
-      }),
+      })
     );
     toolSearchToolMock.mockReturnValue({
       kind: "hosted-tool",
@@ -317,7 +317,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
     });
     openAiConstructorMock.mockImplementation(function MockOpenAI(
       this: { kind: string; config: unknown },
-      config: unknown,
+      config: unknown
     ) {
       this.kind = "gateway-openai-client";
       this.config = config;
@@ -331,7 +331,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
           });
           controller.close();
         },
-      }),
+      })
     );
     createUiMessageStreamMock.mockImplementation(({ execute, onError }) => ({
       execute,
@@ -339,7 +339,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       onError,
     }));
     createUiMessageStreamResponseMock.mockReturnValue(
-      Response.json({ ok: true }),
+      Response.json({ ok: true })
     );
     connectMcpServersMock.mockResolvedValue({
       active: [],
@@ -381,7 +381,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       {
         AI_GATEWAY_API_KEY: "gateway-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
-      },
+      }
     );
 
     expect(response.status).toBe(200);
@@ -404,7 +404,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         (config) =>
           typeof config === "object" &&
           config !== null &&
-          config.name === "OpenAI Agents SDK Demo",
+          config.name === "OpenAI Agents SDK Demo"
       );
 
     expect(mainAgentConfig).toMatchObject(
@@ -495,7 +495,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
             name: "sandbox_workspace_agent",
           },
         ]),
-      }),
+      })
     );
     const instructions = mainAgentConfig?.instructions as
       | ((...args: unknown[]) => string)
@@ -515,8 +515,8 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain("Do not mention internal helper or tool names");
     expect(
       instructions?.(
@@ -532,8 +532,8 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain("Use image_generation for image requests");
     expect(
       instructions?.(
@@ -549,10 +549,10 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain(
-      "For a brief web-search summary, use the hosted web_search tool directly",
+      "For a brief web-search summary, use the hosted web_search tool directly"
     );
     expect(
       instructions?.(
@@ -568,10 +568,10 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain(
-      "Use build_research_brief only at the start of an investment research",
+      "Use build_research_brief only at the start of an investment research"
     );
     expect(
       instructions?.(
@@ -587,10 +587,10 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain(
-      "Use a handoff when one specialist should take over the conversation directly.",
+      "Use a handoff when one specialist should take over the conversation directly."
     );
     expect(
       instructions?.(
@@ -606,8 +606,8 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain("default to Tesla");
     expect(
       instructions?.(
@@ -623,10 +623,10 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         {
           name: "OpenAI Agents SDK Demo",
-        },
-      ),
+        }
+      )
     ).toContain(
-      "The current AI Gateway Responses path cannot return a renderable image_generation artifact to this chat surface.",
+      "The current AI Gateway Responses path cannot return a renderable image_generation artifact to this chat surface."
     );
     expect(runMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -669,18 +669,18 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         tracingDisabled: false,
         workflowName: "openai-agents-sdk-demo",
-      }),
+      })
     );
     expect(createAiSdkUiMessageStreamMock).toHaveBeenCalledWith(
       expect.objectContaining({
         [Symbol.asyncIterator]: expect.any(Function),
-      }),
+      })
     );
     expect(createUiMessageStreamMock).toHaveBeenCalledWith(
       expect.objectContaining({
         execute: expect.any(Function),
         onError: expect.any(Function),
-      }),
+      })
     );
     expect(createUiMessageStreamResponseMock).toHaveBeenCalledWith({
       stream: expect.objectContaining({
@@ -729,11 +729,11 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ execute, onError }] = createUiMessageStreamMock.mock.calls.map(
-      ([options]) => options,
+      ([options]) => options
     );
     const merge = vi.fn();
     const write = vi.fn();
@@ -795,14 +795,14 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       type: "message-metadata",
     });
     expect(
-      onError(new Error("Model 'openai/gpt-5.4-mini' not found")),
+      onError(new Error("Model 'openai/gpt-5.4-mini' not found"))
     ).toContain("Model 'openai/gpt-5.4-mini' not found");
     expect(
       onError(
-        new Error("400 At least one user message is required in the input"),
-      ),
+        new Error("400 At least one user message is required in the input")
+      )
     ).toContain(
-      "AI Gateway rejected the OpenAI Agents SDK function-tool continuation request",
+      "AI Gateway rejected the OpenAI Agents SDK function-tool continuation request"
     );
     expect(onError("plain-string-error")).toBe("The agent stream failed.");
   });
@@ -822,7 +822,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
             });
             controller.close();
           },
-        }),
+        })
     );
     runMock.mockResolvedValueOnce({
       completed: Promise.resolve(),
@@ -864,7 +864,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ execute }] = createUiMessageStreamMock.mock.calls
@@ -953,7 +953,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ execute }] = createUiMessageStreamMock.mock.calls
@@ -1047,7 +1047,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     expect(runMock).toHaveBeenLastCalledWith(
@@ -1085,7 +1085,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         },
         tracingDisabled: false,
         workflowName: "openai-agents-sdk-demo",
-      }),
+      })
     );
   });
 
@@ -1134,7 +1134,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ execute }] = createUiMessageStreamMock.mock.calls
@@ -1290,12 +1290,12 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     expect(RunStateMock.fromString).toHaveBeenCalledWith(
       expect.anything(),
-      "serialized-run-state",
+      "serialized-run-state"
     );
     expect(approve).toHaveBeenCalledWith(interruption);
     expect(reject).not.toHaveBeenCalled();
@@ -1309,7 +1309,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
           client: expect.anything(),
         }),
         stream: true,
-      }),
+      })
     );
 
     const [{ execute }] = createUiMessageStreamMock.mock.calls
@@ -1403,8 +1403,8 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         ],
         {
           AI_GATEWAY_API_KEY: "gateway-key",
-        },
-      ),
+        }
+      )
     ).rejects.toThrow("A tool approval is pending");
 
     expect(runMock).not.toHaveBeenCalled();
@@ -1421,7 +1421,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ onError }] = createUiMessageStreamMock.mock.calls
@@ -1429,7 +1429,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       .map(([options]) => options);
 
     expect(onError(new Error("terminated"))).toContain(
-      "image generation is blocked",
+      "image generation is blocked"
     );
   });
 
@@ -1453,7 +1453,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
           });
           controller.close();
         },
-      }),
+      })
     );
     runMock.mockResolvedValueOnce({
       completed: Promise.resolve(),
@@ -1479,11 +1479,11 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ execute }] = createUiMessageStreamMock.mock.calls.map(
-      ([options]) => options,
+      ([options]) => options
     );
     let mergedStream: ReadableStream | undefined;
     const write = vi.fn();
@@ -1497,9 +1497,11 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       },
     });
 
-    expect(mergedStream).toBeDefined();
+    if (!mergedStream) {
+      throw new Error("Expected image generation stream to be merged.");
+    }
 
-    const reader = mergedStream!.getReader();
+    const reader = mergedStream.getReader();
     const chunks: unknown[] = [];
 
     while (true) {
@@ -1582,11 +1584,11 @@ describe("streamOpenAiAgentsSdkDemo", () => {
       ],
       {
         AI_GATEWAY_API_KEY: "gateway-key",
-      },
+      }
     );
 
     const [{ onError }] = createUiMessageStreamMock.mock.calls.map(
-      ([options]) => options,
+      ([options]) => options
     );
 
     expect(
@@ -1596,8 +1598,8 @@ describe("streamOpenAiAgentsSdkDemo", () => {
             name: "prompt_scope_guardrail",
             type: "input",
           },
-        }),
-      ),
+        })
+      )
     ).toContain('Input guardrail "prompt_scope_guardrail" blocked the request');
     expect(
       onError(
@@ -1606,10 +1608,10 @@ describe("streamOpenAiAgentsSdkDemo", () => {
             name: "investment_advice_guardrail",
             type: "output",
           },
-        }),
-      ),
+        })
+      )
     ).toContain(
-      'Output guardrail "investment_advice_guardrail" blocked the response',
+      'Output guardrail "investment_advice_guardrail" blocked the response'
     );
   });
 
@@ -1627,7 +1629,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
         AI_GATEWAY_CHAT_MODEL: "anthropic/claude-sonnet-4.5",
         OPENAI_AGENTS_MODEL: "openai/gpt-5.4-mini",
         OPENAI_AGENTS_REASONING_EFFORT: "high",
-      },
+      }
     );
 
     expect(agentConstructorMock).toHaveBeenCalledWith(
@@ -1641,7 +1643,7 @@ describe("streamOpenAiAgentsSdkDemo", () => {
             verbosity: "low",
           },
         },
-      }),
+      })
     );
   });
 });

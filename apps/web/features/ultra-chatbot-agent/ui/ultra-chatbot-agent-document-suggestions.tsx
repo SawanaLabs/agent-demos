@@ -10,8 +10,9 @@ export function UltraChatbotAgentDocumentSuggestions({
 }) {
   if (suggestions.length === 0) {
     return (
-      <div className="border border-dashed border-foreground/10 px-3 py-4 text-muted-foreground text-xs/relaxed">
-        Ask the agent to review this document when you want sentence-level improvement suggestions.
+      <div className="border border-foreground/10 border-dashed px-3 py-4 text-muted-foreground text-xs/relaxed">
+        Ask the agent to review this document when you want sentence-level
+        improvement suggestions.
       </div>
     );
   }

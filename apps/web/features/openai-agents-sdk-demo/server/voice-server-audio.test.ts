@@ -111,14 +111,12 @@ describe("openai agents sdk demo server audio lane", () => {
       ?.forEach((listener) =>
         listener({ data: audioChunk, responseId: "resp_123", type: "audio" })
       );
-    events
-      .get("transport_event")
-      ?.forEach((listener) =>
-        listener({
-          transcript: "Tesla",
-          type: "conversation.item.input_audio_transcription.completed",
-        })
-      );
+    events.get("transport_event")?.forEach((listener) =>
+      listener({
+        transcript: "Tesla",
+        type: "conversation.item.input_audio_transcription.completed",
+      })
+    );
     events.get("audio_start")?.forEach((listener) => listener());
     events.get("audio_stopped")?.forEach((listener) => listener());
     events.get("audio_interrupted")?.forEach((listener) => listener());

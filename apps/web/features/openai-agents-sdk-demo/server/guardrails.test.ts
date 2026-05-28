@@ -20,7 +20,7 @@ describe("openai agents sdk demo guardrails", () => {
             sessionId: "session_demo_1",
           },
         },
-      } as never),
+      } as never)
     ).resolves.toMatchObject({
       outputInfo: {
         matchedPolicy: "direct-investment-recommendation",

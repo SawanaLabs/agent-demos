@@ -19,8 +19,7 @@ export function normalizeUltraChatbotAgentCapabilities(
 
   return {
     sandboxEnabled:
-      "sandboxEnabled" in input &&
-      typeof input.sandboxEnabled === "boolean"
+      "sandboxEnabled" in input && typeof input.sandboxEnabled === "boolean"
         ? input.sandboxEnabled
         : defaults.sandboxEnabled,
   };

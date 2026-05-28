@@ -40,8 +40,8 @@ import { useMemo, useState } from "react";
 import type { StreamingAudience } from "../server/contract";
 import {
   getReplayPromptEntries,
-  useStreamingReplayPrompt,
   type ReplayPromptEntry,
+  useStreamingReplayPrompt,
 } from "./streaming-replay";
 
 function getTextContent(message: UIMessage) {
@@ -57,11 +57,16 @@ function getAudienceLabel(audience: StreamingAudience) {
       return "Buyers";
     case "support":
       return "Support";
-    case "engineers":
     default:
       return "Engineers";
   }
 }
+
+const streamingChatShellSamplePrompts = [
+  "Explain why replaying the same prompt turn is useful for developer debugging.",
+  "Draft a support-facing answer and include the custom audience context.",
+  "Show what changes between a buyer response and an engineer response.",
+] as const;
 
 interface StreamingChatShellWorkspaceProps {
   chatModel: string;
@@ -249,6 +254,25 @@ function StreamingComposer({
             </div>
           </PromptInputFooter>
         </PromptInput>
+
+        {hasMessages ? null : (
+          <div className="flex flex-wrap gap-2">
+            {streamingChatShellSamplePrompts.map((prompt) => (
+              <Button
+                key={prompt}
+                onClick={() => {
+                  handleSend(prompt);
+                }}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                <BroadcastIcon className="size-3.5" />
+                {prompt}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -264,11 +288,14 @@ function ReplayPromptCard({
     useStreamingReplayPrompt(audience, entry);
 
   return (
-    <Collapsible className="border border-foreground/10" defaultOpen={defaultOpen}>
+    <Collapsible
+      className="border border-foreground/10"
+      defaultOpen={defaultOpen}
+    >
       <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-3 py-3 text-left">
         <div className="space-y-1">
           <p className="font-medium text-sm">{title}</p>
-          <p className="text-muted-foreground text-xs/relaxed line-clamp-3">
+          <p className="line-clamp-3 text-muted-foreground text-xs/relaxed">
             {entry.promptText}
           </p>
         </div>
@@ -278,7 +305,9 @@ function ReplayPromptCard({
       <CollapsibleContent className="space-y-4 border-foreground/10 border-t px-3 py-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{getAudienceLabel(audience)}</Badge>
-          <Badge variant="outline">{entry.replayMessages.length} messages</Badge>
+          <Badge variant="outline">
+            {entry.replayMessages.length} messages
+          </Badge>
           {events.length > 0 ? (
             <Badge variant="outline">{events.length} events</Badge>
           ) : null}
@@ -324,7 +353,10 @@ function ReplayPromptCard({
         ) : null}
 
         {events.length > 0 ? (
-          <Collapsible className="border border-foreground/10" defaultOpen={false}>
+          <Collapsible
+            className="border border-foreground/10"
+            defaultOpen={false}
+          >
             <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-3 py-2 text-left">
               <div className="space-y-1">
                 <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
@@ -370,7 +402,10 @@ function StreamingDeveloperTrace({
   chat,
 }: StreamingDeveloperTraceProps) {
   const { messages } = useChat({ chat });
-  const replayEntries = useMemo(() => getReplayPromptEntries(messages), [messages]);
+  const replayEntries = useMemo(
+    () => getReplayPromptEntries(messages),
+    [messages]
+  );
   const latestEntry = replayEntries[0] ?? null;
   const historyEntries = replayEntries.slice(1);
   const hasMessages = messages.length > 0;
@@ -395,11 +430,11 @@ function StreamingDeveloperTrace({
           <Badge variant="outline">{replayEntries.length} user prompts</Badge>
         </div>
 
-        {!hasMessages ? (
+        {hasMessages ? null : (
           <p className="text-muted-foreground text-xs/relaxed">
             Send a prompt to generate replayable prompt turns.
           </p>
-        ) : null}
+        )}
 
         {latestEntry ? (
           <div className="space-y-2">

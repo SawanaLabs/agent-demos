@@ -55,7 +55,7 @@ describe("ultra chatbot agent get weather tool", () => {
           longitude: -122.4194,
           timezone: "America/Los_Angeles",
           timezone_abbreviation: "PDT",
-          utc_offset_seconds: -25200,
+          utc_offset_seconds: -25_200,
         }),
         ok: true,
       } as Response);

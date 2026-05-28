@@ -17,7 +17,10 @@ interface BuildRagPdfChunksOptions {
 
 const defaultMaxChunkLength = 700;
 function normalizeExtractedLine(text: string) {
-  return text.replace(/\s+/g, " ").replace(/\s+([,.;:!?])/g, "$1").trim();
+  return text
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .trim();
 }
 
 function normalizePageLines(text: string) {
@@ -64,9 +67,7 @@ export function buildRagPdfChunks(
     let currentChunk = "";
 
     for (const sentence of sentences) {
-      const candidate = currentChunk
-        ? `${currentChunk} ${sentence}`
-        : sentence;
+      const candidate = currentChunk ? `${currentChunk} ${sentence}` : sentence;
 
       if (candidate.length <= maxChunkLength || currentChunk.length === 0) {
         currentChunk = candidate;

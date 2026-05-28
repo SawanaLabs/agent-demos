@@ -1,4 +1,4 @@
-import { MemorySession, type AgentInputItem } from "@openai/agents";
+import { type AgentInputItem, MemorySession } from "@openai/agents";
 import type { UIMessage } from "ai";
 import { z } from "zod";
 
@@ -81,10 +81,9 @@ function getLatestAssistantSessionId(messages: UIMessage[]) {
     .reverse()
     .find((message) => message.role === "assistant");
 
-  const metadata =
-    latestAssistantMessage?.metadata as
-      | OpenAiAgentsSdkDemoMessageMetadata
-      | undefined;
+  const metadata = latestAssistantMessage?.metadata as
+    | OpenAiAgentsSdkDemoMessageMetadata
+    | undefined;
 
   return metadata?.sessionSummary?.sessionId;
 }

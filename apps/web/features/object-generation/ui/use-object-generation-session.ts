@@ -19,14 +19,14 @@ import {
   attachRecordIdToEntry,
   collectReviewPreviewUrls,
   createReviewThreadEntry,
+  type DisplayReviewThreadEntry,
   failReviewThreadEntry,
   mergePendingReviewAttachments,
+  type ReviewThreadEntry,
   readRecordIdFromResponse,
   restartReviewThreadEntry,
   stopReviewThreadEntry,
   toDisplayReviewThreadEntries,
-  type DisplayReviewThreadEntry,
-  type ReviewThreadEntry,
 } from "./object-generation-session";
 
 async function fetchObjectGenerationRecord(recordId: string) {
@@ -41,7 +41,10 @@ async function fetchObjectGenerationRecord(recordId: string) {
   return (await response.json()) as ObjectGenerationRecord;
 }
 
-function buildRecordFetchError(recordId: string, error: unknown): ObjectGenerationRecord {
+function buildRecordFetchError(
+  recordId: string,
+  error: unknown
+): ObjectGenerationRecord {
   return {
     errorMessage:
       error instanceof Error
@@ -56,17 +59,17 @@ function buildRecordFetchError(recordId: string, error: unknown): ObjectGenerati
 }
 
 export interface ObjectGenerationSessionController {
+  appendFiles: (fileList: FileList | null) => void;
   composerError: string | null;
   entries: DisplayReviewThreadEntry[];
   hasMessages: boolean;
   inputResetKey: number;
   isLoading: boolean;
   pendingAttachments: PendingReviewAttachment[];
-  streamErrorMessage: string | null;
-  appendFiles: (fileList: FileList | null) => void;
   removePendingAttachment: (attachmentId: string) => void;
   retryReview: (entry: ReviewThreadEntry) => void;
   stopReview: () => void;
+  streamErrorMessage: string | null;
   submitReview: (text: string) => Promise<void>;
 }
 
@@ -80,9 +83,9 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
   const [inputResetKey, setInputResetKey] = useState(0);
   const pendingAttachmentsRef = useRef<PendingReviewAttachment[]>([]);
   const entriesRef = useRef<ReviewThreadEntry[]>([]);
-  const latestObjectRef = useRef<DeepPartial<ObjectGenerationResult> | undefined>(
-    undefined
-  );
+  const latestObjectRef = useRef<
+    DeepPartial<ObjectGenerationResult> | undefined
+  >(undefined);
   const activeEntryIdRef = useRef<string | null>(null);
 
   const { clear, error, isLoading, object, stop, submit } = useObject<
@@ -117,7 +120,9 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
       const recordId = readRecordIdFromResponse(response);
 
       if (entryId && recordId) {
-        setEntries((current) => attachRecordIdToEntry(current, entryId, recordId));
+        setEntries((current) =>
+          attachRecordIdToEntry(current, entryId, recordId)
+        );
       }
 
       return response;
@@ -129,9 +134,12 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
         return;
       }
 
-      const currentEntry = entriesRef.current.find((entry) => entry.id === entryId);
+      const currentEntry = entriesRef.current.find(
+        (entry) => entry.id === entryId
+      );
       const recordId = currentEntry?.record?.id;
-      const result = finalObject ?? latestObjectRef.current ?? currentEntry?.result;
+      const result =
+        finalObject ?? latestObjectRef.current ?? currentEntry?.result;
       let record = currentEntry?.record ?? null;
 
       if (recordId) {
@@ -176,16 +184,17 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
     latestObjectRef.current = object;
   }, [object]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       for (const url of collectReviewPreviewUrls(
         pendingAttachmentsRef.current,
         entriesRef.current
       )) {
         URL.revokeObjectURL(url);
       }
-    };
-  }, []);
+    },
+    []
+  );
 
   function removePendingAttachment(attachmentId: string) {
     setPendingAttachments((current) => {
@@ -205,7 +214,9 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
       return;
     }
 
-    const nextAttachments = Array.from(fileList).map(buildPendingReviewAttachment);
+    const nextAttachments = Array.from(fileList).map(
+      buildPendingReviewAttachment
+    );
     setPendingAttachments((current) =>
       mergePendingReviewAttachments(current, nextAttachments)
     );
@@ -284,7 +295,8 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
   return {
     composerError,
     entries: useMemo(
-      () => toDisplayReviewThreadEntries(entries, activeEntryId, isLoading, object),
+      () =>
+        toDisplayReviewThreadEntries(entries, activeEntryId, isLoading, object),
       [entries, activeEntryId, isLoading, object]
     ),
     hasMessages: entries.length > 0,

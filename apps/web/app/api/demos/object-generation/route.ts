@@ -2,6 +2,6 @@ import { handleObjectGenerationRequest } from "@/features/object-generation/serv
 
 export const maxDuration = 30;
 
-export async function POST(request: Request) {
+export function POST(request: Request) {
   return handleObjectGenerationRequest(request);
 }

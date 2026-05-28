@@ -148,7 +148,7 @@ function getHandoffTransition(rawItem: {
     return null;
   }
 
-  if (!rawItem.sourceAgent?.name || !rawItem.targetAgent?.name) {
+  if (!(rawItem.sourceAgent?.name && rawItem.targetAgent?.name)) {
     return null;
   }
 
@@ -166,7 +166,9 @@ export function getOpenAiAgentsSdkDemoHandoffUsageMetadata({
     new Set(
       newItems
         .map((item) =>
-          getHandoffTargetName((item.rawItem ?? {}) as { agent?: { name?: string }; type?: string })
+          getHandoffTargetName(
+            (item.rawItem ?? {}) as { agent?: { name?: string }; type?: string }
+          )
         )
         .filter((value): value is string => Boolean(value))
     )
@@ -188,7 +190,7 @@ export function getOpenAiAgentsSdkDemoHandoffUsageMetadata({
   );
 
   if (handoffTargetNames.length === 0 && handoffTransitions.length === 0) {
-    return undefined;
+    return;
   }
 
   return {

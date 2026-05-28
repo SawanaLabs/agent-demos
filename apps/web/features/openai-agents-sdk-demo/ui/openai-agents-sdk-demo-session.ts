@@ -1,11 +1,11 @@
+import type { ToolPart } from "@workspace/ui/components/ai-elements/tool";
 import {
+  type FileUIPart,
   isReasoningUIPart,
   isToolUIPart,
-  type FileUIPart,
   type SourceUrlUIPart,
   type UIMessage,
 } from "ai";
-import type { ToolPart } from "@workspace/ui/components/ai-elements/tool";
 
 import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 
@@ -134,13 +134,13 @@ function hasOpenAiAgentsSdkDemoReasoningStreamSignal(message: UIMessage) {
   return (
     streamSummary.runItemEventNames.includes("reasoning_item_created") ||
     streamSummary.rawModelEventTypes.some((eventType) =>
-      eventType.toLowerCase().includes("reasoning"),
+      eventType.toLowerCase().includes("reasoning")
     )
   );
 }
 
 export function getOpenAiAgentsSdkDemoRenderableReasoningText(
-  message: UIMessage,
+  message: UIMessage
 ) {
   const reasoningText = getOpenAiAgentsSdkDemoReasoningText(message).trim();
 
@@ -157,7 +157,7 @@ export function getOpenAiAgentsSdkDemoRenderableReasoningText(
 
 export function getOpenAiAgentsSdkDemoFileParts(message: UIMessage) {
   return message.parts.filter(
-    (part): part is FileUIPart => part.type === "file",
+    (part): part is FileUIPart => part.type === "file"
   );
 }
 
@@ -167,7 +167,7 @@ export function getOpenAiAgentsSdkDemoSourceParts(message: UIMessage) {
       (part): part is SourceUrlUIPart =>
         part.type === "source-url" &&
         typeof part.sourceId === "string" &&
-        typeof part.url === "string",
+        typeof part.url === "string"
     )
     .map((part) => ({
       sourceId: part.sourceId,
@@ -188,7 +188,7 @@ export function getOpenAiAgentsSdkDemoToolParts(message: UIMessage) {
 
 export function shouldRenderOpenAiAgentsSdkDemoReasoning(
   message: UIMessage,
-  nextMessage?: UIMessage,
+  nextMessage?: UIMessage
 ) {
   const reasoningText =
     getOpenAiAgentsSdkDemoRenderableReasoningText(message).trim();
@@ -202,7 +202,7 @@ export function shouldRenderOpenAiAgentsSdkDemoReasoning(
   }
 
   const hasRespondedApproval = getOpenAiAgentsSdkDemoToolParts(message).some(
-    (part) => part.state === "approval-responded",
+    (part) => part.state === "approval-responded"
   );
 
   if (!hasRespondedApproval) {
@@ -226,7 +226,7 @@ export function hasOpenAiAgentsSdkDemoVisibleContent(message: UIMessage) {
 }
 
 export function getOpenAiAgentsSdkDemoFailedTurnRetryText(
-  messages: UIMessage[],
+  messages: UIMessage[]
 ) {
   const lastMessage = messages.at(-1);
 
@@ -270,7 +270,7 @@ export function getOpenAiAgentsSdkDemoToolName(part: ToolPart) {
 
 export function getOpenAiAgentsSdkDemoToolDisplayState(
   part: ToolPart,
-  { isMessageStreaming }: { isMessageStreaming: boolean },
+  { isMessageStreaming }: { isMessageStreaming: boolean }
 ): ToolPart["state"] {
   if (
     !isMessageStreaming &&
@@ -283,7 +283,7 @@ export function getOpenAiAgentsSdkDemoToolDisplayState(
 }
 
 export function getOpenAiAgentsSdkDemoApprovalInputFields(
-  part: ToolPart,
+  part: ToolPart
 ): OpenAiAgentsSdkDemoApprovalInputField[] {
   const input = getStringRecord(part.input);
 

@@ -2,10 +2,10 @@ import { generateText, getToolName, isToolUIPart, type UIMessage } from "ai";
 
 import type { CustomerMemoryCompactionRecord } from "./compaction-store";
 import {
+  type CustomerMemoryAgentEnv,
   createCustomerMemoryAgentGateway,
   getCustomerMemoryAgentConfig,
   getCustomerMemoryAgentEnv,
-  type CustomerMemoryAgentEnv,
 } from "./env";
 
 export const customerMemoryCompactionThreshold = 3;

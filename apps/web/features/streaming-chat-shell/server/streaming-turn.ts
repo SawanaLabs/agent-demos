@@ -1,16 +1,10 @@
-import {
-  convertToModelMessages,
-  streamText,
-  type UIMessage,
-} from "ai";
-
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import type { StreamingAudience } from "./contract";
 import {
   createStreamingChatShellGateway,
   getStreamingChatShellConfig,
   type StreamingChatShellEnv,
 } from "./env";
-
-import type { StreamingAudience } from "./contract";
 
 export type StreamingChatShellEvent =
   | { type: "start"; audience: StreamingAudience }
@@ -24,7 +18,6 @@ function buildAudienceSystemPrompt(audience: StreamingAudience) {
       return "You are a concise product explainer for technical buyers. Keep the answer business-legible and concrete.";
     case "support":
       return "You are a support-oriented assistant. Focus on action steps, constraints, and what to try next.";
-    case "engineers":
     default:
       return "You are a concise engineering assistant. Keep answers direct, implementation-aware, and explicit about assumptions.";
   }

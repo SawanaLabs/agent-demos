@@ -1,13 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
-
-import {
-  getObjectGenerationRuntimeState,
-  handleObjectGenerationRequest,
-} from "./runtime";
 import {
   clearObjectGenerationRecordsForTest,
   handleObjectGenerationRecordRequest,
 } from "./object-generation-records";
+import {
+  getObjectGenerationRuntimeState,
+  handleObjectGenerationRequest,
+} from "./runtime";
 
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
 
@@ -111,9 +110,11 @@ describe("content review runtime", () => {
         },
       ],
       openQuestions: ["Can the submitter provide evidence for the claim?"],
-      recommendedAction: "Remove the guarantee or add substantiation before publishing.",
+      recommendedAction:
+        "Remove the guarantee or add substantiation before publishing.",
       riskScore: 82,
-      summary: "The submission needs review because it makes unsupported guarantees.",
+      summary:
+        "The submission needs review because it makes unsupported guarantees.",
     };
 
     const response = await handleObjectGenerationRequest(

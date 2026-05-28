@@ -19,7 +19,9 @@ export function useUltraChatbotAgentArtifact() {
     setArtifact((current) => closeUltraChatbotAgentArtifact(current));
   }, []);
   const openArtifact = useCallback((documentId: string) => {
-    setArtifact((current) => openUltraChatbotAgentArtifact(current, documentId));
+    setArtifact((current) =>
+      openUltraChatbotAgentArtifact(current, documentId)
+    );
   }, []);
   const refreshArtifact = useCallback(() => {
     setArtifact((current) => refreshUltraChatbotAgentArtifact(current));

@@ -31,17 +31,20 @@ const pendingApprovalMessage =
   "A tool approval is pending. Approve or reject it before continuing.";
 
 function getLatestAssistantMessage(messages: UIMessage[]) {
-  return [...messages].reverse().find((message) => message.role === "assistant");
+  return [...messages]
+    .reverse()
+    .find((message) => message.role === "assistant");
 }
 
 function getLatestAssistantMetadata(messages: UIMessage[]) {
-  return getLatestAssistantMessage(messages)
-    ?.metadata as OpenAiAgentsSdkDemoMessageMetadata | undefined;
+  return getLatestAssistantMessage(messages)?.metadata as
+    | OpenAiAgentsSdkDemoMessageMetadata
+    | undefined;
 }
 
 function stringifyPreview(value: unknown) {
   if (typeof value === "undefined") {
-    return undefined;
+    return;
   }
 
   const text =
@@ -49,7 +52,7 @@ function stringifyPreview(value: unknown) {
   const normalized = text.trim();
 
   if (!normalized) {
-    return undefined;
+    return;
   }
 
   if (normalized.length <= 180) {
@@ -65,7 +68,9 @@ function getApprovalId(interruption: RunToolApprovalItem) {
     id?: string;
   };
 
-  return rawItem.id ?? rawItem.callId ?? interruption.toolName ?? "tool-approval";
+  return (
+    rawItem.id ?? rawItem.callId ?? interruption.toolName ?? "tool-approval"
+  );
 }
 
 function getToolCallId(interruption: RunToolApprovalItem) {
@@ -207,7 +212,7 @@ export function getOpenAiAgentsSdkDemoApprovalUsageMetadata({
   };
 }) {
   if (interruptions.length === 0 && responses.length === 0) {
-    return undefined;
+    return;
   }
 
   const pendingApprovals = interruptions.map((interruption) => ({

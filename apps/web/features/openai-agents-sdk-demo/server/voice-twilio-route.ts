@@ -41,7 +41,7 @@ function getRequiredTwilioMediaStreamUrl(env: DemoEnv = process.env) {
 function escapeXml(value: string) {
   return value
     .replaceAll("&", "&amp;")
-    .replaceAll("\"", "&quot;")
+    .replaceAll('"', "&quot;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }

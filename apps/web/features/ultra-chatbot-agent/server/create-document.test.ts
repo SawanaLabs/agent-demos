@@ -34,7 +34,8 @@ describe("ultra chatbot agent create document tool", () => {
       chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       visitorId: "visitor-1",
     });
-    const result = await artifactTool.execute?.({
+    const result = await artifactTool.execute?.(
+      {
         content: "Draft launch brief",
         kind: "text",
         title: "Launch brief",

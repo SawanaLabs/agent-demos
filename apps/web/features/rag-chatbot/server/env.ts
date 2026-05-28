@@ -91,8 +91,7 @@ function resolveRagChatbotEnv(env: RagChatbotEnv = getRagChatbotEnv()) {
     baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
     chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
     databaseUrl: env.DATABASE_URL,
-    embeddingModel:
-      env.AI_GATEWAY_EMBEDDING_MODEL || DEFAULT_EMBEDDING_MODEL,
+    embeddingModel: env.AI_GATEWAY_EMBEDDING_MODEL || DEFAULT_EMBEDDING_MODEL,
   };
 }
 
@@ -173,7 +172,7 @@ export function getRagChatbotIndexSetupIssue(
 
 export function createRagChatbotGateway(
   env: RagChatbotEnv = getRagChatbotEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getRagChatbotConfig(env);
 
   return createGateway({

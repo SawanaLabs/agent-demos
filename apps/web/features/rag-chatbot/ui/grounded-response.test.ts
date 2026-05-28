@@ -11,7 +11,10 @@ describe("grounded response projection", () => {
     const message: UIMessage = {
       id: "message-1",
       parts: [
-        { type: "text", text: "The manual says the logotype is the key design element." },
+        {
+          type: "text",
+          text: "The manual says the logotype is the key design element.",
+        },
         {
           type: "tool-getInformation",
           toolCallId: "tool-1",

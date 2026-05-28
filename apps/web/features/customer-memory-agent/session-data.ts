@@ -14,9 +14,9 @@ import type {
 
 export interface CustomerMemorySessionData {
   customer: CustomerMemoryProfile;
-  memoryEvents: CustomerMemoryEventRecord[];
   latestCompaction: CustomerMemoryCompactionRecord | null;
   memories: CustomerMemoryRecord[];
+  memoryEvents: CustomerMemoryEventRecord[];
   messages: UIMessage[];
   relevantMemories: RetrievedCustomerMemory[];
   thread: CustomerMemoryThreadRecord;

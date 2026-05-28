@@ -1,5 +1,5 @@
-import { isToolUIPart, type UIMessage } from "ai";
 import type { ToolPart } from "@workspace/ui/components/ai-elements/tool";
+import { isToolUIPart, type UIMessage } from "ai";
 
 export interface GroundedSource {
   citationLabel: string;
@@ -29,8 +29,7 @@ function isGroundedSource(value: unknown): value is GroundedSource {
     typeof source.content === "string" &&
     typeof source.documentUrl === "string" &&
     (source.pageLabel === null || typeof source.pageLabel === "string") &&
-    (source.sectionTitle === null ||
-      typeof source.sectionTitle === "string") &&
+    (source.sectionTitle === null || typeof source.sectionTitle === "string") &&
     typeof source.similarity === "number" &&
     typeof source.title === "string"
   );
@@ -48,7 +47,9 @@ function readSourcesFromToolPart(part: ToolPart) {
   const { sources } = part.output as { sources?: unknown[] };
 
   return Array.isArray(sources)
-    ? sources.filter((source): source is GroundedSource => isGroundedSource(source))
+    ? sources.filter((source): source is GroundedSource =>
+        isGroundedSource(source)
+      )
     : [];
 }
 

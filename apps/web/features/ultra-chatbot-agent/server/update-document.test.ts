@@ -45,8 +45,7 @@ describe("ultra chatbot agent update document tool", () => {
       },
     ]);
     aiState.generateText.mockResolvedValue({
-      text:
-        "The rollout will proceed in phased waves. Teams should communicate in plain, factual language and confirm approvals before each wave.",
+      text: "The rollout will proceed in phased waves. Teams should communicate in plain, factual language and confirm approvals before each wave.",
     });
     documentStoreState.saveDocument.mockResolvedValue({
       content:
@@ -85,7 +84,9 @@ describe("ultra chatbot agent update document tool", () => {
     expect(aiState.generateText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: expect.anything(),
-        prompt: expect.stringContaining("Rewrite this as a tighter enterprise rollout brief"),
+        prompt: expect.stringContaining(
+          "Rewrite this as a tighter enterprise rollout brief"
+        ),
         system: expect.any(String),
       })
     );

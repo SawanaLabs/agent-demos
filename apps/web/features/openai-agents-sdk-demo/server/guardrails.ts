@@ -35,7 +35,7 @@ const promptScopeGuardrail: InputGuardrail = {
       typeof input === "string" ? input : JSON.stringify(input);
     const shouldBlock =
       /(ignore\s+previous\s+instructions|reveal\s+.*system\s+prompt|bypass\s+guardrail)/i.test(
-        normalizedInput,
+        normalizedInput
       );
     const demoContext = (context as RunContext<OpenAiAgentsSdkDemoContext>)
       .context;
@@ -61,7 +61,7 @@ const investmentAdviceGuardrail: OutputGuardrail = {
         : JSON.stringify(agentOutput);
     const shouldBlock =
       /(buy recommendation|sell recommendation|strong buy|strong sell|强烈买入|强烈卖出|买入建议|卖出建议|推荐买入|推荐卖出)/i.test(
-        normalizedOutput,
+        normalizedOutput
       );
     const demoContext = (context as RunContext<OpenAiAgentsSdkDemoContext>)
       .context;
@@ -79,7 +79,7 @@ const investmentAdviceGuardrail: OutputGuardrail = {
 };
 
 function isInputGuardrailTripwire(
-  error: unknown,
+  error: unknown
 ): error is InputGuardrailTripwireTriggered {
   return (
     error instanceof InputGuardrailTripwireTriggered ||
@@ -93,7 +93,7 @@ function isInputGuardrailTripwire(
 }
 
 function isOutputGuardrailTripwire(
-  error: unknown,
+  error: unknown
 ): error is OutputGuardrailTripwireTriggered<any, any> {
   return (
     error instanceof OutputGuardrailTripwireTriggered ||
@@ -151,11 +151,11 @@ export function getOpenAiAgentsSdkDemoGuardrailUsageMetadata({
     new Set([
       ...inputGuardrailResults.map((result) => result.guardrail.name),
       ...outputGuardrailResults.map((result) => result.guardrail.name),
-    ]),
+    ])
   );
 
   if (usedGuardrailNames.length === 0) {
-    return undefined;
+    return;
   }
 
   return {

@@ -75,7 +75,7 @@ interface OpenAiAgentsSdkDemoRequestDependencies {
     options?: {
       origin?: string;
       signal?: AbortSignal;
-    },
+    }
   ) => Promise<Response> | Response;
 }
 
@@ -120,7 +120,7 @@ async function readOpenAiAgentsSdkDemoMessages(body: unknown) {
 }
 
 export function getOpenAiAgentsSdkDemoRuntimeState(
-  env: DemoEnv = process.env,
+  env: DemoEnv = process.env
 ): OpenAiAgentsSdkDemoRuntimeState {
   const chatModel = getOpenAiAgentsSdkDemoChatModel(env);
   const voiceRouteState =
@@ -170,7 +170,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
   env: DemoEnv = process.env,
   dependencies: OpenAiAgentsSdkDemoRequestDependencies = {
     streamOpenAiAgentsSdkDemo,
-  },
+  }
 ) {
   const runtimeState = getOpenAiAgentsSdkDemoRuntimeState(env);
 
@@ -179,13 +179,13 @@ export async function handleOpenAiAgentsSdkDemoRequest(
       {
         error: runtimeState.setupMessage,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
   try {
     const messages = await readOpenAiAgentsSdkDemoMessages(
-      await request.json(),
+      await request.json()
     );
 
     return await dependencies.streamOpenAiAgentsSdkDemo(messages, env, {
@@ -201,7 +201,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: error.message,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -213,7 +213,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: guardrailErrorMessage,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -225,7 +225,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: approvalErrorMessage,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -237,7 +237,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: runInputErrorMessage,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -249,7 +249,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: providerErrorMessage,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

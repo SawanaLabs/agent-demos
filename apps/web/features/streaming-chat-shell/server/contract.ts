@@ -1,4 +1,4 @@
-import { validateUIMessages, type UIMessage } from "ai";
+import { type UIMessage, validateUIMessages } from "ai";
 
 export const invalidMessagesError =
   'Expected a JSON body with a "messages" array.';

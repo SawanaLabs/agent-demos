@@ -27,7 +27,9 @@ export const ultraChatbotAgentChats = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     visitorId: varchar("visitor_id", { length: 191 }).notNull(),
     title: text("title").notNull(),
-    selectedChatModel: varchar("selected_chat_model", { length: 191 }).notNull(),
+    selectedChatModel: varchar("selected_chat_model", {
+      length: 191,
+    }).notNull(),
     visibility: varchar("visibility", {
       enum: ultraChatbotAgentVisibilityTypes,
       length: 32,
@@ -66,9 +68,10 @@ export const ultraChatbotAgentMessages = pgTable(
       .notNull(),
   },
   (table) => ({
-    chatCreatedIndex: index(
-      "ultra_chatbot_agent_messages_chat_created_idx"
-    ).on(table.chatId, table.createdAt),
+    chatCreatedIndex: index("ultra_chatbot_agent_messages_chat_created_idx").on(
+      table.chatId,
+      table.createdAt
+    ),
     chatMessageIdIndex: uniqueIndex(
       "ultra_chatbot_agent_messages_chat_message_id_idx"
     ).on(table.chatId, table.messageId),

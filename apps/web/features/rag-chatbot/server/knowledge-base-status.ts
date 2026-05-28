@@ -1,8 +1,8 @@
 import { count, eq } from "drizzle-orm";
 
 import {
-  type RagChatbotDatabaseModule,
   loadRagChatbotDatabase,
+  type RagChatbotDatabaseModule,
 } from "./database";
 import { ragChatbotSourceDocument } from "./source-document";
 

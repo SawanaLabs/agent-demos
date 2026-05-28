@@ -207,7 +207,7 @@ export function getSkillsAgentSetupState(
 
 export function createSkillsAgentGateway(
   env: SkillsAgentEnv = getSkillsAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getSkillsAgentConfig(env);
 
   return createGateway({

@@ -51,7 +51,7 @@ export function getOpenAiAgentsSdkDemoGatewayBaseUrl(env: DemoEnv) {
 }
 
 export function getOpenAiAgentsSdkDemoReasoningEffort(
-  env: DemoEnv,
+  env: DemoEnv
 ): DemoReasoningEffort {
   const configuredEffort = env.OPENAI_AGENTS_REASONING_EFFORT;
 
@@ -66,7 +66,7 @@ export function getOpenAiAgentsSdkDemoReasoningEffort(
 }
 
 export function getOpenAiAgentsSdkDemoTextVerbosity(
-  env: DemoEnv,
+  env: DemoEnv
 ): DemoTextVerbosity {
   const configuredVerbosity = env.OPENAI_AGENTS_TEXT_VERBOSITY;
 
@@ -81,7 +81,7 @@ export function getOpenAiAgentsSdkDemoTextVerbosity(
 }
 
 export function getOpenAiAgentsSdkDemoModelProfile(
-  env: DemoEnv,
+  env: DemoEnv
 ): OpenAiAgentsSdkDemoModelProfile {
   return {
     api: "responses",
@@ -98,7 +98,7 @@ export function isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(
   modelProfile: Pick<
     OpenAiAgentsSdkDemoModelProfile,
     "api" | "baseUrl" | "provider"
-  >,
+  >
 ) {
   return (
     modelProfile.api === "responses" &&

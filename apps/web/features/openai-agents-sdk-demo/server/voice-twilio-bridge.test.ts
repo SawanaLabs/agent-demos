@@ -13,7 +13,8 @@ describe("openai agents sdk demo twilio media-stream bridge", () => {
       hostingContract: "external-websocket-server",
       openAiApiKeyEnvVar: "OPENAI_API_KEY",
       sdkPrimitive: "TwilioRealtimeTransportLayer + RealtimeSession",
-      sourceGuide: "https://openai.github.io/openai-agents-js/extensions/twilio/",
+      sourceGuide:
+        "https://openai.github.io/openai-agents-js/extensions/twilio/",
       status: "setup-required",
       transport: "WebSocket",
       workflowName: "openai-agents-sdk-demo-voice-twilio",

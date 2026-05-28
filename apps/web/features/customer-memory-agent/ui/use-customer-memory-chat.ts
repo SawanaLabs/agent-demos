@@ -1,7 +1,7 @@
 "use client";
 
-import { Chat, useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import { type Chat, useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 import { useState } from "react";
 
 interface UseCustomerMemoryChatWithFactoryOptions<TMessage extends UIMessage> {

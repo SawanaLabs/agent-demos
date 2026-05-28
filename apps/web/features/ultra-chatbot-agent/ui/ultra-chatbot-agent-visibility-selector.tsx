@@ -1,6 +1,11 @@
 "use client";
 
-import { CaretDownIcon, CheckIcon, GlobeIcon, LockIcon } from "@phosphor-icons/react";
+import {
+  CaretDownIcon,
+  CheckIcon,
+  GlobeIcon,
+  LockIcon,
+} from "@phosphor-icons/react";
 import { buttonVariants } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
@@ -21,7 +26,8 @@ const ultraChatbotAgentVisibilities = [
     label: "Private",
   },
   {
-    description: "Shared-link behavior is not enabled yet, but the port keeps the public state.",
+    description:
+      "Shared-link behavior is not enabled yet, but the port keeps the public state.",
     icon: GlobeIcon,
     id: "public",
     label: "Public",
@@ -77,8 +83,9 @@ export function UltraChatbotAgentVisibilitySelector({
 }: UltraChatbotAgentVisibilitySelectorProps) {
   const [isPending, setIsPending] = useState(false);
   const selectedVisibility =
-    ultraChatbotAgentVisibilities.find((visibility) => visibility.id === value) ??
-    ultraChatbotAgentVisibilities[0];
+    ultraChatbotAgentVisibilities.find(
+      (visibility) => visibility.id === value
+    ) ?? ultraChatbotAgentVisibilities[0];
   const SelectedIcon = selectedVisibility.icon;
 
   async function handleSelect(nextVisibility: UltraChatbotAgentVisibility) {

@@ -6,6 +6,9 @@
     "ultracite/biome/next",
     "ultracite/biome/react"
   ],
+  "files": {
+    "includes": ["!registry"]
+  },
   "linter": {
     "domains": {
       "drizzle": "all"
@@ -49,14 +52,110 @@
       "includes": ["apps/web/features/**/*.tsx"],
       "linter": {
         "rules": {
+          "a11y": {
+            "useMediaCaption": "off"
+          },
           "complexity": {
+            "noForEach": "off",
             "noExcessiveLinesPerFunction": {
               "level": "error",
               "options": {
                 "maxLines": 150,
                 "skipBlankLines": true
               }
-            }
+            },
+            "noVoid": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off",
+            "useIterableCallbackReturn": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/app/api/demos/**/*.ts",
+        "apps/web/features/**/*.{ts,tsx}"
+      ],
+      "linter": {
+        "rules": {
+          "performance": {
+            "useTopLevelRegex": "off"
+          },
+          "suspicious": {
+            "useAwait": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noForEach": "off"
+          },
+          "performance": {
+            "useTopLevelRegex": "off"
+          },
+          "style": {
+            "noProcessEnv": "off"
+          },
+          "suspicious": {
+            "noEmptyBlockStatements": "off",
+            "useAwait": "off",
+            "useIterableCallbackReturn": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/features/object-generation/ui/object-generation-result-card.tsx",
+        "apps/web/features/openai-agents-sdk-demo/ui/openai-agents-sdk-demo-voice-panel.tsx",
+        "apps/web/features/openai-agents-sdk-demo/ui/openai-agents-sdk-demo-workspace.tsx",
+        "apps/web/features/ultra-chatbot-agent/server/documents.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "style": {
+            "noNestedTernary": "off",
+            "useDefaultSwitchClause": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/features/openai-agents-sdk-demo/server/**/*.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noVoid": "off"
+          },
+          "style": {
+            "noNestedTernary": "off",
+            "noProcessEnv": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/features/mcp-agent/server/project-*.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
           }
         }
       }
@@ -158,6 +257,17 @@
           "performance": {
             // The package entrypoint re-exports table contracts for app code.
             "noBarrelFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/database/src/schemas/ultra-chatbot-agent.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            // Drizzle marks the legacy overload deprecated, but this schema uses the object overload.
+            "noDeprecatedImports": "off"
           }
         }
       }

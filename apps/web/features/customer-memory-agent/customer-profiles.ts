@@ -59,7 +59,9 @@ export const customerMemoryProfiles: CustomerMemoryProfile[] = [
 ];
 
 export function getCustomerMemoryProfile(customerId: string) {
-  return customerMemoryProfiles.find((profile) => profile.id === customerId) ?? null;
+  return (
+    customerMemoryProfiles.find((profile) => profile.id === customerId) ?? null
+  );
 }
 
 export function getVisitorPrivateCustomerMemoryProfileIds() {

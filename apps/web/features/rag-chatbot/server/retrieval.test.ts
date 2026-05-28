@@ -164,11 +164,15 @@ describe("rag chatbot retrieval result", () => {
     const findMatches = vi.fn();
 
     await expect(
-      findRelevantContent("   ", {}, {
-        ensureKnowledgeBaseReady,
-        findMatches,
-        generateEmbedding,
-      })
+      findRelevantContent(
+        "   ",
+        {},
+        {
+          ensureKnowledgeBaseReady,
+          findMatches,
+          generateEmbedding,
+        }
+      )
     ).resolves.toEqual({
       answerable: false,
       message:
@@ -187,11 +191,15 @@ describe("rag chatbot retrieval result", () => {
     });
 
     await expect(
-      findRelevantContent("logotype", {}, {
-        ensureKnowledgeBaseReady,
-        findMatches: vi.fn(),
-        generateEmbedding: vi.fn(),
-      })
+      findRelevantContent(
+        "logotype",
+        {},
+        {
+          ensureKnowledgeBaseReady,
+          findMatches: vi.fn(),
+          generateEmbedding: vi.fn(),
+        }
+      )
     ).rejects.toThrow(/preindexed documents/i);
   });
 
@@ -201,11 +209,15 @@ describe("rag chatbot retrieval result", () => {
     const ensureKnowledgeBaseReady = vi.fn(async () => undefined);
 
     await expect(
-      findRelevantContent("NASA logotype", {}, {
-        ensureKnowledgeBaseReady,
-        generateEmbedding,
-        loadDatabase: databaseDouble.loadDatabase as never,
-      })
+      findRelevantContent(
+        "NASA logotype",
+        {},
+        {
+          ensureKnowledgeBaseReady,
+          generateEmbedding,
+          loadDatabase: databaseDouble.loadDatabase as never,
+        }
+      )
     ).resolves.toEqual({
       answerable: true,
       message: "Found 1 relevant indexed document snippet.",
@@ -226,10 +238,7 @@ describe("rag chatbot retrieval result", () => {
     expect(ensureKnowledgeBaseReady).toHaveBeenCalledWith({});
     expect(databaseDouble.state.matchWhereValues).toEqual(
       expect.arrayContaining([
-        expect.arrayContaining([
-          "source_slug",
-          ragChatbotSourceDocument.slug,
-        ]),
+        expect.arrayContaining(["source_slug", ragChatbotSourceDocument.slug]),
       ])
     );
   });

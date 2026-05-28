@@ -39,12 +39,18 @@ function removeToolTypesFromInput<TInputItem extends { type?: string }>(
 
 function removeToolsFromItems(items: RunItem[]) {
   return items.filter(
-    (item) => !TOOL_ITEM_TYPES.has(((item.rawItem ?? {}) as { type?: string }).type ?? "")
+    (item) =>
+      !TOOL_ITEM_TYPES.has(
+        ((item.rawItem ?? {}) as { type?: string }).type ?? ""
+      )
   );
 }
 
 export function removeAllTools<TInputItem extends { type?: string }>(
-  handoffInputData: Omit<OpenAiAgentsSdkDemoHandoffInputData, "inputHistory"> & {
+  handoffInputData: Omit<
+    OpenAiAgentsSdkDemoHandoffInputData,
+    "inputHistory"
+  > & {
     inputHistory: string | TInputItem[];
   }
 ) {

@@ -30,24 +30,23 @@ import { createUltraChatbotAgentCreateDocumentTool } from "./create-document";
 import { createUltraChatbotAgentEditDocumentTool } from "./edit-document";
 import { createUltraChatbotAgentEnableSandboxTool } from "./enable-sandbox";
 import { createUltraChatbotAgentGetWeatherTool } from "./get-weather";
-import { createUltraChatbotAgentRequestSuggestionsTool } from "./request-suggestions";
-import { createUltraChatbotAgentResearchReportTool } from "./research-report";
-import { createUltraChatbotAgentUpdateDocumentTool } from "./update-document";
-import { createUltraChatbotAgentWebSearchTool } from "./web-search";
 import {
-  getUltraChatbotAgentDefaultModel,
   getUltraChatbotAgentModelCatalog,
   isUltraChatbotAgentModelId,
   resolveUltraChatbotAgentDefaultModel,
 } from "./models";
+import { createUltraChatbotAgentProjectDocsMcpToolbox } from "./project-docs-mcp";
 import { getUltraChatbotAgentSystemPrompt } from "./prompts";
 import {
   createUltraChatbotAgentProvider,
   ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
 } from "./providers";
-import { createUltraChatbotAgentProjectDocsMcpToolbox } from "./project-docs-mcp";
+import { createUltraChatbotAgentRequestSuggestionsTool } from "./request-suggestions";
+import { createUltraChatbotAgentResearchReportTool } from "./research-report";
 import { createUltraChatbotAgentSandboxToolbox } from "./sandbox-tools";
 import { createUltraChatbotAgentSearchKnowledgeBaseTool } from "./search-knowledge-base";
+import { createUltraChatbotAgentUpdateDocumentTool } from "./update-document";
+import { createUltraChatbotAgentWebSearchTool } from "./web-search";
 
 const invalidRequestBodyError =
   'Expected a JSON body with a non-empty "id" string, "message" object, "selectedChatModel" string, and "selectedVisibilityType".';
@@ -244,7 +243,10 @@ export async function handleUltraChatbotAgentChatRequest(
   }
 
   const store = createUltraChatbotAgentChatStore();
-  const existingSession = await store.loadChatSession(input.id, viewer.visitorId);
+  const existingSession = await store.loadChatSession(
+    input.id,
+    viewer.visitorId
+  );
   const capabilities =
     existingSession?.chat.capabilities ??
     getUltraChatbotAgentDefaultCapabilities();
@@ -326,8 +328,7 @@ export async function handleUltraChatbotAgentChatRequest(
               }),
             }),
         getWeather: createUltraChatbotAgentGetWeatherTool(),
-        searchKnowledgeBase:
-          createUltraChatbotAgentSearchKnowledgeBaseTool(),
+        searchKnowledgeBase: createUltraChatbotAgentSearchKnowledgeBaseTool(),
         requestSuggestions: createUltraChatbotAgentRequestSuggestionsTool({
           chatId: input.id,
           model: provider.gateway(modelId),
@@ -336,13 +337,14 @@ export async function handleUltraChatbotAgentChatRequest(
         createResearchReport: createUltraChatbotAgentResearchReportTool({
           model: provider.gateway(modelId),
         }),
-        [ultraChatbotAgentSearchToolName]:
-          createUltraChatbotAgentWebSearchTool({
+        [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool(
+          {
             model: provider.hostedToolsGateway(modelId),
             webSearchTool: provider.hostedToolsGateway.tools.webSearch({
               searchContextSize: "medium",
             }),
-          }),
+          }
+        ),
         updateDocument: createUltraChatbotAgentUpdateDocumentTool({
           chatId: input.id,
           model: provider.gateway(modelId),
@@ -357,7 +359,10 @@ export async function handleUltraChatbotAgentChatRequest(
     return result.toUIMessageStreamResponse({
       consumeSseStream: async ({ stream }) => {
         const streamId = generateId();
-        await getStreamContext(env).createNewResumableStream(streamId, () => stream);
+        await getStreamContext(env).createNewResumableStream(
+          streamId,
+          () => stream
+        );
         await store.setActiveStream({
           activeStreamId: streamId,
           chatId: input.id,

@@ -81,7 +81,10 @@ describe("object-generation session", () => {
       requestAttachments: [],
     });
 
-    expect(merged.map((attachment) => attachment.id)).toEqual(["hero", "policy"]);
+    expect(merged.map((attachment) => attachment.id)).toEqual([
+      "hero",
+      "policy",
+    ]);
     expect(Array.from(collectReviewPreviewUrls(merged, [entry]))).toEqual([
       "blob:hero",
       "blob:policy",
@@ -91,7 +94,9 @@ describe("object-generation session", () => {
   it("moves an entry through record pending, error, stop, and replay display states", () => {
     const entry = createReviewThreadEntry({
       id: "entry-1",
-      pendingAttachments: [makePendingAttachment("hero", "hero.png", "blob:hero")],
+      pendingAttachments: [
+        makePendingAttachment("hero", "hero.png", "blob:hero"),
+      ],
       prompt: "Review this.",
       requestAttachments: [],
     });

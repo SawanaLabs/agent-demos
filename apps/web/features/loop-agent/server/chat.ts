@@ -6,16 +6,15 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-
-import {
-  LOOP_AGENT_PROVIDER_OPTIONS,
-  resolveLoopAgentChatModel,
-} from "./model";
 import {
   createLoopAgentGateway,
   getLoopAgentEnv,
   type LoopAgentEnv,
 } from "./env";
+import {
+  LOOP_AGENT_PROVIDER_OPTIONS,
+  resolveLoopAgentChatModel,
+} from "./model";
 import {
   buildSupportEscalationApprovalRequest,
   recordSupportEscalationApproval,

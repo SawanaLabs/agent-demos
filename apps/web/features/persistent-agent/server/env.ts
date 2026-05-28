@@ -23,10 +23,7 @@ export interface PersistentAgentConfig {
 }
 
 export interface PersistentAgentSetupState {
-  config: Omit<
-    PersistentAgentConfig,
-    "apiKey" | "databaseUrl" | "redisUrl"
-  >;
+  config: Omit<PersistentAgentConfig, "apiKey" | "databaseUrl" | "redisUrl">;
   isReady: boolean;
   issues: string[];
   nodeVersion: string;
@@ -190,7 +187,7 @@ export function getPersistentAgentSetupState(
 
 export function createPersistentAgentGateway(
   env: PersistentAgentEnv = getPersistentAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getPersistentAgentConfig(env);
 
   return createGateway({

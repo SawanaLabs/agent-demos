@@ -10,10 +10,7 @@ import {
 } from "./env";
 
 function resolveVercelSandboxWorkspaceRoot() {
-  const candidates = [
-    process.cwd(),
-    path.resolve(process.cwd(), "../.."),
-  ];
+  const candidates = [process.cwd(), path.resolve(process.cwd(), "../..")];
 
   for (const candidate of candidates) {
     if (existsSync(path.join(candidate, "AGENTS.md"))) {
@@ -24,14 +21,12 @@ function resolveVercelSandboxWorkspaceRoot() {
   return process.cwd();
 }
 
-export const VERCEL_SANDBOX_WORKSPACE_ROOT = resolveVercelSandboxWorkspaceRoot();
+export const VERCEL_SANDBOX_WORKSPACE_ROOT =
+  resolveVercelSandboxWorkspaceRoot();
 export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
-export const VERCEL_SANDBOX_SKILLS_ROOT =
-  `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
-export const VERCEL_SANDBOX_ARTIFACTS_ROOT =
-  `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
-export const VERCEL_SANDBOX_AGENTS_FILE =
-  `${VERCEL_SANDBOX_PROJECT_ROOT}/AGENTS.md`;
+export const VERCEL_SANDBOX_SKILLS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
+export const VERCEL_SANDBOX_ARTIFACTS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
+export const VERCEL_SANDBOX_AGENTS_FILE = `${VERCEL_SANDBOX_PROJECT_ROOT}/AGENTS.md`;
 
 interface SandboxFs {
   exists(path: string): Promise<boolean>;

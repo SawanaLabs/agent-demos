@@ -11,7 +11,7 @@ describe("streaming chat shell custom stream", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamStreamingChatShellEvents: async function* () {
+        async *streamStreamingChatShellEvents() {
           yield { type: "text", text: "hello" } as const;
         },
       }
@@ -40,20 +40,19 @@ describe("streaming chat shell custom stream", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamStreamingChatShellEvents: async function* (_messages, _env, options) {
+        async *streamStreamingChatShellEvents(_messages, _env, options) {
           yield { type: "start", audience: options.audience } as const;
-          yield { type: "text", text: "Check the upstream dependency first." } as const;
+          yield {
+            type: "text",
+            text: "Check the upstream dependency first.",
+          } as const;
           yield { type: "finish", finishReason: "stop" } as const;
         },
       }
     );
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toContain(
-      "text/event-stream"
-    );
-    await expect(response.text()).resolves.toContain(
-      '"audience":"support"'
-    );
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    await expect(response.text()).resolves.toContain('"audience":"support"');
   });
 });

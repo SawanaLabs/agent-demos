@@ -1,6 +1,5 @@
 "use client";
 
-import { Chat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
   CheckCircleIcon,

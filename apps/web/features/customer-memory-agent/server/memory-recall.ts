@@ -1,3 +1,4 @@
+import { embed, embedMany } from "ai";
 import {
   and,
   cosineDistance,
@@ -8,13 +9,12 @@ import {
   ne,
   sql,
 } from "drizzle-orm";
-import { embed, embedMany } from "ai";
 
 import { loadCustomerMemoryAgentDatabase } from "./database";
 import {
+  type CustomerMemoryAgentEnv,
   createCustomerMemoryAgentGateway,
   getCustomerMemoryAgentEnv,
-  type CustomerMemoryAgentEnv,
 } from "./env";
 import {
   type CustomerMemoryRecord,

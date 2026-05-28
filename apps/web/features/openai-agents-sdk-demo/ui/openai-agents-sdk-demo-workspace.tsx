@@ -1,6 +1,5 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
 import { Chat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
@@ -76,6 +75,7 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithApprovalResponses,
 } from "ai";
+import { type ReactNode, useEffect, useState } from "react";
 
 import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
 import type { OpenAiAgentsSdkDemoMessage } from "../message-metadata";
@@ -100,8 +100,8 @@ import {
   getOpenAiAgentsSdkDemoFailedTurnRetryText,
   getOpenAiAgentsSdkDemoFileParts,
   getOpenAiAgentsSdkDemoMessageText,
-  getOpenAiAgentsSdkDemoRenderableReasoningText,
   getOpenAiAgentsSdkDemoRecoverableMessages,
+  getOpenAiAgentsSdkDemoRenderableReasoningText,
   getOpenAiAgentsSdkDemoSourceParts,
   getOpenAiAgentsSdkDemoToolDisplayState,
   getOpenAiAgentsSdkDemoToolName,
@@ -109,8 +109,14 @@ import {
   hasOpenAiAgentsSdkDemoVisibleContent,
   shouldRenderOpenAiAgentsSdkDemoReasoning,
 } from "./openai-agents-sdk-demo-session";
-import { openAiAgentsSdkDemoWorkspaceLayout } from "./openai-agents-sdk-demo-workspace-layout";
 import { OpenAiAgentsSdkDemoVoicePanel } from "./openai-agents-sdk-demo-voice-panel";
+import { openAiAgentsSdkDemoWorkspaceLayout } from "./openai-agents-sdk-demo-workspace-layout";
+
+const openAiAgentsSdkDemoSamplePrompts = [
+  "Explain how this demo bridges the OpenAI Agents SDK run into AI SDK UI messages.",
+  "Run a short planning answer that uses the configured guide coverage and model profile.",
+  "Summarize what the demo proves about tools, handoffs, and tracing in one response.",
+] as const;
 
 function ThinkingState() {
   return <Shimmer className="text-sm">Thinking...</Shimmer>;
@@ -141,7 +147,7 @@ function OpenAiAgentsSdkDemoToolApproval({
   onApprovalResponse: ChatAddToolApproveResponseFunction;
   part: ToolPart;
 }) {
-  if (!("approval" in part) || !part.approval) {
+  if (!("approval" in part && part.approval)) {
     return null;
   }
 
@@ -332,7 +338,7 @@ function OpenAiAgentsSdkDemoErrorMessage({
 }
 
 function getImplementationLabel(
-  status: OpenAiAgentsSdkDemoGuideCoverage["implementationStatus"],
+  status: OpenAiAgentsSdkDemoGuideCoverage["implementationStatus"]
 ) {
   if (status === "implemented") {
     return "Implemented";
@@ -346,7 +352,7 @@ function getImplementationLabel(
 }
 
 function getRunStatusLabel(
-  status: OpenAiAgentsSdkDemoGuideCoverage["currentRunStatus"],
+  status: OpenAiAgentsSdkDemoGuideCoverage["currentRunStatus"]
 ) {
   if (status === "ready") {
     return "Ready";
@@ -366,7 +372,7 @@ function getRunStatusLabel(
 function getStatusClassName(
   status:
     | OpenAiAgentsSdkDemoGuideCoverage["currentRunStatus"]
-    | OpenAiAgentsSdkDemoGuideCoverage["implementationStatus"],
+    | OpenAiAgentsSdkDemoGuideCoverage["implementationStatus"]
 ) {
   if (
     status === "implemented" ||
@@ -405,7 +411,7 @@ export interface OpenAiAgentsSdkDemoWorkspaceProps {
 }
 
 function getToolAvailabilityClassName(
-  availability: OpenAiAgentsSdkDemoToolCatalogEntry["availability"],
+  availability: OpenAiAgentsSdkDemoToolCatalogEntry["availability"]
 ) {
   if (availability === "configured") {
     return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
@@ -429,7 +435,7 @@ function InspectorBadge({
     <Badge
       className={cn(
         "h-auto min-w-0 max-w-full shrink items-start overflow-hidden whitespace-normal break-all px-2 py-1 text-left text-[11px] leading-tight",
-        className,
+        className
       )}
       variant="outline"
     >
@@ -442,7 +448,7 @@ function InspectorRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
       <span className="text-muted-foreground">{label}</span>
-      <span className="max-w-[9rem] min-w-0 break-all text-right text-xs leading-5 text-foreground">
+      <span className="min-w-0 max-w-[9rem] break-all text-right text-foreground text-xs leading-5">
         {value}
       </span>
     </div>
@@ -527,28 +533,28 @@ export function OpenAiAgentsSdkDemoWorkspace({
   const hasAssistantOutput = messages.some(
     (message) =>
       message.role === "assistant" &&
-      hasOpenAiAgentsSdkDemoVisibleContent(message),
+      hasOpenAiAgentsSdkDemoVisibleContent(message)
   );
   const usedGuideIds = new Set(
-    messages.flatMap((message) => message.metadata?.usedGuideIds ?? []),
+    messages.flatMap((message) => message.metadata?.usedGuideIds ?? [])
   );
   const usedToolNames = new Set(
-    messages.flatMap((message) => message.metadata?.usedToolNames ?? []),
+    messages.flatMap((message) => message.metadata?.usedToolNames ?? [])
   );
   const usedGuardrailNames = new Set(
-    messages.flatMap((message) => message.metadata?.usedGuardrailNames ?? []),
+    messages.flatMap((message) => message.metadata?.usedGuardrailNames ?? [])
   );
   const lastStreamSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.streamSummary,
+        message.role === "assistant" && message.metadata?.streamSummary
     )?.metadata?.streamSummary;
   const lastAiSdkExtensionSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.aiSdkExtensionSummary,
+        message.role === "assistant" && message.metadata?.aiSdkExtensionSummary
     )?.metadata?.aiSdkExtensionSummary;
   const lastResponseId = [...messages]
     .reverse()
@@ -557,48 +563,48 @@ export function OpenAiAgentsSdkDemoWorkspace({
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.handoffSummary,
+        message.role === "assistant" && message.metadata?.handoffSummary
     )?.metadata?.handoffSummary;
   const lastResultSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.resultSummary,
+        message.role === "assistant" && message.metadata?.resultSummary
     )?.metadata?.resultSummary;
   const lastApprovalSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.approvalSummary,
+        message.role === "assistant" && message.metadata?.approvalSummary
     )?.metadata?.approvalSummary;
   const lastSessionSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.sessionSummary,
+        message.role === "assistant" && message.metadata?.sessionSummary
     )?.metadata?.sessionSummary;
   const lastContextSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.contextSummary,
+        message.role === "assistant" && message.metadata?.contextSummary
     )?.metadata?.contextSummary;
   const lastMcpSummary = [...messages]
     .reverse()
     .find(
-      (message) => message.role === "assistant" && message.metadata?.mcpSummary,
+      (message) => message.role === "assistant" && message.metadata?.mcpSummary
     )?.metadata?.mcpSummary;
   const lastSandboxSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.sandboxSummary,
+        message.role === "assistant" && message.metadata?.sandboxSummary
     )?.metadata?.sandboxSummary;
   const lastTraceSummary = [...messages]
     .reverse()
     .find(
       (message) =>
-        message.role === "assistant" && message.metadata?.traceSummary,
+        message.role === "assistant" && message.metadata?.traceSummary
     )?.metadata?.traceSummary;
   const traceIncludesSensitiveData =
     lastTraceSummary?.traceIncludeSensitiveData ??
@@ -667,8 +673,8 @@ export function OpenAiAgentsSdkDemoWorkspace({
   return (
     <div
       className={cn(
-        "grid gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-1 grid-rows-[minmax(0,1fr)_minmax(0,26rem)]",
-        openAiAgentsSdkDemoWorkspaceLayout.workspaceHeightClassName,
+        "grid grid-rows-[minmax(0,1fr)_minmax(0,26rem)] gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-1",
+        openAiAgentsSdkDemoWorkspaceLayout.workspaceHeightClassName
       )}
     >
       <section className="flex min-h-0 flex-col overflow-hidden border border-foreground/10 bg-background">
@@ -686,10 +692,10 @@ export function OpenAiAgentsSdkDemoWorkspace({
                 const nextMessage = messages[index + 1];
                 const reasoningText = shouldRenderOpenAiAgentsSdkDemoReasoning(
                   message,
-                  nextMessage,
+                  nextMessage
                 )
                   ? getOpenAiAgentsSdkDemoRenderableReasoningText(
-                      message,
+                      message
                     ).trim()
                   : "";
                 const sourceParts = getOpenAiAgentsSdkDemoSourceParts(message);
@@ -717,9 +723,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                     <MessageContent
                       className={cn(
                         "space-y-4",
-                        message.role === "assistant"
-                          ? "max-w-3xl"
-                          : "max-w-2xl",
+                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
                       )}
                     >
                       {reasoningText ? (
@@ -746,7 +750,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                             key={part.toolCallId}
                             part={part}
                           />
-                        ),
+                        )
                       )}
 
                       {text ? <MessageResponse>{text}</MessageResponse> : null}
@@ -853,6 +857,24 @@ export function OpenAiAgentsSdkDemoWorkspace({
                 </div>
               </PromptInputFooter>
             </PromptInput>
+
+            {hasMessages ? null : (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {openAiAgentsSdkDemoSamplePrompts.map((prompt) => (
+                  <Button
+                    disabled={!isChatAvailable || hasPendingApproval || isBusy}
+                    key={prompt}
+                    onClick={() => handleSendMessage(prompt)}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <RobotIcon className="size-3.5" />
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -863,7 +885,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
           voiceProfile={voiceProfile}
         />
 
-        <div className="min-w-0 space-y-5 overflow-x-hidden overflow-y-auto p-4">
+        <div className="min-w-0 space-y-5 overflow-y-auto overflow-x-hidden p-4">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
               Runtime
@@ -1364,8 +1386,8 @@ export function OpenAiAgentsSdkDemoWorkspace({
                 <div className="space-y-2">
                   {voiceProfile.providerExtensions.map((extension) => (
                     <div
-                      key={extension.id}
                       className="space-y-2 border border-foreground/10 px-2 py-2"
+                      key={extension.id}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="min-w-0 text-sm">
@@ -1859,7 +1881,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                     </div>
                     <Badge
                       className={cn(
-                        getToolAvailabilityClassName(item.availability),
+                        getToolAvailabilityClassName(item.availability)
                       )}
                       variant="outline"
                     >
@@ -1908,7 +1930,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {(lastApprovalSummary?.pendingApprovals.length
                       ? lastApprovalSummary.pendingApprovals.map(
-                          (item) => item.toolName,
+                          (item) => item.toolName
                         )
                       : ["No pending approval metadata yet"]
                     ).map((value) => (
@@ -1923,7 +1945,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {(lastApprovalSummary?.decisions.length
                       ? lastApprovalSummary.decisions.map((item) =>
-                          item.approved ? "approved" : "rejected",
+                          item.approved ? "approved" : "rejected"
                         )
                       : ["No approval decisions yet"]
                     ).map((value, index) => (
@@ -2022,7 +2044,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                     </div>
                     <Badge
                       className={cn(
-                        getToolAvailabilityClassName(item.availability),
+                        getToolAvailabilityClassName(item.availability)
                       )}
                       variant="outline"
                     >
@@ -2064,7 +2086,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
                     <Badge
                       className={cn(
                         "shrink-0",
-                        getStatusClassName(item.implementationStatus),
+                        getStatusClassName(item.implementationStatus)
                       )}
                       variant="outline"
                     >

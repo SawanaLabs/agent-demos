@@ -1,4 +1,4 @@
-import { utils, type RealtimeItem } from "@openai/agents/realtime";
+import { type RealtimeItem, utils } from "@openai/agents/realtime";
 
 export interface OpenAiAgentsSdkDemoVoiceHistorySummary {
   historyItemCount: number;

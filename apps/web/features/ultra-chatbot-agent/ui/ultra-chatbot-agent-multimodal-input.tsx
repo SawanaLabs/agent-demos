@@ -7,9 +7,9 @@ import {
   PromptInputBody,
   PromptInputButton,
   PromptInputFooter,
+  PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-  PromptInputSubmit,
 } from "@workspace/ui/components/ai-elements/prompt-input";
 import {
   Tooltip,
@@ -32,7 +32,9 @@ interface PendingUltraChatbotAgentAttachment {
   previewUrl: string;
 }
 
-function buildPendingAttachment(file: File): PendingUltraChatbotAgentAttachment {
+function buildPendingAttachment(
+  file: File
+): PendingUltraChatbotAgentAttachment {
   return {
     file,
     id: `${file.name}-${file.size}-${file.lastModified}`,
@@ -40,7 +42,9 @@ function buildPendingAttachment(file: File): PendingUltraChatbotAgentAttachment 
   };
 }
 
-function revokePendingAttachment(attachment: PendingUltraChatbotAgentAttachment) {
+function revokePendingAttachment(
+  attachment: PendingUltraChatbotAgentAttachment
+) {
   URL.revokeObjectURL(attachment.previewUrl);
 }
 
@@ -67,9 +71,9 @@ async function uploadUltraChatbotAgentAttachment(file: File) {
   });
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
 
     throw new Error(payload?.error || "Failed to upload the attachment.");
   }
@@ -111,11 +115,13 @@ export function UltraChatbotAgentMultimodalInput({
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingUltraChatbotAgentAttachment[]
   >([]);
-  const [uploadingAttachmentIds, setUploadingAttachmentIds] = useState<string[]>(
+  const [uploadingAttachmentIds, setUploadingAttachmentIds] = useState<
+    string[]
+  >([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingAttachmentsRef = useRef<PendingUltraChatbotAgentAttachment[]>(
     []
   );
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const pendingAttachmentsRef = useRef<PendingUltraChatbotAgentAttachment[]>([]);
   const isUploading = uploadingAttachmentIds.length > 0;
 
   useEffect(() => {
@@ -168,18 +174,21 @@ export function UltraChatbotAgentMultimodalInput({
     [clearFileInput, onComposerErrorChange]
   );
 
-  const removePendingAttachment = useCallback((attachmentId: string) => {
-    setPendingAttachments((current) => {
-      const attachment = current.find((item) => item.id === attachmentId);
+  const removePendingAttachment = useCallback(
+    (attachmentId: string) => {
+      setPendingAttachments((current) => {
+        const attachment = current.find((item) => item.id === attachmentId);
 
-      if (attachment) {
-        revokePendingAttachment(attachment);
-      }
+        if (attachment) {
+          revokePendingAttachment(attachment);
+        }
 
-      return current.filter((item) => item.id !== attachmentId);
-    });
-    clearFileInput();
-  }, [clearFileInput]);
+        return current.filter((item) => item.id !== attachmentId);
+      });
+      clearFileInput();
+    },
+    [clearFileInput]
+  );
 
   const previewAttachments = useMemo(
     () => pendingAttachments.map((attachment) => toPreviewData(attachment)),
@@ -195,7 +204,9 @@ export function UltraChatbotAgentMultimodalInput({
       }
 
       const imageFiles = Array.from(items)
-        .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+        .filter(
+          (item) => item.kind === "file" && item.type.startsWith("image/")
+        )
         .map((item) => item.getAsFile())
         .filter((file): file is File => file !== null);
 
@@ -218,7 +229,9 @@ export function UltraChatbotAgentMultimodalInput({
       }
 
       onComposerErrorChange(null);
-      setUploadingAttachmentIds(pendingAttachments.map((attachment) => attachment.id));
+      setUploadingAttachmentIds(
+        pendingAttachments.map((attachment) => attachment.id)
+      );
 
       try {
         const uploadedFileParts = await Promise.all(
@@ -266,9 +279,7 @@ export function UltraChatbotAgentMultimodalInput({
         ref={fileInputRef}
         type="file"
       />
-      <PromptInput
-        onSubmit={({ text }) => handleSend(text)}
-      >
+      <PromptInput onSubmit={({ text }) => handleSend(text)}>
         <PromptInputBody>
           {previewAttachments.length > 0 ? (
             <Attachments className="mb-3" variant="list">

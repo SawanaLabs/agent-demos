@@ -4,9 +4,9 @@ import {
   fileSearchTool,
   imageGenerationTool,
   type RunContext,
+  type RunItem,
   tool,
   toolSearchTool,
-  type RunItem,
   webSearchTool,
 } from "@openai/agents";
 import { z } from "zod";
@@ -16,14 +16,14 @@ import {
   getOpenAiAgentsSdkDemoToolContextNote,
   type OpenAiAgentsSdkDemoContext,
 } from "./context";
+import { isOpenAiAgentsSdkDemoMcpToolName } from "./mcp";
 import {
   getOpenAiAgentsSdkDemoChatModel,
   getOpenAiAgentsSdkDemoModelProfile,
   isOpenAiAgentsSdkDemoImageGenerationProviderBlocked,
-  supportsOpenAiAgentsSdkToolSearch,
   type OpenAiAgentsSdkDemoModelProfile,
+  supportsOpenAiAgentsSdkToolSearch,
 } from "./models";
-import { isOpenAiAgentsSdkDemoMcpToolName } from "./mcp";
 import { createOpenAiAgentsSdkDemoSandboxWorkspaceAgent } from "./sandbox";
 
 type DemoEnv = Record<string, string | undefined>;
@@ -86,8 +86,8 @@ function getOpenAiAgentsSdkDemoVectorStoreIds(env: DemoEnv = process.env) {
       configuredIds
         .split(",")
         .map((id) => id.trim())
-        .filter(Boolean),
-    ),
+        .filter(Boolean)
+    )
   );
 }
 
@@ -97,7 +97,7 @@ function createBuildResearchBriefTool() {
       "Create a compact public-company investment research brief before deeper financial analysis.",
     execute: (
       { company, focus },
-      runContext?: RunContext<OpenAiAgentsSdkDemoContext>,
+      runContext?: RunContext<OpenAiAgentsSdkDemoContext>
     ) => {
       const researchFocus = focus?.trim() || "overall business quality";
       const contextNote = getOpenAiAgentsSdkDemoToolContextNote(runContext);
@@ -238,7 +238,7 @@ export function createOpenAiAgentsSdkDemoTools({
 }: OpenAiAgentsSdkDemoToolOptions) {
   const vectorStoreIds = getOpenAiAgentsSdkDemoVectorStoreIds(env);
   const supportsToolSearch = supportsOpenAiAgentsSdkToolSearch(
-    modelProfile.model,
+    modelProfile.model
   );
 
   return [
@@ -280,7 +280,7 @@ export function getOpenAiAgentsSdkDemoToolCatalog({
 }: OpenAiAgentsSdkDemoToolCatalogOptions): OpenAiAgentsSdkDemoToolCatalogEntry[] {
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
   const supportsToolSearch = supportsOpenAiAgentsSdkToolSearch(
-    getOpenAiAgentsSdkDemoChatModel(env),
+    getOpenAiAgentsSdkDemoChatModel(env)
   );
   const hasFileSearchSetup =
     getOpenAiAgentsSdkDemoVectorStoreIds(env).length > 0 && isChatAvailable;
@@ -426,20 +426,20 @@ function getToolName(rawItem: { name?: string; type?: string }): string | null {
 }
 
 export function getOpenAiAgentsSdkDemoRunUsageMetadata(
-  newItems: RunItem[],
+  newItems: RunItem[]
 ): OpenAiAgentsSdkDemoMessageMetadata | undefined {
   const usedToolNames = Array.from(
     new Set(
       newItems
         .map((item) =>
-          getToolName((item.rawItem ?? {}) as { name?: string; type?: string }),
+          getToolName((item.rawItem ?? {}) as { name?: string; type?: string })
         )
-        .filter((value): value is string => Boolean(value)),
-    ),
+        .filter((value): value is string => Boolean(value))
+    )
   );
 
   if (usedToolNames.length === 0) {
-    return undefined;
+    return;
   }
 
   const usedGuideIds = ["tools"];

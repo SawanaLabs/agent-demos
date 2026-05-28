@@ -10,7 +10,9 @@ const parseReviewObjectError = "Failed to parse final structured object.";
 const recordTokenUsageError = "Failed to record token usage.";
 const objectGenerationStreamError = "Content review stream failed.";
 
-export function startRecordedObjectGenerationRun(stream: ObjectGenerationStreamResult) {
+export function startRecordedObjectGenerationRun(
+  stream: ObjectGenerationStreamResult
+) {
   const recordId = crypto.randomUUID();
 
   createPendingObjectGenerationRecord(recordId);

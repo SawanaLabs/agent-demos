@@ -16,12 +16,9 @@ const uploadFileSchema = z.object({
     .refine((file) => file.size <= ultraChatbotAgentMaxUploadBytes, {
       message: "File size should be less than 5MB.",
     })
-    .refine(
-      (file) => isUltraChatbotAgentAcceptedUploadMediaType(file.type),
-      {
-        message: "File type should be PDF, JPEG, or PNG.",
-      }
-    ),
+    .refine((file) => isUltraChatbotAgentAcceptedUploadMediaType(file.type), {
+      message: "File type should be PDF, JPEG, or PNG.",
+    }),
 });
 
 export interface UltraChatbotAgentUploadEnv {
@@ -74,7 +71,9 @@ export async function handleUltraChatbotAgentFileUploadRequest(
   if (!validatedUpload.success) {
     return Response.json(
       {
-        error: validatedUpload.error.issues.map((issue) => issue.message).join(" "),
+        error: validatedUpload.error.issues
+          .map((issue) => issue.message)
+          .join(" "),
       },
       { status: 400 }
     );
@@ -88,7 +87,9 @@ export async function handleUltraChatbotAgentFileUploadRequest(
     return Response.json(
       {
         error:
-          error instanceof Error ? error.message : "Blob storage is not configured.",
+          error instanceof Error
+            ? error.message
+            : "Blob storage is not configured.",
       },
       { status: 500 }
     );

@@ -2,10 +2,10 @@ import { handleOpenAiAgentsSdkDemoTwilioIncomingCallRequest } from "@/features/o
 
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
+export function GET(request: Request) {
   return handleOpenAiAgentsSdkDemoTwilioIncomingCallRequest(request);
 }
 
-export async function POST(request: Request) {
+export function POST(request: Request) {
   return handleOpenAiAgentsSdkDemoTwilioIncomingCallRequest(request);
 }

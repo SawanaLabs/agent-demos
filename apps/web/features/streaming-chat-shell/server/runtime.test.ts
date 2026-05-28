@@ -82,7 +82,7 @@ describe("streaming chat shell runtime", () => {
       }),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
-        streamStreamingChatShell: async (messages, env, options) =>
+        streamStreamingChatShell: async (messages, _env, options) =>
           Response.json({
             audience: options.audience,
             messageCount: messages.length,

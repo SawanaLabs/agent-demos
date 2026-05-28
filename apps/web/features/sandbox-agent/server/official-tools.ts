@@ -1,10 +1,10 @@
 import { type ToolSet, tool } from "ai";
+import { createBashTool } from "bash-tool";
 import { z } from "zod";
 
 import type { SandboxAgentSession } from "./session";
 import { SANDBOX_AGENT_PREVIEW_PORT, SANDBOX_PROJECT_ROOT } from "./session";
 
-const BASH_TOOL_MODULE_SPECIFIER = ["bash", "tool"].join("-");
 const SANDBOX_AGENT_TOOL_PROMPT = [
   "Use bash to scaffold and edit a small static prototype inside the sandbox workspace.",
   "Use readFile and writeFile for direct file access.",
@@ -47,7 +47,6 @@ export async function createSandboxAgentToolset({
   projectRoot?: string;
   session: SandboxAgentSession;
 }): Promise<SandboxAgentToolset> {
-  const { createBashTool } = await import(BASH_TOOL_MODULE_SPECIFIER);
   const bashToolkit = await createBashTool({
     destination: projectRoot,
     promptOptions: {

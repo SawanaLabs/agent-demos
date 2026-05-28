@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 export const projectDemoPatterns = [
@@ -111,9 +111,11 @@ function firstParagraph(body: string) {
     .filter(Boolean)
     .find(
       (line) =>
-        !line.startsWith("#") &&
-        !line.startsWith("- ") &&
-        !line.startsWith("* ")
+        !(
+          line.startsWith("#") ||
+          line.startsWith("- ") ||
+          line.startsWith("* ")
+        )
     );
 }
 

@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { RagKnowledgeBaseStatus } from "./knowledge-base-status";
-import {
-  getRagChatbotRuntimeState,
-  handleRagChatbotRequest,
-} from "./runtime";
+import { getRagChatbotRuntimeState, handleRagChatbotRequest } from "./runtime";
 
 const missingDatabasePattern = /DATABASE_URL/i;
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;

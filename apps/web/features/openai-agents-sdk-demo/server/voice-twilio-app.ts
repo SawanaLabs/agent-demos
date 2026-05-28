@@ -1,11 +1,11 @@
 import {
-  buildOpenAiAgentsSdkDemoTwilioIncomingCallTwiml,
-  getOpenAiAgentsSdkDemoTwilioCallControlProfile,
-} from "./voice-twilio-route";
-import {
   createOpenAiAgentsSdkDemoTwilioMediaStreamBridge,
   type OpenAiAgentsSdkDemoTwilioMediaStreamBridge,
 } from "./voice-twilio-bridge";
+import {
+  buildOpenAiAgentsSdkDemoTwilioIncomingCallTwiml,
+  getOpenAiAgentsSdkDemoTwilioCallControlProfile,
+} from "./voice-twilio-route";
 
 type DemoEnv = Record<string, string | undefined>;
 

@@ -42,7 +42,8 @@ export function getOpenAiAgentsSdkDemoCloudflareWorkerModuleProfile(
     openAiApiKeyEnvVar,
     runtimeContract: "cloudflare-worker-module",
     sdkPrimitive: "CloudflareRealtimeTransportLayer + RealtimeSession",
-    sourceGuide: "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
+    sourceGuide:
+      "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
     status: env[openAiApiKeyEnvVar] ? "configured" : "setup-required",
     workflowName: cloudflareWorkflowName,
   };

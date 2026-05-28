@@ -32,7 +32,9 @@ async function* iterateReadableStream<T>(stream: ReadableStream<T>) {
   }
 }
 
-function getAsyncIterable(source: AsyncIterable<RunStreamEvent> | ReadableStream<RunStreamEvent>) {
+function getAsyncIterable(
+  source: AsyncIterable<RunStreamEvent> | ReadableStream<RunStreamEvent>
+) {
   if (Symbol.asyncIterator in source) {
     return source as AsyncIterable<RunStreamEvent>;
   }
@@ -76,7 +78,7 @@ export function createOpenAiAgentsSdkDemoStreamSummaryCollector() {
         summary.agentNames.length > 0;
 
       if (!hasEvents) {
-        return undefined;
+        return;
       }
 
       return {

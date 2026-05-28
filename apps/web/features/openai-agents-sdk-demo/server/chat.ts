@@ -1,19 +1,19 @@
+import type { RunStreamEvent, RunToolApprovalItem } from "@openai/agents";
 import {
   run,
   setDefaultOpenAIClient,
   setOpenAIAPI,
   setOpenAIResponsesTransport,
 } from "@openai/agents";
-import type { RunStreamEvent, RunToolApprovalItem } from "@openai/agents";
 import { createAiSdkUiMessageStream } from "@openai/agents-extensions/ai-sdk-ui";
 import {
   createUIMessageStream,
   createUIMessageStreamResponse,
-  type UIMessageChunk,
   type UIMessage,
+  type UIMessageChunk,
 } from "ai";
 import OpenAI from "openai";
-
+import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 import { createOpenAiAgentsSdkDemoAgent } from "./agents";
 import {
   assertOpenAiAgentsSdkDemoNoPendingApproval,
@@ -31,7 +31,6 @@ import {
   getOpenAiAgentsSdkDemoGuardrailUsageMetadata,
 } from "./guardrails";
 import { getOpenAiAgentsSdkDemoHandoffUsageMetadata } from "./handoffs";
-import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 import {
   connectOpenAiAgentsSdkDemoMcpServers,
   getOpenAiAgentsSdkDemoMcpUsageMetadata,
@@ -41,32 +40,32 @@ import {
   getOpenAiAgentsSdkDemoProviderErrorMessage,
   isOpenAiAgentsSdkDemoImageGenerationProviderBlocked,
 } from "./models";
+import { getOpenAiAgentsSdkDemoResultUsageMetadata } from "./results";
+import {
+  getOpenAiAgentsSdkDemoRunningUsageMetadata,
+  getOpenAiAgentsSdkDemoRunProfile,
+  getOpenAiAgentsSdkDemoRunRequest,
+} from "./running";
 import {
   getOpenAiAgentsSdkDemoSandboxRunConfig,
   getOpenAiAgentsSdkDemoSandboxUsageMetadata,
   recordOpenAiAgentsSdkDemoSandboxSessionState,
 } from "./sandbox";
-import { getOpenAiAgentsSdkDemoArtifactChunks } from "./stream-artifacts";
-import {
-  getOpenAiAgentsSdkDemoRunRequest,
-  getOpenAiAgentsSdkDemoRunProfile,
-  getOpenAiAgentsSdkDemoRunningUsageMetadata,
-} from "./running";
-import { getOpenAiAgentsSdkDemoResultUsageMetadata } from "./results";
 import {
   getOpenAiAgentsSdkDemoSession,
   getOpenAiAgentsSdkDemoSessionUsageMetadata,
 } from "./sessions";
+import { getOpenAiAgentsSdkDemoArtifactChunks } from "./stream-artifacts";
 import {
   createOpenAiAgentsSdkDemoStreamSummaryCollector,
   observeOpenAiAgentsSdkDemoStreamEvents,
 } from "./streaming";
+import { getOpenAiAgentsSdkDemoRunUsageMetadata } from "./tools";
 import {
   createOpenAiAgentsSdkDemoTraceRunConfig,
   getOpenAiAgentsSdkDemoLatestTraceUsageMetadata,
   getOpenAiAgentsSdkDemoTraceUsageMetadata,
 } from "./tracing";
-import { getOpenAiAgentsSdkDemoRunUsageMetadata } from "./tools";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -102,7 +101,7 @@ function configureOpenAiAgentsSdkDemoGatewayClient(env: DemoEnv) {
     new OpenAI({
       apiKey: env.AI_GATEWAY_API_KEY,
       baseURL: modelProfile.baseUrl,
-    }),
+    })
   );
 }
 
@@ -128,22 +127,22 @@ interface DemoAgentStream extends AsyncIterable<RunStreamEvent> {
     name?: string;
   };
   completed: Promise<unknown>;
-  inputGuardrailResults?: unknown[];
   finalOutput?: unknown;
   history?: unknown[];
+  inputGuardrailResults?: unknown[];
   interruptions?: RunToolApprovalItem[];
   lastAgent?: {
     name?: string;
   };
   lastResponseId?: string;
+  newItems?: Parameters<
+    typeof getOpenAiAgentsSdkDemoArtifactChunks
+  >[0]["newItems"];
   output?: unknown[];
   outputGuardrailResults?: unknown[];
   rawResponses?: Parameters<
     typeof getOpenAiAgentsSdkDemoArtifactChunks
   >[0]["rawResponses"];
-  newItems?: Parameters<
-    typeof getOpenAiAgentsSdkDemoArtifactChunks
-  >[0]["newItems"];
   state?: {
     toJSON?: () => unknown;
     usage?: {
@@ -157,7 +156,7 @@ interface DemoAgentStream extends AsyncIterable<RunStreamEvent> {
 
 function createOpenAiAgentsSdkDemoUiMessageStream(
   eventSource: Parameters<typeof createAiSdkUiMessageStream>[0],
-  agentStream: DemoAgentStream,
+  agentStream: DemoAgentStream
 ) {
   const baseStream = createAiSdkUiMessageStream(eventSource);
 
@@ -195,7 +194,7 @@ function createOpenAiAgentsSdkDemoUiMessageStream(
           finishChunk ?? {
             finishReason: "stop",
             type: "finish",
-          },
+          }
         );
         controller.close();
       } catch (error) {
@@ -248,32 +247,34 @@ function mergeOpenAiAgentsSdkDemoMessageMetadata(
     .map((item) => item?.traceSummary)
     .find((value) => value);
   const usedGuideIds = Array.from(
-    new Set(metadataEntries.flatMap((item) => item?.usedGuideIds ?? [])),
+    new Set(metadataEntries.flatMap((item) => item?.usedGuideIds ?? []))
   );
   const usedGuardrailNames = Array.from(
-    new Set(metadataEntries.flatMap((item) => item?.usedGuardrailNames ?? [])),
+    new Set(metadataEntries.flatMap((item) => item?.usedGuardrailNames ?? []))
   );
   const usedToolNames = Array.from(
-    new Set(metadataEntries.flatMap((item) => item?.usedToolNames ?? [])),
+    new Set(metadataEntries.flatMap((item) => item?.usedToolNames ?? []))
   );
 
   if (
-    !aiSdkExtensionSummary &&
-    !approvalSummary &&
-    !contextSummary &&
-    !handoffSummary &&
-    !lastResponseId &&
-    !mcpSummary &&
-    !resultSummary &&
-    !sandboxSummary &&
-    !sessionSummary &&
-    !streamSummary &&
-    !traceSummary &&
+    !(
+      aiSdkExtensionSummary ||
+      approvalSummary ||
+      contextSummary ||
+      handoffSummary ||
+      lastResponseId ||
+      mcpSummary ||
+      resultSummary ||
+      sandboxSummary ||
+      sessionSummary ||
+      streamSummary ||
+      traceSummary
+    ) &&
     usedGuideIds.length === 0 &&
     usedGuardrailNames.length === 0 &&
     usedToolNames.length === 0
   ) {
-    return undefined;
+    return;
   }
 
   return {
@@ -300,13 +301,13 @@ export async function streamOpenAiAgentsSdkDemo(
   options?: {
     origin?: string;
     signal?: AbortSignal;
-  },
+  }
 ) {
   configureOpenAiAgentsSdkDemoGatewayClient(env);
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
   const { agent, mcpServers } = await createDemoAgent(
     env,
-    options?.origin ?? "http://localhost:3000",
+    options?.origin ?? "http://localhost:3000"
   );
   let shouldCloseMcpServersImmediately = true;
   const runProfile = getOpenAiAgentsSdkDemoRunProfile(env);
@@ -325,7 +326,7 @@ export async function streamOpenAiAgentsSdkDemo(
   });
   const approvalResume = await getOpenAiAgentsSdkDemoApprovalResumeState(
     messages,
-    agent,
+    agent
   );
 
   assertOpenAiAgentsSdkDemoNoPendingApproval(messages);
@@ -346,7 +347,7 @@ export async function streamOpenAiAgentsSdkDemo(
         messages,
         signal: options?.signal,
       },
-      env,
+      env
     );
 
     agentStream = (await run(agent, runRequest.input, {
@@ -363,11 +364,11 @@ export async function streamOpenAiAgentsSdkDemo(
     agentStream,
     (event) => {
       streamSummaryCollector.observe(event);
-    },
+    }
   );
   const uiMessageStream = createOpenAiAgentsSdkDemoUiMessageStream(
     observedEventStream,
-    agentStream,
+    agentStream
   );
 
   try {
@@ -389,7 +390,7 @@ export async function streamOpenAiAgentsSdkDemo(
 
                 const metadata = mergeOpenAiAgentsSdkDemoMessageMetadata(
                   getOpenAiAgentsSdkDemoRunningUsageMetadata(
-                    agentStream.lastResponseId,
+                    agentStream.lastResponseId
                   ),
                   getOpenAiAgentsSdkDemoApprovalUsageMetadata({
                     interruptions: agentStream.interruptions ?? [],
@@ -428,10 +429,10 @@ export async function streamOpenAiAgentsSdkDemo(
                   approvalResume
                     ? getOpenAiAgentsSdkDemoLatestTraceUsageMetadata(messages)
                     : getOpenAiAgentsSdkDemoTraceUsageMetadata(
-                        traceRunConfig.summary,
+                        traceRunConfig.summary
                       ),
                   getOpenAiAgentsSdkDemoRunUsageMetadata(
-                    agentStream.newItems ?? [],
+                    agentStream.newItems ?? []
                   ),
                   getOpenAiAgentsSdkDemoGuardrailUsageMetadata({
                     inputGuardrailResults: (agentStream.inputGuardrailResults ??
@@ -442,7 +443,7 @@ export async function streamOpenAiAgentsSdkDemo(
                       (agentStream.outputGuardrailResults ?? []) as Parameters<
                         typeof getOpenAiAgentsSdkDemoGuardrailUsageMetadata
                       >[0]["outputGuardrailResults"],
-                  }),
+                  })
                 );
 
                 if (!metadata) {

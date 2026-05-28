@@ -1,10 +1,9 @@
 import { readFile } from "node:fs/promises";
-import { z } from "zod";
-
 // biome-ignore lint/correctness/noUnresolvedImports: the MCP SDK wildcard export requires the .js subpath at runtime.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // biome-ignore lint/correctness/noUnresolvedImports: the MCP SDK wildcard export requires the .js subpath at runtime.
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { z } from "zod";
 
 import {
   OPENAI_AGENTS_SDK_DEMO_MCP_SERVER_NAME,

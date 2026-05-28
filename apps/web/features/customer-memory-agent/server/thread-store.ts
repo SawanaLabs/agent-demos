@@ -39,13 +39,13 @@ export interface CustomerMemoryThreadPersistence {
     visitorId: string;
   }): Promise<CustomerMemoryThreadRecord>;
   findThreadById(threadId: string): Promise<CustomerMemoryThreadRecord | null>;
-  loadThreadMessages(
-    threadId: string
-  ): Promise<PersistedCustomerMemoryMessage[]>;
   listThreadsForCustomer(input: {
     customerId: string;
     visitorId: string;
   }): Promise<CustomerMemoryThreadSummary[]>;
+  loadThreadMessages(
+    threadId: string
+  ): Promise<PersistedCustomerMemoryMessage[]>;
   replaceThreadMessages(input: {
     messages: UIMessage[];
     threadId: string;
@@ -54,18 +54,6 @@ export interface CustomerMemoryThreadPersistence {
 
 interface CustomerMemoryThreadStoreDependencies {
   persistence?: CustomerMemoryThreadPersistence;
-}
-
-interface CustomerMemoryThreadDatabaseModule {
-  customerMemoryMessages: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryMessages"];
-  customerMemoryThreads: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryThreads"];
-  database: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["database"];
 }
 
 export function getMissingCustomerMemoryThreadError(threadId: string) {
@@ -259,14 +247,16 @@ export function createCustomerMemoryThreadStore(
   }
 
   return {
-    async createThread(input: {
+    createThread(input: {
       customerId: string;
       title?: string | null;
       visitorId: string;
     }) {
       return persistence.createThread(input);
     },
-    async loadThread(threadId: string): Promise<CustomerMemoryThreadSnapshot | null> {
+    async loadThread(
+      threadId: string
+    ): Promise<CustomerMemoryThreadSnapshot | null> {
       const thread = await findThreadByIdSafely(threadId);
 
       if (!thread) {
@@ -280,7 +270,7 @@ export function createCustomerMemoryThreadStore(
         thread,
       };
     },
-    async listThreads(input: { customerId: string; visitorId: string }) {
+    listThreads(input: { customerId: string; visitorId: string }) {
       return persistence.listThreadsForCustomer(input);
     },
     async loadThreadForViewer(input: {

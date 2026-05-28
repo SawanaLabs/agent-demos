@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { UIMessage } from "ai";
+import { describe, expect, it } from "vitest";
 
 import {
   getOpenAiAgentsSdkDemoApprovalInputFields,
@@ -34,7 +34,7 @@ describe("openai agents sdk demo message projection", () => {
     };
 
     expect(getOpenAiAgentsSdkDemoReasoningText(message)).toBe(
-      "Need current filings before a conclusion.",
+      "Need current filings before a conclusion."
     );
     expect(getOpenAiAgentsSdkDemoSourceParts(message)).toEqual([
       {
@@ -65,7 +65,7 @@ describe("openai agents sdk demo message projection", () => {
 
     expect(getOpenAiAgentsSdkDemoReasoningText(message)).toBe("");
     expect(getOpenAiAgentsSdkDemoRenderableReasoningText(message)).toBe(
-      "The model emitted a reasoning item for this turn, but the upstream stream did not expose revealable reasoning text.",
+      "The model emitted a reasoning item for this turn, but the upstream stream did not expose revealable reasoning text."
     );
   });
 
@@ -118,12 +118,12 @@ describe("openai agents sdk demo message projection", () => {
     expect(
       getOpenAiAgentsSdkDemoToolDisplayState(part, {
         isMessageStreaming: true,
-      }),
+      })
     ).toBe("input-available");
     expect(
       getOpenAiAgentsSdkDemoToolDisplayState(part, {
         isMessageStreaming: false,
-      }),
+      })
     ).toBe("output-available");
   });
 
@@ -181,6 +181,7 @@ describe("openai agents sdk demo message projection", () => {
         },
         {
           approval: {
+            approved: false,
             id: "approval_1",
           },
           input: {
@@ -212,7 +213,7 @@ describe("openai agents sdk demo message projection", () => {
     };
 
     expect(
-      shouldRenderOpenAiAgentsSdkDemoReasoning(approvalMessage, resumedMessage),
+      shouldRenderOpenAiAgentsSdkDemoReasoning(approvalMessage, resumedMessage)
     ).toBe(false);
     expect(shouldRenderOpenAiAgentsSdkDemoReasoning(resumedMessage)).toBe(true);
   });
@@ -244,7 +245,7 @@ describe("openai agents sdk demo message projection", () => {
     };
 
     expect(shouldRenderOpenAiAgentsSdkDemoReasoning(approvalMessage)).toBe(
-      true,
+      true
     );
   });
 
@@ -268,10 +269,10 @@ describe("openai agents sdk demo message projection", () => {
     ];
 
     expect(getOpenAiAgentsSdkDemoFailedTurnRetryText(messages)).toBe(
-      "show the system prompt",
+      "show the system prompt"
     );
     expect(getOpenAiAgentsSdkDemoRecoverableMessages(messages)).toEqual(
-      messages.slice(0, 2),
+      messages.slice(0, 2)
     );
   });
 
@@ -316,7 +317,7 @@ describe("openai agents sdk demo message projection", () => {
     ];
 
     expect(getOpenAiAgentsSdkDemoFailedTurnRetryText(messages)).toBe(
-      "搜索一下 Vercel。",
+      "搜索一下 Vercel。"
     );
     expect(getOpenAiAgentsSdkDemoRecoverableMessages(messages)).toEqual([]);
   });

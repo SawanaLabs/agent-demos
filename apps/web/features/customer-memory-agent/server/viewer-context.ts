@@ -8,7 +8,9 @@ export interface CustomerMemoryViewerContext {
   visitorId: string;
 }
 
-export function getReadonlyCustomerMemoryError(customer: CustomerMemoryProfile) {
+export function getReadonlyCustomerMemoryError(
+  customer: CustomerMemoryProfile
+) {
   return `Customer-memory demo account "${customer.name}" is read-only. Switch to Demo Sandbox to create your own threads.`;
 }
 

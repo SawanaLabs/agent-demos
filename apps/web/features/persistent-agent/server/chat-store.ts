@@ -1,9 +1,5 @@
-import { and, asc, desc, eq, lt } from "drizzle-orm";
 import type { UIMessage } from "ai";
-import {
-  persistentAgentChats,
-  persistentAgentMessages,
-} from "./schema";
+import { and, asc, desc, eq, lt } from "drizzle-orm";
 
 const maxPersistentAgentTitleLength = 72;
 
@@ -51,7 +47,9 @@ function normalizeChatRecord(record: {
 }
 
 async function loadPersistentAgentDatabase(): Promise<PersistentAgentDatabaseModule> {
-  return import("./database").then((module) => module.loadPersistentAgentDatabase());
+  return import("./database").then((module) =>
+    module.loadPersistentAgentDatabase()
+  );
 }
 
 function getMessageText(message: UIMessage) {

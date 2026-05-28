@@ -306,34 +306,36 @@ describe("ultra chatbot agent runtime", () => {
         execute: vi.fn(),
       }
     );
-    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox.mockResolvedValue({
-      availableSkills: [
-        {
-          description: "Challenge product specs against project docs.",
-          name: "grill-with-docs",
+    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox.mockResolvedValue(
+      {
+        availableSkills: [
+          {
+            description: "Challenge product specs against project docs.",
+            name: "grill-with-docs",
+          },
+        ],
+        contextText:
+          "Sandbox project root: /vercel/sandbox/project\nAvailable skills:\n- grill-with-docs: Challenge product specs against project docs.",
+        tools: {
+          bash: {
+            description: "mock bash",
+            execute: vi.fn(),
+          },
+          readFile: {
+            description: "mock read file",
+            execute: vi.fn(),
+          },
+          skill: {
+            description: "mock skill loader",
+            execute: vi.fn(),
+          },
+          writeFile: {
+            description: "mock write file",
+            execute: vi.fn(),
+          },
         },
-      ],
-      contextText:
-        "Sandbox project root: /vercel/sandbox/project\nAvailable skills:\n- grill-with-docs: Challenge product specs against project docs.",
-      tools: {
-        bash: {
-          description: "mock bash",
-          execute: vi.fn(),
-        },
-        readFile: {
-          description: "mock read file",
-          execute: vi.fn(),
-        },
-        skill: {
-          description: "mock skill loader",
-          execute: vi.fn(),
-        },
-        writeFile: {
-          description: "mock write file",
-          execute: vi.fn(),
-        },
-      },
-    });
+      }
+    );
     requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool.mockReturnValue(
       {
         description: "mock request suggestions",
@@ -752,7 +754,9 @@ describe("ultra chatbot agent runtime", () => {
     );
 
     expect(response.status).toBe(200);
-    const runtimeSettings = aiMockState.ToolLoopAgent.mock.calls.at(-1)?.[0] as {
+    const runtimeSettings = aiMockState.ToolLoopAgent.mock.calls.at(
+      -1
+    )?.[0] as {
       tools: Record<string, unknown>;
     };
 

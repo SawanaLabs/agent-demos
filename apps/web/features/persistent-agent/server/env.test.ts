@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  getPersistentAgentConfig,
-  getPersistentAgentSetupState,
-} from "./env";
+import { getPersistentAgentConfig, getPersistentAgentSetupState } from "./env";
 
 describe("persistent agent env", () => {
   it("returns config from the feature-local env contract", () => {

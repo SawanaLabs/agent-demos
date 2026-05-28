@@ -1,12 +1,11 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-
-import { VERCEL_SANDBOX_WORKSPACE_ROOT } from "./vercel-sandbox";
 import {
   discoverSkills,
   type SkillMetadata,
   type SkillsSandbox,
 } from "./skill-catalog";
+import { VERCEL_SANDBOX_WORKSPACE_ROOT } from "./vercel-sandbox";
 
 export const PRIMARY_SKILL_NAMES = [
   "grill-with-docs",

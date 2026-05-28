@@ -39,7 +39,7 @@ export function UltraChatbotAgentDocumentDialog({
       open={documentId != null}
     >
       <DialogContent className="grid h-[calc(100svh-3rem)] max-h-[calc(100svh-3rem)] max-w-[min(1100px,calc(100%-2rem))] grid-rows-[auto,minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:max-w-[min(1100px,calc(100%-2rem))]">
-        <DialogHeader className="border-b border-foreground/10 px-5 py-4">
+        <DialogHeader className="border-foreground/10 border-b px-5 py-4">
           <DialogTitle>Document detail</DialogTitle>
         </DialogHeader>
 

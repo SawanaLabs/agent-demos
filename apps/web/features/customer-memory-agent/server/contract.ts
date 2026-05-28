@@ -1,4 +1,4 @@
-import { validateUIMessages, type UIMessage } from "ai";
+import { type UIMessage, validateUIMessages } from "ai";
 
 export const invalidCustomerIdError =
   'Expected a non-empty "customerId" string.';
@@ -28,8 +28,8 @@ export async function readCustomerMemoryChatRequest(body: unknown): Promise<{
   messages: UIMessage[];
   threadId: string;
 }> {
-  const { customerId, messages, threadId } =
-    (body ?? {}) as CustomerMemoryChatRequestBody;
+  const { customerId, messages, threadId } = (body ??
+    {}) as CustomerMemoryChatRequestBody;
 
   if (!Array.isArray(messages)) {
     throw new Error(invalidMessagesError);
@@ -52,9 +52,7 @@ export async function readCustomerMemoryChatRequest(body: unknown): Promise<{
   }
 }
 
-export function readCustomerMemorySessionQuery(
-  requestUrl: string | URL
-): {
+export function readCustomerMemorySessionQuery(requestUrl: string | URL): {
   customerId: string;
   query: string;
   threadId: string | null;

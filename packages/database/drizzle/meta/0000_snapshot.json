@@ -103,12 +103,8 @@
           "name": "rag_chatbot_embeddings_resource_id_rag_chatbot_resources_id_fk",
           "tableFrom": "rag_chatbot_embeddings",
           "tableTo": "rag_chatbot_resources",
-          "columnsFrom": [
-            "resource_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resource_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

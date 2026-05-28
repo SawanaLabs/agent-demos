@@ -22,6 +22,12 @@ updateAt: 2026-05-24
 - Package-level `lint` and `format` scripts in `apps/web`, `packages/ui`, and `packages/database` delegate back to the root so they use the same `biome.jsonc`.
 - Type-aware Ultracite requires `strictNullChecks` to stay enabled in TypeScript configs.
 - `correctness.useImportExtensions` is disabled in `biome.jsonc`. Workspace export maps and path aliases expose package paths such as `@workspace/ui/postcss.config` without file extensions.
+- Root Ultracite excludes `registry/**`. Those files are generated shadcn registry payloads for consumer apps, so their `@/components` and `@/lib` imports target the consumer project shape rather than this monorepo's `apps/web` aliases.
+- Test files disable a small set of low-signal runtime/style rules: direct env mutation, top-level regex extraction, async helper wrappers, no-op mocks, and `forEach` callback-return checks.
+- Demo feature files disable a small set of low-signal Ultracite rules that fight the reference-app surface: async facade methods, local parsing regexes, React fire-and-forget handlers, index keys in static presentation rows, and voice media captions.
+- Large interactive demo workspaces keep narrow complexity overrides while they are still feature-dense reference surfaces.
+- `apps/web/features/mcp-agent/server/project-*.ts` keeps a narrow barrel-file override because those files are compatibility re-export shims over the shared Project Docs MCP implementation.
+- `apps/web/features/openai-agents-sdk-demo/server/**/*.ts` keeps narrow overrides for Agents SDK extension points where `process.env` injection defaults, `void`, nested SDK-result branching, and `any`-typed third-party seams are part of the integration boundary.
 - Biome's built-in Drizzle domain is enabled. The Drizzle nursery rules `noDrizzleDeleteWithoutWhere` and `noDrizzleUpdateWithoutWhere` are elevated to errors for `database` and `db` instances to catch accidental full-table writes.
 - Biome `style.noProcessEnv` is enabled at warning level. Treat direct `process.env` reads as migration debt unless the file itself is a `keys.ts` or `env.ts` contract module.
 - Biome's official `complexity.noExcessiveLinesPerFunction` rule is enabled only for `apps/web/features/**/*.tsx` with `maxLines: 150` and `skipBlankLines: true`. Treat a hit as a React maintainability signal: keep the workspace/page component thin, move state and actions into hooks, and move pure derivation into model/helper modules.

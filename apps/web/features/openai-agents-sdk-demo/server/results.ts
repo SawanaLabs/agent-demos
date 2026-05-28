@@ -2,7 +2,7 @@ import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 
 function getFinalOutputPreview(finalOutput: unknown) {
   if (typeof finalOutput === "undefined") {
-    return undefined;
+    return;
   }
 
   const text =
@@ -50,11 +50,11 @@ export function getOpenAiAgentsSdkDemoResultUsageMetadata({
   return {
     resultSummary: {
       ...(activeAgentName ? { activeAgentName } : {}),
-      ...(typeof finalOutput !== "undefined"
-        ? {
+      ...(typeof finalOutput === "undefined"
+        ? {}
+        : {
             finalOutputPreview: getFinalOutputPreview(finalOutput),
-          }
-        : {}),
+          }),
       hasResumableState,
       historyLength,
       inputTokens: usage?.inputTokens ?? 0,

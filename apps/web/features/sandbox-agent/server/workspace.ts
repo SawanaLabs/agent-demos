@@ -1,3 +1,4 @@
+import { getSandboxAgentEnv, type SandboxAgentEnv } from "./env";
 import {
   createSandboxAgentToolset,
   type SandboxAgentToolset,
@@ -7,7 +8,6 @@ import {
   SANDBOX_AGENT_PREVIEW_PORT,
   type SandboxAgentSession,
 } from "./session";
-import { getSandboxAgentEnv, type SandboxAgentEnv } from "./env";
 
 export const defaultSandboxAgentSuggestedUseCases = [
   "Build a pricing landing page with an interactive calculator and start a live preview.",

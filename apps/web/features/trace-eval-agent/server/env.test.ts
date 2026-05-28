@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  getTraceEvalAgentConfig,
-  getTraceEvalAgentSetupState,
-} from "./env";
+import { getTraceEvalAgentConfig, getTraceEvalAgentSetupState } from "./env";
 
 describe("trace eval agent env", () => {
   it("returns chat config from the feature-local env contract", () => {

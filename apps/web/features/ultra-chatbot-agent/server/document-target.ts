@@ -8,7 +8,7 @@ function normalizeTitle(value: string) {
 
 function normalizeDocumentId(value: string | undefined) {
   if (!value || value === placeholderDocumentId) {
-    return undefined;
+    return;
   }
 
   return value;

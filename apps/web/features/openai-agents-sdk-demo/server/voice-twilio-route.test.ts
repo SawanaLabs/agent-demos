@@ -15,7 +15,8 @@ describe("openai agents sdk demo twilio call-control route", () => {
       routePath:
         "/api/demos/openai-agents-sdk-demo/realtime/twilio/incoming-call",
       sdkPrimitive: "TwilioRealtimeTransportLayer",
-      sourceGuide: "https://openai.github.io/openai-agents-js/extensions/twilio/",
+      sourceGuide:
+        "https://openai.github.io/openai-agents-js/extensions/twilio/",
       status: "setup-required",
       transportContract: "Twilio <Connect><Stream>",
     });
@@ -50,9 +51,11 @@ describe("openai agents sdk demo twilio call-control route", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("text/xml; charset=utf-8");
+    expect(response.headers.get("content-type")).toBe(
+      "text/xml; charset=utf-8"
+    );
     await expect(response.text()).resolves.toContain(
-      "<Connect><Stream url=\"wss://voice.example.com/media-stream\" /></Connect>"
+      '<Connect><Stream url="wss://voice.example.com/media-stream" /></Connect>'
     );
   });
 });

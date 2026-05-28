@@ -134,7 +134,9 @@ export function getMcpAgentSetupState(
   };
 }
 
-export function createMcpAgentGateway(env: McpAgentEnv = getMcpAgentEnv()) {
+export function createMcpAgentGateway(
+  env: McpAgentEnv = getMcpAgentEnv()
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getMcpAgentConfig(env);
 
   return createGateway({

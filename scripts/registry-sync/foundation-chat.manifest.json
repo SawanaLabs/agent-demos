@@ -31,7 +31,10 @@
           "expectedMatches": 1
         }
       ],
-      "forbidPatternsAfterTransform": ["@workspace/", "@/features/foundation-chat/"]
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/foundation-chat/"
+      ]
     },
     {
       "source": "apps/web/features/foundation-chat/ui/foundation-chat-workspace.tsx",
@@ -78,7 +81,10 @@
           "expectedMatches": 1
         }
       ],
-      "forbidPatternsAfterTransform": ["@workspace/", "@/features/foundation-chat/"]
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/foundation-chat/"
+      ]
     },
     {
       "source": "apps/web/features/foundation-chat/ui/use-foundation-chat.ts",

@@ -247,6 +247,25 @@ describe("evaluateTraceEvalRun", () => {
     });
   });
 
+  it("returns a client error when the object stream request body is empty", async () => {
+    const response = await handleTraceEvalAgentEvaluationStreamRequest(
+      new Request(
+        "https://example.test/api/demos/trace-eval-agent/evaluate/stream",
+        {
+          method: "POST",
+        }
+      ),
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+      }
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: 'Expected a JSON body with a "snapshot" object.',
+    });
+  });
+
   it("returns a client error when the object stream request is missing a completed run", async () => {
     const response = await handleTraceEvalAgentEvaluationStreamRequest(
       new Request(

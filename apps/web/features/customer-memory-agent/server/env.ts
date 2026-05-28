@@ -165,7 +165,7 @@ export function getCustomerMemoryAgentSetupState(
 
 export function createCustomerMemoryAgentGateway(
   env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getCustomerMemoryAgentConfig(env);
 
   return createGateway({

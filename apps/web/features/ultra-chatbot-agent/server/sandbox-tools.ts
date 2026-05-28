@@ -1,15 +1,12 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { ToolSet } from "ai";
-
+import type { SkillsAgentEnv } from "@/features/skills-agent/server/env";
+import { SKILLS_AGENT_WORKSPACE_ROOT } from "@/features/skills-agent/server/local-skill-catalog";
 import {
   createSkillsAgentOfficialTools,
   type SkillsAgentOfficialTools,
 } from "@/features/skills-agent/server/official-tools";
-import type { SkillsAgentEnv } from "@/features/skills-agent/server/env";
-import {
-  SKILLS_AGENT_WORKSPACE_ROOT,
-} from "@/features/skills-agent/server/local-skill-catalog";
 import {
   getSharedSkillsAgentSessionRegistry,
   SANDBOX_ARTIFACTS_ROOT,
@@ -56,7 +53,8 @@ export async function createUltraChatbotAgentSandboxToolbox(
   },
   dependencies: CreateUltraChatbotAgentSandboxToolboxDependencies = {}
 ): Promise<UltraChatbotAgentSandboxToolbox> {
-  const workspaceRoot = dependencies.workspaceRoot ?? SKILLS_AGENT_WORKSPACE_ROOT;
+  const workspaceRoot =
+    dependencies.workspaceRoot ?? SKILLS_AGENT_WORKSPACE_ROOT;
   const readAgentsFile = dependencies.readAgentsFile ?? readFile;
   const createOfficialTools =
     dependencies.createOfficialTools ?? createSkillsAgentOfficialTools;

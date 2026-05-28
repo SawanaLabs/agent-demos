@@ -51,7 +51,9 @@ describe("rag chatbot pdf ingestion", () => {
       "Reproduction Standards",
       "Reproduction Standards",
     ]);
-    expect(chunks[0]?.content).toContain("Identity elements need controlled reproduction rules.");
+    expect(chunks[0]?.content).toContain(
+      "Identity elements need controlled reproduction rules."
+    );
     expect(chunks[2]?.content).toContain("Distortion damages recognition.");
   });
 });

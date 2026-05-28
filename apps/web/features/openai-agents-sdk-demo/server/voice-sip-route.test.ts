@@ -25,12 +25,15 @@ describe("openai agents sdk demo SIP route", () => {
 
   it("requires a native OPENAI_API_KEY before building the SIP accept payload", async () => {
     const response = await handleOpenAiAgentsSdkDemoSipRequest(
-      new Request("http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip", {
-        body: JSON.stringify({
-          callId: "call_123",
-        }),
-        method: "POST",
-      }),
+      new Request(
+        "http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip",
+        {
+          body: JSON.stringify({
+            callId: "call_123",
+          }),
+          method: "POST",
+        }
+      ),
       {}
     );
 
@@ -52,12 +55,15 @@ describe("openai agents sdk demo SIP route", () => {
     });
 
     const response = await handleOpenAiAgentsSdkDemoSipRequest(
-      new Request("http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip", {
-        body: JSON.stringify({
-          callId: "call_123",
-        }),
-        method: "POST",
-      }),
+      new Request(
+        "http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip",
+        {
+          body: JSON.stringify({
+            callId: "call_123",
+          }),
+          method: "POST",
+        }
+      ),
       {
         OPENAI_API_KEY: "openai-key",
       },
@@ -84,10 +90,13 @@ describe("openai agents sdk demo SIP route", () => {
 
   it("returns a 400 when the request body is missing a callId", async () => {
     const response = await handleOpenAiAgentsSdkDemoSipRequest(
-      new Request("http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip", {
-        body: JSON.stringify({}),
-        method: "POST",
-      }),
+      new Request(
+        "http://localhost/api/demos/openai-agents-sdk-demo/realtime/sip",
+        {
+          body: JSON.stringify({}),
+          method: "POST",
+        }
+      ),
       {
         OPENAI_API_KEY: "openai-key",
       }

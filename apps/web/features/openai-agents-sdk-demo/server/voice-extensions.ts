@@ -1,12 +1,12 @@
 import {
+  RealtimeSession,
+  type RealtimeSessionConnectOptions,
+  type RealtimeTransportLayer,
+} from "@openai/agents/realtime";
+import {
   CloudflareRealtimeTransportLayer,
   TwilioRealtimeTransportLayer,
 } from "@openai/agents-extensions";
-import {
-  type RealtimeTransportLayer,
-  RealtimeSession,
-  type RealtimeSessionConnectOptions,
-} from "@openai/agents/realtime";
 
 import { createOpenAiAgentsSdkDemoVoiceAgentBundle } from "../voice-lane";
 
@@ -33,9 +33,7 @@ export interface OpenAiAgentsSdkDemoVoiceExtensionProfile {
   sourceGuide: string;
   status: "configured" | "setup-required";
   transport: "WebSocket";
-  workflowName:
-    | typeof cloudflareWorkflowName
-    | typeof twilioWorkflowName;
+  workflowName: typeof cloudflareWorkflowName | typeof twilioWorkflowName;
 }
 
 export interface OpenAiAgentsSdkDemoVoiceExtensionHandle<
@@ -97,8 +95,7 @@ function getOpenAiAgentsSdkDemoTwilioVoiceExtensionProfile(
     openAiApiKeyEnvVar,
     runtimeContract: "bring-your-own-websocket-server",
     sdkPrimitive: "TwilioRealtimeTransportLayer",
-    sourceGuide:
-      "https://openai.github.io/openai-agents-js/extensions/twilio/",
+    sourceGuide: "https://openai.github.io/openai-agents-js/extensions/twilio/",
     status: getVoiceExtensionProfileStatus(env),
     transport: "WebSocket",
     workflowName: twilioWorkflowName,
@@ -110,9 +107,7 @@ function createOpenAiAgentsSdkDemoVoiceSession({
   workflowName,
 }: {
   transport: RealtimeTransportLayer;
-  workflowName:
-    | typeof cloudflareWorkflowName
-    | typeof twilioWorkflowName;
+  workflowName: typeof cloudflareWorkflowName | typeof twilioWorkflowName;
 }) {
   const { primaryAgent } = createOpenAiAgentsSdkDemoVoiceAgentBundle();
 

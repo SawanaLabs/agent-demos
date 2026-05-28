@@ -141,7 +141,7 @@ export function getStreamingChatShellSetupState(
 
 export function createStreamingChatShellGateway(
   env: StreamingChatShellEnv = getStreamingChatShellEnv()
-) {
+): ReturnType<typeof createGateway> {
   const { apiKey, baseURL } = getStreamingChatShellConfig(env);
 
   return createGateway({

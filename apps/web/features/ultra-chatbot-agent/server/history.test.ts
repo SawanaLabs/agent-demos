@@ -33,7 +33,8 @@ describe("ultra chatbot agent history route contract", () => {
   });
 
   it("rejects using both pagination cursors at the same time", async () => {
-    const { handleUltraChatbotAgentHistoryRequest } = await importHistoryModule();
+    const { handleUltraChatbotAgentHistoryRequest } =
+      await importHistoryModule();
 
     const response = await handleUltraChatbotAgentHistoryRequest(
       new Request(
@@ -49,7 +50,8 @@ describe("ultra chatbot agent history route contract", () => {
   });
 
   it("clamps the requested page size before loading visitor history", async () => {
-    const { handleUltraChatbotAgentHistoryRequest } = await importHistoryModule();
+    const { handleUltraChatbotAgentHistoryRequest } =
+      await importHistoryModule();
 
     await handleUltraChatbotAgentHistoryRequest(
       new Request(

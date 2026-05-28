@@ -46,24 +46,6 @@ interface CustomerMemoryCleanupInput {
   visitorPrivateCustomerIds?: string[];
 }
 
-interface CustomerMemoryCleanupDatabaseModule {
-  customerMemoryCompactions: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryCompactions"];
-  customerMemoryMemories: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryMemories"];
-  customerMemoryMessages: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryMessages"];
-  customerMemoryThreads: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["customerMemoryThreads"];
-  database: Awaited<
-    ReturnType<typeof loadCustomerMemoryAgentDatabase>
-  >["database"];
-}
-
 function toIsoString(value: Date | string) {
   return value instanceof Date ? value.toISOString() : value;
 }

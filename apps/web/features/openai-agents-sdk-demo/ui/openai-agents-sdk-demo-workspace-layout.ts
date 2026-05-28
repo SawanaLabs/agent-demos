@@ -22,9 +22,7 @@ export function getOpenAiAgentsSdkDemoVoicePrimarySummary({
   hasPendingApproval: boolean;
 }) {
   if (connectionStatus === "connected") {
-    return hasPendingApproval
-      ? "Approval pending."
-      : "Live session.";
+    return hasPendingApproval ? "Approval pending." : "Live session.";
   }
 
   if (connectionStatus === "connecting") {

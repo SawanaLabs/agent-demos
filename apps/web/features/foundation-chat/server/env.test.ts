@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getFoundationChatConfig,
-  getFoundationChatSetupState,
-} from "./env";
+import { getFoundationChatConfig, getFoundationChatSetupState } from "./env";
 
 describe("foundation chat env", () => {
   it("resolves the feature-local AI Gateway config with defaults", () => {

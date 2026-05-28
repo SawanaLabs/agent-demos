@@ -2,7 +2,7 @@
 
 import { Badge } from "@workspace/ui/components/badge";
 
-type UltraChatbotAgentWeatherData = {
+interface UltraChatbotAgentWeatherData {
   cityName?: string;
   current: {
     temperature_2m: number;
@@ -16,7 +16,7 @@ type UltraChatbotAgentWeatherData = {
     sunset: string[];
   };
   timezone?: string;
-};
+}
 
 function formatWeatherTime(value: string | undefined) {
   if (!value) {

@@ -1,14 +1,11 @@
 import { getCustomerMemoryProfile } from "../customer-profiles";
 import {
-  getCustomerMemoryAgentEnv,
-  type CustomerMemoryAgentEnv,
-} from "./env";
-import {
   invalidCustomerIdError,
   malformedJsonError,
   readCustomerMemorySessionQuery,
   readCustomerMemoryThreadCreateRequest,
 } from "./contract";
+import { type CustomerMemoryAgentEnv, getCustomerMemoryAgentEnv } from "./env";
 import {
   createCustomerMemoryThread,
   loadCustomerMemorySession,

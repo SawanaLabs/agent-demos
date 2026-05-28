@@ -12,9 +12,9 @@ import {
 } from "./contract";
 import { streamCustomerMemoryConversation } from "./conversation";
 import {
+  type CustomerMemoryAgentEnv,
   getCustomerMemoryAgentEnv,
   getCustomerMemoryAgentSetupState,
-  type CustomerMemoryAgentEnv,
 } from "./env";
 import { createCustomerMemoryThreadStore } from "./thread-store";
 import {

@@ -2,9 +2,9 @@ import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
 import {
+  type CustomerMemoryAgentEnv,
   getCustomerMemoryAgentDatabaseConfig,
   getCustomerMemoryAgentEnv,
-  type CustomerMemoryAgentEnv,
 } from "./env";
 import {
   customerMemoryAgentSchema,

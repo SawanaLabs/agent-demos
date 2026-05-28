@@ -101,8 +101,9 @@ function normalizeCitationUrl(value: string) {
 
 function collectTextCitationSources(message: UIMessage) {
   const text = message.parts
-    .filter((part): part is Extract<UIMessage["parts"][number], { type: "text" }> =>
-      part.type === "text" && part.text.trim().length > 0
+    .filter(
+      (part): part is Extract<UIMessage["parts"][number], { type: "text" }> =>
+        part.type === "text" && part.text.trim().length > 0
     )
     .map((part) => part.text)
     .join("\n");
@@ -226,16 +227,18 @@ export function getUltraChatbotAgentFileParts(message: UIMessage) {
 }
 
 export function getUltraChatbotAgentSourceParts(message: UIMessage) {
-  const explicitSources = message.parts.filter(
-    (part): part is SourceUrlUIPart =>
-      part.type === "source-url" &&
-      typeof part.url === "string" &&
-      typeof part.sourceId === "string"
-  ).map((part) => ({
-    sourceId: part.sourceId,
-    title: part.title?.trim() || part.url,
-    url: part.url,
-  }));
+  const explicitSources = message.parts
+    .filter(
+      (part): part is SourceUrlUIPart =>
+        part.type === "source-url" &&
+        typeof part.url === "string" &&
+        typeof part.sourceId === "string"
+    )
+    .map((part) => ({
+      sourceId: part.sourceId,
+      title: part.title?.trim() || part.url,
+      url: part.url,
+    }));
 
   if (explicitSources.length > 0) {
     return explicitSources;
@@ -246,17 +249,15 @@ export function getUltraChatbotAgentSourceParts(message: UIMessage) {
     .flatMap((part) =>
       part.state === "output-available" &&
       hasUltraChatbotAgentToolSources(part.output)
-        ? part.output.sources
-            .map(normalizeToolSource)
-            .filter(
-              (
-                source
-              ): source is {
-                sourceId: string;
-                title: string;
-                url: string;
-              } => source !== null
-            )
+        ? part.output.sources.map(normalizeToolSource).filter(
+            (
+              source
+            ): source is {
+              sourceId: string;
+              title: string;
+              url: string;
+            } => source !== null
+          )
         : []
     );
 
@@ -304,7 +305,9 @@ export function isUltraChatbotAgentDocumentResult(
 }
 
 function isStringArray(value: unknown) {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
 }
 
 function isResearchReportSources(value: unknown) {
@@ -356,7 +359,7 @@ function readMcpJsonText(output: UltraChatbotAgentToolPart["output"]) {
       typeof part.text === "string"
   );
 
-  if (!firstTextPart || !("text" in firstTextPart)) {
+  if (!(firstTextPart && "text" in firstTextPart)) {
     return null;
   }
 

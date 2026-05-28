@@ -16,7 +16,8 @@ describe("openai agents sdk demo twilio media-stream server", () => {
       rootRoutePath: "/",
       sdkPrimitive: "TwilioRealtimeTransportLayer + RealtimeSession",
       serverPrimitive: "Fastify + @fastify/websocket",
-      sourceGuide: "https://openai.github.io/openai-agents-js/extensions/twilio/",
+      sourceGuide:
+        "https://openai.github.io/openai-agents-js/extensions/twilio/",
       status: "setup-required",
       twimlTransport: "Twilio <Connect><Stream>",
       websocketProtocol: "wss",

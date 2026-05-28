@@ -51,7 +51,9 @@ export async function handleUltraChatbotAgentVotePatchRequest(
   request: Request,
   viewer: { visitorId: string }
 ) {
-  const parsedBody = ultraChatbotAgentVoteSchema.safeParse(await request.json());
+  const parsedBody = ultraChatbotAgentVoteSchema.safeParse(
+    await request.json()
+  );
 
   if (!parsedBody.success) {
     return Response.json(

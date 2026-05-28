@@ -1,8 +1,8 @@
 import type { DeepPartial } from "ai";
 
 import {
-  objectGenerationRecordIdHeader,
   type ObjectGenerationRecord,
+  objectGenerationRecordIdHeader,
 } from "../record";
 import type {
   ObjectGenerationAttachment,
@@ -20,8 +20,8 @@ export interface ReviewThreadEntry {
   errorMessage: string | null;
   id: string;
   prompt: string;
-  requestAttachments: ObjectGenerationAttachment[];
   record: ObjectGenerationRecord | null;
+  requestAttachments: ObjectGenerationAttachment[];
   result: DeepPartial<ObjectGenerationResult> | undefined;
   status: ReviewEntryStatus;
 }
@@ -80,7 +80,9 @@ export function mergePendingReviewAttachments(
   current: PendingReviewAttachment[],
   nextAttachments: PendingReviewAttachment[]
 ) {
-  const byId = new Map(current.map((attachment) => [attachment.id, attachment]));
+  const byId = new Map(
+    current.map((attachment) => [attachment.id, attachment])
+  );
 
   for (const attachment of nextAttachments) {
     byId.set(attachment.id, attachment);
@@ -97,7 +99,9 @@ export function removePendingReviewAttachment(
     current.find((attachment) => attachment.id === attachmentId) ?? null;
 
   return {
-    nextAttachments: current.filter((attachment) => attachment.id !== attachmentId),
+    nextAttachments: current.filter(
+      (attachment) => attachment.id !== attachmentId
+    ),
     removedAttachment,
   };
 }
@@ -168,8 +172,7 @@ export function failReviewThreadEntry(
   return finalizeReviewThreadEntry(entries, {
     entryId,
     errorMessage,
-    record:
-      entries.find((entry) => entry.id === entryId)?.record ?? null,
+    record: entries.find((entry) => entry.id === entryId)?.record ?? null,
     result,
     status: "error",
   });
@@ -182,8 +185,7 @@ export function stopReviewThreadEntry(
 ) {
   return finalizeReviewThreadEntry(entries, {
     entryId,
-    record:
-      entries.find((entry) => entry.id === entryId)?.record ?? null,
+    record: entries.find((entry) => entry.id === entryId)?.record ?? null,
     result,
     status: "stopped",
   });
@@ -192,16 +194,17 @@ export function stopReviewThreadEntry(
 export function restartReviewThreadEntry(
   entries: ReviewThreadEntry[],
   entryId: string
-) : ReviewThreadEntry[] {
-  return entries.map((entry): ReviewThreadEntry =>
-    entry.id === entryId
-      ? {
-          ...entry,
-          errorMessage: null,
-          record: null,
-          status: "streaming" as const,
-        }
-      : entry
+): ReviewThreadEntry[] {
+  return entries.map(
+    (entry): ReviewThreadEntry =>
+      entry.id === entryId
+        ? {
+            ...entry,
+            errorMessage: null,
+            record: null,
+            status: "streaming" as const,
+          }
+        : entry
   );
 }
 
@@ -217,7 +220,7 @@ export function toDisplayReviewThreadEntries(
     return {
       ...entry,
       isActive,
-      liveResult: isActive ? liveObject ?? entry.result : entry.result,
+      liveResult: isActive ? (liveObject ?? entry.result) : entry.result,
       liveStatus: isActive && isLoading ? "streaming" : entry.status,
     };
   });

@@ -3,8 +3,8 @@ import { embedMany } from "ai";
 import { count, eq } from "drizzle-orm";
 
 import {
-  type RagChatbotDatabaseModule,
   loadRagChatbotDatabase,
+  type RagChatbotDatabaseModule,
 } from "./database";
 import {
   createRagChatbotGateway,

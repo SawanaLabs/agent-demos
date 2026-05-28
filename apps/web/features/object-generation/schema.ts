@@ -58,5 +58,9 @@ export const objectGenerationResultSchema = z.object({
 export type ObjectGenerationAttachment = z.infer<
   typeof objectGenerationAttachmentSchema
 >;
-export type ObjectGenerationRequest = z.infer<typeof objectGenerationRequestSchema>;
-export type ObjectGenerationResult = z.infer<typeof objectGenerationResultSchema>;
+export type ObjectGenerationRequest = z.infer<
+  typeof objectGenerationRequestSchema
+>;
+export type ObjectGenerationResult = z.infer<
+  typeof objectGenerationResultSchema
+>;

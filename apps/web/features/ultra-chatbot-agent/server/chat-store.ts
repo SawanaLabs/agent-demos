@@ -192,11 +192,8 @@ export function createUltraChatbotAgentChatStore() {
       visitorId: string
     ): Promise<UltraChatbotAgentChatSession | null> {
       try {
-        const {
-          database,
-          ultraChatbotAgentChats,
-          ultraChatbotAgentMessages,
-        } = await loadUltraChatbotAgentDatabase();
+        const { database, ultraChatbotAgentChats, ultraChatbotAgentMessages } =
+          await loadUltraChatbotAgentDatabase();
         const [chat] = await database
           .select()
           .from(ultraChatbotAgentChats)
@@ -276,7 +273,7 @@ export function createUltraChatbotAgentChatStore() {
         return anchor ?? null;
       };
 
-      let rows: typeof ultraChatbotAgentChats.$inferSelect[] = [];
+      let rows: (typeof ultraChatbotAgentChats.$inferSelect)[] = [];
 
       if (input.startingAfter) {
         const anchor = await loadAnchor(input.startingAfter);
@@ -612,11 +609,8 @@ export function createUltraChatbotAgentChatStore() {
       messageId: string;
       visitorId: string;
     }) {
-      const {
-        database,
-        ultraChatbotAgentChats,
-        ultraChatbotAgentMessages,
-      } = await loadUltraChatbotAgentDatabase();
+      const { database, ultraChatbotAgentChats, ultraChatbotAgentMessages } =
+        await loadUltraChatbotAgentDatabase();
 
       const [targetMessage] = await database
         .select({
@@ -709,11 +703,8 @@ export function createUltraChatbotAgentChatStore() {
     },
     async deleteChatForVisitor(input: { chatId: string; visitorId: string }) {
       try {
-        const {
-          database,
-          ultraChatbotAgentChats,
-          ultraChatbotAgentVotes,
-        } = await import("@workspace/database");
+        const { database, ultraChatbotAgentChats, ultraChatbotAgentVotes } =
+          await import("@workspace/database");
 
         const deletedChats = await database.transaction(async (tx) => {
           const rows = await tx

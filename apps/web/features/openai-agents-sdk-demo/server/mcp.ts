@@ -11,8 +11,7 @@ import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 
 export const OPENAI_AGENTS_SDK_DEMO_MCP_ROUTE_PATH =
   "/api/demos/openai-agents-sdk-demo/mcp";
-export const OPENAI_AGENTS_SDK_DEMO_MCP_SERVER_NAME =
-  "openai_agents_demo_docs";
+export const OPENAI_AGENTS_SDK_DEMO_MCP_SERVER_NAME = "openai_agents_demo_docs";
 export const openAiAgentsSdkDemoMcpToolNames = [
   "read_demo_doc",
   "search_demo_docs",
@@ -48,10 +47,7 @@ export interface OpenAiAgentsSdkDemoMcpCatalogEntry {
   urlPath: string;
 }
 
-function getMcpToolName(rawItem: {
-  name?: string;
-  type?: string;
-}) {
+function getMcpToolName(rawItem: { name?: string; type?: string }) {
   if (
     rawItem.type === "function_call" ||
     rawItem.type === "function_call_result"
@@ -66,7 +62,9 @@ function getFailedServerErrorMessages(mcpServers: MCPServers) {
   return mcpServers.failed.map((server) => {
     const error = mcpServers.errors.get(server);
 
-    return error ? `${server.name}: ${error.message}` : `${server.name}: failed`;
+    return error
+      ? `${server.name}: ${error.message}`
+      : `${server.name}: failed`;
   });
 }
 
@@ -144,7 +142,9 @@ export function getOpenAiAgentsSdkDemoMcpUsageMetadata({
     new Set(
       newItems
         .map((item) =>
-          getMcpToolName((item.rawItem ?? {}) as { name?: string; type?: string })
+          getMcpToolName(
+            (item.rawItem ?? {}) as { name?: string; type?: string }
+          )
         )
         .filter(
           (value): value is string =>
@@ -156,7 +156,7 @@ export function getOpenAiAgentsSdkDemoMcpUsageMetadata({
     mcpServers.active.length > 0 || mcpServers.failed.length > 0;
 
   if (!hasConnectionMetadata && usedToolNames.length === 0) {
-    return undefined;
+    return;
   }
 
   return {

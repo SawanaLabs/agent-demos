@@ -16,7 +16,7 @@ describe("openai agents sdk demo running helpers", () => {
             role: "assistant",
           },
         ],
-      }),
+      })
     ).toThrow("At least one user message is required");
   });
 
@@ -30,7 +30,7 @@ describe("openai agents sdk demo running helpers", () => {
     }
 
     expect(getOpenAiAgentsSdkDemoRunInputErrorMessage(capturedError)).toBe(
-      "At least one user message is required before starting an agent run.",
+      "At least one user message is required before starting an agent run."
     );
   });
 
@@ -63,7 +63,7 @@ describe("openai agents sdk demo running helpers", () => {
             role: "user",
           },
         ],
-      }),
+      })
     ).toEqual({
       input: [
         {
@@ -101,7 +101,7 @@ describe("openai agents sdk demo running helpers", () => {
             role: "user",
           },
         ],
-      }),
+      })
     ).toEqual({
       input: [
         {

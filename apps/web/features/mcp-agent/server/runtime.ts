@@ -1,6 +1,6 @@
 import { type UIMessage, validateUIMessages } from "ai";
-import { getMcpAgentEnv, getMcpAgentSetupState } from "./env";
 import { streamMcpAgent } from "./chat";
+import { getMcpAgentEnv, getMcpAgentSetupState } from "./env";
 import { projectMcpToolDefinitions } from "./project-tools";
 
 type DemoEnv = Record<string, string | undefined>;

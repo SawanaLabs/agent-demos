@@ -62,7 +62,8 @@ export function getOpenAiAgentsSdkDemoCloudflareWorkerAppProfile(
     rootRoutePath: cloudflareRootRoutePath,
     sdkPrimitive: "CloudflareRealtimeTransportLayer + RealtimeSession",
     serverPrimitive: "export default { fetch(request, env, ctx) }",
-    sourceGuide: "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
+    sourceGuide:
+      "https://openai.github.io/openai-agents-js/extensions/cloudflare/",
     status: env[openAiApiKeyEnvVar] ? "configured" : "setup-required",
     websocketUpgradePrimitive: "fetch() + Upgrade: websocket",
     workerCompatibilityFlag: "nodejs_compat",

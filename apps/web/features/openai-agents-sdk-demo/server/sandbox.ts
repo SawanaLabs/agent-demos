@@ -1,16 +1,16 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import type { RunContext, RunItem } from "@openai/agents";
 import {
   Capabilities,
+  localDir,
   Manifest,
   SandboxAgent,
-  localDir,
 } from "@openai/agents/sandbox";
 import {
   UnixLocalSandboxClient,
   type UnixLocalSandboxSessionState,
 } from "@openai/agents/sandbox/local";
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
 import { z } from "zod";
 
 import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
@@ -26,18 +26,14 @@ function getOpenAiAgentsSdkDemoRepoRoot() {
 
   if (
     existsSync(resolve(rootLikeCwd, "docs/frontend")) &&
-    existsSync(
-      resolve(rootLikeCwd, "apps/web/features/openai-agents-sdk-demo")
-    )
+    existsSync(resolve(rootLikeCwd, "apps/web/features/openai-agents-sdk-demo"))
   ) {
     return rootLikeCwd;
   }
 
   if (
     existsSync(resolve(appLikeCwd, "docs/frontend")) &&
-    existsSync(
-      resolve(appLikeCwd, "apps/web/features/openai-agents-sdk-demo")
-    )
+    existsSync(resolve(appLikeCwd, "apps/web/features/openai-agents-sdk-demo"))
   ) {
     return appLikeCwd;
   }
@@ -53,7 +49,10 @@ const sandboxMountedEntries = {
   feature: resolve(sandboxRepoRoot, "apps/web/features/openai-agents-sdk-demo"),
 } as const;
 const sandboxClient = new UnixLocalSandboxClient();
-const sandboxSessionStateStore = new Map<string, UnixLocalSandboxSessionState>();
+const sandboxSessionStateStore = new Map<
+  string,
+  UnixLocalSandboxSessionState
+>();
 
 export const openAiAgentsSdkDemoSandboxSummarySchema = z.object({
   backendId: z.string(),
@@ -76,7 +75,7 @@ export interface OpenAiAgentsSdkDemoSandboxProfile {
     "Manifest",
     "Capabilities.default()",
     "UnixLocalSandboxClient",
-    "RunConfig.sandbox"
+    "RunConfig.sandbox",
   ];
   sessionPersistence: "session-id -> process-local sessionState";
   workspaceSource: "localDir() -> temp workspace";
@@ -132,11 +131,7 @@ export function getOpenAiAgentsSdkDemoSandboxProfile(): OpenAiAgentsSdkDemoSandb
   };
 }
 
-function getSerializedSandboxState(
-  state?: {
-    toJSON?: () => unknown;
-  }
-) {
+function getSerializedSandboxState(state?: { toJSON?: () => unknown }) {
   const serializedState = state?.toJSON?.() as
     | {
         sandbox?: {
@@ -240,14 +235,13 @@ export function getOpenAiAgentsSdkDemoSandboxUsageMetadata({
   const sandboxState = getSerializedSandboxState(state);
   const usedSandboxTool = didUseOpenAiAgentsSdkDemoSandboxTool(newItems);
 
-  if (!sandboxState && !usedSandboxTool) {
-    return undefined;
+  if (!(sandboxState || usedSandboxTool)) {
+    return;
   }
 
-  const mountedPaths =
-    Object.keys(sandboxState?.sessionState.manifest?.entries ?? {}).map(
-      (entryName) => `${sandboxManifestRoot}/${entryName}`
-    );
+  const mountedPaths = Object.keys(
+    sandboxState?.sessionState.manifest?.entries ?? {}
+  ).map((entryName) => `${sandboxManifestRoot}/${entryName}`);
 
   return {
     sandboxSummary: {

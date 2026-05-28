@@ -45,6 +45,12 @@ import {
   useLangGraphAgent,
 } from "./use-langgraph-agent";
 
+const langGraphAgentSamplePrompts = [
+  "Plan a safe LangGraph handoff from product research to implementation.",
+  "Explain how this thread streams LangGraph node updates into AI SDK UI messages.",
+  "Validate the minimum environment setup for running this LangGraph demo locally.",
+] as const;
+
 function getTextContent(message: LangGraphAgentMessage) {
   return message.parts
     .filter((part) => part.type === "text")
@@ -357,6 +363,23 @@ export function LangGraphAgentWorkspace({
                 </div>
               </PromptInputFooter>
             </PromptInput>
+
+            {hasMessages ? null : (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {langGraphAgentSamplePrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    onClick={() => sendMessage({ text: prompt })}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <GitBranchIcon className="size-3.5" />
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Card>

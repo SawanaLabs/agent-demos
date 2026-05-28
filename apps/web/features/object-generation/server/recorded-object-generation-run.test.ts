@@ -69,7 +69,7 @@ describe("recorded review run", () => {
   it("marks the record as error when the final object cannot be parsed", async () => {
     const response = startRecordedObjectGenerationRun({
       textStream: (async function* () {
-        yield "{\"decision\":";
+        yield '{"decision":';
       })(),
       totalUsage: Promise.resolve({
         cachedInputTokens: undefined,

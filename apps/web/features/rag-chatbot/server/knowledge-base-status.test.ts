@@ -125,10 +125,7 @@ describe("rag chatbot knowledge base status", () => {
 
     expect(databaseDouble.state.whereValues).toEqual(
       expect.arrayContaining([
-        expect.arrayContaining([
-          "source_slug",
-          ragChatbotSourceDocument.slug,
-        ]),
+        expect.arrayContaining(["source_slug", ragChatbotSourceDocument.slug]),
       ])
     );
   });

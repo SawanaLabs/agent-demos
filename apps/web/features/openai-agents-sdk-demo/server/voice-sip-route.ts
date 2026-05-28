@@ -5,8 +5,7 @@ import { buildOpenAiAgentsSdkDemoSipInitialConfig } from "./voice-sip";
 type DemoEnv = Record<string, string | undefined>;
 
 const openAiApiKeyEnvVar = "OPENAI_API_KEY";
-const sipRoutePath =
-  "/api/demos/openai-agents-sdk-demo/realtime/sip" as const;
+const sipRoutePath = "/api/demos/openai-agents-sdk-demo/realtime/sip" as const;
 const invalidRequestBodyError =
   'Expected a JSON body with a required "callId" string.';
 

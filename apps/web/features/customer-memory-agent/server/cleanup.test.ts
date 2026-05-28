@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  type CustomerMemoryCleanupPersistence,
   cleanupExpiredCustomerMemoryThreads,
   customerMemoryCleanupRetentionDays,
-  type CustomerMemoryCleanupPersistence,
 } from "./cleanup";
 
 function createPersistence(

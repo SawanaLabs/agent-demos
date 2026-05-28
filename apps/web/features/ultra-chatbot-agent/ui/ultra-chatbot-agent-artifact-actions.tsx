@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowCounterClockwiseIcon, FloppyDiskIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+  ArrowCounterClockwiseIcon,
+  FloppyDiskIcon,
+  PlusIcon,
+} from "@phosphor-icons/react";
 import { Button } from "@workspace/ui/components/button";
 
 export function UltraChatbotAgentArtifactActions({

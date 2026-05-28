@@ -44,7 +44,9 @@ describe("openai agents sdk demo server voice websocket transport", () => {
     expect(handle.session.transport.constructor.name).toBe(
       "OpenAIRealtimeWebSocket"
     );
-    await expect(handle.session.getInitialSessionConfig()).resolves.toMatchObject({
+    await expect(
+      handle.session.getInitialSessionConfig()
+    ).resolves.toMatchObject({
       audio: {
         output: {
           voice: "marin",

@@ -1,10 +1,11 @@
 import { posix as posixPath } from "node:path";
 
+import { createBashTool, experimental_createSkillTool } from "bash-tool";
+
 import type { SkillsAgentSession } from "./sandbox";
 import type { SkillMetadata } from "./skill-catalog";
 
 const DEFAULT_SKILLS_DESTINATION = ".agents/skills";
-const BASH_TOOL_MODULE_SPECIFIER = ["bash", "tool"].join("-");
 const LEADING_DOT_SLASH_PATTERN = /^\.\//;
 const SKILL_NAME_ALIAS_SEPARATOR_PATTERN = /[\s_]+/g;
 const REPEATED_DASH_PATTERN = /-+/g;
@@ -134,9 +135,6 @@ export async function createSkillsAgentOfficialTools({
   session: SkillsAgentSession;
   skillsDirectory: string;
 }): Promise<SkillsAgentOfficialTools> {
-  const { createBashTool, experimental_createSkillTool } = await import(
-    BASH_TOOL_MODULE_SPECIFIER
-  );
   const skillToolkit = await experimental_createSkillTool({
     destination: DEFAULT_SKILLS_DESTINATION,
     skillsDirectory,

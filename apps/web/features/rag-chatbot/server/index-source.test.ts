@@ -73,9 +73,9 @@ function createDatabaseDouble(options: {
           sectionTitle: null,
         }))
       : ([] as EmbeddingRow[]),
-    insertedResourceRows: [] as Array<Record<string, unknown>>,
+    insertedResourceRows: [] as Record<string, unknown>[],
     resource: existingResource ? cloneState(existingResource) : null,
-    resourceUpdates: [] as Array<Record<string, unknown>>,
+    resourceUpdates: [] as Record<string, unknown>[],
   };
 
   function createClient(currentState: typeof state): any {
@@ -86,9 +86,7 @@ function createDatabaseDouble(options: {
             if (table === embeddingsTable && currentState.resource) {
               const resourceId = currentState.resource.id;
 
-              currentState.deletedEmbeddingResourceIds.push(
-                resourceId
-              );
+              currentState.deletedEmbeddingResourceIds.push(resourceId);
               currentState.embeddingRows = currentState.embeddingRows.filter(
                 (row) => row.resourceId !== resourceId
               );
@@ -109,11 +107,11 @@ function createDatabaseDouble(options: {
       },
       insert(table: unknown) {
         return {
-          values(values: Record<string, unknown> | Array<Record<string, unknown>>) {
+          values(values: Record<string, unknown> | Record<string, unknown>[]) {
             if (table === resourcesTable && !Array.isArray(values)) {
               currentState.insertedResourceRows.push(values);
               currentState.resource = {
-                ...((values as unknown) as ResourceRow),
+                ...(values as unknown as ResourceRow),
                 id: currentState.resource?.id ?? "resource-2",
               };
 
@@ -131,7 +129,7 @@ function createDatabaseDouble(options: {
                 return Promise.reject(options.embeddingInsertError);
               }
 
-              currentState.embeddingRows = (values as unknown) as EmbeddingRow[];
+              currentState.embeddingRows = values as unknown as EmbeddingRow[];
               return Promise.resolve();
             }
 
@@ -186,7 +184,9 @@ function createDatabaseDouble(options: {
           },
         };
       },
-      transaction<T>(callback: (tx: ReturnType<typeof createClient>) => Promise<T>) {
+      transaction<T>(
+        callback: (tx: ReturnType<typeof createClient>) => Promise<T>
+      ) {
         const draftState = cloneState(currentState);
         const txClient = createClient(draftState);
 

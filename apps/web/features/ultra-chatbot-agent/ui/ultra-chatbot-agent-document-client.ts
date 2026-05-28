@@ -40,9 +40,11 @@ function buildUltraChatbotAgentDocumentSearchParams(input: {
 
 export async function loadUltraChatbotAgentDocuments(chatId: string) {
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId,
+      }
+    ).toString()}`,
     {
       credentials: "include",
     }
@@ -72,10 +74,12 @@ export async function loadUltraChatbotAgentDocumentVersions(
   documentId: string
 ) {
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId,
-      documentId,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId,
+        documentId,
+      }
+    ).toString()}`,
     {
       credentials: "include",
     }
@@ -93,10 +97,12 @@ export async function loadUltraChatbotAgentDocumentSuggestions(
   documentId: string
 ) {
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/suggestions?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId,
-      documentId,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/suggestions?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId,
+        documentId,
+      }
+    ).toString()}`,
     {
       credentials: "include",
     }
@@ -112,10 +118,12 @@ export async function loadUltraChatbotAgentDocumentSuggestions(
 export async function createUltraChatbotAgentScratchDocument(chatId: string) {
   const documentId = crypto.randomUUID();
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId,
-      documentId,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId,
+        documentId,
+      }
+    ).toString()}`,
     {
       body: JSON.stringify({
         content: "",
@@ -144,10 +152,12 @@ export async function saveUltraChatbotAgentDocumentDraft(input: {
   title: string;
 }) {
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId: input.chatId,
-      documentId: input.documentId,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId: input.chatId,
+        documentId: input.documentId,
+      }
+    ).toString()}`,
     {
       body: JSON.stringify({
         content: input.content,
@@ -176,11 +186,13 @@ export async function restoreUltraChatbotAgentDocumentVersion(input: {
   documentId: string;
 }) {
   const response = await fetch(
-    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams({
-      chatId: input.chatId,
-      documentId: input.documentId,
-      timestamp: input.createdAt,
-    }).toString()}`,
+    `/api/demos/ultra-chatbot-agent/document?${buildUltraChatbotAgentDocumentSearchParams(
+      {
+        chatId: input.chatId,
+        documentId: input.documentId,
+        timestamp: input.createdAt,
+      }
+    ).toString()}`,
     {
       credentials: "include",
       method: "DELETE",

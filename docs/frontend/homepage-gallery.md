@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-05-25
+updateAt: 2026-05-28
 ---
 
 # Homepage Gallery
@@ -21,6 +21,9 @@ updateAt: 2026-05-25
 
 - Shape the homepage as a demo gallery for technical evaluators.
 - Present each ready agent demo as an active gallery card.
+- Present a compact `Recommend` section above `Interactive now` when a small number of ready demos should be highlighted without removing them from the full ready gallery.
+- Keep recommended cards on the same `Gallery card` component, grid behavior, badges, visual framing, and interaction model as `Interactive now`; the only extra affordance should be a small top-right rank badge such as `Number One`.
+- The current recommended ready demos are Ultra Chatbot Agent, LangGraph Agent, and OpenAI Agents SDK Demo.
 - Present roadmap demos as visible but non-active roadmap cards.
 - The homepage catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Each gallery card should make the agent pattern legible through its title and a concise product-metaphor visual.

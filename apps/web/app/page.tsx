@@ -20,6 +20,36 @@ import {
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 import { registryGuideConfig } from "@/features/registry-guide/registry-guide-data";
 
+const recommendedDemoRanks = [
+  {
+    rankLabel: "Number One",
+    slug: "ultra-chatbot-agent",
+  },
+  {
+    rankLabel: "Number Two",
+    slug: "langgraph-agent",
+  },
+  {
+    rankLabel: "Number Three",
+    slug: "openai-agents-sdk-demo",
+  },
+] as const;
+
+const recommendedDemoEntries = recommendedDemoRanks.map((recommendation) => {
+  const demo = readyDemoCatalogEntries.find(
+    (entry) => entry.slug === recommendation.slug
+  );
+
+  if (!demo) {
+    throw new Error(`Recommended demo is not ready: ${recommendation.slug}`);
+  }
+
+  return {
+    demo,
+    rankLabel: recommendation.rankLabel,
+  };
+});
+
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
   const { ascii } = demo.galleryVisual;
@@ -57,18 +87,31 @@ function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   );
 }
 
-function DemoGalleryCard({ demo }: { demo: DemoCatalogEntry }) {
+function DemoGalleryCard({
+  demo,
+  rankLabel,
+}: {
+  demo: DemoCatalogEntry;
+  rankLabel?: string;
+}) {
   const card = (
     <Card
       className="h-full border border-foreground/10 transition-colors hover:border-foreground/30"
       size="sm"
     >
       <CardHeader>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">
-            {demo.status === "ready" ? "Ready" : "Roadmap"}
-          </Badge>
-          <Badge variant="outline">{demoPatternLabels[demo.pattern]}</Badge>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <Badge variant="outline">
+              {demo.status === "ready" ? "Ready" : "Roadmap"}
+            </Badge>
+            <Badge variant="outline">{demoPatternLabels[demo.pattern]}</Badge>
+          </div>
+          {rankLabel ? (
+            <Badge className="shrink-0" variant="outline">
+              {rankLabel}
+            </Badge>
+          ) : null}
         </div>
         <CardTitle>{demo.title}</CardTitle>
         <CardDescription>{demo.summary}</CardDescription>
@@ -162,6 +205,29 @@ export default function Page() {
         </section>
 
         <section className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                  Recommend
+                </p>
+                <h2 className="mt-1 font-medium text-xl">Start here</h2>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                {recommendedDemoEntries.length} highlighted demos
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {recommendedDemoEntries.map(({ demo, rankLabel }) => (
+                <DemoGalleryCard
+                  demo={demo}
+                  key={demo.slug}
+                  rankLabel={rankLabel}
+                />
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div>

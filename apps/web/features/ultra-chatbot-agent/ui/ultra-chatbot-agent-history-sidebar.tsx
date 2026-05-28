@@ -144,8 +144,7 @@ export function UltraChatbotAgentHistorySidebar({
         chats: [],
         hasMore: false,
       });
-      router.push(toRootPath());
-      router.refresh();
+      window.location.replace(toRootPath());
     } catch (error) {
       setHistoryError(
         error instanceof Error
@@ -165,11 +164,13 @@ export function UltraChatbotAgentHistorySidebar({
       await deleteHistoryChat(chat.id);
       setHistoryPage((current) => ({
         ...current,
-        chats: current.chats.filter((currentChat) => currentChat.id !== chat.id),
+        chats: current.chats.filter(
+          (currentChat) => currentChat.id !== chat.id
+        ),
       }));
 
       if (chat.id === currentChatId) {
-        router.push(toRootPath());
+        window.location.replace(toRootPath());
       } else {
         router.refresh();
       }

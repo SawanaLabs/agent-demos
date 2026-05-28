@@ -84,4 +84,25 @@ describe("ultra chatbot agent research report tool", () => {
       })
     );
   });
+
+  it("keeps source locators free of rejected URI schema format metadata", async () => {
+    const { researchReportSchema } = await importResearchReportModule();
+
+    const result = researchReportSchema.safeParse({
+      executiveSummary: "A short grounded comparison.",
+      keyFindings: ["Kimi and MiniMax emphasize different workflows."],
+      recommendations: ["Validate against the target product workflow."],
+      risks: [],
+      sources: [
+        {
+          title: "Moonshot product docs",
+          url: "Moonshot product docs and release notes",
+        },
+      ],
+      title: "Model comparison",
+      topic: "Kimi vs MiniMax",
+    });
+
+    expect(result.success).toBe(true);
+  });
 });

@@ -6,9 +6,9 @@ import {
   findProjectRoot,
   listProjectDocsSearchPaths,
   loadProjectDocsCatalog,
-  type ProjectDocsCatalogEntry,
   type ProjectDemoPattern,
   type ProjectDemoStatus,
+  type ProjectDocsCatalogEntry,
 } from "./project-docs-catalog";
 
 export interface ProjectDocFile {
@@ -26,6 +26,11 @@ export interface ProjectDocSearchMatch {
   line: number;
   path: string;
   text: string;
+}
+
+interface ScoredProjectDocSearchMatch extends ProjectDocSearchMatch {
+  order: number;
+  score: number;
 }
 
 export const projectMcpToolDefinitions = [
@@ -60,6 +65,92 @@ async function readRepoFile(
     content: await readFile(absolutePath, "utf8"),
     path: path.relative(root, absolutePath),
   };
+}
+
+const tokenPattern = /[\p{L}\p{N}][\p{L}\p{N}._/-]*/gu;
+const cjkPhrasePattern = /[\p{Script=Han}]{2,}/gu;
+const tokenSeparatorPattern = /[._/-]+/g;
+const searchStopWords = new Set([
+  "and",
+  "based",
+  "between",
+  "core",
+  "docs",
+  "for",
+  "from",
+  "the",
+  "with",
+]);
+
+function normalizeSearchText(value: string) {
+  return value.normalize("NFKC").toLowerCase();
+}
+
+function pushSearchToken(tokens: Set<string>, token: string) {
+  const normalizedToken = token.trim();
+
+  if (
+    normalizedToken.length < 2 ||
+    searchStopWords.has(normalizedToken) ||
+    tokens.size >= 32
+  ) {
+    return;
+  }
+
+  tokens.add(normalizedToken);
+}
+
+function getSearchTokens(query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+  const tokens = new Set<string>();
+
+  for (const match of normalizedQuery.matchAll(tokenPattern)) {
+    for (const segment of match[0].split(tokenSeparatorPattern)) {
+      pushSearchToken(tokens, segment);
+    }
+  }
+
+  for (const match of normalizedQuery.matchAll(cjkPhrasePattern)) {
+    const phrase = match[0];
+
+    for (let index = 0; index < phrase.length - 1; index += 1) {
+      pushSearchToken(tokens, phrase.slice(index, index + 2));
+    }
+  }
+
+  return [...tokens];
+}
+
+function scoreSearchLine(input: {
+  line: string;
+  normalizedQuery: string;
+  path: string;
+  tokens: string[];
+}) {
+  const normalizedLine = normalizeSearchText(input.line);
+  const normalizedPath = normalizeSearchText(input.path);
+  const haystack = `${normalizedPath} ${normalizedLine}`;
+  let score = haystack.includes(input.normalizedQuery) ? 1000 : 0;
+
+  for (const token of input.tokens) {
+    if (normalizedLine.includes(token)) {
+      score += token.length >= 6 ? 10 : 5;
+    }
+
+    if (normalizedPath.includes(token)) {
+      score += token.length >= 6 ? 6 : 3;
+    }
+  }
+
+  if (score === 0) {
+    return 0;
+  }
+
+  if (input.line.trimStart().startsWith("#")) {
+    score += 4;
+  }
+
+  return score;
 }
 
 export async function listDemoCatalogForMcp({
@@ -125,15 +216,17 @@ export async function searchProjectDocsForMcp({
   limit?: number;
   query: string;
 }) {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeSearchText(query.trim());
 
   if (!normalizedQuery) {
     throw new Error("Expected a non-empty docs search query.");
   }
 
-  const matches: ProjectDocSearchMatch[] = [];
+  const tokens = getSearchTokens(query);
+  const matches: ScoredProjectDocSearchMatch[] = [];
   const root = findProjectRoot();
   const docsSearchPaths = await listProjectDocsSearchPaths(root);
+  let order = 0;
 
   for (const docsPath of docsSearchPaths) {
     const file = await readRepoFile(docsPath, root);
@@ -143,21 +236,43 @@ export async function searchProjectDocsForMcp({
     }
 
     file.content.split("\n").forEach((line, index) => {
-      if (
-        matches.length < limit &&
-        line.toLowerCase().includes(normalizedQuery)
-      ) {
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine) {
+        return;
+      }
+
+      const score = scoreSearchLine({
+        line: trimmedLine,
+        normalizedQuery,
+        path: file.path,
+        tokens,
+      });
+
+      if (score > 0) {
         matches.push({
           line: index + 1,
+          order,
           path: file.path,
+          score,
           text: line.trim(),
         });
+        order += 1;
       }
     });
   }
 
   return {
-    matches,
+    matches: matches
+      .sort(
+        (left, right) => right.score - left.score || left.order - right.order
+      )
+      .slice(0, limit)
+      .map(({ line, path: matchPath, text }) => ({
+        line,
+        path: matchPath,
+        text,
+      })),
     query,
   };
 }

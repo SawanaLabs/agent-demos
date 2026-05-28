@@ -1,9 +1,9 @@
 "use client";
 
-import { FileTextIcon } from "@phosphor-icons/react";
+import { FileCodeIcon, FileTextIcon } from "@phosphor-icons/react";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
-import { useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
 import { UltraChatbotAgentArtifactActions } from "./ultra-chatbot-agent-artifact-actions";
@@ -12,6 +12,10 @@ import {
   formatUltraChatbotAgentDocumentTimestamp,
   loadUltraChatbotAgentDocuments,
 } from "./ultra-chatbot-agent-document-client";
+
+function noopArtifactAction() {
+  return;
+}
 
 export function UltraChatbotAgentDocumentBrowser({
   chatId,
@@ -51,7 +55,11 @@ export function UltraChatbotAgentDocumentBrowser({
   }, [chatId]);
 
   useEffect(() => {
-    void refreshDocuments();
+    if (refreshToken < 0) {
+      return;
+    }
+
+    refreshDocuments().catch(() => undefined);
   }, [refreshDocuments, refreshToken]);
 
   async function handleCreateScratchDocument() {
@@ -72,16 +80,83 @@ export function UltraChatbotAgentDocumentBrowser({
     }
   }
 
+  const documentGroups = [
+    {
+      documents: documents.filter((document) => document.kind === "code"),
+      icon: FileCodeIcon,
+      title: "Code",
+    },
+    {
+      documents: documents.filter((document) => document.kind !== "code"),
+      icon: FileTextIcon,
+      title: "Documents",
+    },
+  ].filter((group) => group.documents.length > 0);
+
+  let documentBrowserContent: ReactNode;
+
+  if (isDocumentsLoading) {
+    documentBrowserContent = (
+      <Shimmer className="text-sm">Loading documents...</Shimmer>
+    );
+  } else if (documents.length === 0) {
+    documentBrowserContent = (
+      <div className="border border-foreground/10 border-dashed px-3 py-4 text-muted-foreground text-xs/relaxed">
+        Create a scratch doc to exercise the versioned document route and the
+        artifact dialog.
+      </div>
+    );
+  } else {
+    documentBrowserContent = (
+      <div className="space-y-4">
+        {documentGroups.map((group) => {
+          const Icon = group.icon;
+
+          return (
+            <div className="space-y-2" key={group.title}>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                {group.title}
+              </p>
+              {group.documents.map((document) => (
+                <button
+                  className="w-full border border-foreground/10 px-3 py-2 text-left transition-colors hover:border-foreground/30"
+                  key={document.id}
+                  onClick={() => onOpen(document.id)}
+                  type="button"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Icon className="size-3.5 text-muted-foreground" />
+                      <span className="truncate text-sm">{document.title}</span>
+                    </div>
+                    {selectedDocumentId === document.id ? (
+                      <Badge variant="secondary">Open</Badge>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 text-muted-foreground text-xs">
+                    {formatUltraChatbotAgentDocumentTimestamp(
+                      document.createdAt
+                    )}
+                  </p>
+                </button>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-3">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Documents
+            Artifacts
           </p>
           <p className="mt-1 text-sm">
-            Browse artifacts created in this thread. Open one to inspect or
-            edit it in a dedicated detail dialog.
+            Browse code and document artifacts created in this thread. Open one
+            to inspect or edit it in a dedicated detail dialog.
           </p>
         </div>
         <UltraChatbotAgentArtifactActions
@@ -92,8 +167,8 @@ export function UltraChatbotAgentDocumentBrowser({
           isLatestVersion
           isSaving={false}
           onCreateScratchDocument={handleCreateScratchDocument}
-          onResetToLatest={() => {}}
-          onSaveVersion={() => {}}
+          onResetToLatest={noopArtifactAction}
+          onSaveVersion={noopArtifactAction}
         />
       </div>
 
@@ -101,38 +176,7 @@ export function UltraChatbotAgentDocumentBrowser({
         <div className="text-destructive text-xs/relaxed">{documentError}</div>
       ) : null}
 
-      {isDocumentsLoading ? (
-        <Shimmer className="text-sm">Loading documents...</Shimmer>
-      ) : documents.length === 0 ? (
-        <div className="border border-dashed border-foreground/10 px-3 py-4 text-muted-foreground text-xs/relaxed">
-          Create a scratch doc to exercise the versioned document route and the
-          artifact dialog.
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {documents.map((document) => (
-            <button
-              className="w-full border border-foreground/10 px-3 py-2 text-left transition-colors hover:border-foreground/30"
-              key={document.id}
-              onClick={() => onOpen(document.id)}
-              type="button"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                  <FileTextIcon className="size-3.5 text-muted-foreground" />
-                  <span className="truncate text-sm">{document.title}</span>
-                </div>
-                {selectedDocumentId === document.id ? (
-                  <Badge variant="secondary">Open</Badge>
-                ) : null}
-              </div>
-              <p className="mt-1 text-muted-foreground text-xs">
-                {formatUltraChatbotAgentDocumentTimestamp(document.createdAt)}
-              </p>
-            </button>
-          ))}
-        </div>
-      )}
+      {documentBrowserContent}
     </div>
   );
 }

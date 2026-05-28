@@ -1,14 +1,20 @@
 "use client";
 
-import { MessageResponse } from "@workspace/ui/components/ai-elements/message";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
 import type { UltraChatbotAgentSuggestionRecord } from "../server/suggestion-store";
 import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifact-state";
+import { UltraChatbotAgentDiffView } from "./ultra-chatbot-agent-diff-view";
 import {
   formatUltraChatbotAgentDocumentTimestamp,
   loadUltraChatbotAgentDocumentSuggestions,
@@ -16,10 +22,39 @@ import {
   restoreUltraChatbotAgentDocumentVersion,
   saveUltraChatbotAgentDocumentDraft,
 } from "./ultra-chatbot-agent-document-client";
-import { UltraChatbotAgentDiffView } from "./ultra-chatbot-agent-diff-view";
 import { UltraChatbotAgentDocumentSuggestions } from "./ultra-chatbot-agent-document-suggestions";
+import { UltraChatbotAgentMessageResponse } from "./ultra-chatbot-agent-message-response";
 import { UltraChatbotAgentVersionFooter } from "./ultra-chatbot-agent-version-footer";
 
+function UltraChatbotAgentCodeDocumentPreview({
+  content,
+  onStartEdit,
+}: {
+  content: string;
+  onStartEdit: () => void;
+}) {
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: this scrollable code preview supports double-click editing and cannot be represented as a plain button.
+    <div
+      className="min-h-[24rem] rounded-xl border border-foreground/10 bg-background"
+      onDoubleClick={onStartEdit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          onStartEdit();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+    >
+      <pre className="max-w-full overflow-auto px-4 py-4 text-sm">
+        <code>{content}</code>
+      </pre>
+    </div>
+  );
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: document detail coordinates artifact loading, preview, editing, diffing, and version controls for one focused dialog.
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: splitting this while the artifact contract is still moving would add indirection without reducing the bug surface.
 export function UltraChatbotAgentDocumentDetail({
   chatId,
   disabled,
@@ -95,13 +130,16 @@ export function UltraChatbotAgentDocumentDetail({
   }, [chatId, documentId]);
 
   useEffect(() => {
-    void refreshSelectedDocument();
-    void refreshSelectedSuggestions();
+    if (refreshToken < 0) {
+      return;
+    }
+
+    refreshSelectedDocument().catch(() => undefined);
+    refreshSelectedSuggestions().catch(() => undefined);
     setIsEditing(false);
     setSelectedVersionIndex(0);
     onModeChange("edit");
   }, [
-    documentId,
     onModeChange,
     refreshSelectedDocument,
     refreshSelectedSuggestions,
@@ -206,7 +244,9 @@ export function UltraChatbotAgentDocumentDetail({
   }
 
   if (detailError) {
-    return <div className="text-destructive text-xs/relaxed">{detailError}</div>;
+    return (
+      <div className="text-destructive text-xs/relaxed">{detailError}</div>
+    );
   }
 
   if (isVersionsLoading) {
@@ -237,15 +277,81 @@ export function UltraChatbotAgentDocumentDetail({
 
   if (!selectedDocument) {
     return (
-      <div className="border border-dashed border-foreground/10 px-3 py-4 text-muted-foreground text-xs/relaxed">
+      <div className="border border-foreground/10 border-dashed px-3 py-4 text-muted-foreground text-xs/relaxed">
         This document is no longer available.
       </div>
     );
   }
 
+  let documentBody: ReactNode;
+
+  if (mode === "diff") {
+    documentBody = (
+      <UltraChatbotAgentDiffView
+        after={selectedDocument.content ?? ""}
+        before={comparisonDocument?.content ?? ""}
+      />
+    );
+  } else if (isLatestVersion && isEditing) {
+    documentBody = (
+      <Textarea
+        className="min-h-[24rem]"
+        onChange={(event) => setDraftContent(event.target.value)}
+        value={draftContent}
+      />
+    );
+  } else if (selectedDocument.kind === "code") {
+    documentBody = (
+      <UltraChatbotAgentCodeDocumentPreview
+        content={previewContent}
+        onStartEdit={() => {
+          if (isLatestVersion) {
+            setIsEditing(true);
+          }
+        }}
+      />
+    );
+  } else {
+    documentBody = (
+      // biome-ignore lint/a11y/useSemanticElements: the rich markdown preview may contain nested interactive content, so it cannot be wrapped in a semantic button.
+      <div
+        className="min-h-[24rem] rounded-xl border border-foreground/10 px-4 py-4 text-sm"
+        onDoubleClick={() => {
+          if (isLatestVersion) {
+            setIsEditing(true);
+          }
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && isLatestVersion) {
+            setIsEditing(true);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        <UltraChatbotAgentMessageResponse>
+          {previewContent}
+        </UltraChatbotAgentMessageResponse>
+      </div>
+    );
+  }
+
+  let versionHelpText =
+    "History view is read-only until you restore or jump to latest.";
+
+  if (mode === "diff") {
+    versionHelpText =
+      "Diff view compares the selected version against its nearest neighbor.";
+  } else if (isLatestVersion && isEditing) {
+    versionHelpText = "Editing the latest artifact revision.";
+  } else if (isLatestVersion) {
+    versionHelpText =
+      "Preview mode renders markdown. Use Edit or double-click the body to revise.";
+  }
+
   return (
     <div className="space-y-4">
-      <div className="space-y-3 border-b border-foreground/10 pb-4">
+      <div className="space-y-3 border-foreground/10 border-b pb-4">
         <div>
           <p className="font-medium text-sm">{selectedDocument.title}</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -266,43 +372,14 @@ export function UltraChatbotAgentDocumentDetail({
         </p>
       </div>
 
-      {mode === "diff" ? (
-        <UltraChatbotAgentDiffView
-          after={selectedDocument.content ?? ""}
-          before={comparisonDocument?.content ?? ""}
-        />
-      ) : isLatestVersion && isEditing ? (
-        <Textarea
-          className="min-h-[24rem]"
-          onChange={(event) => setDraftContent(event.target.value)}
-          value={draftContent}
-        />
-      ) : (
-        <div
-          className="min-h-[24rem] rounded-xl border border-foreground/10 px-4 py-4 text-sm"
-          onDoubleClick={() => {
-            if (isLatestVersion) {
-              setIsEditing(true);
-            }
-          }}
-        >
-          <MessageResponse>{previewContent}</MessageResponse>
-        </div>
-      )}
+      {documentBody}
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-muted-foreground text-xs">
-          Version {formatUltraChatbotAgentDocumentTimestamp(selectedDocument.createdAt)}
+          Version{" "}
+          {formatUltraChatbotAgentDocumentTimestamp(selectedDocument.createdAt)}
         </p>
-        <p className="text-muted-foreground text-xs">
-          {mode === "diff"
-            ? "Diff view compares the selected version against its nearest neighbor."
-            : isLatestVersion && isEditing
-              ? "Editing the latest artifact revision."
-              : isLatestVersion
-                ? "Preview mode renders markdown. Use Edit or double-click the body to revise."
-                : "History view is read-only until you restore or jump to latest."}
-        </p>
+        <p className="text-muted-foreground text-xs">{versionHelpText}</p>
       </div>
 
       <UltraChatbotAgentVersionFooter
@@ -310,6 +387,7 @@ export function UltraChatbotAgentDocumentDetail({
         isEditing={isEditing}
         isLatestVersionView={isLatestVersion}
         mode={mode}
+        onCancelEdit={handleCancelEdit}
         onChangeVersion={(direction) => {
           if (direction === "latest") {
             setIsEditing(false);
@@ -329,7 +407,6 @@ export function UltraChatbotAgentDocumentDetail({
             Math.min(selectedDocumentVersions.length - 1, current + 1)
           );
         }}
-        onCancelEdit={handleCancelEdit}
         onRestoreVersion={handleRestoreVersion}
         onSaveVersion={handleSaveVersion}
         onSetMode={onModeChange}
@@ -338,7 +415,7 @@ export function UltraChatbotAgentDocumentDetail({
         totalVersions={selectedDocumentVersions.length}
       />
 
-      <div className="space-y-2 border-t border-foreground/10 pt-4">
+      <div className="space-y-2 border-foreground/10 border-t pt-4">
         <div className="flex items-center justify-between gap-3">
           <p className="font-medium text-sm">Suggestions</p>
           <Badge variant="outline">{selectedSuggestions.length}</Badge>

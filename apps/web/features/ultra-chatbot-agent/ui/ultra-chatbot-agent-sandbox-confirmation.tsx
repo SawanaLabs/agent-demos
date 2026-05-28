@@ -17,7 +17,9 @@ interface SandboxApprovalToolInput {
   requestedToolFamilies?: string[];
 }
 
-function getSandboxApprovalToolInput(part: ToolUIPart): SandboxApprovalToolInput {
+function getSandboxApprovalToolInput(
+  part: ToolUIPart
+): SandboxApprovalToolInput {
   if (
     typeof part.input !== "object" ||
     part.input === null ||
@@ -31,10 +33,12 @@ function getSandboxApprovalToolInput(part: ToolUIPart): SandboxApprovalToolInput
 
 export interface UltraChatbotAgentSandboxConfirmationProps {
   onApprovalResponse: ChatAddToolApproveResponseFunction;
+  onCapabilityChange?: (sandboxEnabled: boolean) => void;
   part: ToolUIPart;
 }
 
 export function UltraChatbotAgentSandboxConfirmation({
+  onCapabilityChange,
   onApprovalResponse,
   part,
 }: UltraChatbotAgentSandboxConfirmationProps) {
@@ -57,8 +61,8 @@ export function UltraChatbotAgentSandboxConfirmation({
       <ConfirmationRequest>
         <div className="space-y-2 text-sm">
           <p>
-            The agent needs sandbox-backed tools before it can continue with this
-            request.
+            The agent needs sandbox-backed tools before it can continue with
+            this request.
           </p>
           {input.reason ? (
             <p className="text-muted-foreground">{input.reason}</p>
@@ -83,30 +87,34 @@ export function UltraChatbotAgentSandboxConfirmation({
       </ConfirmationAccepted>
       <ConfirmationRejected>
         <XCircleIcon className="size-4" />
-        <span>Sandbox stayed disabled. The agent will continue without it.</span>
+        <span>
+          Sandbox stayed disabled. The agent will continue without it.
+        </span>
       </ConfirmationRejected>
       <ConfirmationActions>
         <ConfirmationAction
-          onClick={() =>
+          onClick={() => {
             onApprovalResponse({
               approved: false,
               id: approval.id,
               reason: "The reviewer kept sandbox disabled for this chat.",
-            })
-          }
+            });
+            onCapabilityChange?.(false);
+          }}
           variant="outline"
         >
           <XCircleIcon className="size-3.5" />
           Keep disabled
         </ConfirmationAction>
         <ConfirmationAction
-          onClick={() =>
+          onClick={() => {
             onApprovalResponse({
               approved: true,
               id: approval.id,
               reason: "The reviewer approved sandbox for this chat.",
-            })
-          }
+            });
+            onCapabilityChange?.(true);
+          }}
         >
           <CheckCircleIcon className="size-3.5" />
           Enable sandbox

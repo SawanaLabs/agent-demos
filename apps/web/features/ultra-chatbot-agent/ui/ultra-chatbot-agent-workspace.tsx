@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
   CaretDownIcon,
+  CheckCircleIcon,
   RobotIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
@@ -18,7 +19,6 @@ import {
 import {
   Message,
   MessageContent,
-  MessageResponse,
 } from "@workspace/ui/components/ai-elements/message";
 import {
   ModelSelector,
@@ -53,25 +53,26 @@ import {
 import Link from "next/link";
 import {
   type Dispatch,
+  type ReactNode,
   type SetStateAction,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
+import type { UltraChatbotAgentCapabilities } from "../server/capabilities";
 import type {
   UltraChatbotAgentChatRecord,
   UltraChatbotAgentChatSession,
   UltraChatbotAgentHistoryPage,
   UltraChatbotAgentVoteRecord,
 } from "../server/chat-store";
-import type { UltraChatbotAgentCapabilities } from "../server/capabilities";
-import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
 import type { UltraChatbotAgentModel } from "../server/models";
 import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-state";
 import { UltraChatbotAgentArtifact } from "./ultra-chatbot-agent-artifact";
 import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentHistorySidebar } from "./ultra-chatbot-agent-history-sidebar";
-import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message-reasoning";
+import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
 import {
   getUltraChatbotAgentFileParts,
   getUltraChatbotAgentProjectDocsMcpResult,
@@ -83,9 +84,10 @@ import {
   isUltraChatbotAgentKnowledgeBaseResult,
   isUltraChatbotAgentResearchReportResult,
 } from "./ultra-chatbot-agent-message-parts";
+import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message-reasoning";
+import { UltraChatbotAgentMessageResponse } from "./ultra-chatbot-agent-message-response";
 import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimodal-input";
 import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
-import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
 import { UltraChatbotAgentProjectDocsResultCard } from "./ultra-chatbot-agent-project-docs-result";
 import { UltraChatbotAgentResearchReport } from "./ultra-chatbot-agent-research-report";
 import { UltraChatbotAgentSandboxConfirmation } from "./ultra-chatbot-agent-sandbox-confirmation";
@@ -185,6 +187,31 @@ async function saveUltraChatbotAgentVote(input: {
   }
 }
 
+async function saveUltraChatbotAgentCapabilities(input: {
+  chatId: string;
+  sandboxEnabled: boolean;
+}) {
+  const response = await fetch(
+    `/api/demos/ultra-chatbot-agent/${input.chatId}/capabilities`,
+    {
+      body: JSON.stringify({
+        sandboxEnabled: input.sandboxEnabled,
+      }),
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "PATCH",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to update sandbox capability.");
+  }
+
+  return (await response.json()) as UltraChatbotAgentCapabilities;
+}
+
 async function trimUltraChatbotAgentMessagesAfterEdit(input: {
   chatId: string;
   messageId: string;
@@ -245,17 +272,25 @@ function shouldApplyRecoveredSession(
 function readSandboxCapabilityFromMessages(messages: UIMessage[]) {
   for (const message of [...messages].reverse()) {
     for (const part of [...getUltraChatbotAgentToolParts(message)].reverse()) {
-      if (
-        part.type !== "tool-enableSandbox" ||
-        part.state !== "output-available" ||
-        !part.output ||
-        typeof part.output !== "object" ||
-        !("sandboxEnabled" in part.output)
-      ) {
+      if (part.type !== "tool-enableSandbox") {
         continue;
       }
 
-      return part.output.sandboxEnabled === true;
+      if (
+        part.state === "output-available" &&
+        part.output &&
+        typeof part.output === "object" &&
+        "sandboxEnabled" in part.output
+      ) {
+        return part.output.sandboxEnabled === true;
+      }
+
+      if (
+        part.state === "approval-responded" &&
+        typeof part.approval?.approved === "boolean"
+      ) {
+        return part.approval.approved;
+      }
     }
   }
 
@@ -383,6 +418,8 @@ function findModel(
   return models.find((model) => model.id === modelId);
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: this port keeps the vercel/chatbot-style chat surface in one workspace while QA hardens vertical slices.
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: follow-up architecture work can split the shell after the current QA checklist is closed.
 export function UltraChatbotAgentWorkspace({
   defaultChatModel,
   draftChatId,
@@ -466,6 +503,8 @@ export function UltraChatbotAgentWorkspace({
   } = useUltraChatbotAgentArtifact();
   const [editError, setEditError] = useState<string | null>(null);
   const [composerError, setComposerError] = useState<string | null>(null);
+  const [sandboxError, setSandboxError] = useState<string | null>(null);
+  const [isSandboxUpdating, setIsSandboxUpdating] = useState(false);
   const [visibilityError, setVisibilityError] = useState<string | null>(null);
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const [votesByMessageId, setVotesByMessageId] = useState<
@@ -474,7 +513,7 @@ export function UltraChatbotAgentWorkspace({
   const latestAssistant = [...messages]
     .reverse()
     .find((message) => message.role === "assistant");
-  const documentArtifactSignatureRef = useRef<string | null>(null);
+  const documentArtifactSignatureRef = useRef("");
   const latestMessageRole = messages.at(-1)?.role;
   const showThinking =
     isBusy &&
@@ -504,6 +543,13 @@ export function UltraChatbotAgentWorkspace({
           visitorId: initialSession?.chat.visitorId ?? "visitor",
         } satisfies UltraChatbotAgentChatRecord)
       : null;
+  let sandboxButtonContent: ReactNode = chatMeta.capabilities.sandboxEnabled
+    ? "Lock sandbox"
+    : "Enable sandbox";
+
+  if (isSandboxUpdating) {
+    sandboxButtonContent = <Spinner className="size-3.5" />;
+  }
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -562,17 +608,14 @@ export function UltraChatbotAgentWorkspace({
       )
       .join("|");
 
-    if (documentArtifactSignatureRef.current === null) {
-      documentArtifactSignatureRef.current = nextSignature;
-      return;
-    }
-
     if (documentArtifactSignatureRef.current === nextSignature) {
       return;
     }
 
     documentArtifactSignatureRef.current = nextSignature;
-    refreshArtifact();
+    if (nextSignature) {
+      refreshArtifact();
+    }
   }, [messages, refreshArtifact]);
 
   useEffect(() => {
@@ -662,6 +705,48 @@ export function UltraChatbotAgentWorkspace({
     }
   }
 
+  async function handleSandboxCapabilityChange(sandboxEnabled: boolean) {
+    setSandboxError(null);
+    setIsSandboxUpdating(true);
+
+    try {
+      const capabilities = await saveUltraChatbotAgentCapabilities({
+        chatId: chatMeta.id,
+        sandboxEnabled,
+      });
+
+      setChatMeta((current) => ({
+        ...current,
+        capabilities,
+        updatedAt: new Date().toISOString(),
+      }));
+    } catch (error) {
+      setSandboxError(
+        error instanceof Error
+          ? error.message
+          : "Failed to update sandbox capability."
+      );
+    } finally {
+      setIsSandboxUpdating(false);
+    }
+  }
+
+  function syncSandboxCapability(sandboxEnabled: boolean) {
+    setSandboxError(null);
+    setChatMeta((current) =>
+      current.capabilities.sandboxEnabled === sandboxEnabled
+        ? current
+        : {
+            ...current,
+            capabilities: {
+              ...current.capabilities,
+              sandboxEnabled,
+            },
+            updatedAt: new Date().toISOString(),
+          }
+    );
+  }
+
   async function handleSaveEdit(message: UIMessage) {
     const nextText = editingText.trim();
 
@@ -692,7 +777,10 @@ export function UltraChatbotAgentWorkspace({
           ...currentMessages.slice(0, messageIndex),
           {
             ...message,
-            parts: [{ text: nextText, type: "text" as const }],
+            parts: [
+              ...message.parts.filter((part) => part.type !== "text"),
+              { text: nextText, type: "text" as const },
+            ],
           },
         ];
       });
@@ -718,7 +806,9 @@ export function UltraChatbotAgentWorkspace({
     if (text) {
       return (
         <div className="space-y-4">
-          <MessageResponse>{text}</MessageResponse>
+          <UltraChatbotAgentMessageResponse>
+            {text}
+          </UltraChatbotAgentMessageResponse>
           {fileParts.length > 0 ? (
             <Attachments variant="list">
               {fileParts.map((part) => {
@@ -832,15 +922,13 @@ export function UltraChatbotAgentWorkspace({
             <UltraChatbotAgentVisibilitySelector
               chatId={chatMeta.id}
               disabled={!(initialSession || hasMessages)}
-              onChange={(visibility) =>
-                {
-                  selectedVisibilityRef.current = visibility;
-                  setChatMeta((current) => ({
-                    ...current,
-                    visibility,
-                  }));
-                }
-              }
+              onChange={(visibility) => {
+                selectedVisibilityRef.current = visibility;
+                setChatMeta((current) => ({
+                  ...current,
+                  visibility,
+                }));
+              }}
               onError={setVisibilityError}
               value={chatMeta.visibility}
             />
@@ -851,6 +939,8 @@ export function UltraChatbotAgentWorkspace({
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               <>
+                {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: message rendering mirrors AI SDK UIMessage parts, tool output cards, and local edit/vote controls in one pass. */}
+                {/* biome-ignore lint/complexity/noExcessiveLinesPerFunction: extracting this during QA would make the ongoing bug fix harder to audit. */}
                 {messages.map((message) => {
                   const reasoningText =
                     message.role === "assistant"
@@ -883,16 +973,43 @@ export function UltraChatbotAgentWorkspace({
                     !(isLastMessage && status === "streaming") &&
                     !(isLastMessage && status === "submitted") &&
                     hasFeedbackTarget;
+                  let helpfulButtonIcon: ReactNode = (
+                    <ThumbsUpIcon className="size-3.5" />
+                  );
+                  let needsWorkButtonIcon: ReactNode = (
+                    <ThumbsDownIcon className="size-3.5" />
+                  );
+
+                  if (currentVote === true) {
+                    helpfulButtonIcon = (
+                      <ThumbsUpIcon className="size-3.5 text-emerald-500" />
+                    );
+                  }
+
+                  if (currentVote === false) {
+                    needsWorkButtonIcon = (
+                      <ThumbsDownIcon className="size-3.5 text-rose-500" />
+                    );
+                  }
+
+                  if (isHelpfulPending) {
+                    helpfulButtonIcon = <Spinner className="size-3.5" />;
+                  }
+
+                  if (isNeedsWorkPending) {
+                    needsWorkButtonIcon = <Spinner className="size-3.5" />;
+                  }
 
                   return (
                     <Message from={message.role} key={message.id}>
                       <MessageContent
                         className={cn(
                           message.role === "assistant"
-                            ? "max-w-3xl"
+                            ? "w-full max-w-3xl"
                             : "max-w-2xl"
                         )}
                       >
+                        {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: tool rendering stays adjacent to UIMessage part handling until the QA fixes are complete. */}
                         {getUltraChatbotAgentToolParts(message).map((part) => {
                           const documentResult =
                             part.state === "output-available" &&
@@ -983,6 +1100,7 @@ export function UltraChatbotAgentWorkspace({
                               {part.type === "tool-enableSandbox" ? (
                                 <UltraChatbotAgentSandboxConfirmation
                                   onApprovalResponse={addToolApprovalResponse}
+                                  onCapabilityChange={syncSandboxCapability}
                                   part={part}
                                 />
                               ) : null}
@@ -1068,21 +1186,13 @@ export function UltraChatbotAgentWorkspace({
                               disabled={isVotePending}
                               onClick={() => handleVote(message.id, "up")}
                               size="sm"
-                              type="button"
                               title="Helpful"
+                              type="button"
                               variant={
-                                currentVote === true
-                                  ? "secondary"
-                                  : "outline"
+                                currentVote === true ? "secondary" : "outline"
                               }
                             >
-                              {isHelpfulPending ? (
-                                <Spinner className="size-3.5" />
-                              ) : currentVote === true ? (
-                                <ThumbsUpIcon className="size-3.5 text-emerald-500" />
-                              ) : (
-                                <ThumbsUpIcon className="size-3.5" />
-                              )}
+                              {helpfulButtonIcon}
                               {currentVote === true && !isHelpfulPending ? (
                                 <span>Helpful</span>
                               ) : null}
@@ -1092,21 +1202,13 @@ export function UltraChatbotAgentWorkspace({
                               disabled={isVotePending}
                               onClick={() => handleVote(message.id, "down")}
                               size="sm"
-                              type="button"
                               title="Needs work"
+                              type="button"
                               variant={
-                                currentVote === false
-                                  ? "secondary"
-                                  : "outline"
+                                currentVote === false ? "secondary" : "outline"
                               }
                             >
-                              {isNeedsWorkPending ? (
-                                <Spinner className="size-3.5" />
-                              ) : currentVote === false ? (
-                                <ThumbsDownIcon className="size-3.5 text-rose-500" />
-                              ) : (
-                                <ThumbsDownIcon className="size-3.5" />
-                              )}
+                              {needsWorkButtonIcon}
                               {currentVote === false && !isNeedsWorkPending ? (
                                 <span>Needs work</span>
                               ) : null}
@@ -1114,7 +1216,8 @@ export function UltraChatbotAgentWorkspace({
                           </div>
                         ) : null}
                       </MessageContent>
-                      {message.role === "user" && editingMessageId !== message.id ? (
+                      {message.role === "user" &&
+                      editingMessageId !== message.id ? (
                         <div className="mt-3 flex w-full justify-end">
                           <Button
                             disabled={isBusy}
@@ -1136,7 +1239,7 @@ export function UltraChatbotAgentWorkspace({
                 })}
                 {showResumeThinking ? (
                   <Message from="assistant">
-                    <MessageContent className="max-w-3xl">
+                    <MessageContent className="w-full max-w-3xl">
                       <Shimmer className="text-sm">Thinking...</Shimmer>
                     </MessageContent>
                   </Message>
@@ -1310,9 +1413,7 @@ export function UltraChatbotAgentWorkspace({
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge
                 variant={
-                  chatMeta.capabilities.sandboxEnabled
-                    ? "secondary"
-                    : "outline"
+                  chatMeta.capabilities.sandboxEnabled ? "secondary" : "outline"
                 }
               >
                 {chatMeta.capabilities.sandboxEnabled
@@ -1322,6 +1423,48 @@ export function UltraChatbotAgentWorkspace({
               <Badge variant="outline">Preindexed RAG</Badge>
               <Badge variant="outline">Project Docs MCP</Badge>
             </div>
+          </div>
+
+          <div className="border border-foreground/10 px-3 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                  Sandbox
+                </p>
+                <p className="mt-1 text-sm">
+                  {chatMeta.capabilities.sandboxEnabled
+                    ? "Enabled for this chat"
+                    : "Approval required"}
+                </p>
+              </div>
+              {chatMeta.capabilities.sandboxEnabled ? (
+                <CheckCircleIcon className="mt-0.5 size-4 text-emerald-500" />
+              ) : null}
+            </div>
+            <p className="mt-2 text-muted-foreground text-xs/relaxed">
+              Sandbox unlocks repo-local reads, shell execution, and
+              skill-backed tools for this route. HITL approvals and this switch
+              share the same per-chat capability state.
+            </p>
+            {sandboxError ? (
+              <p className="mt-2 text-destructive text-xs/relaxed">
+                {sandboxError}
+              </p>
+            ) : null}
+            <Button
+              className="mt-3"
+              disabled={isSandboxUpdating || !hasMessages}
+              onClick={() =>
+                handleSandboxCapabilityChange(
+                  !chatMeta.capabilities.sandboxEnabled
+                )
+              }
+              size="sm"
+              type="button"
+              variant="outline"
+            >
+              {sandboxButtonContent}
+            </Button>
           </div>
 
           <div>

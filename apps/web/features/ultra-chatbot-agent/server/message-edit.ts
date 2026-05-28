@@ -1,3 +1,4 @@
+import type { UIMessage } from "ai";
 import { z } from "zod";
 
 import { createUltraChatbotAgentChatStore } from "./chat-store";
@@ -6,6 +7,21 @@ const ultraChatbotAgentMessageEditSchema = z.object({
   messageId: z.string().min(1),
   text: z.string().trim().min(1),
 });
+
+function buildEditedUserMessage(message: UIMessage, text: string) {
+  const preservedParts = message.parts.filter((part) => part.type !== "text");
+
+  return {
+    ...message,
+    parts: [
+      ...preservedParts,
+      {
+        text,
+        type: "text" as const,
+      },
+    ],
+  } satisfies UIMessage;
+}
 
 export async function handleUltraChatbotAgentMessageEditRequest(
   request: Request,
@@ -25,7 +41,10 @@ export async function handleUltraChatbotAgentMessageEditRequest(
   }
 
   const chatStore = createUltraChatbotAgentChatStore();
-  const session = await chatStore.loadChatSession(viewer.chatId, viewer.visitorId);
+  const session = await chatStore.loadChatSession(
+    viewer.chatId,
+    viewer.visitorId
+  );
 
   if (!session) {
     return Response.json(
@@ -48,6 +67,14 @@ export async function handleUltraChatbotAgentMessageEditRequest(
       { status: 400 }
     );
   }
+
+  await chatStore.saveIncomingUserMessage({
+    chatId: viewer.chatId,
+    message: buildEditedUserMessage(targetMessage, parsedBody.data.text),
+    selectedChatModel: session.chat.selectedChatModel,
+    selectedVisibilityType: session.chat.visibility,
+    visitorId: viewer.visitorId,
+  });
 
   const result = await chatStore.deleteMessagesAfterMessage({
     chatId: viewer.chatId,

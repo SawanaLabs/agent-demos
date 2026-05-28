@@ -9,10 +9,14 @@ const researchReportInputSchema = z.object({
 
 const researchReportSourceSchema = z.object({
   title: z.string().trim().min(1),
-  url: z.string().trim().url(),
+  url: z
+    .string()
+    .trim()
+    .min(1)
+    .describe("A source URL or stable source locator from the evidence."),
 });
 
-const researchReportSchema = z.object({
+export const researchReportSchema = z.object({
   executiveSummary: z.string().trim().min(1),
   keyFindings: z.array(z.string().trim().min(1)).min(1).max(6),
   recommendations: z.array(z.string().trim().min(1)).min(1).max(5),
@@ -22,7 +26,9 @@ const researchReportSchema = z.object({
   topic: z.string().trim().min(1),
 });
 
-function buildResearchReportPrompt(input: z.infer<typeof researchReportInputSchema>) {
+function buildResearchReportPrompt(
+  input: z.infer<typeof researchReportInputSchema>
+) {
   return [
     `Topic: ${input.topic}`,
     input.audience ? `Audience: ${input.audience}` : null,

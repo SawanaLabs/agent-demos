@@ -1,5 +1,5 @@
-import type { UltraChatbotAgentCapabilities } from "./capabilities";
 import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
+import type { UltraChatbotAgentCapabilities } from "./capabilities";
 
 export function getUltraChatbotAgentSystemPrompt(input?: {
   capabilities?: UltraChatbotAgentCapabilities;
@@ -13,8 +13,10 @@ export function getUltraChatbotAgentSystemPrompt(input?: {
     "Answer like an experienced product engineer.",
     "Keep replies concrete and concise.",
     "For non-trivial factual research or current web facts, call web_search before finalizing the answer.",
-    "For questions about this repository, demo catalog, feature docs, or implementation boundaries, use the connected project__ MCP tools before answering from memory.",
+    "For questions about this repository, demo catalog, feature docs, or implementation boundaries, call project__search_project_docs first, then read a specific demo doc only when the search results point to one.",
+    "When the user explicitly asks you to search project docs, call project__search_project_docs and surface the result card.",
     `For questions that should be answered from the preindexed PDF knowledge base, use searchKnowledgeBase. The active knowledge source is ${ultraChatbotAgentKnowledgeSource.title}.`,
+    "User-uploaded PDFs are direct multimodal attachments. Do not treat uploaded files as the preindexed RAG knowledge base unless the user explicitly asks about the configured knowledge source.",
     "Use one broad web_search first.",
     "Only run a second web_search if the first search leaves a concrete evidence gap.",
     "Do not exceed two web_search calls in a single answer.",
@@ -22,7 +24,7 @@ export function getUltraChatbotAgentSystemPrompt(input?: {
     "When citing web research, include markdown links for the concrete resources you relied on.",
     "After creating or editing a document artifact, never repeat its content in chat.",
     "After createDocument, editDocument, or updateDocument, respond with only a short 1-2 sentence confirmation.",
-    "When the user explicitly asks you to draft, write, or create a persistent document they may revisit later, use the createDocument tool.",
+    "When the user asks you to draft, write, or create a persistent document they may revisit later, use the createDocument tool.",
     'When the user asks for code they may inspect or edit later, use createDocument with kind "code".',
     "When the user explicitly asks for a small or exact document change, use the editDocument tool.",
     "When the user explicitly asks for a broader rewrite of a saved document, use the updateDocument tool.",
@@ -32,7 +34,7 @@ export function getUltraChatbotAgentSystemPrompt(input?: {
     "For current research reports, call web_search first, then pass the grounded evidence into createResearchReport.",
     sandboxEnabled
       ? "Sandbox is already enabled for this chat. Use bash, readFile, writeFile, and skill for coding, repo-local execution, file inspection, and skill-backed work when relevant."
-      : "Sandbox is currently disabled for this chat. If the user asks for coding, repo-local execution, shell commands, file edits, or any other execution-heavy task, call enableSandbox before attempting that work.",
+      : "Sandbox is currently disabled for this chat. If the user asks for coding, repo-local execution, shell commands, file edits, or any other execution-heavy task, call enableSandbox once before attempting that work. After sandbox approval, do not call enableSandbox again in the same turn.",
     sandboxEnabled && input?.sandboxContextText
       ? input.sandboxContextText
       : null,

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const storeState = vi.hoisted(() => ({
   deleteMessagesAfterMessage: vi.fn(),
   loadChatSession: vi.fn(),
+  saveIncomingUserMessage: vi.fn(),
 }));
 
 vi.mock("./chat-store", () => ({
@@ -18,6 +19,7 @@ describe("ultra chatbot agent message edit contract", () => {
     vi.resetModules();
     storeState.deleteMessagesAfterMessage.mockReset();
     storeState.loadChatSession.mockReset();
+    storeState.saveIncomingUserMessage.mockReset();
     storeState.loadChatSession.mockResolvedValue({
       chat: {
         activeStreamId: null,
@@ -35,7 +37,15 @@ describe("ultra chatbot agent message edit contract", () => {
       messages: [
         {
           id: "user-1",
-          parts: [{ text: "Old question", type: "text" }],
+          parts: [
+            {
+              filename: "paper.pdf",
+              mediaType: "application/pdf",
+              type: "file",
+              url: "https://blob.vercel-storage.com/paper.pdf",
+            },
+            { text: "Old question", type: "text" },
+          ],
           role: "user",
         },
         {
@@ -48,6 +58,7 @@ describe("ultra chatbot agent message edit contract", () => {
     storeState.deleteMessagesAfterMessage.mockResolvedValue({
       deletedCount: 1,
     });
+    storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
   });
 
   it("rejects malformed edit payloads", async () => {
@@ -114,6 +125,25 @@ describe("ultra chatbot agent message edit contract", () => {
     );
 
     expect(response.status).toBe(200);
+    expect(storeState.saveIncomingUserMessage).toHaveBeenCalledWith({
+      chatId: "5bd4e261-60f6-4b0f-b6f4-73e64bb2d5f5",
+      message: expect.objectContaining({
+        id: "user-1",
+        parts: [
+          {
+            filename: "paper.pdf",
+            mediaType: "application/pdf",
+            type: "file",
+            url: "https://blob.vercel-storage.com/paper.pdf",
+          },
+          { text: "New question", type: "text" },
+        ],
+        role: "user",
+      }),
+      selectedChatModel: "openai/gpt-4.1-mini",
+      selectedVisibilityType: "private",
+      visitorId: "visitor-1",
+    });
     expect(storeState.deleteMessagesAfterMessage).toHaveBeenCalledWith({
       chatId: "5bd4e261-60f6-4b0f-b6f4-73e64bb2d5f5",
       messageId: "user-1",

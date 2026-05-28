@@ -1,9 +1,20 @@
 "use client";
 
 import { LinkIcon, TrashIcon } from "@phosphor-icons/react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
 
 import type { UltraChatbotAgentChatRecord } from "../server/chat-store";
 
@@ -39,6 +50,8 @@ export function UltraChatbotAgentHistoryItem({
   isDeleting = false,
   onDelete,
 }: UltraChatbotAgentHistoryItemProps) {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
   return (
     <div
       className={cn(
@@ -66,20 +79,45 @@ export function UltraChatbotAgentHistoryItem({
         </p>
       </Link>
       {onDelete ? (
-        <Button
-          aria-label={`Delete ${chat.title}`}
-          className={cn(
-            "m-1.5 shrink-0",
-            isActive && "border-background/30 text-background hover:text-foreground"
-          )}
-          disabled={isDeleting}
-          onClick={() => onDelete(chat)}
-          size="icon-xs"
-          type="button"
-          variant="outline"
-        >
-          <TrashIcon className="size-3" />
-        </Button>
+        <AlertDialog onOpenChange={setIsConfirmOpen} open={isConfirmOpen}>
+          <Button
+            aria-label={`Delete ${chat.title}`}
+            className={cn(
+              "m-1.5 shrink-0",
+              isActive &&
+                "border-background/30 text-background hover:text-foreground"
+            )}
+            disabled={isDeleting}
+            onClick={() => setIsConfirmOpen(true)}
+            size="icon-xs"
+            type="button"
+            variant="outline"
+          >
+            <TrashIcon className="size-3" />
+          </Button>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This removes the conversation, votes, and thread artifacts for
+                this visitor. The action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isDeleting}
+                onClick={() => {
+                  setIsConfirmOpen(false);
+                  onDelete(chat);
+                }}
+                variant="destructive"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       ) : null}
     </div>
   );

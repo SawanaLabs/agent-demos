@@ -13,8 +13,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
-import type { UltraChatbotAgentDocumentToolResult } from "./ultra-chatbot-agent-message-parts";
 import { loadUltraChatbotAgentLatestDocument } from "./ultra-chatbot-agent-document-client";
+import type { UltraChatbotAgentDocumentToolResult } from "./ultra-chatbot-agent-message-parts";
 
 function getDocumentKindLabel(
   kind: UltraChatbotAgentDocumentToolResult["kind"]
@@ -151,7 +151,7 @@ export function UltraChatbotAgentDocumentPreview({
   return (
     <button
       className={cn(
-        "min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 text-left transition-colors hover:border-foreground/30",
+        "w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-foreground/10 text-left transition-colors hover:border-foreground/30",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground/30"
       )}
       onClick={() => onOpen(result.id)}

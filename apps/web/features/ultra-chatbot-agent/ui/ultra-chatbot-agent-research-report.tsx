@@ -4,13 +4,7 @@ import { Badge } from "@workspace/ui/components/badge";
 
 import type { UltraChatbotAgentResearchReportResult } from "./ultra-chatbot-agent-message-parts";
 
-function ReportSection({
-  items,
-  title,
-}: {
-  items: string[];
-  title: string;
-}) {
+function ReportSection({ items, title }: { items: string[]; title: string }) {
   if (items.length === 0) {
     return null;
   }
@@ -58,10 +52,7 @@ export function UltraChatbotAgentResearchReport({
 
       <div className="grid gap-5 md:grid-cols-2">
         <ReportSection items={report.keyFindings} title="Key findings" />
-        <ReportSection
-          items={report.recommendations}
-          title="Recommendations"
-        />
+        <ReportSection items={report.recommendations} title="Recommendations" />
       </div>
 
       <ReportSection items={report.risks} title="Risks" />
@@ -72,17 +63,32 @@ export function UltraChatbotAgentResearchReport({
             Resources
           </p>
           <div className="flex flex-wrap gap-2">
-            {report.sources.map((source) => (
-              <a
-                className="border border-foreground/15 px-2.5 py-1 text-xs transition-colors hover:bg-accent"
-                href={source.url}
-                key={`${source.url}-${source.title}`}
-                rel="noreferrer"
-                target="_blank"
-              >
-                {source.title}
-              </a>
-            ))}
+            {report.sources.map((source) => {
+              const isExternalUrl =
+                source.url.startsWith("http://") ||
+                source.url.startsWith("https://");
+              const className =
+                "border border-foreground/15 px-2.5 py-1 text-xs transition-colors";
+
+              return isExternalUrl ? (
+                <a
+                  className={`${className} hover:bg-accent`}
+                  href={source.url}
+                  key={`${source.url}-${source.title}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {source.title}
+                </a>
+              ) : (
+                <span
+                  className={className}
+                  key={`${source.url}-${source.title}`}
+                >
+                  {source.title}
+                </span>
+              );
+            })}
           </div>
         </div>
       ) : null}

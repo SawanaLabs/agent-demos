@@ -145,7 +145,14 @@ export default function RegistryGuidePage() {
                 AI Elements
               </ExternalLink>{" "}
               stack: one chat page, one API route, and the required AI Gateway
-              env vars.
+              env vars. If you plan to swap models or use direct provider
+              packages after installation, start from the{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.aiSdkProviderSetup}
+              >
+                AI SDK provider guide
+              </ExternalLink>{" "}
+              so the demo stays aligned with the official provider contract.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

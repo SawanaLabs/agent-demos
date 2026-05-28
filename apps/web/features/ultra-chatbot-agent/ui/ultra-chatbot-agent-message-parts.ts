@@ -36,6 +36,7 @@ export interface UltraChatbotAgentKnowledgeBaseResult {
   };
   message: string;
   query: string;
+  retrievalQueries?: string[];
   snippets: Array<{
     citationLabel: string;
     content: string;

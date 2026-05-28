@@ -5,18 +5,36 @@ import { createUltraChatbotAgentChatStore } from "./chat-store";
 
 const ultraChatbotAgentMessageEditSchema = z.object({
   messageId: z.string().min(1),
+  retainedFileUrls: z.array(z.string().trim().min(1)).max(20).optional(),
   text: z.string().trim().min(1),
 });
 
-function buildEditedUserMessage(message: UIMessage, text: string) {
-  const preservedParts = message.parts.filter((part) => part.type !== "text");
+function buildEditedUserMessage(input: {
+  message: UIMessage;
+  retainedFileUrls?: string[];
+  text: string;
+}) {
+  const retainedFileUrlSet = input.retainedFileUrls
+    ? new Set(input.retainedFileUrls)
+    : null;
+  const preservedParts = input.message.parts.filter((part) => {
+    if (part.type === "text") {
+      return false;
+    }
+
+    if (part.type === "file" && retainedFileUrlSet) {
+      return retainedFileUrlSet.has(part.url);
+    }
+
+    return true;
+  });
 
   return {
-    ...message,
+    ...input.message,
     parts: [
       ...preservedParts,
       {
-        text,
+        text: input.text,
         type: "text" as const,
       },
     ],
@@ -70,7 +88,11 @@ export async function handleUltraChatbotAgentMessageEditRequest(
 
   await chatStore.saveIncomingUserMessage({
     chatId: viewer.chatId,
-    message: buildEditedUserMessage(targetMessage, parsedBody.data.text),
+    message: buildEditedUserMessage({
+      message: targetMessage,
+      retainedFileUrls: parsedBody.data.retainedFileUrls,
+      text: parsedBody.data.text,
+    }),
     selectedChatModel: session.chat.selectedChatModel,
     selectedVisibilityType: session.chat.visibility,
     visitorId: viewer.visitorId,

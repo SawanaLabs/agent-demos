@@ -85,7 +85,7 @@ export function UltraChatbotAgentHistoryItem({
             className={cn(
               "m-1.5 shrink-0",
               isActive &&
-                "border-background/30 text-background hover:text-foreground"
+                "border-background/30 bg-transparent text-background hover:bg-background hover:text-foreground"
             )}
             disabled={isDeleting}
             onClick={() => setIsConfirmOpen(true)}

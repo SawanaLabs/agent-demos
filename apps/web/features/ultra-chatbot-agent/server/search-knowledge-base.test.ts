@@ -40,6 +40,7 @@ describe("ultra chatbot agent search knowledge base tool", () => {
       knowledgeSource: ultraChatbotAgentKnowledgeSource,
       message: "Found 2 relevant indexed document snippets.",
       query: "What does the PDF say about the worm logo?",
+      retrievalQueries: ["What does the PDF say about the worm logo?"],
       snippets: [
         {
           citationLabel: "NASA Graphics Standards Manual, p. 8",
@@ -57,5 +58,64 @@ describe("ultra chatbot agent search knowledge base tool", () => {
         },
       ],
     });
+  });
+
+  it("falls back to a source-aware retrieval query for broad PDF questions", async () => {
+    const findRelevantContent = vi
+      .fn()
+      .mockResolvedValueOnce({
+        answerable: false,
+        message:
+          "No relevant indexed document snippets were found for this question.",
+        sources: [],
+      })
+      .mockResolvedValueOnce({
+        answerable: true,
+        message: "Found 1 relevant indexed document snippet.",
+        sources: [
+          {
+            citationLabel: "NASA Graphics Standards Manual, p. 8",
+            content:
+              "The logotype should always be shown in white against a NASA red background.",
+            documentUrl: "https://www.nasa.gov/manual.pdf",
+            pageLabel: "8",
+            sectionTitle: "The NASA Logotype: Use of Color",
+            similarity: 0.83,
+            title: "NASA Graphics Standards Manual",
+          },
+        ],
+      });
+
+    const tool = createUltraChatbotAgentSearchKnowledgeBaseTool({
+      findRelevantContent,
+    });
+    const result = await tool.execute?.(
+      {
+        query: "design principles",
+      },
+      {} as never
+    );
+
+    expect(findRelevantContent).toHaveBeenNthCalledWith(1, "design principles");
+    expect(findRelevantContent).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("NASA logotype seal symbol")
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        answerable: true,
+        query: "design principles",
+        retrievalQueries: [
+          "design principles",
+          expect.stringContaining("NASA Graphics Standards Manual"),
+        ],
+        sources: [
+          {
+            title: "NASA Graphics Standards Manual, p. 8",
+            url: "https://www.nasa.gov/manual.pdf",
+          },
+        ],
+      })
+    );
   });
 });

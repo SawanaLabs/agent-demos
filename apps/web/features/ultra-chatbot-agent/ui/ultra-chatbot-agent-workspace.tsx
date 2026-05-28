@@ -215,6 +215,7 @@ async function saveUltraChatbotAgentCapabilities(input: {
 async function trimUltraChatbotAgentMessagesAfterEdit(input: {
   chatId: string;
   messageId: string;
+  retainedFileUrls?: string[];
   text: string;
 }) {
   const response = await fetch(
@@ -222,6 +223,7 @@ async function trimUltraChatbotAgentMessagesAfterEdit(input: {
     {
       body: JSON.stringify({
         messageId: input.messageId,
+        retainedFileUrls: input.retainedFileUrls,
         text: input.text,
       }),
       credentials: "include",
@@ -487,6 +489,9 @@ export function UltraChatbotAgentWorkspace({
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingRetainedFileUrls, setEditingRetainedFileUrls] = useState<
+    string[]
+  >([]);
   const [editingText, setEditingText] = useState("");
   const [pendingVote, setPendingVote] = useState<{
     messageId: string;
@@ -761,6 +766,7 @@ export function UltraChatbotAgentWorkspace({
       await trimUltraChatbotAgentMessagesAfterEdit({
         chatId: chatMeta.id,
         messageId: message.id,
+        retainedFileUrls: editingRetainedFileUrls,
         text: nextText,
       });
 
@@ -773,12 +779,24 @@ export function UltraChatbotAgentWorkspace({
           return currentMessages;
         }
 
+        const retainedFileUrlSet = new Set(editingRetainedFileUrls);
+
         return [
           ...currentMessages.slice(0, messageIndex),
           {
             ...message,
             parts: [
-              ...message.parts.filter((part) => part.type !== "text"),
+              ...message.parts.filter((part) => {
+                if (part.type === "text") {
+                  return false;
+                }
+
+                if (part.type === "file") {
+                  return retainedFileUrlSet.has(part.url);
+                }
+
+                return true;
+              }),
               { text: nextText, type: "text" as const },
             ],
           },
@@ -786,6 +804,7 @@ export function UltraChatbotAgentWorkspace({
       });
 
       setEditingMessageId(null);
+      setEditingRetainedFileUrls([]);
       setEditingText("");
       await regenerate();
     } catch (error) {
@@ -950,6 +969,8 @@ export function UltraChatbotAgentWorkspace({
                     message.role === "assistant"
                       ? getUltraChatbotAgentSourceParts(message)
                       : [];
+                  const messageFileParts =
+                    getUltraChatbotAgentFileParts(message);
                   const lastPart = message.parts.at(-1);
                   const isLastMessage = messages.at(-1)?.id === message.id;
                   const isReasoningStreaming =
@@ -966,7 +987,7 @@ export function UltraChatbotAgentWorkspace({
                     isVotePending && pendingVote.target === "down";
                   const hasFeedbackTarget =
                     getTextContent(message).trim().length > 0 ||
-                    getUltraChatbotAgentFileParts(message).length > 0 ||
+                    messageFileParts.length > 0 ||
                     getUltraChatbotAgentSourceParts(message).length > 0;
                   const showFeedbackButtons =
                     message.role === "assistant" &&
@@ -1005,8 +1026,8 @@ export function UltraChatbotAgentWorkspace({
                       <MessageContent
                         className={cn(
                           message.role === "assistant"
-                            ? "w-full max-w-3xl"
-                            : "max-w-2xl"
+                            ? "w-full min-w-0 max-w-3xl"
+                            : "min-w-0 max-w-2xl"
                         )}
                       >
                         {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: tool rendering stays adjacent to UIMessage part handling until the QA fixes are complete. */}
@@ -1146,6 +1167,35 @@ export function UltraChatbotAgentWorkspace({
                         <UltraChatbotAgentSources sources={sources} />
                         {editingMessageId === message.id ? (
                           <div className="space-y-3">
+                            {messageFileParts.length > 0 ? (
+                              <Attachments variant="list">
+                                {messageFileParts
+                                  .filter((part) =>
+                                    editingRetainedFileUrls.includes(part.url)
+                                  )
+                                  .map((part) => {
+                                    const attachmentId = `${message.id}-${part.filename ?? "attachment"}-${part.url}`;
+
+                                    return (
+                                      <UltraChatbotAgentPreviewAttachment
+                                        attachment={{
+                                          ...part,
+                                          id: attachmentId,
+                                        }}
+                                        key={attachmentId}
+                                        onRemove={() =>
+                                          setEditingRetainedFileUrls(
+                                            (current) =>
+                                              current.filter(
+                                                (url) => url !== part.url
+                                              )
+                                          )
+                                        }
+                                      />
+                                    );
+                                  })}
+                              </Attachments>
+                            ) : null}
                             <Textarea
                               onChange={(event) =>
                                 setEditingText(event.target.value)
@@ -1165,6 +1215,7 @@ export function UltraChatbotAgentWorkspace({
                               <Button
                                 onClick={() => {
                                   setEditingMessageId(null);
+                                  setEditingRetainedFileUrls([]);
                                   setEditingText("");
                                   setEditError(null);
                                 }}
@@ -1223,6 +1274,9 @@ export function UltraChatbotAgentWorkspace({
                             disabled={isBusy}
                             onClick={() => {
                               setEditingMessageId(message.id);
+                              setEditingRetainedFileUrls(
+                                messageFileParts.map((part) => part.url)
+                              );
                               setEditingText(getTextContent(message));
                               setEditError(null);
                             }}
@@ -1239,7 +1293,7 @@ export function UltraChatbotAgentWorkspace({
                 })}
                 {showResumeThinking ? (
                   <Message from="assistant">
-                    <MessageContent className="w-full max-w-3xl">
+                    <MessageContent className="w-full min-w-0 max-w-3xl">
                       <Shimmer className="text-sm">Thinking...</Shimmer>
                     </MessageContent>
                   </Message>

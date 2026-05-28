@@ -18,16 +18,24 @@ export function UltraChatbotAgentSources({
     return null;
   }
 
+  const seenSourceKeys = new Map<string, number>();
+  const keyedSources = sources.map((source) => {
+    const baseKey = `${source.sourceId}-${source.url}-${source.title}`;
+    const nextCount = (seenSourceKeys.get(baseKey) ?? 0) + 1;
+    seenSourceKeys.set(baseKey, nextCount);
+
+    return {
+      key: nextCount === 1 ? baseKey : `${baseKey}-${nextCount}`,
+      source,
+    };
+  });
+
   return (
     <Sources>
       <SourcesTrigger count={sources.length} />
       <SourcesContent>
-        {sources.map((source) => (
-          <Source
-            href={source.url}
-            key={source.sourceId}
-            title={source.title}
-          />
+        {keyedSources.map(({ key, source }) => (
+          <Source href={source.url} key={key} title={source.title} />
         ))}
       </SourcesContent>
     </Sources>

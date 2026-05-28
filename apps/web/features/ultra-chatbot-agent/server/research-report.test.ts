@@ -85,6 +85,50 @@ describe("ultra chatbot agent research report tool", () => {
     );
   });
 
+  it("preserves exact web search sources passed by the agent", async () => {
+    const { createUltraChatbotAgentResearchReportTool } =
+      await importResearchReportModule();
+
+    const reportTool = createUltraChatbotAgentResearchReportTool({
+      model: { provider: "mock" } as never,
+    });
+    const result = await reportTool.execute?.(
+      {
+        sources: [
+          {
+            title: "Moonshot AI model docs",
+            url: "https://platform.moonshot.ai/docs",
+          },
+          {
+            title: "Moonshot AI model docs duplicate",
+            url: "https://platform.moonshot.ai/docs",
+          },
+          {
+            title: "MiniMax model release",
+            url: "https://www.minimaxi.com/en/news",
+          },
+        ],
+        topic: "Kimi vs MiniMax open-source model comparison",
+      },
+      {} as never
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        sources: [
+          {
+            title: "Moonshot AI model docs",
+            url: "https://platform.moonshot.ai/docs",
+          },
+          {
+            title: "MiniMax model release",
+            url: "https://www.minimaxi.com/en/news",
+          },
+        ],
+      })
+    );
+  });
+
   it("keeps source locators free of rejected URI schema format metadata", async () => {
     const { researchReportSchema } = await importResearchReportModule();
 

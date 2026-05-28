@@ -27,7 +27,10 @@ export function UltraChatbotAgentPreviewAttachment({
 }: UltraChatbotAgentPreviewAttachmentProps) {
   return (
     <Attachment
-      className={cn(isUploading && "pointer-events-none opacity-80")}
+      className={cn(
+        "min-w-0 max-w-full overflow-hidden",
+        isUploading && "pointer-events-none opacity-80"
+      )}
       data={attachment}
       onRemove={onRemove}
     >

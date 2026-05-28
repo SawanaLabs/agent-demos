@@ -4,6 +4,18 @@ import { z } from "zod";
 const researchReportInputSchema = z.object({
   audience: z.string().trim().min(1).optional(),
   evidence: z.string().trim().min(1).optional(),
+  sources: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1),
+        url: z.string().trim().min(1),
+      })
+    )
+    .max(12)
+    .optional()
+    .describe(
+      "Exact source records from prior web_search results. Preserve these URLs instead of inventing new ones."
+    ),
   topic: z.string().trim().min(1),
 });
 
@@ -33,9 +45,35 @@ function buildResearchReportPrompt(
     `Topic: ${input.topic}`,
     input.audience ? `Audience: ${input.audience}` : null,
     input.evidence ? `Evidence:\n${input.evidence}` : null,
+    input.sources && input.sources.length > 0
+      ? `Exact sources:\n${input.sources
+          .map((source) => `- ${source.title}: ${source.url}`)
+          .join("\n")}`
+      : null,
   ]
     .filter(Boolean)
     .join("\n\n");
+}
+
+function normalizeInputSources(
+  sources: NonNullable<z.infer<typeof researchReportInputSchema>["sources"]>
+) {
+  const seenUrls = new Set<string>();
+
+  return sources
+    .map((source) => ({
+      title: source.title.trim(),
+      url: source.url.trim(),
+    }))
+    .filter((source) => {
+      if (!(source.title && source.url) || seenUrls.has(source.url)) {
+        return false;
+      }
+
+      seenUrls.add(source.url);
+      return true;
+    })
+    .slice(0, 8);
 }
 
 export function createUltraChatbotAgentResearchReportTool(input: {
@@ -43,9 +81,10 @@ export function createUltraChatbotAgentResearchReportTool(input: {
 }) {
   return tool({
     description:
-      "Create a structured research report object from a topic and available evidence. Use this when the user asks for a research brief, comparison report, market scan, or decision memo that should render as a structured component.",
+      "Create a structured research report object from a topic and available evidence. Use this when the user asks for a research brief, comparison report, market scan, or decision memo that should render as a structured component. If web_search was called first, pass its exact sources array in sources.",
     inputSchema: researchReportInputSchema,
     execute: async (toolInput) => {
+      const suppliedSources = normalizeInputSources(toolInput.sources ?? []);
       const response = await generateObject({
         model: input.model,
         prompt: buildResearchReportPrompt(toolInput),
@@ -61,6 +100,10 @@ export function createUltraChatbotAgentResearchReportTool(input: {
       return {
         ...response.object,
         kind: "research-report" as const,
+        sources:
+          suppliedSources.length > 0
+            ? suppliedSources
+            : response.object.sources,
       };
     },
   });

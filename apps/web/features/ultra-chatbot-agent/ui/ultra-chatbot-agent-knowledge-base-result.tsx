@@ -9,6 +9,29 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
 }: {
   result: UltraChatbotAgentKnowledgeBaseResult;
 }) {
+  const seenSourceKeys = new Map<string, number>();
+  const seenSnippetKeys = new Map<string, number>();
+  const keyedSnippets = result.snippets.slice(0, 3).map((snippet) => {
+    const baseKey = `${snippet.documentUrl}-${snippet.citationLabel}-${snippet.content}`;
+    const nextCount = (seenSnippetKeys.get(baseKey) ?? 0) + 1;
+    seenSnippetKeys.set(baseKey, nextCount);
+
+    return {
+      key: nextCount === 1 ? baseKey : `${baseKey}-${nextCount}`,
+      snippet,
+    };
+  });
+  const keyedSources = result.sources.map((source) => {
+    const baseKey = `${source.url}-${source.title}`;
+    const nextCount = (seenSourceKeys.get(baseKey) ?? 0) + 1;
+    seenSourceKeys.set(baseKey, nextCount);
+
+    return {
+      key: nextCount === 1 ? baseKey : `${baseKey}-${nextCount}`,
+      source,
+    };
+  });
+
   return (
     <article className="w-full space-y-4 border border-foreground/15 bg-background px-5 py-5">
       <div className="space-y-3">
@@ -38,10 +61,10 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
             Retrieved snippets
           </p>
           <div className="grid gap-3">
-            {result.snippets.slice(0, 3).map((snippet, index) => (
+            {keyedSnippets.map(({ key, snippet }) => (
               <div
                 className="space-y-2 border border-foreground/10 bg-muted/20 px-3 py-3"
-                key={`${snippet.documentUrl}-${snippet.citationLabel}-${index}`}
+                key={key}
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">{snippet.citationLabel}</Badge>
@@ -64,11 +87,11 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
             Resources
           </p>
           <div className="flex flex-wrap gap-2">
-            {result.sources.map((source) => (
+            {keyedSources.map(({ key, source }) => (
               <a
-                className="border border-foreground/15 px-2.5 py-1 text-xs transition-colors hover:bg-accent"
+                className="border border-foreground/15 px-2.5 py-1 text-xs transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
                 href={source.url}
-                key={`${source.url}-${source.title}`}
+                key={key}
                 rel="noreferrer"
                 target="_blank"
               >

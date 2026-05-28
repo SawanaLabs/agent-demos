@@ -68,11 +68,11 @@ export function UltraChatbotAgentResearchReport({
                 source.url.startsWith("http://") ||
                 source.url.startsWith("https://");
               const className =
-                "border border-foreground/15 px-2.5 py-1 text-xs transition-colors";
+                "border border-foreground/15 px-2.5 py-1 text-xs transition-colors hover:border-foreground hover:bg-foreground hover:text-background";
 
               return isExternalUrl ? (
                 <a
-                  className={`${className} hover:bg-accent`}
+                  className={className}
                   href={source.url}
                   key={`${source.url}-${source.title}`}
                   rel="noreferrer"

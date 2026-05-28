@@ -1,9 +1,18 @@
 "use client";
 
+import {
+  CodeBlock,
+  CodeBlockActions,
+  CodeBlockCopyButton,
+  CodeBlockFilename,
+  CodeBlockHeader,
+  CodeBlockTitle,
+} from "@workspace/ui/components/ai-elements/code-block";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
 import { Textarea } from "@workspace/ui/components/textarea";
 import {
+  type ComponentProps,
   type ReactNode,
   useCallback,
   useEffect,
@@ -26,17 +35,26 @@ import { UltraChatbotAgentDocumentSuggestions } from "./ultra-chatbot-agent-docu
 import { UltraChatbotAgentMessageResponse } from "./ultra-chatbot-agent-message-response";
 import { UltraChatbotAgentVersionFooter } from "./ultra-chatbot-agent-version-footer";
 
+type UltraChatbotAgentCodeLanguage = ComponentProps<
+  typeof CodeBlock
+>["language"];
+
 function UltraChatbotAgentCodeDocumentPreview({
   content,
   onStartEdit,
+  title,
 }: {
   content: string;
   onStartEdit: () => void;
+  title: string;
 }) {
+  const language = inferCodeLanguage(title, content);
+
   return (
-    // biome-ignore lint/a11y/useSemanticElements: this scrollable code preview supports double-click editing and cannot be represented as a plain button.
-    <div
-      className="min-h-[24rem] rounded-xl border border-foreground/10 bg-background"
+    <CodeBlock
+      className="min-h-[24rem] rounded-xl border-foreground/10 [&_pre]:min-h-[20rem]"
+      code={content}
+      language={language}
       onDoubleClick={onStartEdit}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
@@ -44,13 +62,69 @@ function UltraChatbotAgentCodeDocumentPreview({
         }
       }}
       role="button"
+      showLineNumbers
       tabIndex={0}
     >
-      <pre className="max-w-full overflow-auto px-4 py-4 text-sm">
-        <code>{content}</code>
-      </pre>
-    </div>
+      <CodeBlockHeader className="gap-3">
+        <CodeBlockTitle className="min-w-0">
+          <CodeBlockFilename className="truncate">{title}</CodeBlockFilename>
+          <Badge className="shrink-0" variant="outline">
+            {language}
+          </Badge>
+        </CodeBlockTitle>
+        <CodeBlockActions>
+          <CodeBlockCopyButton />
+        </CodeBlockActions>
+      </CodeBlockHeader>
+    </CodeBlock>
   );
+}
+
+function inferCodeLanguage(
+  title: string,
+  content: string
+): UltraChatbotAgentCodeLanguage {
+  const lowerTitle = title.toLowerCase();
+
+  if (lowerTitle.endsWith(".tsx")) {
+    return "tsx";
+  }
+
+  if (lowerTitle.endsWith(".ts")) {
+    return "typescript";
+  }
+
+  if (lowerTitle.endsWith(".jsx")) {
+    return "jsx";
+  }
+
+  if (lowerTitle.endsWith(".js")) {
+    return "javascript";
+  }
+
+  if (lowerTitle.endsWith(".json")) {
+    return "json";
+  }
+
+  if (lowerTitle.endsWith(".css")) {
+    return "css";
+  }
+
+  if (lowerTitle.endsWith(".html")) {
+    return "html";
+  }
+
+  if (lowerTitle.endsWith(".md") || lowerTitle.endsWith(".mdx")) {
+    return "markdown";
+  }
+
+  const trimmedContent = content.trim();
+
+  if (trimmedContent.startsWith("{") || trimmedContent.startsWith("[")) {
+    return "json";
+  }
+
+  return "typescript";
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: document detail coordinates artifact loading, preview, editing, diffing, and version controls for one focused dialog.
@@ -309,6 +383,7 @@ export function UltraChatbotAgentDocumentDetail({
             setIsEditing(true);
           }
         }}
+        title={selectedDocument.title}
       />
     );
   } else {

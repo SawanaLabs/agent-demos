@@ -1,6 +1,7 @@
 import { getLangGraphAgentAppEnv } from "./env-source";
 
 const MINIMUM_NODE_VERSION = "22.13.0";
+export const DEFAULT_LANGGRAPH_AGENT_MODEL = "openai/gpt-5-mini";
 const nodeVersionPattern = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/;
 
 interface ParsedNodeVersion {
@@ -15,6 +16,7 @@ export interface LangGraphAgentConfig {
   apiKey?: string;
   assistantId: string;
   baseUrl: string;
+  modelName: string;
 }
 
 export interface LangGraphAgentSetupState {
@@ -91,6 +93,7 @@ export function getLangGraphAgentConfig(
     apiKey: env.LANGGRAPH_AGENT_API_KEY,
     assistantId: readRequiredEnv(env, "LANGGRAPH_AGENT_ASSISTANT_ID"),
     baseUrl: readRequiredEnv(env, "LANGGRAPH_AGENT_API_URL"),
+    modelName: env.LANGGRAPH_AGENT_MODEL ?? DEFAULT_LANGGRAPH_AGENT_MODEL,
   };
 }
 
@@ -124,6 +127,7 @@ export function getLangGraphAgentSetupState(
       apiKey: env.LANGGRAPH_AGENT_API_KEY,
       assistantId: env.LANGGRAPH_AGENT_ASSISTANT_ID,
       baseUrl: env.LANGGRAPH_AGENT_API_URL,
+      modelName: env.LANGGRAPH_AGENT_MODEL ?? DEFAULT_LANGGRAPH_AGENT_MODEL,
     },
     isReady: issues.length === 0,
     issues,

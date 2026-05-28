@@ -72,6 +72,7 @@ updateAt: 2026-05-28
 - The Next.js runtime uses `POST /threads` with `if_exists: "do_nothing"` before `POST /threads/{thread_id}/runs/stream` with `stream_mode: ["updates", "messages-tuple"]`, converts UI messages to LangGraph `human`/`ai`/`system` messages, and emits AI SDK text chunks plus `data-graph-progress` data parts.
 - The active thread id is generated client-side as a UUID for the current workspace session. V1 does not add a frontend chat-history database, thread list, cross-thread memory, or durable resume UI.
 - The Python validation backend lives in `apps/langgraph-agent-api/` and is managed by `uv`. It exposes graph id `agent` through `langgraph.json`, uses a route -> plan -> tool -> synthesize -> answer graph, and runs locally with `uv run langgraph dev --port 2024`.
+- Use `pnpm dev:langgraph-agent-api` for the fixed-port local Python server and `pnpm dev:langgraph-agent-web` for the paired Next.js app. The API script sources root `.env` and `.env.local`, defaults `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`, then runs LangGraph on port 2024. The web script points at `http://localhost:2024`, carries the same model default for screen metadata, and keeps the existing Next.js port 3000 contract.
 - Local `langgraph dev` uses in-memory persistence for development and testing. Hosted LangGraph or LangSmith deployments own durable persistence for production.
 
 ## Open Decisions

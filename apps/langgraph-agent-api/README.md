@@ -5,10 +5,7 @@ Python LangGraph backend for the `langgraph-agent` frontend demo.
 ## Setup
 
 ```bash
-cd apps/langgraph-agent-api
-cp .env.example .env
-uv sync
-uv run langgraph dev --port 2024
+pnpm dev:langgraph-agent-api
 ```
 
 Set these frontend variables in `apps/web/.env.local`:
@@ -18,9 +15,19 @@ LANGGRAPH_AGENT_API_URL=http://localhost:2024
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 ```
 
+For the paired local web app, use:
+
+```bash
+pnpm dev:langgraph-agent-web
+```
+
 `LANGGRAPH_AGENT_API_KEY` is optional for local `langgraph dev`; use it when the
 frontend talks to a hosted LangGraph/LangSmith deployment that requires an API
 key.
+
+The local scripts default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`.
+Set `LANGGRAPH_AGENT_MODEL` before running either script to test a different
+OpenAI-compatible model through Vercel AI Gateway.
 
 ## Contract
 

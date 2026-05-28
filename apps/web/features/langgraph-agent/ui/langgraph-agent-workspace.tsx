@@ -18,6 +18,12 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@workspace/ui/components/ai-elements/prompt-input";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@workspace/ui/components/ai-elements/reasoning";
+import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Card } from "@workspace/ui/components/card";
@@ -33,6 +39,7 @@ import {
 } from "lucide-react";
 
 import type { LangGraphProgressData } from "../server/stream-normalizer";
+import { getLangGraphThinkingText } from "./langgraph-agent-message-parts";
 import {
   type LangGraphAgentMessage,
   useLangGraphAgent,
@@ -67,14 +74,69 @@ function formatStateSummary(state: unknown) {
   return "Stream event received";
 }
 
+function LangGraphAssistantTrace({
+  events,
+  isLastMessage,
+  isStreaming,
+  message,
+}: {
+  events: LangGraphProgressData[];
+  isLastMessage: boolean;
+  isStreaming: boolean;
+  message: LangGraphAgentMessage;
+}) {
+  const text = getTextContent(message);
+  const thinkingText = isLastMessage ? getLangGraphThinkingText(events) : "";
+  const showThinking =
+    thinkingText.length > 0 || (isLastMessage && isStreaming && !text);
+
+  return (
+    <>
+      {showThinking ? (
+        <Reasoning
+          className="w-full"
+          defaultOpen={isLastMessage && isStreaming}
+          isStreaming={isLastMessage && isStreaming}
+        >
+          <ReasoningTrigger
+            getThinkingMessage={(streaming, duration) => {
+              if (streaming || duration === 0) {
+                return (
+                  <Shimmer duration={1}>Thinking through LangGraph...</Shimmer>
+                );
+              }
+
+              if (duration === undefined) {
+                return <p>LangGraph thinking</p>;
+              }
+
+              return <p>LangGraph thought for {duration} seconds</p>;
+            }}
+          />
+          <ReasoningContent>
+            {thinkingText || "- Start run: Waiting for LangGraph node updates."}
+          </ReasoningContent>
+        </Reasoning>
+      ) : null}
+
+      {text ? (
+        <MessageResponse>{text}</MessageResponse>
+      ) : (
+        <Shimmer className="text-sm">Waiting for LangGraph output.</Shimmer>
+      )}
+    </>
+  );
+}
+
 function GraphProgressPanel({
   events,
   threadId,
 }: {
   events: LangGraphProgressData[];
-  threadId: string;
+  threadId: string | null;
 }) {
   const nodeSummary = getGraphNodeSummary(events);
+  const threadLabel = threadId ?? "Preparing thread...";
 
   return (
     <Card className="bg-background p-4 text-base text-foreground leading-normal">
@@ -83,7 +145,7 @@ function GraphProgressPanel({
           <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
             LangGraph thread
           </p>
-          <p className="mt-1 break-all font-mono text-sm">{threadId}</p>
+          <p className="mt-1 break-all font-mono text-sm">{threadLabel}</p>
         </div>
 
         <div>
@@ -170,8 +232,8 @@ export function LangGraphAgentWorkspace({
   } = useLangGraphAgent();
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal">
+    <div className="grid h-[100svh] min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <Card className="h-full min-h-0 gap-0 overflow-hidden bg-background py-0 text-base text-foreground leading-normal">
         {isChatAvailable ? null : (
           <>
             <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -193,23 +255,36 @@ export function LangGraphAgentWorkspace({
         <Conversation>
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
-              messages.map((message) => {
+              messages.map((message, index) => {
                 const text = getTextContent(message);
+                let messageBody = (
+                  <p className="text-muted-foreground text-sm">
+                    Waiting for LangGraph output.
+                  </p>
+                );
+
+                if (message.role === "assistant") {
+                  messageBody = (
+                    <LangGraphAssistantTrace
+                      events={graphEvents}
+                      isLastMessage={index === messages.length - 1}
+                      isStreaming={isBusy}
+                      message={message}
+                    />
+                  );
+                } else if (text) {
+                  messageBody = <MessageResponse>{text}</MessageResponse>;
+                }
 
                 return (
                   <Message from={message.role} key={message.id}>
                     <MessageContent
                       className={cn(
+                        "space-y-4",
                         message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
                       )}
                     >
-                      {text ? (
-                        <MessageResponse>{text}</MessageResponse>
-                      ) : (
-                        <p className="text-muted-foreground text-sm">
-                          Waiting for LangGraph output.
-                        </p>
-                      )}
+                      {messageBody}
                     </MessageContent>
                   </Message>
                 );
@@ -286,7 +361,7 @@ export function LangGraphAgentWorkspace({
         </div>
       </Card>
 
-      <div className="space-y-4">
+      <div className="min-h-0 space-y-4 overflow-y-auto">
         <Card className="bg-background p-4 text-base text-foreground leading-normal">
           <div className="space-y-4">
             <div>

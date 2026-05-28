@@ -17,6 +17,22 @@ describe("langgraph agent env", () => {
       apiKey: "test-key",
       assistantId: "agent",
       baseUrl: "http://localhost:2024",
+      modelName: "openai/gpt-5-mini",
+    });
+  });
+
+  it("uses the LangGraph model override when provided", () => {
+    expect(
+      getLangGraphAgentConfig({
+        LANGGRAPH_AGENT_API_URL: "http://localhost:2024",
+        LANGGRAPH_AGENT_ASSISTANT_ID: "agent",
+        LANGGRAPH_AGENT_MODEL: "openai/gpt-5",
+      })
+    ).toEqual({
+      apiKey: undefined,
+      assistantId: "agent",
+      baseUrl: "http://localhost:2024",
+      modelName: "openai/gpt-5",
     });
   });
 

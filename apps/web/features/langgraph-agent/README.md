@@ -8,10 +8,7 @@ LangGraph Agent Server through the official thread-scoped streaming endpoint.
 Start the Python Agent Server:
 
 ```bash
-cd apps/langgraph-agent-api
-cp .env.example .env
-uv sync
-uv run langgraph dev --port 2024
+pnpm dev:langgraph-agent-api
 ```
 
 Add the frontend env keys in `apps/web/.env.local`:
@@ -24,10 +21,13 @@ LANGGRAPH_AGENT_ASSISTANT_ID=agent
 Then run the web app:
 
 ```bash
-pnpm --dir apps/web dev
+pnpm dev:langgraph-agent-web
 ```
 
 Open `/demos/langgraph-agent`.
+
+Both local scripts default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`.
+Override it in the shell when you need to verify another Gateway model.
 
 ## Frontend Contract
 

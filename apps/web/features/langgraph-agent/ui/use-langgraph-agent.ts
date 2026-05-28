@@ -2,7 +2,7 @@
 
 import { Chat, useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
   LangGraphAgentDataParts,
@@ -27,8 +27,19 @@ function isGraphProgressDataPart(dataPart: unknown): dataPart is {
 }
 
 export function useLangGraphAgent() {
-  const threadIdRef = useRef(createLangGraphThreadId());
-  const [threadId, setThreadId] = useState(threadIdRef.current);
+  const threadIdRef = useRef<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const ensureThreadId = useCallback(() => {
+    if (threadIdRef.current) {
+      return threadIdRef.current;
+    }
+
+    const nextThreadId = createLangGraphThreadId();
+    threadIdRef.current = nextThreadId;
+    setThreadId(nextThreadId);
+
+    return nextThreadId;
+  }, []);
   const [graphEvents, setGraphEvents] = useState<LangGraphProgressData[]>([]);
   const [chat] = useState(
     () =>
@@ -44,7 +55,7 @@ export function useLangGraphAgent() {
             return {
               body: {
                 messages,
-                threadId: threadIdRef.current,
+                threadId: ensureThreadId(),
               },
             };
           },
@@ -55,6 +66,10 @@ export function useLangGraphAgent() {
   const hasMessages = controller.messages.length > 0;
   const isBusy =
     controller.status === "submitted" || controller.status === "streaming";
+
+  useEffect(() => {
+    ensureThreadId();
+  }, [ensureThreadId]);
 
   return {
     ...controller,

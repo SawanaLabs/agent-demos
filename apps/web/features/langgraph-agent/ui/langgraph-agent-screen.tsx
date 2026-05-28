@@ -30,6 +30,7 @@ export function LangGraphAgentScreen() {
 
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+              <Badge variant="outline">{runtimeState.modelName}</Badge>
               <Badge variant="outline">
                 {runtimeState.assistantId ?? "assistant id missing"}
               </Badge>

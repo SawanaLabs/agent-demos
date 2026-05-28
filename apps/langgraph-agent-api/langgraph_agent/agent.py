@@ -10,7 +10,28 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 
 DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v1"
-DEFAULT_MODEL = "openai/gpt-4.1-mini"
+DEFAULT_MODEL = "openai/gpt-5-mini"
+INTEGRATION_REQUEST_MARKERS = (
+    "api",
+    "backend",
+    "checkpoint",
+    "frontend",
+    "langchain",
+    "langgraph",
+    "next",
+    "next.js",
+    "stream",
+    "thread",
+    "部署",
+    "后端",
+    "接口",
+    "集成",
+    "流式",
+    "前端",
+    "适配",
+    "线程",
+    "持久化",
+)
 
 
 class AgentState(TypedDict, total=False):
@@ -60,12 +81,21 @@ def _read_gateway_api_key() -> str:
     return api_key
 
 
+def _is_integration_request(text: str) -> bool:
+    normalized_text = text.lower()
+
+    return any(marker in normalized_text for marker in INTEGRATION_REQUEST_MARKERS)
+
+
+def _resolve_model_name() -> str:
+    return os.getenv("LANGGRAPH_AGENT_MODEL") or DEFAULT_MODEL
+
+
 def _create_chat_model() -> ChatOpenAI:
     return ChatOpenAI(
         api_key=_read_gateway_api_key(),
         base_url=os.getenv("AI_GATEWAY_BASE_URL", DEFAULT_GATEWAY_BASE_URL),
-        model=os.getenv("LANGGRAPH_AGENT_MODEL")
-        or os.getenv("AI_GATEWAY_CHAT_MODEL", DEFAULT_MODEL),
+        model=_resolve_model_name(),
         streaming=True,
         temperature=0.2,
     )
@@ -85,26 +115,42 @@ def inspect_frontend_contract(topic: str) -> str:
 
 
 def route_node(state: AgentState) -> dict[str, str]:
-    _latest_human_text(state)
+    user_text = _latest_human_text(state)
 
     return {
-        "route": "general",
+        "route": "integration" if _is_integration_request(user_text) else "general",
     }
 
 
 def plan_node(state: AgentState) -> dict[str, str]:
     user_text = _latest_human_text(state)
+    route = state.get("route", "general")
+
+    if route == "integration":
+        plan = (
+            "Answer the latest user request with concise LangGraph integration "
+            "guidance, grounded in the official LangGraph Agent Server contract. "
+            f"Request: {user_text}"
+        )
+    else:
+        plan = (
+            "Answer the latest user request naturally and directly. Do not force "
+            "LangGraph integration advice unless the user asks for it. "
+            f"Request: {user_text}"
+        )
 
     return {
-        "plan": (
-            "Answer the latest user request with a concise integration plan, "
-            f"grounded in the official LangGraph Agent Server contract. Request: {user_text}"
-        ),
-        "route": state.get("route", "general"),
+        "plan": plan,
+        "route": route,
     }
 
 
 def tool_node(state: AgentState) -> dict[str, list[str]]:
+    if state.get("route", "general") != "integration":
+        return {
+            "observations": [],
+        }
+
     observation = inspect_frontend_contract.invoke(
         {
             "topic": _latest_human_text(state),
@@ -132,9 +178,12 @@ def answer_node(state: AgentState) -> dict[str, list[AIMessage]]:
         [
             SystemMessage(
                 content=(
-                    "You are a concise LangGraph integration agent. Use the plan and "
-                    "observations, surface assumptions, and keep the answer useful to "
-                    "engineers adapting a Python LangGraph agent to a Next.js product UI."
+                    "You are a helpful general assistant running inside a LangGraph "
+                    "demo. Answer the user's actual request directly. For greetings "
+                    "or small talk, keep the response brief and natural. Use "
+                    "LangGraph integration details only when the user asks for them. "
+                    "When integration observations are provided, ground the answer "
+                    "in them."
                 )
             ),
             HumanMessage(

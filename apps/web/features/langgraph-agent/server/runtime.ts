@@ -6,6 +6,7 @@ import {
 } from "ai";
 
 import {
+  DEFAULT_LANGGRAPH_AGENT_MODEL,
   getLangGraphAgentConfig,
   getLangGraphAgentEnv,
   getLangGraphAgentSetupState,
@@ -23,6 +24,7 @@ interface LangGraphAgentRequestBody {
 export interface LangGraphAgentRuntimeState {
   assistantId: string | null;
   isChatAvailable: boolean;
+  modelName: string;
   nodeVersion: string;
   remoteUrl: string | null;
   setupMessage: string | null;
@@ -99,6 +101,7 @@ export function getLangGraphAgentRuntimeState(
   return {
     assistantId: setup.config.assistantId ?? null,
     isChatAvailable: setup.isReady,
+    modelName: setup.config.modelName ?? DEFAULT_LANGGRAPH_AGENT_MODEL,
     nodeVersion: setup.nodeVersion,
     remoteUrl: setup.config.baseUrl ?? null,
     setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,

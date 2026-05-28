@@ -24,6 +24,7 @@ describe("langgraph agent runtime", () => {
   it("reports setup requirements when remote LangGraph config is missing", () => {
     expect(getLangGraphAgentRuntimeState({})).toMatchObject({
       isChatAvailable: false,
+      modelName: "openai/gpt-5-mini",
       setupMessage: expect.stringContaining("LANGGRAPH_AGENT_API_URL"),
       statusLabel: "Setup required",
     });

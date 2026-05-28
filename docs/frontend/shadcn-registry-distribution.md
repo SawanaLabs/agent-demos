@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-05-27
+updateAt: 2026-05-28
 ---
 
 # shadcn Registry Distribution
@@ -11,6 +11,22 @@ updateAt: 2026-05-27
 - Covers source registry files under `registry/`.
 - Covers generated static registry JSON under `apps/web/public/r/`.
 - Covers how an **Agent Demo** becomes installable into a fresh Next.js App Router project initialized with shadcn/ui.
+- Covers the boundary between the public consumer guide at `/registry` and these internal author-side rules.
+
+## Public Consumer Guide
+
+- `/registry` is the public **Registry Guide Page** for **Registry Consumers** who have not forked this repository.
+- The public page should be blog-readable but executable: concise setup context, the namespace command, the `foundation-chat` mainline install command, required env vars, agent-facing guidance, and short setup notes for other supported registry demos.
+- The public page should use `agent-demos.hsawana9.com` as the production host in commands:
+
+```bash
+pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+```
+
+- Public copy should link inline to source material such as the GitHub repo, shadcn registry docs, AI SDK docs, and AI Elements docs.
+- Keep author maintenance, publishing, sync tooling, and fresh-consumer acceptance details in this internal document instead of duplicating them on `/registry`.
+- Homepage registry entry points should stay compact. The current public entry appears on the homepage and points to `/registry`; demo screen-level install hints are planned separately.
 
 ## Current Rules
 
@@ -58,7 +74,7 @@ updateAt: 2026-05-27
 - Consumer-facing install syntax should standardize on a registry namespace:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
+pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
 pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 ```
 
@@ -128,7 +144,7 @@ Choose:
 Then install the registry namespace and demo:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
+pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
 pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 ```
 

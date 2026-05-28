@@ -13,7 +13,7 @@ A reusable implementation slice extracted from or used by an **Agent Demo** so t
 _Avoid_: Component library item, package
 
 **Copy Boundary**:
-The smallest coherent set of files and concepts required to move an **Agent Demo** into another compatible project without untangling unrelated demos.
+The smallest coherent set of files and concepts required to install or move an **Agent Demo** into another compatible project without untangling unrelated demos.
 _Avoid_: Folder, route
 
 **Demo Catalog Entry**:
@@ -43,6 +43,18 @@ _Avoid_: Tag, topic
 **Technical Evaluator**:
 A developer, technical reviewer, or future collaborator who understands the surrounding stack well enough to judge agent quality and reuse potential.
 _Avoid_: Visitor, end user, customer
+
+**Registry Consumer**:
+A developer, developer-directed coding agent, or beginner evaluator who wants to install an **Agent Demo** into a compatible project through its **Copy Boundary**.
+_Avoid_: End user, app customer, casual visitor
+
+**Registry Guide Page**:
+A public-facing documentation surface for **Registry Consumers** that explains how to install **Agent Demos** into compatible projects from an already published registry.
+_Avoid_: Internal registry docs, author maintenance guide, blog-only announcement
+
+**Registry Install Hint**:
+A compact install prompt that links to the **Registry Guide Page** and shows a demo-specific registry command when the **Agent Demo** is registry-backed.
+_Avoid_: Full tutorial, duplicated registry guide, author setup notes
 
 **Demo Quality Bar**:
 The internal standard that an **Agent Demo** must meet by making its pattern clear, its full-stack behavior complete, and its reuse potential credible through use and code structure.
@@ -80,6 +92,9 @@ _Avoid_: Starter code, rough inspiration
 - A **Demo Workspace** may show an **Empty State Explanation** before interaction begins.
 - An **Agent Demo** demonstrates exactly one primary **Agent Pattern**.
 - A **Demo Catalog Entry** is written primarily for a **Technical Evaluator**.
+- A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.
+- A **Registry Guide Page** is written for **Registry Consumers** and should refer author maintenance details back to durable internal docs instead of duplicating them.
+- A **Registry Install Hint** may appear in the **Demo Gallery** or near an **Agent Demo**'s operational sidebar, and should stay shorter than the **Registry Guide Page**.
 - An **Agent Demo** is evaluated against the **Demo Quality Bar**.
 - An **Agent Demo** is expected to become a **Production-Ready Demo** before it is treated as ready.
 - The **Roadmap** may include planned **Agent Demos** before they become interactive.

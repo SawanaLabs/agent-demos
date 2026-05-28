@@ -18,6 +18,7 @@ import {
   roadmapDemoCatalogEntries,
 } from "@/features/demo-catalog/registry";
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
+import { registryGuideConfig } from "@/features/registry-guide/registry-guide-data";
 
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
@@ -139,6 +140,23 @@ export default function Page() {
                 Ready demos follow stable AI SDK Recipes and docs sources while
                 roadmap cards stay separate.
               </p>
+            </div>
+            <div className="space-y-3 border-foreground/10 border-t pt-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                  shadcn registry
+                </p>
+                <Link
+                  className="inline-flex items-center gap-1 text-xs hover:underline"
+                  href="/registry"
+                >
+                  Guide
+                  <ArrowSquareOutIcon className="size-3.5" />
+                </Link>
+              </div>
+              <code className="block break-all border border-foreground/10 bg-muted/40 p-2 font-mono text-[11px] leading-relaxed">
+                {registryGuideConfig.foundationChatCommand}
+              </code>
             </div>
           </div>
         </section>

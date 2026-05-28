@@ -1,7 +1,7 @@
 ---
 title: Frontend
 description: Navigation for Next.js app and shared UI package conventions.
-updateAt: 2026-05-28
+updateAt: 2026-05-29
 ---
 
 # Frontend

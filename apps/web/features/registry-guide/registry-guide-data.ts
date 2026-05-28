@@ -10,12 +10,17 @@ export const registryGuideConfig = {
   registryUrlTemplate: "https://agent-demos.hsawana9.com/r/{name}.json",
   sourceLinks: {
     aiElementsDocs: "https://elements.ai-sdk.dev/docs",
+    aiGatewayAuthenticationDocs:
+      "https://vercel.com/docs/ai-gateway/authentication",
     aiSdkDocs: "https://ai-sdk.dev/docs",
     aiSdkProviderSetup:
       "https://ai-sdk.dev/docs/getting-started/choosing-a-provider",
     githubRepo: "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
+    shadcnCreate: "https://ui.shadcn.com/create",
     shadcnInstallDocs: "https://ui.shadcn.com/docs/installation",
     shadcnRegistryDocs: "https://ui.shadcn.com/docs/registry",
+    vercelDeploymentsDocs: "https://vercel.com/docs/deployments",
+    vercelGitDeploymentsDocs: "https://vercel.com/docs/git",
   },
 } as const;
 

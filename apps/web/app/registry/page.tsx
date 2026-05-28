@@ -8,13 +8,12 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
-import { ArrowLeft, ArrowUpRight, CheckCircle2, Terminal } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Terminal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
-  foundationChatEnvExample,
   registryGuideConfig,
   supportedRegistryDemoNotes,
 } from "@/features/registry-guide/registry-guide-data";
@@ -22,12 +21,9 @@ import {
 const quickInstallCommand = `${registryGuideConfig.namespaceSetupCommand}
 ${registryGuideConfig.foundationChatCommand}`;
 
-const runCommand = `pnpm dev
-# open http://localhost:3000${registryGuideConfig.foundationChatRoute}`;
-
 export const metadata: Metadata = {
   description:
-    "Install AI SDK 6 Agent Demos into a Next.js App Router project through the public shadcn registry.",
+    "Create a shadcn Next.js app, install Foundation Chat through the public registry, run it locally, and deploy it to Vercel.",
   title: "shadcn Registry Guide | AI SDK 6 Agent Demos",
 };
 
@@ -91,217 +87,124 @@ export default function RegistryGuidePage() {
   return (
     <main className="min-h-svh bg-background text-foreground">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-6 md:px-6 md:py-8">
-        <section className="grid gap-6 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="space-y-5">
+        <section className="space-y-5 border border-foreground/10 bg-background px-4 py-5">
+          <Link
+            className="inline-flex items-center gap-2 text-muted-foreground text-xs hover:text-foreground"
+            href="/"
+          >
+            <ArrowLeft className="size-3.5" />
+            Back to demos
+          </Link>
+          <div className="space-y-3">
+            <Badge variant="outline">Public registry guide</Badge>
+            <h1 className="max-w-5xl font-medium text-3xl tracking-tight md:text-4xl">
+              From shadcn Create to a deployed Foundation Chat
+            </h1>
+            <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
+              This guide is for developers, coding agents, and first-time
+              evaluators who want a clean path from a new shadcn Next.js app to
+              a working AI chat on the web. The source lives in the{" "}
+              <ExternalLink href={registryGuideConfig.sourceLinks.githubRepo}>
+                GitHub repository
+              </ExternalLink>
+              ; the demo install follows the public{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.shadcnRegistryDocs}
+              >
+                shadcn registry
+              </ExternalLink>{" "}
+              namespace flow.
+            </p>
+            <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
+              Start by creating a styled project in{" "}
+              <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
+                shadcn Create
+              </ExternalLink>
+              , then add Foundation Chat. It is the smallest production-ready
+              slice of this repo's{" "}
+              <ExternalLink href={registryGuideConfig.sourceLinks.aiSdkDocs}>
+                AI SDK
+              </ExternalLink>{" "}
+              plus{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.aiElementsDocs}
+              >
+                AI Elements
+              </ExternalLink>{" "}
+              stack: one chat page, one API route, and the required AI Gateway
+              env vars.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <Link
-              className="inline-flex items-center gap-2 text-muted-foreground text-xs hover:text-foreground"
-              href="/"
+              className={cn(buttonVariants({ size: "sm" }))}
+              href="#install"
             >
-              <ArrowLeft className="size-3.5" />
-              Back to demos
+              Quick install
             </Link>
-            <div className="space-y-3">
-              <Badge variant="outline">Public registry guide</Badge>
-              <h1 className="max-w-4xl font-medium text-3xl tracking-tight md:text-4xl">
-                Install Foundation Chat with the shadcn registry
-              </h1>
-              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-                This guide is for developers, coding agents, and first-time
-                evaluators who want to place one demo into their own Next.js App
-                Router project. The source lives in the{" "}
-                <ExternalLink href={registryGuideConfig.sourceLinks.githubRepo}>
-                  GitHub repository
-                </ExternalLink>
-                ; the install path follows the public{" "}
-                <ExternalLink
-                  href={registryGuideConfig.sourceLinks.shadcnRegistryDocs}
-                >
-                  shadcn registry
-                </ExternalLink>{" "}
-                namespace flow.
-              </p>
-              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-                Start with Foundation Chat. It is the smallest production-ready
-                slice of this repo's{" "}
-                <ExternalLink href={registryGuideConfig.sourceLinks.aiSdkDocs}>
-                  AI SDK
-                </ExternalLink>{" "}
-                plus{" "}
-                <ExternalLink
-                  href={registryGuideConfig.sourceLinks.aiElementsDocs}
-                >
-                  AI Elements
-                </ExternalLink>{" "}
-                stack: one chat page, one API route, and the required AI Gateway
-                env vars.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                className={cn(buttonVariants({ size: "sm" }))}
-                href="#install"
-              >
-                Start install
-              </Link>
-              <Link
-                className={cn(
-                  buttonVariants({ size: "sm", variant: "outline" })
-                )}
-                href="#other-demos"
-              >
-                Other demos
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid content-start gap-4 border border-foreground/10 p-4">
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Registry host
-              </p>
-              <p className="mt-1 break-all font-medium text-sm">
-                {registryGuideConfig.domain}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                  Namespace
-                </p>
-                <p className="mt-1 font-mono text-sm">
-                  {registryGuideConfig.namespace}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                  Supported
-                </p>
-                <p className="mt-1 font-medium text-sm">
-                  {supportedRegistryDemoNotes.length + 1} demos
-                </p>
-              </div>
-            </div>
-            <GuideCommandPanel
-              code={quickInstallCommand}
-              title="quick install"
-            />
-          </div>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-3">
-          <RequirementCard title="Start from a shadcn app">
-            Use a Next.js App Router project with an existing{" "}
-            <code className="font-mono text-foreground">components.json</code>.
-            If you do not have one yet, follow the{" "}
-            <ExternalLink
-              href={registryGuideConfig.sourceLinks.shadcnInstallDocs}
+            <Link
+              className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
+              href="#next-steps"
             >
-              shadcn installation guide
-            </ExternalLink>{" "}
-            first.
-          </RequirementCard>
-          <RequirementCard title="Use AI Gateway env vars">
-            Foundation Chat expects an{" "}
-            <code className="font-mono text-foreground">
-              AI_GATEWAY_API_KEY
-            </code>{" "}
-            value. Use the{" "}
-            <ExternalLink
-              href={registryGuideConfig.sourceLinks.aiSdkProviderSetup}
-            >
-              AI SDK provider setup guide
-            </ExternalLink>{" "}
-            when choosing a provider for the first time.
-          </RequirementCard>
-          <RequirementCard title="Let the CLI write files">
-            The registry installs route files, UI components, runtime helpers,
-            package dependencies, and env examples through the shadcn CLI.
-            Review the diff before committing.
-          </RequirementCard>
+              Full path
+            </Link>
+          </div>
         </section>
 
         <section
-          className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
+          className="grid gap-5 border border-foreground/10 bg-background p-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]"
           id="install"
         >
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                Main path
-              </p>
-              <h2 className="font-medium text-2xl tracking-tight">
-                Install Foundation Chat first
-              </h2>
-              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-                Run these commands from the root of your consumer app. The first
-                command records the namespace in your local shadcn config; the
-                second command installs the Foundation Chat registry item.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <GuideCommandPanel
-                code={registryGuideConfig.namespaceSetupCommand}
-                title="1. add registry namespace"
-              />
-              <GuideCommandPanel
-                code={registryGuideConfig.foundationChatCommand}
-                title="2. install foundation-chat"
-              />
-              <GuideCommandPanel
-                code={foundationChatEnvExample}
-                title="3. .env.local"
-              />
-              <GuideCommandPanel code={runCommand} title="4. run and open" />
-            </div>
+          <div className="space-y-3">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+              Quick point
+            </p>
+            <h2 className="font-medium text-2xl tracking-tight">
+              Install the Foundation Chat page slice
+            </h2>
+            <p className="text-muted-foreground text-sm/relaxed">
+              This registry item is the core thing this project contributes: it
+              drops a working chat page, API route, AI Elements UI, and AI SDK
+              runtime wiring into the app you created.
+            </p>
           </div>
 
-          <aside className="h-fit space-y-4 border border-foreground/10 p-4">
-            <div className="space-y-2">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                What gets installed
-              </p>
-              <ul className="space-y-2 text-muted-foreground text-xs/relaxed">
-                <li className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-foreground" />
-                  <span>
-                    <code className="font-mono text-foreground">
-                      app/demos/foundation-chat
-                    </code>{" "}
-                    route.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-foreground" />
-                  <span>
-                    <code className="font-mono text-foreground">
-                      app/api/demos/foundation-chat
-                    </code>{" "}
-                    chat route.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-foreground" />
-                  <span>
-                    AI Elements conversation, message, and prompt input UI.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-foreground" />
-                  <span>
-                    AI SDK runtime helper and AI Gateway env examples.
-                  </span>
-                </li>
-              </ul>
-            </div>
-            <div className="border-foreground/10 border-t pt-4">
-              <p className="text-muted-foreground text-xs/relaxed">
-                After install, this is normal source code in your app. Keep it,
-                edit it, or move it under your own feature structure after you
-                understand the copy boundary.
-              </p>
-            </div>
-          </aside>
+          <GuideCommandPanel code={quickInstallCommand} title="quick install" />
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-3" id="next-steps">
+          <RequirementCard title="Create a shadcn project">
+            Use{" "}
+            <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
+              shadcn Create
+            </ExternalLink>{" "}
+            to choose Next.js, pick a theme, and run the generated command in
+            the new project folder.
+          </RequirementCard>
+          <RequirementCard title="Get an AI Gateway key">
+            Create a key from the{" "}
+            <ExternalLink
+              href={registryGuideConfig.sourceLinks.aiGatewayAuthenticationDocs}
+            >
+              AI Gateway authentication docs
+            </ExternalLink>
+            , add it as{" "}
+            <code className="font-mono text-foreground">
+              AI_GATEWAY_API_KEY
+            </code>{" "}
+            in <code className="font-mono text-foreground">.env.local</code>,
+            then run the chat locally and send one message.
+          </RequirementCard>
+          <RequirementCard title="Deploy">
+            Import the project into{" "}
+            <ExternalLink
+              href={registryGuideConfig.sourceLinks.vercelGitDeploymentsDocs}
+            >
+              Vercel from Git
+            </ExternalLink>{" "}
+            and add the same AI Gateway key in Project Settings before the
+            production check.
+          </RequirementCard>
         </section>
 
         <section className="space-y-4 border-foreground/10 border-t pt-8">
@@ -311,15 +214,16 @@ export default function RegistryGuidePage() {
             </p>
             <h2 className="font-medium text-xl">Give the agent this path</h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              If you paste this page into a coding agent, ask it to install
-              Foundation Chat first, inspect the generated diff, add env
-              placeholders, then run the consumer repo's typecheck or build. For
-              the database and sandbox demos below, the agent should stop and
-              ask for the missing service credentials instead of inventing them.
+              If you paste this page into a coding agent, ask it to follow the
+              same path: create the shadcn Next.js app from the selected Create
+              command, install Foundation Chat, add env placeholders, run a
+              local chat check, then prepare the Vercel env. For the database
+              and sandbox demos below, the agent should stop and ask for the
+              missing service credentials instead of inventing them.
             </p>
           </div>
           <GuideCommandPanel
-            code="Install @ai-sdk-6-demos/foundation-chat into this Next.js App Router project, preserve the existing shadcn aliases, set the documented env placeholders, and run the repo checks before summarizing the diff."
+            code="Use the shadcn Create command I selected to create a Next.js app, then install @ai-sdk-6-demos/foundation-chat, set the documented AI Gateway env placeholders, verify local chat works, and prepare the Vercel environment variables before summarizing the diff."
             title="agent prompt"
           />
         </section>

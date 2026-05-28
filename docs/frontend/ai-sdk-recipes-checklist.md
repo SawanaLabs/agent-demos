@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
 description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
-updateAt: 2026-05-24
+updateAt: 2026-05-25
 ---
 
 # AI SDK Recipes Checklist
@@ -14,6 +14,9 @@ updateAt: 2026-05-24
 - Current check on 2026-05-22: the `/cookbook` root redirects to `/resources/recipes`; use "Recipes" as the public section label. The `/cookbook/guides/*` routes still return 200 and are sitemap-listed, but they are not the primary entrypoint.
 - RAG source coverage: the public RAG Agent page covers AI SDK, Vercel AI Gateway, Drizzle ORM, Postgres with `pgvector`, shadcn-ui, and TailwindCSS.
 - Batch 8 docs checked on 2026-05-24: AI SDK Telemetry and DevTools are still experimental; DevTools is local-development only; AI SDK Testing exposes `ai/test` mocks for deterministic core tests; Observability Integrations is a provider matrix for later exporter work.
+- Batch 6.5 persistence docs checked on 2026-05-25: AI SDK UI Message Persistence covers `createChat`, `/chat/[id]`, `useChat({ id, messages })`, server validation, and `toUIMessageStreamResponse({ onFinish })`; AI SDK UI Resume Streams and `useChat` expose the later live-stream reconnect path through `resume` / `resumeStream`.
+- Batch 8 trace/eval docs refreshed on 2026-05-25: OpenAI provider docs expose `openai.tools.webSearch`; the Track Agent Token Usage cookbook uses `messageMetadata` for usage; AI SDK structured outputs use `generateText` with `Output.object`; AI Elements provides reasoning, tool, sources, and test-results primitives for the UI surface.
+- OpenAI Agents SDK ultra-demo sources checked on 2026-05-24: the TypeScript SDK docs are current under `https://openai.github.io/openai-agents-js/`, the official AI SDK UI bridge reference remains `https://openai.github.io/openai-agents-js/extensions/ai-sdk/`, and AI Gateway's OpenAI-compatible Responses API docs remain under `https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-compat/responses`.
 - Do not treat stale copied URLs, canary routes, versioned preview routes, or `main` branch snippets as current without re-verifying the matching stable public recipe page.
 - Use the stable public Recipes URL as the authority. `content/cookbook/**/*.mdx` paths below are source lookup aliases only and must be verified against the matching stable public route before implementation.
 - Treat recipe inventory as drift-prone. Refresh the stable recipes index, the target recipe or guide page, and the relevant docs/reference pages before starting each new batch.
@@ -35,6 +38,7 @@ updateAt: 2026-05-24
   - [ ] Open the current AI SDK Recipes page.
   - [ ] Inspect the matching `vercel/ai` source MDX file(s) when available.
   - [ ] Inspect the relevant AI SDK docs or reference page for current API shape.
+  - [ ] When the next demo uses OpenAI Agents SDK on the backend, inspect the matching OpenAI Agents SDK guides and `openai/openai-agents-js` example before implementation.
 - [ ] Pick the Canonical Source Example(s) for the next Agent Demo.
 - [ ] Decide the implementation class:
   - [ ] `agent-demo`: worth an interactive demo workspace.
@@ -74,6 +78,7 @@ updateAt: 2026-05-24
 - [x] Do not raise the project to Node `>=22.13.0` for AI SDK alone; only do it when a confirmed dependency requires it.
 - [ ] Use AI SDK 6 API shapes from the stable docs, including `system`, `stepCountIs`, `convertToModelMessages`, `UIMessage`, `tool({ inputSchema })`, and `toUIMessageStreamResponse()` where the selected official example uses them.
 - [ ] Verify all examples against the stable AI SDK 6 docs before coding. Do not trust canary v7 snippets or `main` branch snippets without public-route confirmation.
+- [ ] For OpenAI Agents SDK demos, verify the current helper names, bridge package names, and streamed-run examples against the official OpenAI docs and `openai-agents-js` examples before coding.
 
 ## Completed First Demo Wave
 
@@ -100,7 +105,7 @@ updateAt: 2026-05-24
   - [ ] A user-driven knowledge-base add flow in the product UI.
   - [ ] An `addResource` tool exposed in the demo workspace.
 - [x] Defer general loop-agent work until the RAG demo is stable. `loop-agent` now covers the core Batch 2 tool-loop path and the Human-in-the-Loop approval path.
-- [x] Current next recommended demo after the completed RAG, multimodal, streaming, memory, loop, skills, sandbox, and first MCP demos: Batch 8 - Trace and Eval Agent. Batch 7 external integrations and deeper MCP follow-ups remain backlog work.
+- [x] Current next recommended demo after the completed RAG, multimodal, streaming, memory, loop, skills, sandbox, and first MCP demos: Batch 6.5 - Persistent Agent Chat. Treat it as the reusable URL-backed chat persistence foundation before deeper OpenAI Agents SDK continuation work.
 
 ## Prerequisite Configuration Matrix
 
@@ -110,6 +115,8 @@ updateAt: 2026-05-24
 - [ ] RAG migration path: Drizzle config, resource table, embedding vector column, and vector index. Do not start with an in-memory store because the official example's useful contract is retrieval over durable knowledge.
 - [ ] Embeddings model access through Gateway or the provider route used by the stable source page. The checked RAG source uses `openai/text-embedding-ada-002`; verify before implementation.
 - [ ] Optional provider-native keys for provider-specific guides. Keep these out of the first demo unless the stable source page cannot run through Gateway.
+- [x] Persistent Agent Chat database tables before Batch 6.5: store chat sessions and row-based `UIMessage` records in Postgres, with a dedicated schema file and Drizzle migration.
+- [ ] OpenAI Agents SDK demo key: `AI_GATEWAY_API_KEY` for the Gateway-backed official OpenAI client. Add provider-native `OPENAI_API_KEY` only for a capability lane that cannot run through AI Gateway.
 - [ ] Slack app credentials before the Slackbot batch: bot token, signing secret, and a test workspace.
 - [x] Vercel Sandbox credentials and project binding before the skills-agent batch. The shipped demo uses `@vercel/sandbox` with explicit setup messaging for missing binding or auth state.
 - [ ] MCP test server config before the MCP batch. Prefer a local safe server first, then add third-party MCP examples.
@@ -178,7 +185,7 @@ updateAt: 2026-05-24
 - [x] Stream object with image prompt.
 - [x] Record token usage after streaming object.
 - [x] Record final object after streaming object.
-- [x] `content-review` now covers the first structured-output workspace: multimodal input, streamed object state, and assistant-message embedded object rendering.
+- [x] `content-review` now covers the first Object Generation workspace: multimodal input, streamed object state, and assistant-message embedded object rendering.
 
 ### Batch 6 - Memory And Embeddings Extensions
 
@@ -189,6 +196,24 @@ updateAt: 2026-05-24
 - [x] Message persistence and restore.
 - [ ] Retrieval augmented generation and knowledge-base Node examples only as refinements to the RAG demo.
 - [x] `customer-memory-agent` now covers the first Batch 6 workspace: persistent threads, agent-written customer memories, semantic memory recall, and summary-only compaction at a message-count threshold.
+
+### Batch 6.5 - Persistent Agent Chat
+
+- [x] Persistent Agent Chat demo as a separate feature slice, not another mode inside `customer-memory-agent`.
+- [ ] Canonical source references:
+  - [ ] `https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence`
+  - [ ] `https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat`
+  - [ ] `https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-resume-streams` only for the deferred live-stream reconnect path.
+- [x] Database-backed chat session table and message table or JSON payload table in a dedicated schema file, re-exported through the database schema barrel.
+- [x] Root route creates or prepares a chat session from `/demos/persistent-agent`, then promotes the user into `/demos/persistent-agent/[id]` without making the transition feel like a separate workflow.
+- [x] Dynamic route `/demos/persistent-agent/[id]` loads persisted `UIMessage[]` server-side and passes them into the chat workspace.
+- [x] Client chat uses AI SDK UI's provided chat identity tools: `useChat` / `Chat` with stable `id`, initial `messages`, and a `DefaultChatTransport` that sends the chat id to the API.
+- [x] API route validates restored messages, appends the submitted message, streams the assistant response, and persists final messages through `toUIMessageStreamResponse({ onFinish })`.
+- [x] Preserve server-generated assistant message ids when persisting, so refresh and retry behavior do not duplicate assistant messages.
+- [x] UI should reuse the existing demo workspace style: AI Elements conversation, message, prompt input, badges, concise setup/error states, and the same restrained dark product feel.
+- [x] Add visible session affordances: current chat id, created/updated timestamps, new chat action, and refresh-restore proof without turning the demo into an admin table.
+- [x] Add live stream resume on browser refresh with AI SDK UI Resume Streams, a resume GET endpoint, `activeStreamId` persistence, and `resumable-stream`.
+- [x] Core tests should cover setup gating, message persistence hooks, resume behavior with and without an active stream, and cleanup cron auth/results.
 
 ### Batch 7 - MCP And External Integrations
 
@@ -204,12 +229,15 @@ updateAt: 2026-05-24
 
 ### Batch 8 - Reliability, Cost, And Observability
 
-- [ ] Track agent token usage.
-- [ ] Trace and Eval Agent.
-  - [ ] Show a local trace for run, steps, tool calls, token usage, latency, finish reason, and errors.
-  - [ ] Run fixed eval scenarios with deterministic checks before adding external eval SaaS: required tool sequence, expected evidence, token budget, refusal/error behavior, and final answer shape.
-  - [ ] Preserve the official AI SDK source core: `experimental_telemetry` with `functionId`, metadata, and privacy-conscious `recordInputs` / `recordOutputs`; `messageMetadata` for usage; and AI SDK Testing mocks for core contracts.
-  - [ ] Keep external observability providers behind a small exporter boundary. Treat Laminar, Langfuse, Braintrust, Patronus-style eval providers, and similar integrations as follow-ups once the local trace/eval contract is stable.
+- [x] Track agent token usage. `trace-eval-agent` carries total usage through AI SDK `messageMetadata`, shows it in the trace, and passes it into the judge context.
+- [x] Trace and Eval Agent.
+  - [x] Treat the full demo-related code as the copied production reference, using `skills-agent` as the standard for official source-core fidelity.
+  - [x] Show a local trace for run, steps, tool calls, token usage, latency, finish reason, and errors.
+  - [x] Run fixed eval scenarios with deterministic checks before adding external eval SaaS: expected path, visible evidence, refusal/error behavior, and final answer shape.
+  - [x] Add an LLM-as-judge eval pipeline: structured rubric, score, rationale, and recommended action derived from prompt, answer, sources, tool trace, deterministic checks, and token usage.
+  - [x] Score both final-answer quality and full-run quality. Keep deterministic gate failures visible beside the judge result.
+  - [x] Preserve the official AI SDK source core: `experimental_telemetry` with `functionId`, metadata, and privacy-conscious `recordInputs` / `recordOutputs`; `messageMetadata` for usage; AI SDK `generateText` with `Output.object`; and AI SDK Testing mocks for core contracts.
+  - [x] Keep external observability providers behind a future exporter boundary. Laminar, Langfuse, Braintrust, Patronus-style eval providers, and similar integrations remain follow-ups after the local trace/eval contract.
 - [ ] Caching middleware.
 - [ ] Local caching middleware.
 - [ ] Dynamic prompt caching.
@@ -217,6 +245,29 @@ updateAt: 2026-05-24
 - [ ] Repair malformed JSON.
 - [ ] Error handling.
 - [ ] Telemetry and DevTools. Use AI SDK DevTools only for local inspection, and keep generated `.devtools` data out of git if the package is introduced.
+
+### Batch 8.5 - OpenAI Agents SDK Ultra Demo
+
+- [x] Base OpenAI Agents SDK source review.
+- [x] AI SDK UI bridge source review.
+- [x] Feature-slice roadmap stub with `demo-meta.ts`.
+- [x] Thin Next.js route contract for a streamed OpenAI Agents SDK run.
+- [x] First bridge slice built around `Agent`, `run(..., { stream: true })`, and `createAiSdkUiMessageStream(...)`.
+- [x] Existing AI SDK UI and AI Elements frontend reused as the chat workspace shell.
+- [x] Clear setup errors for missing `AI_GATEWAY_API_KEY`.
+- [ ] Refresh the OpenAI Agents SDK TypeScript docs and examples before each ultra implementation lane.
+- [ ] Refactor backend into SDK-first modules: `agents`, `runner`, `state`, `stream`, and capability lanes.
+- [ ] Replace lossy text-only transcript replay with a continuation strategy based on `history`, `session`, `RunState`, `lastResponseId`, or an explicit combination chosen per lane.
+- [ ] Preserve and display core result surfaces: `finalOutput`, `newItems`, `interruptions`, `state`, `history`, `lastAgent` / `activeAgent`, `lastResponseId`, `runContext`, usage, and trace metadata.
+- [ ] Add tools lane: local function tools, visible calls/results, tool errors, and tool guardrails where useful.
+- [ ] Add guardrails lane: input guardrail, output or tool guardrail, visible tripwire state, and explicit error behavior.
+- [ ] Add orchestration lane: manager agent with `agent.asTool()` and one handoff graph with `Agent.create(...)` for typed final output.
+- [ ] Add human-in-the-loop lane: approval-required tool, interruption UI, approve/reject actions, serialized `RunState`, and resume tests.
+- [ ] Add sessions/context lane: per-browser demo session id, SDK session memory, `sessionInputCallback` where array inputs are used, and typed `RunContext`.
+- [ ] Add tracing/results lane: local trace panel, run summary, token usage, errors, and trace/group ids before any external exporter.
+- [ ] Add MCP lane only after tools and approvals are stable.
+- [ ] Add sandbox-agent lane as a beta capability only after runtime/client requirements are explicit.
+- [ ] Treat voice agents as a separate expansion lane because `RealtimeAgent` / `RealtimeSession` need a different transport and UI contract.
 
 ### Batch 9 - Generative UI And RSC
 
@@ -258,9 +309,12 @@ updateAt: 2026-05-24
 - [ ] `00-guides/03-slackbot.mdx` - Slackbot Agent Guide - Batch 7.
 - [ ] `00-guides/04-natural-language-postgres.mdx` - Natural Language Postgres - Batch 7.
 - [ ] `00-guides/05-computer-use.mdx` - Get started with Computer Use - Batch 7.
+
 - [x] `00-guides/06-agent-skills.mdx` - Add Skills to Your Agent - Batch 7. Current public route: `https://ai-sdk.dev/cookbook/guides/agent-skills`. Preserve the guide's `ToolLoopAgent` plus sandbox-backed skill-loading source core, implement against the current stable `ToolLoopAgent` methods in this repository version, and let the first demo flow pivot between `grill-with-docs` and `skill-creator`.
 - [x] `00-guides/07-custom-memory-tool.mdx` - Build a Custom Memory Tool - Batch 6.
 - [x] `00-guides/08-agent-context-compaction.mdx` - Compact Agent Context - Batch 6.
+- [x] `AI SDK UI Chatbot Message Persistence` - Batch 6.5 source core for URL-backed persistent chat sessions.
+- [x] `AI SDK UI Chatbot Resume Streams` - Batch 6.5 source core for live-stream reconnect after refresh.
 - [ ] `00-guides/17-gemini.mdx` - Get started with Gemini 3 - Batch 10.
 - [ ] `00-guides/18-claude-4.mdx` - Get started with Claude 4 - Batch 10.
 - [ ] `00-guides/19-openai-responses.mdx` - OpenAI Responses API - Batch 10.
@@ -272,6 +326,32 @@ updateAt: 2026-05-24
 - [ ] `00-guides/24-o3.mdx` - Get started with OpenAI o3-mini - Batch 10.
 - [ ] `00-guides/25-r1.mdx` - Get started with DeepSeek R1 - Batch 10.
 - [ ] `00-guides/26-deepseek-v3-2.mdx` - Get started with DeepSeek V3.2 - Batch 10.
+
+### OpenAI Official Docs And Examples
+
+- [x] `https://openai.github.io/openai-agents-js/` - TypeScript SDK overview for text, sandbox, and voice agents.
+- [x] `https://openai.github.io/openai-agents-js/guides/quickstart/` - first-run setup and base agent shape.
+- [x] `https://openai.github.io/openai-agents-js/guides/agents/` - agent configuration, typed context, output types, lifecycle hooks, agents-as-tools, and handoffs.
+- [x] `https://openai.github.io/openai-agents-js/guides/models/` - model ids, model settings, reasoning, provider data, OpenAI provider, and AI SDK model adapter pointers.
+- [x] `https://openai.github.io/openai-agents-js/guides/tools/` - hosted tools, built-in execution tools, function tools, agents-as-tools, and MCP tool sources.
+- [x] `https://openai.github.io/openai-agents-js/guides/guardrails/` - input, output, and tool guardrails plus tripwire behavior.
+- [x] `https://openai.github.io/openai-agents-js/guides/running-agents/` - `run()`, `Runner`, `RunState`, context, `maxTurns`, streaming option, and trace metadata.
+- [x] `https://openai.github.io/openai-agents-js/guides/streaming/` - full SDK event stream for text, tools, handoffs, approvals, and agent switches.
+- [x] `https://openai.github.io/openai-agents-js/guides/multi-agent/` - agent orchestration via LLM and via code.
+- [x] `https://openai.github.io/openai-agents-js/guides/handoffs/` - handoff definitions, input filters, recommended prompts, and active-agent behavior.
+- [x] `https://openai.github.io/openai-agents-js/guides/results/` - `RunResult`, `StreamedRunResult`, final output, `newItems`, `interruptions`, `state`, `history`, usage, and raw diagnostics.
+- [x] `https://openai.github.io/openai-agents-js/guides/human-in-the-loop/` - approval interruption, approve/reject, streamed resume, and longer approval timing.
+- [x] `https://openai.github.io/openai-agents-js/guides/sessions/` - `MemorySession`, OpenAI conversations session, session input callback, and approval-compatible resume.
+- [x] `https://openai.github.io/openai-agents-js/guides/context/` - local `RunContext<T>`, runtime metadata, and LLM-visible context choices.
+- [x] `https://openai.github.io/openai-agents-js/guides/mcp/` - hosted MCP tools, approval behavior, and streaming MCP results.
+- [x] `https://openai.github.io/openai-agents-js/guides/tracing/` - built-in tracing, export lifecycle, sensitive data controls, and custom processors.
+- [x] `https://openai.github.io/openai-agents-js/guides/sandbox-agents` - beta sandbox agent quickstart and local sandbox client requirements.
+- [x] `https://openai.github.io/openai-agents-js/guides/voice-agents/` - voice-agent overview for the later realtime lane.
+- [x] `https://openai.github.io/openai-agents-js/extensions/ai-sdk/` - official AI SDK model adapter and AI SDK UI stream helpers.
+- [x] `https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-compat/responses` - AI Gateway OpenAI-compatible Responses API, `provider/model` ids, streaming, reasoning settings, and error behavior.
+- [x] `openai/openai-agents-js/examples/ai-sdk-ui` - canonical bridge example for an AI SDK UI-compatible streamed response.
+- [x] `openai/openai-agents-js/examples/nextjs` - follow-up reference for human review and broader app wiring.
+- [ ] `openai/openai-agents-js/examples/agent-patterns` - follow-up reference for orchestration lanes before implementation.
 
 ### Next.js
 

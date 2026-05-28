@@ -80,6 +80,26 @@ _Avoid_: Batch import, auto-conversion
 The essential official code path or snippet that proves the agent behavior in a **Canonical Source Example** and should be preserved with minimal backend customization.
 _Avoid_: Starter code, rough inspiration
 
+**Ultra Chatbot Agent**:
+An **Agent Demo** that models a production-style AI SDK chatbot application by porting the `vercel/chatbot` application shape into one coherent, copyable demo experience.
+_Avoid_: Ultra Agent, Ultra Vercel Agent, OpenAI Agents SDK demo
+
+**Application Shape Port**:
+A port that preserves the product capabilities and architectural intent of a reference application while reorganizing the copy boundary around this repository's **Agent Demo** structure.
+_Avoid_: Fork, clone, line-by-line copy
+
+**Completeness-First Port**:
+An **Application Shape Port** that keeps every compatible reference capability in scope and changes only the parts that conflict with this repository's product, identity, or architecture boundaries.
+_Avoid_: Partial port by default, lightweight rewrite
+
+**Owner**:
+The identity that owns private chatbot data inside an **Agent Demo**, such as chats, messages, attachments, artifacts, and feedback.
+_Avoid_: User when no authentication exists, visitor scattered through business language
+
+**Visitor Owner**:
+An **Owner** represented by a browser-scoped HTTP-only cookie instead of a login session.
+_Avoid_: Anonymous user, temporary user
+
 ## Relationships
 
 - An **Agent Demo** may use one or more **Reusable Agent Modules**.
@@ -101,6 +121,10 @@ _Avoid_: Starter code, rough inspiration
 - An **Agent Demo** may originate from a **Canonical Source Example**.
 - A **Canonical Source Example** must pass the **Manual Review Gate** before becoming an **Agent Demo**.
 - A **Canonical Source Example** provides the **Source Core** for an official-docs-derived **Agent Demo**.
+- The **Ultra Chatbot Agent** is a distinct **Agent Demo** from the OpenAI Agents SDK demo.
+- The **Ultra Chatbot Agent** should be an **Application Shape Port** of `vercel/chatbot`, not a line-by-line fork.
+- The **Ultra Chatbot Agent** should use a **Completeness-First Port** boundary for `vercel/chatbot`.
+- The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.
 
 ## RAG Chatbot Direction
 

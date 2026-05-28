@@ -17,6 +17,7 @@ import {
   registryGuideConfig,
   supportedRegistryDemoNotes,
 } from "@/features/registry-guide/registry-guide-data";
+import { RegistrySmoothScroll } from "@/features/registry-guide/registry-smooth-scroll";
 
 const quickInstallCommand = `${registryGuideConfig.namespaceSetupCommand}
 ${registryGuideConfig.foundationChatCommand}`;
@@ -83,9 +84,21 @@ function RequirementCard({
   );
 }
 
+function DemoCommandBlock({ command }: { command: string }) {
+  return (
+    <div className="flex items-start gap-2 border border-foreground/10 bg-muted/40 p-2">
+      <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-foreground leading-relaxed">
+        {command}
+      </code>
+      <RegistryCopyButton value={command} />
+    </div>
+  );
+}
+
 export default function RegistryGuidePage() {
   return (
     <main className="min-h-svh bg-background text-foreground">
+      <RegistrySmoothScroll />
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-6 md:px-6 md:py-8">
         <section className="space-y-5 border border-foreground/10 bg-background px-4 py-5">
           <Link
@@ -258,9 +271,7 @@ export default function RegistryGuidePage() {
                   <p className="text-muted-foreground text-xs/relaxed">
                     {demo.setup}
                   </p>
-                  <code className="block break-all border border-foreground/10 bg-muted/40 p-2 font-mono text-[11px] text-foreground leading-relaxed">
-                    {demo.command}
-                  </code>
+                  <DemoCommandBlock command={demo.command} />
                 </CardContent>
               </Card>
             ))}

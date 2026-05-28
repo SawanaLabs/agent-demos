@@ -148,7 +148,7 @@ export default function Page() {
                 </p>
                 <Link
                   className="inline-flex items-center gap-1 text-xs hover:underline"
-                  href="/registry"
+                  href="/registry-guide"
                 >
                   Guide
                   <ArrowSquareOutIcon className="size-3.5" />

@@ -31,14 +31,24 @@ export function OpenAiAgentsSdkDemoScreen() {
         </header>
 
         <OpenAiAgentsSdkDemoWorkspace
+          aiSdkExtensionProfile={runtimeState.aiSdkExtensionProfile}
           chatModel={runtimeState.chatModel}
+          contextProfile={runtimeState.contextProfile}
           guardrailCatalog={runtimeState.guardrailCatalog}
           guideCoverage={runtimeState.guideCoverage}
+          handoffCatalog={runtimeState.handoffCatalog}
           isChatAvailable={runtimeState.isChatAvailable}
+          mcpCatalog={runtimeState.mcpCatalog}
+          mcpProfile={runtimeState.mcpProfile}
           modelProfile={runtimeState.modelProfile}
           nodeVersion={runtimeState.nodeVersion}
+          runProfile={runtimeState.runProfile}
+          sandboxProfile={runtimeState.sandboxProfile}
+          sessionProfile={runtimeState.sessionProfile}
           setupMessage={runtimeState.setupMessage}
           toolCatalog={runtimeState.toolCatalog}
+          traceProfile={runtimeState.traceProfile}
+          voiceProfile={runtimeState.voiceProfile}
         />
       </div>
     </main>

@@ -3,6 +3,7 @@ import {
   codeInterpreterTool,
   fileSearchTool,
   imageGenerationTool,
+  type RunContext,
   tool,
   toolSearchTool,
   type RunItem,
@@ -12,12 +13,18 @@ import { z } from "zod";
 
 import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
 import {
+  getOpenAiAgentsSdkDemoToolContextNote,
+  type OpenAiAgentsSdkDemoContext,
+} from "./context";
+import {
   getOpenAiAgentsSdkDemoChatModel,
   getOpenAiAgentsSdkDemoModelProfile,
   isOpenAiAgentsSdkDemoImageGenerationProviderBlocked,
   supportsOpenAiAgentsSdkToolSearch,
   type OpenAiAgentsSdkDemoModelProfile,
 } from "./models";
+import { isOpenAiAgentsSdkDemoMcpToolName } from "./mcp";
+import { createOpenAiAgentsSdkDemoSandboxWorkspaceAgent } from "./sandbox";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -61,6 +68,11 @@ const riskWatchlistInput = z.object({
   company: z.string().min(1),
   thesis: z.string().min(1).optional(),
 });
+const publishResearchSummaryInput = z.object({
+  audience: z.string().min(1),
+  company: z.string().min(1),
+  summary: z.string().min(1),
+});
 
 function getOpenAiAgentsSdkDemoVectorStoreIds(env: DemoEnv = process.env) {
   const configuredIds = env.OPENAI_AGENTS_VECTOR_STORE_IDS;
@@ -74,17 +86,21 @@ function getOpenAiAgentsSdkDemoVectorStoreIds(env: DemoEnv = process.env) {
       configuredIds
         .split(",")
         .map((id) => id.trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 }
 
 function createBuildResearchBriefTool() {
   return tool({
     description:
-      "Create a compact public-company research brief before deeper analysis.",
-    execute: ({ company, focus }) => {
+      "Create a compact public-company investment research brief before deeper financial analysis.",
+    execute: (
+      { company, focus },
+      runContext?: RunContext<OpenAiAgentsSdkDemoContext>,
+    ) => {
       const researchFocus = focus?.trim() || "overall business quality";
+      const contextNote = getOpenAiAgentsSdkDemoToolContextNote(runContext);
 
       return [
         `Company: ${company}`,
@@ -94,6 +110,7 @@ function createBuildResearchBriefTool() {
         "- Confirm current facts with web search before citing them.",
         "- Use code interpreter for tables, growth rates, scenario math, or valuation support.",
         "- Separate business quality, financial performance, capital allocation, and key risks.",
+        ...(contextNote ? [contextNote] : []),
       ].join("\n");
     },
     name: "build_research_brief",
@@ -146,12 +163,42 @@ function createBuildRiskWatchlistTool() {
   });
 }
 
+function createPublishResearchSummaryTool() {
+  return tool({
+    description:
+      "Publish a finished research takeaway to an external audience after a human approval checkpoint.",
+    execute: ({ audience, company, summary }) =>
+      [
+        `Audience: ${audience}`,
+        `Company: ${company}`,
+        "Status: approved and ready to share.",
+        `Summary: ${summary}`,
+      ].join("\n"),
+    name: "publish_research_summary",
+    needsApproval: true,
+    parameters: publishResearchSummaryInput,
+  });
+}
+
 function createResearchMemoAgentTool({
   modelProfile,
 }: OpenAiAgentsSdkDemoToolOptions) {
-  const memoAgent = new Agent({
-    instructions:
-      "You turn collected research notes into a concise investment-research memo with claims, evidence, risks, and open questions.",
+  const memoAgent = new Agent<OpenAiAgentsSdkDemoContext>({
+    instructions: (runContext) => {
+      const toolInputPreview =
+        runContext.toolInput && typeof runContext.toolInput === "object"
+          ? JSON.stringify(runContext.toolInput)
+          : null;
+
+      return [
+        "You turn collected research notes into a concise investment-research memo with claims, evidence, risks, and open questions.",
+        `Current demo run mode: ${runContext.context.researchMode}.`,
+        `Default research target when unspecified: ${runContext.context.defaultResearchTarget}.`,
+        ...(toolInputPreview
+          ? [`Current agent.asTool input: ${toolInputPreview}.`]
+          : []),
+      ].join(" ");
+    },
     model: modelProfile.model,
     modelSettings: {
       reasoning: {
@@ -171,17 +218,32 @@ function createResearchMemoAgentTool({
   });
 }
 
+function createSandboxWorkspaceAgentTool({
+  modelProfile,
+}: OpenAiAgentsSdkDemoToolOptions) {
+  const sandboxAgent = createOpenAiAgentsSdkDemoSandboxWorkspaceAgent({
+    modelProfile,
+  });
+
+  return sandboxAgent.asTool({
+    toolDescription:
+      "Inspect the mounted demo docs and feature slice inside a sandboxed workspace with filesystem and shell tools.",
+    toolName: "sandbox_workspace_agent",
+  });
+}
+
 export function createOpenAiAgentsSdkDemoTools({
   env = process.env,
   modelProfile,
 }: OpenAiAgentsSdkDemoToolOptions) {
   const vectorStoreIds = getOpenAiAgentsSdkDemoVectorStoreIds(env);
   const supportsToolSearch = supportsOpenAiAgentsSdkToolSearch(
-    modelProfile.model
+    modelProfile.model,
   );
 
   return [
     createBuildResearchBriefTool(),
+    createPublishResearchSummaryTool(),
     ...(supportsToolSearch
       ? [createDraftFinancialFollowUpTool(), createBuildRiskWatchlistTool()]
       : []),
@@ -206,6 +268,9 @@ export function createOpenAiAgentsSdkDemoTools({
     createResearchMemoAgentTool({
       modelProfile,
     }),
+    createSandboxWorkspaceAgentTool({
+      modelProfile,
+    }),
   ];
 }
 
@@ -215,13 +280,17 @@ export function getOpenAiAgentsSdkDemoToolCatalog({
 }: OpenAiAgentsSdkDemoToolCatalogOptions): OpenAiAgentsSdkDemoToolCatalogEntry[] {
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
   const supportsToolSearch = supportsOpenAiAgentsSdkToolSearch(
-    getOpenAiAgentsSdkDemoChatModel(env)
+    getOpenAiAgentsSdkDemoChatModel(env),
   );
   const hasFileSearchSetup =
     getOpenAiAgentsSdkDemoVectorStoreIds(env).length > 0 && isChatAvailable;
   const isImageGenerationProviderBlocked =
     isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(modelProfile) &&
     isChatAvailable;
+  const functionToolContinuationNote =
+    modelProfile.baseUrl.includes("ai-gateway.vercel.sh") && isChatAvailable
+      ? " The current AI Gateway path can reject the SDK's default run_llm_again continuation after local function tools; the demo surfaces that provider error instead of injecting a fake final answer."
+      : "";
   const availability: OpenAiAgentsSdkDemoToolAvailability = isChatAvailable
     ? "configured"
     : "setup-required";
@@ -233,27 +302,32 @@ export function getOpenAiAgentsSdkDemoToolCatalog({
       availability,
       kind: "function",
       name: "build_research_brief",
-      notes: "Thin official tool() example for the Tesla-style research flow.",
+      notes: `Thin official tool() example for the Tesla-style research flow.${functionToolContinuationNote}`,
       sdkPrimitive: "tool()",
+    },
+    {
+      availability,
+      kind: "function",
+      name: "publish_research_summary",
+      notes: `Official tool({ needsApproval: true }) path for a human approval interruption before sharing research externally.${functionToolContinuationNote}`,
+      sdkPrimitive: "tool({ needsApproval: true })",
     },
     {
       availability: deferredToolAvailability,
       kind: "function",
       name: "draft_financial_follow_up",
-      notes:
-        supportsToolSearch
-          ? "Deferred top-level function tool loaded on demand through the official tool search flow."
-          : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
+      notes: supportsToolSearch
+        ? "Deferred top-level function tool loaded on demand through the official tool search flow."
+        : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
       sdkPrimitive: "tool({ deferLoading: true })",
     },
     {
       availability: deferredToolAvailability,
       kind: "function",
       name: "build_risk_watchlist",
-      notes:
-        supportsToolSearch
-          ? "Deferred top-level function tool loaded on demand through the official tool search flow."
-          : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
+      notes: supportsToolSearch
+        ? "Deferred top-level function tool loaded on demand through the official tool search flow."
+        : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
       sdkPrimitive: "tool({ deferLoading: true })",
     },
     {
@@ -281,13 +355,20 @@ export function getOpenAiAgentsSdkDemoToolCatalog({
       sdkPrimitive: "agent.asTool()",
     },
     {
+      availability,
+      kind: "agent-as-tool",
+      name: "sandbox_workspace_agent",
+      notes:
+        "Official SandboxAgent specialist mounted over the demo docs and feature slice, then exposed through agent.asTool().",
+      sdkPrimitive: "SandboxAgent.asTool()",
+    },
+    {
       availability: hasFileSearchSetup ? "configured" : "setup-required",
       kind: "hosted",
       name: "file_search",
-      notes:
-        hasFileSearchSetup
-          ? "Official hosted file search backed by OPENAI_AGENTS_VECTOR_STORE_IDS."
-          : "Set OPENAI_AGENTS_VECTOR_STORE_IDS to one or more comma-separated OpenAI vector store ids.",
+      notes: hasFileSearchSetup
+        ? "Official hosted file search backed by OPENAI_AGENTS_VECTOR_STORE_IDS."
+        : "Set OPENAI_AGENTS_VECTOR_STORE_IDS to one or more comma-separated OpenAI vector store ids.",
       sdkPrimitive: "fileSearchTool()",
     },
     {
@@ -296,29 +377,24 @@ export function getOpenAiAgentsSdkDemoToolCatalog({
         : availability,
       kind: "hosted",
       name: "image_generation",
-      notes:
-        isImageGenerationProviderBlocked
-          ? "Registered through imageGenerationTool(), but blocked on the current AI Gateway Responses path. The hosted image tool can complete without a renderable image artifact, and streamed runs can terminate before the AI SDK UI bridge receives a usable file part."
-          : "Official hosted image generation with assistant file output rendered in the current chat surface.",
+      notes: isImageGenerationProviderBlocked
+        ? "Registered through imageGenerationTool(), but blocked on the current AI Gateway Responses path. The hosted image tool can complete without a renderable image artifact, and streamed runs can terminate before the AI SDK UI bridge receives a usable file part."
+        : "Official hosted image generation with assistant file output rendered in the current chat surface.",
       sdkPrimitive: "imageGenerationTool()",
     },
     {
       availability: deferredToolAvailability,
       kind: "hosted",
       name: "tool_search",
-      notes:
-        supportsToolSearch
-          ? "Official hosted tool search for loading deferred namespace members on demand."
-          : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
+      notes: supportsToolSearch
+        ? "Official hosted tool search for loading deferred namespace members on demand."
+        : "Requires an OpenAI Responses model with tool_search support, such as openai/gpt-5.4-mini or newer.",
       sdkPrimitive: "toolSearchTool()",
     },
   ];
 }
 
-function getToolName(rawItem: {
-  name?: string;
-  type?: string;
-}): string | null {
+function getToolName(rawItem: { name?: string; type?: string }): string | null {
   if (
     rawItem.type === "function_call" ||
     rawItem.type === "function_call_result" ||
@@ -328,10 +404,7 @@ function getToolName(rawItem: {
       return null;
     }
 
-    if (
-      rawItem.type === "hosted_tool_call" &&
-      rawItem.name.endsWith("_call")
-    ) {
+    if (rawItem.type === "hosted_tool_call" && rawItem.name.endsWith("_call")) {
       return rawItem.name.slice(0, -"_call".length);
     }
 
@@ -353,22 +426,34 @@ function getToolName(rawItem: {
 }
 
 export function getOpenAiAgentsSdkDemoRunUsageMetadata(
-  newItems: RunItem[]
+  newItems: RunItem[],
 ): OpenAiAgentsSdkDemoMessageMetadata | undefined {
   const usedToolNames = Array.from(
     new Set(
       newItems
-        .map((item) => getToolName((item.rawItem ?? {}) as { name?: string; type?: string }))
-        .filter((value): value is string => Boolean(value))
-    )
+        .map((item) =>
+          getToolName((item.rawItem ?? {}) as { name?: string; type?: string }),
+        )
+        .filter((value): value is string => Boolean(value)),
+    ),
   );
 
   if (usedToolNames.length === 0) {
     return undefined;
   }
 
+  const usedGuideIds = ["tools"];
+
+  if (usedToolNames.includes("research_memo_agent")) {
+    usedGuideIds.push("agent-orchestration");
+  }
+
+  if (usedToolNames.some((name) => isOpenAiAgentsSdkDemoMcpToolName(name))) {
+    usedGuideIds.push("mcp");
+  }
+
   return {
-    usedGuideIds: ["tools"],
+    usedGuideIds,
     usedToolNames,
   };
 }

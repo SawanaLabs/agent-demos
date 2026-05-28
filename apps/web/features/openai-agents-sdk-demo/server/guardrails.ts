@@ -5,9 +5,11 @@ import {
   type OutputGuardrail,
   type OutputGuardrailResult,
   OutputGuardrailTripwireTriggered,
+  type RunContext,
 } from "@openai/agents";
 
 import type { OpenAiAgentsSdkDemoMessageMetadata } from "../message-metadata";
+import type { OpenAiAgentsSdkDemoContext } from "./context";
 
 export type OpenAiAgentsSdkDemoGuardrailAvailability =
   | "configured"
@@ -28,16 +30,21 @@ interface OpenAiAgentsSdkDemoGuardrailCatalogOptions {
 }
 
 const promptScopeGuardrail: InputGuardrail = {
-  execute: async ({ input }) => {
+  execute: async ({ input, context }) => {
     const normalizedInput =
       typeof input === "string" ? input : JSON.stringify(input);
-    const shouldBlock = /(ignore\s+previous\s+instructions|reveal\s+.*system\s+prompt|bypass\s+guardrail)/i.test(
-      normalizedInput
-    );
+    const shouldBlock =
+      /(ignore\s+previous\s+instructions|reveal\s+.*system\s+prompt|bypass\s+guardrail)/i.test(
+        normalizedInput,
+      );
+    const demoContext = (context as RunContext<OpenAiAgentsSdkDemoContext>)
+      .context;
 
     return {
       outputInfo: {
         matchedPolicy: shouldBlock ? "prompt-injection-or-system-prompt" : null,
+        researchMode: demoContext?.researchMode,
+        sessionId: demoContext?.sessionId,
       },
       tripwireTriggered: shouldBlock,
     };
@@ -47,16 +54,23 @@ const promptScopeGuardrail: InputGuardrail = {
 };
 
 const investmentAdviceGuardrail: OutputGuardrail = {
-  execute: async ({ agentOutput }) => {
+  execute: async ({ agentOutput, context }) => {
     const normalizedOutput =
-      typeof agentOutput === "string" ? agentOutput : JSON.stringify(agentOutput);
-    const shouldBlock = /(buy recommendation|sell recommendation|strong buy|strong sell)/i.test(
-      normalizedOutput
-    );
+      typeof agentOutput === "string"
+        ? agentOutput
+        : JSON.stringify(agentOutput);
+    const shouldBlock =
+      /(buy recommendation|sell recommendation|strong buy|strong sell|强烈买入|强烈卖出|买入建议|卖出建议|推荐买入|推荐卖出)/i.test(
+        normalizedOutput,
+      );
+    const demoContext = (context as RunContext<OpenAiAgentsSdkDemoContext>)
+      .context;
 
     return {
       outputInfo: {
         matchedPolicy: shouldBlock ? "direct-investment-recommendation" : null,
+        researchMode: demoContext?.researchMode,
+        sessionId: demoContext?.sessionId,
       },
       tripwireTriggered: shouldBlock,
     };
@@ -65,7 +79,7 @@ const investmentAdviceGuardrail: OutputGuardrail = {
 };
 
 function isInputGuardrailTripwire(
-  error: unknown
+  error: unknown,
 ): error is InputGuardrailTripwireTriggered {
   return (
     error instanceof InputGuardrailTripwireTriggered ||
@@ -79,7 +93,7 @@ function isInputGuardrailTripwire(
 }
 
 function isOutputGuardrailTripwire(
-  error: unknown
+  error: unknown,
 ): error is OutputGuardrailTripwireTriggered<any, any> {
   return (
     error instanceof OutputGuardrailTripwireTriggered ||
@@ -137,7 +151,7 @@ export function getOpenAiAgentsSdkDemoGuardrailUsageMetadata({
     new Set([
       ...inputGuardrailResults.map((result) => result.guardrail.name),
       ...outputGuardrailResults.map((result) => result.guardrail.name),
-    ])
+    ]),
   );
 
   if (usedGuardrailNames.length === 0) {

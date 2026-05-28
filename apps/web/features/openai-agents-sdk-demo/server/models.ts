@@ -51,7 +51,7 @@ export function getOpenAiAgentsSdkDemoGatewayBaseUrl(env: DemoEnv) {
 }
 
 export function getOpenAiAgentsSdkDemoReasoningEffort(
-  env: DemoEnv
+  env: DemoEnv,
 ): DemoReasoningEffort {
   const configuredEffort = env.OPENAI_AGENTS_REASONING_EFFORT;
 
@@ -66,7 +66,7 @@ export function getOpenAiAgentsSdkDemoReasoningEffort(
 }
 
 export function getOpenAiAgentsSdkDemoTextVerbosity(
-  env: DemoEnv
+  env: DemoEnv,
 ): DemoTextVerbosity {
   const configuredVerbosity = env.OPENAI_AGENTS_TEXT_VERBOSITY;
 
@@ -81,7 +81,7 @@ export function getOpenAiAgentsSdkDemoTextVerbosity(
 }
 
 export function getOpenAiAgentsSdkDemoModelProfile(
-  env: DemoEnv
+  env: DemoEnv,
 ): OpenAiAgentsSdkDemoModelProfile {
   return {
     api: "responses",
@@ -95,13 +95,56 @@ export function getOpenAiAgentsSdkDemoModelProfile(
 }
 
 export function isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(
-  modelProfile: Pick<OpenAiAgentsSdkDemoModelProfile, "api" | "baseUrl" | "provider">
+  modelProfile: Pick<
+    OpenAiAgentsSdkDemoModelProfile,
+    "api" | "baseUrl" | "provider"
+  >,
 ) {
   return (
     modelProfile.api === "responses" &&
     modelProfile.provider === "gateway-openai-client" &&
     modelProfile.baseUrl.includes("ai-gateway.vercel.sh")
   );
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
+export function getOpenAiAgentsSdkDemoProviderErrorMessage(error: unknown) {
+  const message = getErrorMessage(error);
+
+  if (/At least one user message is required in the input/i.test(message)) {
+    return [
+      "AI Gateway rejected the OpenAI Agents SDK function-tool continuation request.",
+      "The SDK default toolUseBehavior is run_llm_again, so after a local tool() call succeeds, the run sends that tool output back to the model for the final answer.",
+      `Provider response: ${message}`,
+      "No fake final answer was injected for this demo.",
+    ].join(" ");
+  }
+
+  if (/No tool output found for function call/i.test(message)) {
+    return [
+      "AI Gateway rejected the OpenAI Agents SDK tool-output continuation request.",
+      "The provider reported a missing function-call output while the SDK was continuing the official run loop.",
+      `Provider response: ${message}`,
+      "No fake tool output was injected for this demo.",
+    ].join(" ");
+  }
+
+  return null;
 }
 
 export function supportsOpenAiAgentsSdkToolSearch(model: string) {

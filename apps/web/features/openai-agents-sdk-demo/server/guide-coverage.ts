@@ -27,6 +27,7 @@ export interface OpenAiAgentsSdkDemoGuideCoverage {
 
 interface OpenAiAgentsSdkDemoGuideCoverageOptions {
   isChatAvailable: boolean;
+  isVoiceProviderAvailable: boolean;
 }
 
 const openAiAgentsSdkGuideCoverageRegistry: OpenAiAgentsSdkDemoGuideCoverage[] =
@@ -74,158 +75,187 @@ const openAiAgentsSdkGuideCoverageRegistry: OpenAiAgentsSdkDemoGuideCoverage[] =
         "https://openai.github.io/openai-agents-js/guides/guardrails/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "running-agents",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Running Agents",
-      observable: "RunResult / StreamedRunResult",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "run() / Runner",
+      observable:
+        "run() + previousResponseId / MemorySession continuation + maxTurns + AbortSignal",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "run()",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/guides/running-agents/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "streaming",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Streaming",
-      observable: "RunStreamEvent",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "stream events",
+      observable:
+        "RunStreamEvent metadata from raw_model_stream_event, run_item_stream_event, and agent_updated_stream_event",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "RunStreamEvent",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/guides/streaming/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "agent-orchestration",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Agent Orchestration",
-      observable: "Agent-as-tool invocation",
-      providerCapabilityStatus: "not-evaluated",
+      observable: "agent.asTool() invocation through a specialist sub-agent",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "agent.asTool()",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/guides/multi-agent/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "handoffs",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Handoffs",
       observable: "RunHandoffCallItem / RunHandoffOutputItem",
-      providerCapabilityStatus: "not-evaluated",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "handoff()",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/handoffs/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "results",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Results",
       observable: "finalOutput, history, newItems, state",
-      providerCapabilityStatus: "not-evaluated",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "RunResult",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/results/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "human-in-the-loop",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Human-in-the-loop",
       observable: "RunToolApprovalItem interruption",
-      providerCapabilityStatus: "not-evaluated",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "interruptions / approval",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/guides/human-in-the-loop/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "sessions",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Sessions",
-      observable: "Session history",
-      providerCapabilityStatus: "not-evaluated",
+      observable: "MemorySession history + assistant metadata session id",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "MemorySession",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/sessions/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "context",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Context Management",
-      observable: "RunContext passed through tools and guardrails",
-      providerCapabilityStatus: "not-evaluated",
+      observable:
+        "RunContext through run(), dynamic instructions, tools, and guardrails",
+      providerCapabilityStatus: "available",
       sdkPrimitive: "RunContext<T>",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/context/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "mcp",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "MCP",
-      observable: "MCP tool list / call items",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "MCPServer",
+      observable:
+        "MCP server connection state + server-prefixed MCP tool call items",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "MCPServerStreamableHttp / connectMcpServers",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/mcp/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "tracing",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Tracing",
-      observable: "Trace id / span metadata",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "tracing",
+      observable:
+        "workflowName + traceId + groupId + traceMetadata + tracingDisabled",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "traceId / groupId / RunConfig.tracing",
       sourceGuide: "https://openai.github.io/openai-agents-js/guides/tracing/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
       id: "sandbox-agents",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "Sandbox Agents",
-      observable: "Sandbox agent lifecycle",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "sandbox agents",
+      observable:
+        "SandboxAgent lifecycle + RunConfig.sandbox + persisted sandbox session state",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "SandboxAgent / RunConfig.sandbox",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/guides/sandbox-agents/",
     },
     {
-      currentRunStatus: "not-started",
+      currentRunStatus: "ready",
+      id: "voice-agents",
+      implementationStatus: "implemented",
+      label: "Voice Agents",
+      observable:
+        "RealtimeSession.connect({ apiKey }) over WebRTC plus visible browser microphone controls",
+      providerCapabilityStatus: "setup-required",
+      sdkPrimitive: "RealtimeAgent / RealtimeSession",
+      sourceGuide:
+        "https://openai.github.io/openai-agents-js/guides/voice-agents/",
+    },
+    {
+      currentRunStatus: "ready",
       id: "extensions-ai-sdk",
-      implementationStatus: "not-started",
+      implementationStatus: "implemented",
       label: "AI SDK Extension",
-      observable: "AI SDK UI message stream",
-      providerCapabilityStatus: "not-evaluated",
-      sdkPrimitive: "createAiSdkUiMessageStream()",
+      observable:
+        "AI SDK UI stream from createAiSdkUiMessageStream(); aisdk(model) adapter boundary is explicit",
+      providerCapabilityStatus: "available",
+      sdkPrimitive: "createAiSdkUiMessageStream() / aisdk(model)",
       sourceGuide:
         "https://openai.github.io/openai-agents-js/extensions/ai-sdk/",
     },
   ];
 
+const openAiAgentsSdkChatRunGatedGuideIds = new Set([
+  "agents",
+  "models",
+  "tools",
+  "guardrails",
+  "running-agents",
+  "streaming",
+  "agent-orchestration",
+  "handoffs",
+  "results",
+  "human-in-the-loop",
+  "sessions",
+  "context",
+  "mcp",
+  "tracing",
+  "sandbox-agents",
+  "extensions-ai-sdk",
+]);
+
 export function getOpenAiAgentsSdkDemoGuideCoverage({
   isChatAvailable,
+  isVoiceProviderAvailable,
 }: OpenAiAgentsSdkDemoGuideCoverageOptions): OpenAiAgentsSdkDemoGuideCoverage[] {
   return openAiAgentsSdkGuideCoverageRegistry.map((item) => {
-    if (item.id === "agents" || item.id === "models") {
+    if (item.id === "voice-agents") {
       return {
         ...item,
-        currentRunStatus: isChatAvailable ? "ready" : "blocked",
-        providerCapabilityStatus: isChatAvailable
+        currentRunStatus: isVoiceProviderAvailable ? "ready" : "blocked",
+        providerCapabilityStatus: isVoiceProviderAvailable
           ? "available"
           : "setup-required",
       };
     }
 
-    if (item.id === "tools") {
-      return {
-        ...item,
-        currentRunStatus: isChatAvailable ? "ready" : "blocked",
-        providerCapabilityStatus: isChatAvailable
-          ? "available"
-          : "setup-required",
-      };
-    }
-
-    if (item.id === "guardrails") {
+    if (openAiAgentsSdkChatRunGatedGuideIds.has(item.id)) {
       return {
         ...item,
         currentRunStatus: isChatAvailable ? "ready" : "blocked",

@@ -1,6 +1,15 @@
 import { type UIMessage, validateUIMessages } from "ai";
 
+import { getOpenAiAgentsSdkDemoApprovalErrorMessage } from "./approvals";
 import { streamOpenAiAgentsSdkDemo } from "./chat";
+import {
+  getOpenAiAgentsSdkDemoContextProfile,
+  type OpenAiAgentsSdkDemoContextProfile,
+} from "./context";
+import {
+  getOpenAiAgentsSdkDemoAiSdkExtensionProfile,
+  type OpenAiAgentsSdkDemoAiSdkExtensionProfile,
+} from "./extensions";
 import {
   getOpenAiAgentsSdkDemoGuardrailCatalog,
   getOpenAiAgentsSdkDemoGuardrailErrorMessage,
@@ -11,14 +20,47 @@ import {
   type OpenAiAgentsSdkDemoGuideCoverage,
 } from "./guide-coverage";
 import {
+  getOpenAiAgentsSdkDemoHandoffCatalog,
+  type OpenAiAgentsSdkDemoHandoffCatalogEntry,
+} from "./handoffs";
+import {
+  getOpenAiAgentsSdkDemoMcpCatalog,
+  getOpenAiAgentsSdkDemoMcpProfile,
+  type OpenAiAgentsSdkDemoMcpCatalogEntry,
+  type OpenAiAgentsSdkDemoMcpProfile,
+} from "./mcp";
+import {
   getOpenAiAgentsSdkDemoChatModel,
   getOpenAiAgentsSdkDemoModelProfile,
+  getOpenAiAgentsSdkDemoProviderErrorMessage,
   type OpenAiAgentsSdkDemoModelProfile,
 } from "./models";
+import {
+  getOpenAiAgentsSdkDemoRunInputErrorMessage,
+  getOpenAiAgentsSdkDemoRunProfile,
+  type OpenAiAgentsSdkDemoRunProfile,
+} from "./running";
+import {
+  getOpenAiAgentsSdkDemoSandboxProfile,
+  type OpenAiAgentsSdkDemoSandboxProfile,
+} from "./sandbox";
+import {
+  getOpenAiAgentsSdkDemoSessionProfile,
+  type OpenAiAgentsSdkDemoSessionProfile,
+} from "./sessions";
 import {
   getOpenAiAgentsSdkDemoToolCatalog,
   type OpenAiAgentsSdkDemoToolCatalogEntry,
 } from "./tools";
+import {
+  getOpenAiAgentsSdkDemoTraceProfile,
+  type OpenAiAgentsSdkDemoTraceProfile,
+} from "./tracing";
+import {
+  getOpenAiAgentsSdkDemoVoiceProfile,
+  type OpenAiAgentsSdkDemoVoiceProfile,
+} from "./voice";
+import { getOpenAiAgentsSdkDemoVoiceClientSecretRouteState } from "./voice-realtime";
 
 type DemoEnv = Record<string, string | undefined>;
 
@@ -29,20 +71,34 @@ interface OpenAiAgentsSdkDemoRequestBody {
 interface OpenAiAgentsSdkDemoRequestDependencies {
   streamOpenAiAgentsSdkDemo: (
     messages: UIMessage[],
-    env: DemoEnv
+    env: DemoEnv,
+    options?: {
+      origin?: string;
+      signal?: AbortSignal;
+    },
   ) => Promise<Response> | Response;
 }
 
 export interface OpenAiAgentsSdkDemoRuntimeState {
+  aiSdkExtensionProfile: OpenAiAgentsSdkDemoAiSdkExtensionProfile;
   chatModel: string;
+  contextProfile: OpenAiAgentsSdkDemoContextProfile;
   guardrailCatalog: OpenAiAgentsSdkDemoGuardrailCatalogEntry[];
   guideCoverage: OpenAiAgentsSdkDemoGuideCoverage[];
+  handoffCatalog: OpenAiAgentsSdkDemoHandoffCatalogEntry[];
   isChatAvailable: boolean;
+  mcpCatalog: OpenAiAgentsSdkDemoMcpCatalogEntry[];
+  mcpProfile: OpenAiAgentsSdkDemoMcpProfile;
   modelProfile: OpenAiAgentsSdkDemoModelProfile;
   nodeVersion: string;
+  runProfile: OpenAiAgentsSdkDemoRunProfile;
+  sandboxProfile: OpenAiAgentsSdkDemoSandboxProfile;
+  sessionProfile: OpenAiAgentsSdkDemoSessionProfile;
   setupMessage: string | null;
   statusLabel: "Ready" | "Setup required";
   toolCatalog: OpenAiAgentsSdkDemoToolCatalogEntry[];
+  traceProfile: OpenAiAgentsSdkDemoTraceProfile;
+  voiceProfile: OpenAiAgentsSdkDemoVoiceProfile;
 }
 
 const invalidMessagesError = 'Expected a JSON body with a "messages" array.';
@@ -64,9 +120,11 @@ async function readOpenAiAgentsSdkDemoMessages(body: unknown) {
 }
 
 export function getOpenAiAgentsSdkDemoRuntimeState(
-  env: DemoEnv = process.env
+  env: DemoEnv = process.env,
 ): OpenAiAgentsSdkDemoRuntimeState {
   const chatModel = getOpenAiAgentsSdkDemoChatModel(env);
+  const voiceRouteState =
+    getOpenAiAgentsSdkDemoVoiceClientSecretRouteState(env);
   const issues = env.AI_GATEWAY_API_KEY
     ? []
     : [
@@ -75,20 +133,35 @@ export function getOpenAiAgentsSdkDemoRuntimeState(
   const isChatAvailable = issues.length === 0;
 
   return {
+    aiSdkExtensionProfile: getOpenAiAgentsSdkDemoAiSdkExtensionProfile(),
     chatModel,
+    contextProfile: getOpenAiAgentsSdkDemoContextProfile(),
     guardrailCatalog: getOpenAiAgentsSdkDemoGuardrailCatalog({
       isChatAvailable,
     }),
-    guideCoverage: getOpenAiAgentsSdkDemoGuideCoverage({ isChatAvailable }),
+    guideCoverage: getOpenAiAgentsSdkDemoGuideCoverage({
+      isChatAvailable,
+      isVoiceProviderAvailable: voiceRouteState.status === "configured",
+    }),
+    handoffCatalog: getOpenAiAgentsSdkDemoHandoffCatalog({
+      isChatAvailable,
+    }),
     isChatAvailable,
+    mcpCatalog: getOpenAiAgentsSdkDemoMcpCatalog(),
+    mcpProfile: getOpenAiAgentsSdkDemoMcpProfile(),
     modelProfile: getOpenAiAgentsSdkDemoModelProfile(env),
     nodeVersion: process.version,
+    runProfile: getOpenAiAgentsSdkDemoRunProfile(env),
+    sandboxProfile: getOpenAiAgentsSdkDemoSandboxProfile(),
+    sessionProfile: getOpenAiAgentsSdkDemoSessionProfile(),
     setupMessage: issues.length > 0 ? issues.join(" ") : null,
+    traceProfile: getOpenAiAgentsSdkDemoTraceProfile(env),
     statusLabel: isChatAvailable ? "Ready" : "Setup required",
     toolCatalog: getOpenAiAgentsSdkDemoToolCatalog({
       env,
       isChatAvailable,
     }),
+    voiceProfile: getOpenAiAgentsSdkDemoVoiceProfile(env),
   };
 }
 
@@ -97,7 +170,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
   env: DemoEnv = process.env,
   dependencies: OpenAiAgentsSdkDemoRequestDependencies = {
     streamOpenAiAgentsSdkDemo,
-  }
+  },
 ) {
   const runtimeState = getOpenAiAgentsSdkDemoRuntimeState(env);
 
@@ -106,16 +179,19 @@ export async function handleOpenAiAgentsSdkDemoRequest(
       {
         error: runtimeState.setupMessage,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   try {
     const messages = await readOpenAiAgentsSdkDemoMessages(
-      await request.json()
+      await request.json(),
     );
 
-    return await dependencies.streamOpenAiAgentsSdkDemo(messages, env);
+    return await dependencies.streamOpenAiAgentsSdkDemo(messages, env, {
+      origin: new URL(request.url).origin,
+      signal: request.signal,
+    });
   } catch (error) {
     if (
       error instanceof Error &&
@@ -125,7 +201,7 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: error.message,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -137,7 +213,43 @@ export async function handleOpenAiAgentsSdkDemoRequest(
         {
           error: guardrailErrorMessage,
         },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    const approvalErrorMessage =
+      getOpenAiAgentsSdkDemoApprovalErrorMessage(error);
+
+    if (approvalErrorMessage) {
+      return Response.json(
+        {
+          error: approvalErrorMessage,
+        },
+        { status: 400 },
+      );
+    }
+
+    const runInputErrorMessage =
+      getOpenAiAgentsSdkDemoRunInputErrorMessage(error);
+
+    if (runInputErrorMessage) {
+      return Response.json(
+        {
+          error: runInputErrorMessage,
+        },
+        { status: 400 },
+      );
+    }
+
+    const providerErrorMessage =
+      getOpenAiAgentsSdkDemoProviderErrorMessage(error);
+
+    if (providerErrorMessage) {
+      return Response.json(
+        {
+          error: providerErrorMessage,
+        },
+        { status: 400 },
       );
     }
 

@@ -1,5 +1,4 @@
 import { type ToolSet, tool } from "ai";
-import { createBashTool } from "bash-tool";
 import { z } from "zod";
 
 import type { SandboxAgentSession } from "./session";
@@ -47,6 +46,7 @@ export async function createSandboxAgentToolset({
   projectRoot?: string;
   session: SandboxAgentSession;
 }): Promise<SandboxAgentToolset> {
+  const { createBashTool } = await import("bash-tool");
   const bashToolkit = await createBashTool({
     destination: projectRoot,
     promptOptions: {

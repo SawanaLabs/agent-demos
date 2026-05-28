@@ -1,7 +1,5 @@
 import { posix as posixPath } from "node:path";
 
-import { createBashTool, experimental_createSkillTool } from "bash-tool";
-
 import type { SkillsAgentSession } from "./sandbox";
 import type { SkillMetadata } from "./skill-catalog";
 
@@ -135,6 +133,9 @@ export async function createSkillsAgentOfficialTools({
   session: SkillsAgentSession;
   skillsDirectory: string;
 }): Promise<SkillsAgentOfficialTools> {
+  const { createBashTool, experimental_createSkillTool } = await import(
+    "bash-tool"
+  );
   const skillToolkit = await experimental_createSkillTool({
     destination: DEFAULT_SKILLS_DESTINATION,
     skillsDirectory,

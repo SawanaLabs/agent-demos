@@ -825,9 +825,6 @@ export function UltraChatbotAgentWorkspace({
     if (text) {
       return (
         <div className="space-y-4">
-          <UltraChatbotAgentMessageResponse>
-            {text}
-          </UltraChatbotAgentMessageResponse>
           {fileParts.length > 0 ? (
             <Attachments variant="list">
               {fileParts.map((part) => {
@@ -845,6 +842,9 @@ export function UltraChatbotAgentWorkspace({
               })}
             </Attachments>
           ) : null}
+          <UltraChatbotAgentMessageResponse>
+            {text}
+          </UltraChatbotAgentMessageResponse>
         </div>
       );
     }
@@ -1026,8 +1026,8 @@ export function UltraChatbotAgentWorkspace({
                       <MessageContent
                         className={cn(
                           message.role === "assistant"
-                            ? "w-full min-w-0 max-w-3xl"
-                            : "min-w-0 max-w-2xl"
+                            ? "w-full min-w-0 max-w-[min(100%,48rem)]"
+                            : "min-w-0 max-w-[min(100%,42rem)]"
                         )}
                       >
                         {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: tool rendering stays adjacent to UIMessage part handling until the QA fixes are complete. */}

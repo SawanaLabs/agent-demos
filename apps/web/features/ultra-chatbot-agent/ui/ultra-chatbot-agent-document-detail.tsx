@@ -68,9 +68,6 @@ function UltraChatbotAgentCodeDocumentPreview({
       <CodeBlockHeader className="gap-3">
         <CodeBlockTitle className="min-w-0">
           <CodeBlockFilename className="truncate">{title}</CodeBlockFilename>
-          <Badge className="shrink-0" variant="outline">
-            {language}
-          </Badge>
         </CodeBlockTitle>
         <CodeBlockActions>
           <CodeBlockCopyButton />
@@ -100,6 +97,10 @@ function inferCodeLanguage(
 
   if (lowerTitle.endsWith(".js")) {
     return "javascript";
+  }
+
+  if (lowerTitle.endsWith(".py")) {
+    return "python";
   }
 
   if (lowerTitle.endsWith(".json")) {

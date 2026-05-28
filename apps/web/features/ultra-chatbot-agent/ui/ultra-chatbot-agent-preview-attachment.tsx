@@ -28,14 +28,14 @@ export function UltraChatbotAgentPreviewAttachment({
   return (
     <Attachment
       className={cn(
-        "min-w-0 max-w-full overflow-hidden",
+        "w-full min-w-0 max-w-full overflow-hidden",
         isUploading && "pointer-events-none opacity-80"
       )}
       data={attachment}
       onRemove={onRemove}
     >
       <AttachmentPreview />
-      <AttachmentInfo showMediaType />
+      <AttachmentInfo className="w-0 overflow-hidden" showMediaType />
       <AttachmentRemove disabled={isUploading} />
       {isUploading ? (
         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/70 backdrop-blur-sm">

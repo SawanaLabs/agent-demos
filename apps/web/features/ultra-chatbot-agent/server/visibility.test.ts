@@ -21,6 +21,9 @@ describe("ultra chatbot agent visibility route contract", () => {
     storeState.loadChatSession.mockResolvedValue({
       chat: {
         activeStreamId: null,
+        capabilities: {
+          sandboxEnabled: false,
+        },
         createdAt: "2026-05-25T00:00:00.000Z",
         id: "5bd4e261-60f6-4b0f-b6f4-73e64bb2d5f5",
         selectedChatModel: "openai/gpt-4.1-mini",

@@ -4,18 +4,24 @@ import { z } from "zod";
 import { env as appEnv } from "@/env";
 import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
 
-const maxUploadBytes = 5 * 1024 * 1024;
-const acceptedUploadMediaTypes = ["image/jpeg", "image/png"] as const;
+import {
+  isUltraChatbotAgentAcceptedUploadMediaType,
+  ultraChatbotAgentAcceptedUploadMediaTypes,
+  ultraChatbotAgentMaxUploadBytes,
+} from "../attachment-config";
 
 const uploadFileSchema = z.object({
   file: z
     .instanceof(Blob)
-    .refine((file) => file.size <= maxUploadBytes, {
+    .refine((file) => file.size <= ultraChatbotAgentMaxUploadBytes, {
       message: "File size should be less than 5MB.",
     })
-    .refine((file) => acceptedUploadMediaTypes.includes(file.type as never), {
-      message: "File type should be JPEG or PNG.",
-    }),
+    .refine(
+      (file) => isUltraChatbotAgentAcceptedUploadMediaType(file.type),
+      {
+        message: "File type should be PDF, JPEG, or PNG.",
+      }
+    ),
 });
 
 export interface UltraChatbotAgentUploadEnv {
@@ -23,7 +29,7 @@ export interface UltraChatbotAgentUploadEnv {
 }
 
 export function getUltraChatbotAgentAcceptedUploadMediaTypes() {
-  return [...acceptedUploadMediaTypes];
+  return [...ultraChatbotAgentAcceptedUploadMediaTypes];
 }
 
 function sanitizeFilename(filename: string) {

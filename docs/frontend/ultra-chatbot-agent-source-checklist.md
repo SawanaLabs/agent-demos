@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent Source Checklist
 description: Source-tree checklist for the vercel/chatbot application-shape port.
-updateAt: 2026-05-25
+updateAt: 2026-05-28
 ---
 
 # Ultra Chatbot Agent Source Checklist
@@ -56,8 +56,8 @@ updateAt: 2026-05-25
 - [x] `app/(chat)/api/chat/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/route.ts` plus `apps/web/features/ultra-chatbot-agent/server/runtime.ts` for visitor-owned route-backed chat streaming.
 - [x] `app/(chat)/api/chat/schema.ts` - Adapted into the request validation inside `apps/web/features/ultra-chatbot-agent/server/runtime.ts`; current slice validates `id`, `message`, `selectedChatModel`, and `selectedVisibilityType`.
 - [x] `app/(chat)/api/document/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/document/route.ts` plus `features/ultra-chatbot-agent/server/document-store.ts` and `server/documents.ts`; current slice ports visitor-owned document version listing, scratch-document creation, manual save-as-new-version, and delete-after-timestamp behavior under the Ultra route prefix.
-- [x] `app/(chat)/api/files/upload/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/files/upload/route.ts` plus `features/ultra-chatbot-agent/server/upload.ts`; the current slice ports visitor-scoped Vercel Blob image uploads under the Ultra route prefix and fails fast when `BLOB_READ_WRITE_TOKEN` is missing.
-- [x] `app/(chat)/api/history/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/history/route.ts` plus `apps/web/features/ultra-chatbot-agent/server/history.ts` for visitor-scoped history pagination and delete-all behavior.
+- [x] `app/(chat)/api/files/upload/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/files/upload/route.ts` plus `features/ultra-chatbot-agent/server/upload.ts`; the current slice ports visitor-scoped Vercel Blob uploads for PNG, JPEG, and PDF files under the Ultra route prefix and fails fast when `BLOB_READ_WRITE_TOKEN` is missing.
+- [x] `app/(chat)/api/history/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/history/route.ts`, `apps/web/app/api/demos/ultra-chatbot-agent/[id]/route.ts`, and `apps/web/features/ultra-chatbot-agent/server/history.ts` for visitor-scoped history pagination, delete-all behavior, and per-chat deletion.
 - [x] `app/(chat)/api/messages/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/[id]/messages/route.ts` plus `apps/web/features/ultra-chatbot-agent/server/message-edit.ts`; current slice ports visitor-owned trailing-message trim for edited user turns before replay.
 - [x] `app/(chat)/api/models/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/models/route.ts` with a curated model catalog for the demo-local selector.
 - [x] `app/(chat)/api/suggestions/route.ts` - Adapted into `apps/web/app/api/demos/ultra-chatbot-agent/suggestions/route.ts` plus `features/ultra-chatbot-agent/server/suggestions.ts`; the current slice lists visitor-owned suggestions for the latest version of a selected document artifact.
@@ -118,7 +118,7 @@ updateAt: 2026-05-25
 - [x] `components/chat/preview.tsx` - Adapted into `apps/web/features/ultra-chatbot-agent/ui/ultra-chatbot-agent-screen.tsx` plus `ultra-chatbot-agent-workspace.tsx`. Ultra keeps the same chat-first preview role through the route-backed screen shell, empty-state suggested actions, and promoted conversation path instead of cloning the reference app's standalone preview component.
 - [x] `components/chat/sheet-editor.tsx` - Explicitly deferred by artifact-kind boundary. Ultra does not yet ship a spreadsheet artifact lane, and therefore does not port the reference grid editor or CSV editing workflow.
 - [x] `components/chat/shell.tsx` - Adapted into `apps/web/features/ultra-chatbot-agent/ui/ultra-chatbot-agent-workspace.tsx`; the current shell already owns the same top-level application shape: history navigation, chat header, main conversation surface, input footer, and right-hand companion panel under route-backed visitor state.
-- [x] `components/chat/sidebar-history-item.tsx` - Adapted into `apps/web/features/ultra-chatbot-agent/ui/ultra-chatbot-agent-history-item.tsx`; current slice ports title, active state, and updated-at display. Share visibility and per-item delete stay deferred until the vote/visibility route slice lands.
+- [x] `components/chat/sidebar-history-item.tsx` - Adapted into `apps/web/features/ultra-chatbot-agent/ui/ultra-chatbot-agent-history-item.tsx`; current slice ports title, active state, updated-at display, route navigation, and per-item delete without nesting interactive elements.
 - [x] `components/chat/sidebar-history.tsx` - Adapted into `apps/web/features/ultra-chatbot-agent/ui/ultra-chatbot-agent-history-sidebar.tsx`; current slice ports paginated history loading, empty state, and visitor-wide clear-all. Date-bucket grouping stays deferred for a later polish pass.
 - [x] `components/chat/sidebar-toggle.tsx` - Explicitly deferred by layout choice. Ultra currently keeps the history rail visible in the workspace shell and therefore does not need the reference app's collapsible sidebar toggle yet.
 - [x] `components/chat/sidebar-user-nav.tsx` - Explicitly deferred by product boundary. The reference account menu has no Ultra equivalent while the port stays on Visitor Owner identity with no user profile or auth session.

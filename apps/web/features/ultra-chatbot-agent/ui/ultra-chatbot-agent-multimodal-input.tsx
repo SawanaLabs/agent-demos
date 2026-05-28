@@ -306,7 +306,7 @@ export function UltraChatbotAgentMultimodalInput({
                     </PromptInputButton>
                   }
                 />
-                <TooltipContent>Add image</TooltipContent>
+                <TooltipContent>Add image or PDF</TooltipContent>
               </Tooltip>
             </PromptInputTools>
             <PromptInputSubmit

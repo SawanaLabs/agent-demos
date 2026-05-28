@@ -1,0 +1,1 @@
+ALTER TABLE "ultra_chatbot_agent_chats" ADD COLUMN "capabilities" jsonb DEFAULT '{"sandboxEnabled": false}'::jsonb NOT NULL;

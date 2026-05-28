@@ -3,10 +3,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   getUltraChatbotAgentFileParts,
+  getUltraChatbotAgentProjectDocsMcpResult,
   getUltraChatbotAgentReasoningText,
   getUltraChatbotAgentSourceParts,
   hasUltraChatbotAgentVisibleMessageContent,
   isUltraChatbotAgentDocumentResult,
+  isUltraChatbotAgentKnowledgeBaseResult,
+  isUltraChatbotAgentResearchReportResult,
 } from "./ultra-chatbot-agent-message-parts";
 
 describe("ultra chatbot agent message parts", () => {
@@ -123,14 +126,58 @@ describe("ultra chatbot agent message parts", () => {
 
     expect(getUltraChatbotAgentSourceParts(message)).toEqual([
       {
-        sourceId: "https://ir.tesla.com",
+        sourceId: "https://ir.tesla.com#Tesla investor relations",
         title: "Tesla investor relations",
         url: "https://ir.tesla.com",
       },
       {
-        sourceId: "https://www.reuters.com/companies/TSLA.OQ",
+        sourceId:
+          "https://www.reuters.com/companies/TSLA.OQ#Reuters Tesla coverage",
         title: "Reuters Tesla coverage",
         url: "https://www.reuters.com/companies/TSLA.OQ",
+      },
+    ]);
+  });
+
+  it("falls back to searchKnowledgeBase tool sources when source-url parts are absent", () => {
+    const message = {
+      id: "assistant-rag-1",
+      metadata: undefined,
+      parts: [
+        {
+          input: { query: "worm logo" },
+          output: {
+            answerable: true,
+            message: "Found 1 relevant indexed document snippet.",
+            query: "worm logo",
+            snippets: [
+              {
+                citationLabel: "NASA Graphics Standards Manual, p. 8",
+                content: "The NASA worm logo has strict usage guidance.",
+                documentUrl: "https://www.nasa.gov/manual.pdf",
+              },
+            ],
+            sources: [
+              {
+                citationLabel: "NASA Graphics Standards Manual, p. 8",
+                documentUrl: "https://www.nasa.gov/manual.pdf",
+              },
+            ],
+          },
+          state: "output-available",
+          toolCallId: "tool-rag-1",
+          type: "tool-searchKnowledgeBase",
+        },
+      ],
+      role: "assistant",
+    } satisfies UIMessage;
+
+    expect(getUltraChatbotAgentSourceParts(message)).toEqual([
+      {
+        sourceId:
+          "https://www.nasa.gov/manual.pdf#NASA Graphics Standards Manual, p. 8",
+        title: "NASA Graphics Standards Manual, p. 8",
+        url: "https://www.nasa.gov/manual.pdf",
       },
     ]);
   });
@@ -200,5 +247,97 @@ describe("ultra chatbot agent message parts", () => {
         title: "Draft",
       } as never)
     ).toBe(false);
+  });
+
+  it("recognizes structured research report tool outputs", () => {
+    expect(
+      isUltraChatbotAgentResearchReportResult({
+        executiveSummary: "A short evidence-backed summary.",
+        keyFindings: ["Finding one"],
+        kind: "research-report",
+        recommendations: ["Do one concrete next step"],
+        risks: ["Evidence may drift"],
+        sources: [{ title: "AI SDK", url: "https://ai-sdk.dev" }],
+        title: "Research Brief",
+        topic: "AI SDK",
+      })
+    ).toBe(true);
+    expect(
+      isUltraChatbotAgentResearchReportResult({
+        keyFindings: ["Finding one"],
+        kind: "research-report",
+        title: "Research Brief",
+      } as never)
+    ).toBe(false);
+  });
+
+  it("recognizes knowledge-base retrieval tool outputs", () => {
+    expect(
+      isUltraChatbotAgentKnowledgeBaseResult({
+        answerable: true,
+        message: "Found 1 relevant indexed document snippet.",
+        query: "worm logo",
+        snippets: [
+          {
+            citationLabel: "NASA Graphics Standards Manual, p. 8",
+            content: "The NASA worm logo has strict usage guidance.",
+            documentUrl: "https://www.nasa.gov/manual.pdf",
+            pageLabel: "8",
+            sectionTitle: "Worm logo",
+            similarity: 0.91,
+          },
+        ],
+        sources: [
+          {
+            title: "NASA Graphics Standards Manual, p. 8",
+            url: "https://www.nasa.gov/manual.pdf",
+          },
+        ],
+      })
+    ).toBe(true);
+    expect(
+      isUltraChatbotAgentKnowledgeBaseResult({
+        answerable: true,
+        snippets: [],
+      } as never)
+    ).toBe(false);
+  });
+
+  it("parses project-docs MCP search outputs into renderable matches", () => {
+    expect(
+      getUltraChatbotAgentProjectDocsMcpResult({
+        input: { query: "ultra" },
+        output: {
+          content: [
+            {
+              text: JSON.stringify({
+                matches: [
+                  {
+                    line: 10,
+                    path: "docs/frontend/ultra-chatbot-agent.md",
+                    text: "- Treat MCP as a first-class capability family.",
+                  },
+                ],
+                query: "ultra",
+              }),
+              type: "text",
+            },
+          ],
+        },
+        state: "output-available",
+        toolCallId: "tool-project-docs-1",
+        type: "tool-project__search_project_docs",
+      })
+    ).toEqual({
+      kind: "search",
+      matches: [
+        {
+          line: 10,
+          path: "docs/frontend/ultra-chatbot-agent.md",
+          text: "- Treat MCP as a first-class capability family.",
+        },
+      ],
+      query: "ultra",
+    });
   });
 });

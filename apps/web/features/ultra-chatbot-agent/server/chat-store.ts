@@ -9,8 +9,15 @@ import {
 } from "@workspace/database/drizzle";
 import type { UIMessage } from "ai";
 
+import {
+  getUltraChatbotAgentDefaultCapabilities,
+  normalizeUltraChatbotAgentCapabilities,
+  type UltraChatbotAgentCapabilities,
+} from "./capabilities";
+
 export interface UltraChatbotAgentChatRecord {
   activeStreamId: string | null;
+  capabilities: UltraChatbotAgentCapabilities;
   createdAt: string;
   id: string;
   selectedChatModel: string;
@@ -50,6 +57,7 @@ function toIsoString(value: Date | string) {
 
 function normalizeChatRecord(record: {
   activeStreamId: string | null;
+  capabilities: unknown;
   createdAt: Date | string;
   id: string;
   selectedChatModel: string;
@@ -60,6 +68,7 @@ function normalizeChatRecord(record: {
 }) {
   return {
     activeStreamId: record.activeStreamId,
+    capabilities: normalizeUltraChatbotAgentCapabilities(record.capabilities),
     createdAt: toIsoString(record.createdAt),
     id: record.id,
     selectedChatModel: record.selectedChatModel,
@@ -367,6 +376,7 @@ export function createUltraChatbotAgentChatStore() {
         } else {
           await tx.insert(ultraChatbotAgentChats).values({
             activeStreamId: null,
+            capabilities: getUltraChatbotAgentDefaultCapabilities(),
             id: input.chatId,
             selectedChatModel: input.selectedChatModel,
             title,
@@ -478,6 +488,51 @@ export function createUltraChatbotAgentChatStore() {
       if (rows.length === 0) {
         throw new Error(getUltraChatbotAgentChatNotFoundError(input.chatId));
       }
+    },
+    async setChatCapabilities(input: {
+      capabilities: Partial<UltraChatbotAgentCapabilities>;
+      chatId: string;
+      visitorId: string;
+    }) {
+      const { database, ultraChatbotAgentChats } =
+        await loadUltraChatbotAgentDatabase();
+      const [existingChat] = await database
+        .select({
+          capabilities: ultraChatbotAgentChats.capabilities,
+        })
+        .from(ultraChatbotAgentChats)
+        .where(
+          and(
+            eq(ultraChatbotAgentChats.id, input.chatId),
+            eq(ultraChatbotAgentChats.visitorId, input.visitorId)
+          )
+        )
+        .limit(1);
+
+      if (!existingChat) {
+        throw new Error(getUltraChatbotAgentChatNotFoundError(input.chatId));
+      }
+
+      const nextCapabilities = {
+        ...normalizeUltraChatbotAgentCapabilities(existingChat.capabilities),
+        ...input.capabilities,
+      } satisfies UltraChatbotAgentCapabilities;
+
+      const rows = await database
+        .update(ultraChatbotAgentChats)
+        .set({
+          capabilities: nextCapabilities,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(ultraChatbotAgentChats.id, input.chatId),
+            eq(ultraChatbotAgentChats.visitorId, input.visitorId)
+          )
+        )
+        .returning({ capabilities: ultraChatbotAgentChats.capabilities });
+
+      return normalizeUltraChatbotAgentCapabilities(rows[0]?.capabilities);
     },
     async saveVote(input: {
       chatId: string;

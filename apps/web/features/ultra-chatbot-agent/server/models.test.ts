@@ -18,6 +18,36 @@ describe("ultra chatbot agent model catalog", () => {
     );
   });
 
+  it("exposes capability metadata used by the Ultra workspace", () => {
+    expect(getUltraChatbotAgentModelCatalog()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          capabilities: expect.objectContaining({
+            artifactTooling: true,
+            attachments: {
+              images: true,
+              pdfs: true,
+            },
+            reasoning: false,
+            tools: true,
+            vision: true,
+          }),
+          costProfile: "low",
+          expectedLatency: "low",
+          id: "openai/gpt-4.1-mini",
+        }),
+        expect.objectContaining({
+          capabilities: expect.objectContaining({
+            reasoning: true,
+          }),
+          costProfile: "medium",
+          expectedLatency: "medium",
+          id: "openai/gpt-5-mini",
+        }),
+      ])
+    );
+  });
+
   it("exposes the expected default model", () => {
     expect(getUltraChatbotAgentDefaultModel()).toBe("openai/gpt-4.1-mini");
   });

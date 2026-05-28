@@ -1,4 +1,4 @@
-import { generateText, stepCountIs, tool, type Source } from "ai";
+import { generateText, stepCountIs, tool } from "ai";
 import { z } from "zod";
 
 const webSearchInputSchema = z.object({
@@ -10,6 +10,12 @@ interface UltraChatbotAgentWebSearchToolSource {
   url: string;
 }
 
+type UltraChatbotAgentGeneratedSource = {
+  title?: string | null;
+  type?: string | null;
+  url?: string | null;
+};
+
 const markdownLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
 const explicitUrlPattern = /\bhttps?:\/\/[^\s)]+/g;
 
@@ -17,7 +23,9 @@ function normalizeCitationUrl(value: string) {
   return value.trim().replace(/[),.;]+$/g, "");
 }
 
-function normalizeSearchSource(source: Source): UltraChatbotAgentWebSearchToolSource | null {
+function normalizeSearchSource(
+  source: UltraChatbotAgentGeneratedSource
+): UltraChatbotAgentWebSearchToolSource | null {
   if (source.type !== "source") {
     return null;
   }
@@ -78,9 +86,7 @@ function collectSourcesFromSummary(summary: string) {
 
 export function createUltraChatbotAgentWebSearchTool(input: {
   model: Parameters<typeof generateText>[0]["model"];
-  webSearchTool: ReturnType<
-    NonNullable<Parameters<typeof generateText>[0]["tools"]>[string]
-  >;
+  webSearchTool: NonNullable<Parameters<typeof generateText>[0]["tools"]>[string];
 }) {
   return tool({
     description:

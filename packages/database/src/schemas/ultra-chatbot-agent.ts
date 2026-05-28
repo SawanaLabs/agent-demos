@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   foreignKey,
@@ -34,6 +35,9 @@ export const ultraChatbotAgentChats = pgTable(
       .notNull()
       .default("private"),
     activeStreamId: varchar("active_stream_id", { length: 191 }),
+    capabilities: jsonb("capabilities")
+      .notNull()
+      .default(sql`'{"sandboxEnabled": false}'::jsonb`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

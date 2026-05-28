@@ -45,7 +45,11 @@ import { Button } from "@workspace/ui/components/button";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { cn } from "@workspace/ui/lib/utils";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  type UIMessage,
+} from "ai";
 import Link from "next/link";
 import {
   type Dispatch,
@@ -60,6 +64,8 @@ import type {
   UltraChatbotAgentHistoryPage,
   UltraChatbotAgentVoteRecord,
 } from "../server/chat-store";
+import type { UltraChatbotAgentCapabilities } from "../server/capabilities";
+import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
 import type { UltraChatbotAgentModel } from "../server/models";
 import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-state";
 import { UltraChatbotAgentArtifact } from "./ultra-chatbot-agent-artifact";
@@ -68,14 +74,21 @@ import { UltraChatbotAgentHistorySidebar } from "./ultra-chatbot-agent-history-s
 import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message-reasoning";
 import {
   getUltraChatbotAgentFileParts,
+  getUltraChatbotAgentProjectDocsMcpResult,
   getUltraChatbotAgentReasoningText,
   getUltraChatbotAgentSourceParts,
   getUltraChatbotAgentToolParts,
   hasUltraChatbotAgentVisibleMessageContent,
   isUltraChatbotAgentDocumentResult,
+  isUltraChatbotAgentKnowledgeBaseResult,
+  isUltraChatbotAgentResearchReportResult,
 } from "./ultra-chatbot-agent-message-parts";
 import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimodal-input";
 import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
+import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
+import { UltraChatbotAgentProjectDocsResultCard } from "./ultra-chatbot-agent-project-docs-result";
+import { UltraChatbotAgentResearchReport } from "./ultra-chatbot-agent-research-report";
+import { UltraChatbotAgentSandboxConfirmation } from "./ultra-chatbot-agent-sandbox-confirmation";
 import { UltraChatbotAgentSources } from "./ultra-chatbot-agent-sources";
 import { UltraChatbotAgentSuggestedActions } from "./ultra-chatbot-agent-suggested-actions";
 import { UltraChatbotAgentVisibilitySelector } from "./ultra-chatbot-agent-visibility-selector";
@@ -229,6 +242,26 @@ function shouldApplyRecoveredSession(
   );
 }
 
+function readSandboxCapabilityFromMessages(messages: UIMessage[]) {
+  for (const message of [...messages].reverse()) {
+    for (const part of [...getUltraChatbotAgentToolParts(message)].reverse()) {
+      if (
+        part.type !== "tool-enableSandbox" ||
+        part.state !== "output-available" ||
+        !part.output ||
+        typeof part.output !== "object" ||
+        !("sandboxEnabled" in part.output)
+      ) {
+        continue;
+      }
+
+      return part.output.sandboxEnabled === true;
+    }
+  }
+
+  return null;
+}
+
 interface UltraChatbotAgentWorkspaceProps {
   defaultChatModel: string;
   draftChatId: string;
@@ -247,6 +280,7 @@ function useResumeRecovery(input: {
   messagesLength: number;
   setChatMeta: Dispatch<
     SetStateAction<{
+      capabilities: UltraChatbotAgentCapabilities;
       createdAt: string | null;
       id: string;
       selectedChatModel: string;
@@ -305,6 +339,7 @@ function useResumeRecovery(input: {
           shouldRecoverMissedResumeRef.current = false;
           setMessages(session.messages);
           setChatMeta({
+            capabilities: session.chat.capabilities,
             createdAt: session.chat.createdAt,
             id: session.chat.id,
             selectedChatModel: session.chat.selectedChatModel,
@@ -362,6 +397,9 @@ export function UltraChatbotAgentWorkspace({
   const hasPromotedRouteRef = useRef(Boolean(initialSession));
   const chatId = generatedChatIdRef.current;
   const [chatMeta, setChatMeta] = useState(() => ({
+    capabilities: initialSession?.chat.capabilities ?? {
+      sandboxEnabled: false,
+    },
     createdAt: initialSession?.chat.createdAt ?? null,
     id: chatId,
     selectedChatModel:
@@ -378,6 +416,7 @@ export function UltraChatbotAgentWorkspace({
   }, [chatMeta.selectedChatModel, chatMeta.visibility]);
 
   const {
+    addToolApprovalResponse,
     error,
     messages,
     regenerate,
@@ -406,6 +445,7 @@ export function UltraChatbotAgentWorkspace({
         },
       }),
     }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
   });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
@@ -454,6 +494,7 @@ export function UltraChatbotAgentWorkspace({
     messages.length > 0
       ? ({
           activeStreamId: null,
+          capabilities: chatMeta.capabilities,
           createdAt: chatMeta.createdAt ?? new Date().toISOString(),
           id: chatMeta.id,
           selectedChatModel: chatMeta.selectedChatModel,
@@ -533,6 +574,26 @@ export function UltraChatbotAgentWorkspace({
     documentArtifactSignatureRef.current = nextSignature;
     refreshArtifact();
   }, [messages, refreshArtifact]);
+
+  useEffect(() => {
+    const sandboxEnabled = readSandboxCapabilityFromMessages(messages);
+
+    if (sandboxEnabled == null) {
+      return;
+    }
+
+    setChatMeta((current) =>
+      current.capabilities.sandboxEnabled === sandboxEnabled
+        ? current
+        : {
+            ...current,
+            capabilities: {
+              ...current.capabilities,
+              sandboxEnabled,
+            },
+          }
+    );
+  }, [messages]);
 
   useResumeRecovery({
     chatId,
@@ -813,11 +874,15 @@ export function UltraChatbotAgentWorkspace({
                     isVotePending && pendingVote.target === "up";
                   const isNeedsWorkPending =
                     isVotePending && pendingVote.target === "down";
+                  const hasFeedbackTarget =
+                    getTextContent(message).trim().length > 0 ||
+                    getUltraChatbotAgentFileParts(message).length > 0 ||
+                    getUltraChatbotAgentSourceParts(message).length > 0;
                   const showFeedbackButtons =
                     message.role === "assistant" &&
                     !(isLastMessage && status === "streaming") &&
                     !(isLastMessage && status === "submitted") &&
-                    hasUltraChatbotAgentVisibleMessageContent(message);
+                    hasFeedbackTarget;
 
                   return (
                     <Message from={message.role} key={message.id}>
@@ -843,6 +908,20 @@ export function UltraChatbotAgentWorkspace({
                             part.type === "tool-createDocument" ||
                             part.type === "tool-editDocument" ||
                             part.type === "tool-updateDocument";
+                          const researchReportResult =
+                            part.state === "output-available" &&
+                            part.type === "tool-createResearchReport" &&
+                            isUltraChatbotAgentResearchReportResult(part.output)
+                              ? part.output
+                              : null;
+                          const knowledgeBaseResult =
+                            part.state === "output-available" &&
+                            part.type === "tool-searchKnowledgeBase" &&
+                            isUltraChatbotAgentKnowledgeBaseResult(part.output)
+                              ? part.output
+                              : null;
+                          const projectDocsResult =
+                            getUltraChatbotAgentProjectDocsMcpResult(part);
 
                           if (
                             isDocumentTool &&
@@ -872,37 +951,72 @@ export function UltraChatbotAgentWorkspace({
                             );
                           }
 
+                          if (researchReportResult) {
+                            return (
+                              <UltraChatbotAgentResearchReport
+                                key={part.toolCallId}
+                                report={researchReportResult}
+                              />
+                            );
+                          }
+
+                          if (knowledgeBaseResult) {
+                            return (
+                              <UltraChatbotAgentKnowledgeBaseResultCard
+                                key={part.toolCallId}
+                                result={knowledgeBaseResult}
+                              />
+                            );
+                          }
+
+                          if (projectDocsResult) {
+                            return (
+                              <UltraChatbotAgentProjectDocsResultCard
+                                key={part.toolCallId}
+                                result={projectDocsResult}
+                              />
+                            );
+                          }
+
                           return (
-                            <Tool defaultOpen={false} key={part.toolCallId}>
-                              {part.type === "dynamic-tool" ? (
-                                <ToolHeader
-                                  state={part.state}
-                                  toolName={part.toolName}
-                                  type={part.type}
+                            <div className="space-y-3" key={part.toolCallId}>
+                              {part.type === "tool-enableSandbox" ? (
+                                <UltraChatbotAgentSandboxConfirmation
+                                  onApprovalResponse={addToolApprovalResponse}
+                                  part={part}
                                 />
-                              ) : (
-                                <ToolHeader
-                                  state={part.state}
-                                  type={part.type}
-                                />
-                              )}
-                              <ToolContent>
-                                {part.input ? (
-                                  <ToolInput input={part.input} />
-                                ) : null}
-                                {weatherResult ? null : (
-                                  <ToolOutput
-                                    errorText={part.errorText}
-                                    output={part.output}
+                              ) : null}
+                              <Tool defaultOpen={false}>
+                                {part.type === "dynamic-tool" ? (
+                                  <ToolHeader
+                                    state={part.state}
+                                    toolName={part.toolName}
+                                    type={part.type}
+                                  />
+                                ) : (
+                                  <ToolHeader
+                                    state={part.state}
+                                    type={part.type}
                                   />
                                 )}
-                                {weatherResult ? (
-                                  <UltraChatbotAgentWeather
-                                    weather={weatherResult}
-                                  />
-                                ) : null}
-                              </ToolContent>
-                            </Tool>
+                                <ToolContent>
+                                  {part.input ? (
+                                    <ToolInput input={part.input} />
+                                  ) : null}
+                                  {weatherResult ? null : (
+                                    <ToolOutput
+                                      errorText={part.errorText}
+                                      output={part.output}
+                                    />
+                                  )}
+                                  {weatherResult ? (
+                                    <UltraChatbotAgentWeather
+                                      weather={weatherResult}
+                                    />
+                                  ) : null}
+                                </ToolContent>
+                              </Tool>
+                            </div>
                           );
                         })}
                         {reasoningText ? (
@@ -1058,6 +1172,13 @@ export function UltraChatbotAgentWorkspace({
                 <>
                   <Badge variant="outline">Visitor scoped</Badge>
                   <Badge variant="outline">Blob uploads</Badge>
+                  <Badge variant="outline">Project Docs MCP</Badge>
+                  <Badge variant="outline">Preindexed RAG</Badge>
+                  <Badge variant="outline">
+                    {chatMeta.capabilities.sandboxEnabled
+                      ? "Sandbox enabled"
+                      : "Sandbox locked"}
+                  </Badge>
                   <ModelSelector
                     onOpenChange={setIsModelSelectorOpen}
                     open={isModelSelectorOpen}
@@ -1103,6 +1224,12 @@ export function UltraChatbotAgentWorkspace({
                                   ? "Reasoning"
                                   : "Chat"}
                               </span>
+                              <span className="text-muted-foreground text-xs">
+                                {model.expectedLatency} latency
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {model.costProfile} cost
+                              </span>
                             </ModelSelectorItem>
                           ))}
                         </ModelSelectorGroup>
@@ -1114,7 +1241,7 @@ export function UltraChatbotAgentWorkspace({
               onComposerErrorChange={setComposerError}
               onSend={handleSubmit}
               onStop={stop}
-              placeholder="Ask for a draft, compare models, and attach a PNG or JPEG before sending."
+              placeholder="Ask for a draft, compare models, inspect project docs, query the preindexed PDF, and attach a PDF, PNG, or JPEG before sending."
               status={submitStatus}
             />
           </div>
@@ -1174,6 +1301,57 @@ export function UltraChatbotAgentWorkspace({
             <p className="mt-1 text-muted-foreground text-xs/relaxed">
               {selectedModel?.description}
             </p>
+          </div>
+
+          <div>
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+              Capabilities
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Badge
+                variant={
+                  chatMeta.capabilities.sandboxEnabled
+                    ? "secondary"
+                    : "outline"
+                }
+              >
+                {chatMeta.capabilities.sandboxEnabled
+                  ? "Sandbox enabled"
+                  : "Sandbox locked"}
+              </Badge>
+              <Badge variant="outline">Preindexed RAG</Badge>
+              <Badge variant="outline">Project Docs MCP</Badge>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+              Knowledge source
+            </p>
+            <p className="mt-1 text-sm">
+              {ultraChatbotAgentKnowledgeSource.title}
+            </p>
+            <p className="mt-1 text-muted-foreground text-xs/relaxed">
+              {ultraChatbotAgentKnowledgeSource.description}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Link
+                className="inline-flex h-8 items-center justify-center border border-foreground/10 px-3 text-sm transition-colors hover:border-foreground/30"
+                href={ultraChatbotAgentKnowledgeSource.documentUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open PDF
+              </Link>
+              <Link
+                className="inline-flex h-8 items-center justify-center border border-foreground/10 px-3 text-sm transition-colors hover:border-foreground/30"
+                href={ultraChatbotAgentKnowledgeSource.sourcePageUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Source page
+              </Link>
+            </div>
           </div>
 
           <div>

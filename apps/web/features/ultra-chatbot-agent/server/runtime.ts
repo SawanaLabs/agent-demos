@@ -2,6 +2,7 @@ import {
   convertToModelMessages,
   createIdGenerator,
   generateId,
+  isFileUIPart,
   stepCountIs,
   ToolLoopAgent,
   UI_MESSAGE_STREAM_HEADERS,
@@ -15,6 +16,11 @@ import { env as appEnv } from "@/env";
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
 import { getDatabaseSetupState } from "@/features/shared/database/server/env";
 
+import {
+  isUltraChatbotAgentAcceptedUploadMediaType,
+  ultraChatbotAgentUnsupportedAttachmentMediaTypeError,
+} from "../attachment-config";
+import { getUltraChatbotAgentDefaultCapabilities } from "./capabilities";
 import { projectUltraChatbotAgentHistoryForModel } from "./chat-history";
 import {
   createUltraChatbotAgentChatStore,
@@ -22,8 +28,10 @@ import {
 } from "./chat-store";
 import { createUltraChatbotAgentCreateDocumentTool } from "./create-document";
 import { createUltraChatbotAgentEditDocumentTool } from "./edit-document";
+import { createUltraChatbotAgentEnableSandboxTool } from "./enable-sandbox";
 import { createUltraChatbotAgentGetWeatherTool } from "./get-weather";
 import { createUltraChatbotAgentRequestSuggestionsTool } from "./request-suggestions";
+import { createUltraChatbotAgentResearchReportTool } from "./research-report";
 import { createUltraChatbotAgentUpdateDocumentTool } from "./update-document";
 import { createUltraChatbotAgentWebSearchTool } from "./web-search";
 import {
@@ -37,6 +45,9 @@ import {
   createUltraChatbotAgentProvider,
   ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
 } from "./providers";
+import { createUltraChatbotAgentProjectDocsMcpToolbox } from "./project-docs-mcp";
+import { createUltraChatbotAgentSandboxToolbox } from "./sandbox-tools";
+import { createUltraChatbotAgentSearchKnowledgeBaseTool } from "./search-knowledge-base";
 
 const invalidRequestBodyError =
   'Expected a JSON body with a non-empty "id" string, "message" object, "selectedChatModel" string, and "selectedVisibilityType".';
@@ -120,6 +131,14 @@ function readRequestBody(body: unknown) {
     selectedChatModel,
     selectedVisibilityType,
   };
+}
+
+function hasUnsupportedAttachment(message: UIMessage) {
+  return message.parts.some(
+    (part) =>
+      isFileUIPart(part) &&
+      !isUltraChatbotAgentAcceptedUploadMediaType(part.mediaType ?? "")
+  );
 }
 
 let ultraChatbotAgentStreamContext:
@@ -215,8 +234,20 @@ export async function handleUltraChatbotAgentChatRequest(
     );
   }
 
+  if (hasUnsupportedAttachment(input.message)) {
+    return Response.json(
+      {
+        error: ultraChatbotAgentUnsupportedAttachmentMediaTypeError,
+      },
+      { status: 400 }
+    );
+  }
+
   const store = createUltraChatbotAgentChatStore();
   const existingSession = await store.loadChatSession(input.id, viewer.visitorId);
+  const capabilities =
+    existingSession?.chat.capabilities ??
+    getUltraChatbotAgentDefaultCapabilities();
   const originalMessages = existingSession
     ? [...existingSession.messages, input.message]
     : [input.message];
@@ -244,73 +275,122 @@ export async function handleUltraChatbotAgentChatRequest(
 
   const provider = createUltraChatbotAgentProvider(env);
   const modelId = provider.resolveModelId(input.selectedChatModel);
+  const projectDocsMcpToolbox =
+    await createUltraChatbotAgentProjectDocsMcpToolbox({
+      origin: new URL(request.url).origin,
+    });
+  const sandboxToolbox = capabilities.sandboxEnabled
+    ? await createUltraChatbotAgentSandboxToolbox({
+        chatId: input.id,
+        env,
+        visitorId: viewer.visitorId,
+      })
+    : null;
+  let closedProjectDocsMcp = false;
 
-  const agent = new ToolLoopAgent({
-    instructions: getUltraChatbotAgentSystemPrompt(),
-    model: provider.gateway(modelId),
-    providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
-    stopWhen: stepCountIs(20),
-    tools: {
-      createDocument: createUltraChatbotAgentCreateDocumentTool({
-        chatId: input.id,
-        visitorId: viewer.visitorId,
+  async function closeProjectDocsMcpToolbox() {
+    if (closedProjectDocsMcp) {
+      return;
+    }
+
+    closedProjectDocsMcp = true;
+    await projectDocsMcpToolbox.close();
+  }
+
+  try {
+    const agent = new ToolLoopAgent({
+      instructions: getUltraChatbotAgentSystemPrompt({
+        capabilities,
+        sandboxContextText: sandboxToolbox?.contextText,
       }),
-      editDocument: createUltraChatbotAgentEditDocumentTool({
-        chatId: input.id,
-        visitorId: viewer.visitorId,
-      }),
-      getWeather: createUltraChatbotAgentGetWeatherTool(),
-      requestSuggestions: createUltraChatbotAgentRequestSuggestionsTool({
-        chatId: input.id,
-        model: provider.gateway(modelId),
-        visitorId: viewer.visitorId,
-      }),
-      [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool({
-        model: provider.hostedToolsGateway(modelId),
-        webSearchTool: provider.hostedToolsGateway.tools.webSearch({
-          searchContextSize: "medium",
+      model: provider.gateway(modelId),
+      providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
+      stopWhen: stepCountIs(20),
+      tools: {
+        ...projectDocsMcpToolbox.tools,
+        ...(sandboxToolbox?.tools ?? {}),
+        createDocument: createUltraChatbotAgentCreateDocumentTool({
+          chatId: input.id,
+          visitorId: viewer.visitorId,
         }),
-      }),
-      updateDocument: createUltraChatbotAgentUpdateDocumentTool({
-        chatId: input.id,
-        model: provider.gateway(modelId),
-        visitorId: viewer.visitorId,
-      }),
-    },
-  });
-  const result = await agent.stream({
-    messages: await convertToModelMessages(replayableMessages),
-  });
+        editDocument: createUltraChatbotAgentEditDocumentTool({
+          chatId: input.id,
+          visitorId: viewer.visitorId,
+        }),
+        ...(capabilities.sandboxEnabled
+          ? {}
+          : {
+              enableSandbox: createUltraChatbotAgentEnableSandboxTool({
+                chatId: input.id,
+                visitorId: viewer.visitorId,
+              }),
+            }),
+        getWeather: createUltraChatbotAgentGetWeatherTool(),
+        searchKnowledgeBase:
+          createUltraChatbotAgentSearchKnowledgeBaseTool(),
+        requestSuggestions: createUltraChatbotAgentRequestSuggestionsTool({
+          chatId: input.id,
+          model: provider.gateway(modelId),
+          visitorId: viewer.visitorId,
+        }),
+        createResearchReport: createUltraChatbotAgentResearchReportTool({
+          model: provider.gateway(modelId),
+        }),
+        [ultraChatbotAgentSearchToolName]:
+          createUltraChatbotAgentWebSearchTool({
+            model: provider.hostedToolsGateway(modelId),
+            webSearchTool: provider.hostedToolsGateway.tools.webSearch({
+              searchContextSize: "medium",
+            }),
+          }),
+        updateDocument: createUltraChatbotAgentUpdateDocumentTool({
+          chatId: input.id,
+          model: provider.gateway(modelId),
+          visitorId: viewer.visitorId,
+        }),
+      },
+    });
+    const result = await agent.stream({
+      messages: await convertToModelMessages(replayableMessages),
+    });
 
-  return result.toUIMessageStreamResponse({
-    consumeSseStream: async ({ stream }) => {
-      const streamId = generateId();
-      await getStreamContext(env).createNewResumableStream(streamId, () => stream);
-      await store.setActiveStream({
-        activeStreamId: streamId,
-        chatId: input.id,
-        visitorId: viewer.visitorId,
-      });
-    },
-    generateMessageId: createIdGenerator({
-      prefix: "ua-msg",
-      size: 16,
-    }),
-    onFinish: async ({ isAborted, messages }) => {
-      if (isAborted) {
-        return;
-      }
+    return result.toUIMessageStreamResponse({
+      consumeSseStream: async ({ stream }) => {
+        const streamId = generateId();
+        await getStreamContext(env).createNewResumableStream(streamId, () => stream);
+        await store.setActiveStream({
+          activeStreamId: streamId,
+          chatId: input.id,
+          visitorId: viewer.visitorId,
+        });
+      },
+      generateMessageId: createIdGenerator({
+        prefix: "ua-msg",
+        size: 16,
+      }),
+      onFinish: async ({ isAborted, messages }) => {
+        try {
+          if (isAborted) {
+            return;
+          }
 
-      await store.saveFinishedMessages({
-        chatId: input.id,
-        messages,
-        visitorId: viewer.visitorId,
-      });
-    },
-    originalMessages,
-    sendReasoning: true,
-    sendSources: true,
-  });
+          await store.saveFinishedMessages({
+            chatId: input.id,
+            messages,
+            visitorId: viewer.visitorId,
+          });
+        } finally {
+          await closeProjectDocsMcpToolbox();
+        }
+      },
+      originalMessages,
+      sendReasoning: true,
+      sendSources: true,
+    });
+  } catch (error) {
+    await closeProjectDocsMcpToolbox();
+    throw error;
+  }
 }
 
 export async function handleUltraChatbotAgentStreamResumeRequest(

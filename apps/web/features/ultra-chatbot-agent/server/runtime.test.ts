@@ -48,12 +48,28 @@ const editDocumentToolState = vi.hoisted(() => ({
   createUltraChatbotAgentEditDocumentTool: vi.fn(),
 }));
 
+const enableSandboxToolState = vi.hoisted(() => ({
+  createUltraChatbotAgentEnableSandboxTool: vi.fn(),
+}));
+
 const getWeatherToolState = vi.hoisted(() => ({
   createUltraChatbotAgentGetWeatherTool: vi.fn(),
 }));
 
+const searchKnowledgeBaseToolState = vi.hoisted(() => ({
+  createUltraChatbotAgentSearchKnowledgeBaseTool: vi.fn(),
+}));
+
+const sandboxToolboxState = vi.hoisted(() => ({
+  createUltraChatbotAgentSandboxToolbox: vi.fn(),
+}));
+
 const requestSuggestionsToolState = vi.hoisted(() => ({
   createUltraChatbotAgentRequestSuggestionsTool: vi.fn(),
+}));
+
+const researchReportToolState = vi.hoisted(() => ({
+  createUltraChatbotAgentResearchReportTool: vi.fn(),
 }));
 
 const updateDocumentToolState = vi.hoisted(() => ({
@@ -62,6 +78,11 @@ const updateDocumentToolState = vi.hoisted(() => ({
 
 const webSearchToolState = vi.hoisted(() => ({
   createUltraChatbotAgentWebSearchTool: vi.fn(),
+}));
+
+const projectDocsMcpToolboxState = vi.hoisted(() => ({
+  close: vi.fn(),
+  createUltraChatbotAgentProjectDocsMcpToolbox: vi.fn(),
 }));
 
 vi.mock("ai", async () => {
@@ -98,14 +119,34 @@ vi.mock("./edit-document", () => ({
     editDocumentToolState.createUltraChatbotAgentEditDocumentTool,
 }));
 
+vi.mock("./enable-sandbox", () => ({
+  createUltraChatbotAgentEnableSandboxTool:
+    enableSandboxToolState.createUltraChatbotAgentEnableSandboxTool,
+}));
+
 vi.mock("./get-weather", () => ({
   createUltraChatbotAgentGetWeatherTool:
     getWeatherToolState.createUltraChatbotAgentGetWeatherTool,
 }));
 
+vi.mock("./search-knowledge-base", () => ({
+  createUltraChatbotAgentSearchKnowledgeBaseTool:
+    searchKnowledgeBaseToolState.createUltraChatbotAgentSearchKnowledgeBaseTool,
+}));
+
+vi.mock("./sandbox-tools", () => ({
+  createUltraChatbotAgentSandboxToolbox:
+    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox,
+}));
+
 vi.mock("./request-suggestions", () => ({
   createUltraChatbotAgentRequestSuggestionsTool:
     requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool,
+}));
+
+vi.mock("./research-report", () => ({
+  createUltraChatbotAgentResearchReportTool:
+    researchReportToolState.createUltraChatbotAgentResearchReportTool,
 }));
 
 vi.mock("./update-document", () => ({
@@ -116,6 +157,11 @@ vi.mock("./update-document", () => ({
 vi.mock("./web-search", () => ({
   createUltraChatbotAgentWebSearchTool:
     webSearchToolState.createUltraChatbotAgentWebSearchTool,
+}));
+
+vi.mock("./project-docs-mcp", () => ({
+  createUltraChatbotAgentProjectDocsMcpToolbox:
+    projectDocsMcpToolboxState.createUltraChatbotAgentProjectDocsMcpToolbox,
 }));
 
 function importRuntimeModule() {
@@ -129,6 +175,25 @@ function createUserMessage(): UIMessage {
       {
         text: "Draft a comparison between artifact-side editing and inline chat.",
         type: "text",
+      },
+    ],
+    role: "user",
+  };
+}
+
+function createUserMessageWithFile(mediaType: string): UIMessage {
+  return {
+    id: "user-file-1",
+    parts: [
+      {
+        text: "Inspect this attachment.",
+        type: "text",
+      },
+      {
+        filename: "attachment",
+        mediaType,
+        type: "file",
+        url: `https://blob.example/attachment-${encodeURIComponent(mediaType)}`,
       },
     ],
     role: "user",
@@ -185,10 +250,16 @@ describe("ultra chatbot agent runtime", () => {
     storeState.setActiveStream.mockReset();
     createDocumentToolState.createUltraChatbotAgentCreateDocumentTool.mockReset();
     editDocumentToolState.createUltraChatbotAgentEditDocumentTool.mockReset();
+    enableSandboxToolState.createUltraChatbotAgentEnableSandboxTool.mockReset();
     getWeatherToolState.createUltraChatbotAgentGetWeatherTool.mockReset();
+    searchKnowledgeBaseToolState.createUltraChatbotAgentSearchKnowledgeBaseTool.mockReset();
+    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox.mockReset();
     requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool.mockReset();
+    researchReportToolState.createUltraChatbotAgentResearchReportTool.mockReset();
     updateDocumentToolState.createUltraChatbotAgentUpdateDocumentTool.mockReset();
     webSearchToolState.createUltraChatbotAgentWebSearchTool.mockReset();
+    projectDocsMcpToolboxState.close.mockReset();
+    projectDocsMcpToolboxState.createUltraChatbotAgentProjectDocsMcpToolbox.mockReset();
 
     aiMockState.stream.mockResolvedValue({
       toUIMessageStreamResponse(options: typeof aiMockState.responseOptions) {
@@ -219,13 +290,59 @@ describe("ultra chatbot agent runtime", () => {
         execute: vi.fn(),
       }
     );
+    enableSandboxToolState.createUltraChatbotAgentEnableSandboxTool.mockReturnValue(
+      {
+        description: "mock enable sandbox",
+        execute: vi.fn(),
+      }
+    );
     getWeatherToolState.createUltraChatbotAgentGetWeatherTool.mockReturnValue({
       description: "mock get weather",
       execute: vi.fn(),
     });
+    searchKnowledgeBaseToolState.createUltraChatbotAgentSearchKnowledgeBaseTool.mockReturnValue(
+      {
+        description: "mock search knowledge base",
+        execute: vi.fn(),
+      }
+    );
+    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox.mockResolvedValue({
+      availableSkills: [
+        {
+          description: "Challenge product specs against project docs.",
+          name: "grill-with-docs",
+        },
+      ],
+      contextText:
+        "Sandbox project root: /vercel/sandbox/project\nAvailable skills:\n- grill-with-docs: Challenge product specs against project docs.",
+      tools: {
+        bash: {
+          description: "mock bash",
+          execute: vi.fn(),
+        },
+        readFile: {
+          description: "mock read file",
+          execute: vi.fn(),
+        },
+        skill: {
+          description: "mock skill loader",
+          execute: vi.fn(),
+        },
+        writeFile: {
+          description: "mock write file",
+          execute: vi.fn(),
+        },
+      },
+    });
     requestSuggestionsToolState.createUltraChatbotAgentRequestSuggestionsTool.mockReturnValue(
       {
         description: "mock request suggestions",
+        execute: vi.fn(),
+      }
+    );
+    researchReportToolState.createUltraChatbotAgentResearchReportTool.mockReturnValue(
+      {
+        description: "mock research report",
         execute: vi.fn(),
       }
     );
@@ -239,6 +356,25 @@ describe("ultra chatbot agent runtime", () => {
       description: "mock web search",
       execute: vi.fn(),
     });
+    projectDocsMcpToolboxState.createUltraChatbotAgentProjectDocsMcpToolbox.mockResolvedValue(
+      {
+        close: projectDocsMcpToolboxState.close,
+        tools: {
+          project__list_demos: {
+            description: "mock project docs list",
+            execute: vi.fn(),
+          },
+          project__read_demo_docs: {
+            description: "mock project docs read",
+            execute: vi.fn(),
+          },
+          project__search_project_docs: {
+            description: "mock project docs search",
+            execute: vi.fn(),
+          },
+        },
+      }
+    );
     redisState.Redis.mockImplementation(function MockRedis() {
       return {};
     });
@@ -279,6 +415,34 @@ describe("ultra chatbot agent runtime", () => {
     );
 
     expect(response.status).toBe(400);
+    expect(storeState.saveIncomingUserMessage).not.toHaveBeenCalled();
+  });
+
+  it("rejects unsupported attachments before touching persistence", async () => {
+    const { handleUltraChatbotAgentChatRequest } = await importRuntimeModule();
+
+    const response = await handleUltraChatbotAgentChatRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: createUserMessageWithFile("application/zip"),
+          selectedChatModel: "openai/gpt-4.1-mini",
+          selectedVisibilityType: "private",
+        }),
+        method: "POST",
+      }),
+      { visitorId: "visitor-123" },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "Only PDF, JPEG, and PNG attachments are supported.",
+    });
     expect(storeState.saveIncomingUserMessage).not.toHaveBeenCalled();
   });
 
@@ -333,11 +497,35 @@ describe("ultra chatbot agent runtime", () => {
             description: expect.any(String),
             execute: expect.any(Function),
           }),
+          enableSandbox: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
           getWeather: expect.objectContaining({
             description: expect.any(String),
             execute: expect.any(Function),
           }),
+          project__list_demos: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
+          project__read_demo_docs: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
+          project__search_project_docs: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
+          searchKnowledgeBase: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
           requestSuggestions: expect.objectContaining({
+            description: expect.any(String),
+            execute: expect.any(Function),
+          }),
+          createResearchReport: expect.objectContaining({
             description: expect.any(String),
             execute: expect.any(Function),
           }),
@@ -370,6 +558,12 @@ describe("ultra chatbot agent runtime", () => {
       visitorId: "visitor-123",
     });
     expect(
+      enableSandboxToolState.createUltraChatbotAgentEnableSandboxTool
+    ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
+      visitorId: "visitor-123",
+    });
+    expect(
       getWeatherToolState.createUltraChatbotAgentGetWeatherTool
     ).toHaveBeenCalledWith();
     expect(
@@ -378,6 +572,11 @@ describe("ultra chatbot agent runtime", () => {
       chatId: "7dad003a-e507-448b-ac02-10937a0290da",
       model: expect.anything(),
       visitorId: "visitor-123",
+    });
+    expect(
+      researchReportToolState.createUltraChatbotAgentResearchReportTool
+    ).toHaveBeenCalledWith({
+      model: expect.anything(),
     });
     expect(
       updateDocumentToolState.createUltraChatbotAgentUpdateDocumentTool
@@ -392,6 +591,14 @@ describe("ultra chatbot agent runtime", () => {
       model: expect.anything(),
       webSearchTool: expect.anything(),
     });
+    expect(
+      projectDocsMcpToolboxState.createUltraChatbotAgentProjectDocsMcpToolbox
+    ).toHaveBeenCalledWith({
+      origin: "http://localhost",
+    });
+    expect(
+      sandboxToolboxState.createUltraChatbotAgentSandboxToolbox
+    ).not.toHaveBeenCalled();
     expect(aiMockState.responseOptions?.originalMessages).toEqual([
       userMessage,
     ]);
@@ -438,6 +645,7 @@ describe("ultra chatbot agent runtime", () => {
       ]),
       visitorId: "visitor-123",
     });
+    expect(projectDocsMcpToolboxState.close).toHaveBeenCalledTimes(1);
   });
 
   it("projects replay history before sending multi-turn search chats to the model", async () => {
@@ -451,12 +659,15 @@ describe("ultra chatbot agent runtime", () => {
     storeState.loadChatSession.mockResolvedValue({
       chat: {
         activeStreamId: null,
+        capabilities: {
+          sandboxEnabled: false,
+        },
         createdAt: new Date("2026-05-27T00:00:00.000Z"),
         id: "7dad003a-e507-448b-ac02-10937a0290da",
         selectedChatModel: "openai/gpt-4.1-mini",
-        selectedVisibilityType: "private",
         title: "Tesla research",
         updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+        visibility: "private",
         visitorId: "visitor-123",
       },
       messages: [createUserMessage(), createAssistantSearchMessage()],
@@ -500,5 +711,85 @@ describe("ultra chatbot agent runtime", () => {
     );
     expect(JSON.stringify(assistantMessage)).not.toContain("tool-web_search");
     expect(JSON.stringify(assistantMessage)).not.toContain("source-url");
+  });
+
+  it("exposes sandbox-backed tools after sandbox is already enabled", async () => {
+    const { handleUltraChatbotAgentChatRequest } = await importRuntimeModule();
+
+    storeState.loadChatSession.mockResolvedValue({
+      chat: {
+        activeStreamId: null,
+        capabilities: {
+          sandboxEnabled: true,
+        },
+        createdAt: new Date("2026-05-27T00:00:00.000Z"),
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        selectedChatModel: "openai/gpt-4.1-mini",
+        title: "Sandbox chat",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+        visibility: "private",
+        visitorId: "visitor-123",
+      },
+      messages: [createUserMessage()],
+    });
+
+    const response = await handleUltraChatbotAgentChatRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: createUserMessage(),
+          selectedChatModel: "openai/gpt-4.1-mini",
+          selectedVisibilityType: "private",
+        }),
+        method: "POST",
+      }),
+      { visitorId: "visitor-123" },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    const runtimeSettings = aiMockState.ToolLoopAgent.mock.calls.at(-1)?.[0] as {
+      tools: Record<string, unknown>;
+    };
+
+    expect(runtimeSettings.tools.enableSandbox).toBeUndefined();
+    expect(runtimeSettings.tools).toEqual(
+      expect.objectContaining({
+        bash: expect.objectContaining({
+          description: expect.any(String),
+          execute: expect.any(Function),
+        }),
+        readFile: expect.objectContaining({
+          description: expect.any(String),
+          execute: expect.any(Function),
+        }),
+        skill: expect.objectContaining({
+          description: expect.any(String),
+          execute: expect.any(Function),
+        }),
+        writeFile: expect.objectContaining({
+          description: expect.any(String),
+          execute: expect.any(Function),
+        }),
+      })
+    );
+    expect(
+      enableSandboxToolState.createUltraChatbotAgentEnableSandboxTool
+    ).not.toHaveBeenCalled();
+    expect(
+      sandboxToolboxState.createUltraChatbotAgentSandboxToolbox
+    ).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
+      env: {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      },
+      visitorId: "visitor-123",
+    });
   });
 });

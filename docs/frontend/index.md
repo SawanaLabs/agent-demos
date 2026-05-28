@@ -1,7 +1,7 @@
 ---
 title: Frontend
 description: Navigation for Next.js app and shared UI package conventions.
-updateAt: 2026-05-26
+updateAt: 2026-05-28
 ---
 
 # Frontend
@@ -23,6 +23,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Persistent Agent](./persistent-agent.md): Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams.
 - [Homepage Gallery](./homepage-gallery.md): Product-facing homepage shape for presenting agent demos.
 - [Loop Agent](./loop-agent.md): Stable UX and reasoning-display conventions for the support triage loop demo.
+- [LangGraph Agent](./langgraph-agent.md): Stable integration conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo.
 - [MCP Agent](./mcp-agent.md): Stable source-core and UX conventions for the MCP Runtime Doctor Agent demo.
 - [OpenAI Agents SDK Demo](./openai-agents-sdk-demo.md): Ultra-demo architecture, capability matrix, and bridge conventions for the OpenAI Agents SDK backend demo.
 - [Registry Sync](./registry-sync.md): Author-side sync tooling and copy-ready rules for app-first registry demos.

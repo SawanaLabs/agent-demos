@@ -1,0 +1,321 @@
+"use client";
+
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@workspace/ui/components/ai-elements/conversation";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@workspace/ui/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@workspace/ui/components/ai-elements/prompt-input";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
+import { Card } from "@workspace/ui/components/card";
+import { Separator } from "@workspace/ui/components/separator";
+import { cn } from "@workspace/ui/lib/utils";
+import {
+  CircleCheckIcon,
+  CircleDotDashedIcon,
+  GitBranchIcon,
+  PlusIcon,
+  RefreshCwIcon,
+  SquareIcon,
+} from "lucide-react";
+
+import type { LangGraphProgressData } from "../server/stream-normalizer";
+import {
+  type LangGraphAgentMessage,
+  useLangGraphAgent,
+} from "./use-langgraph-agent";
+
+function getTextContent(message: LangGraphAgentMessage) {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("\n");
+}
+
+function getGraphNodeSummary(events: LangGraphProgressData[]) {
+  const latestByNode = new Map<string, LangGraphProgressData>();
+
+  for (const event of events) {
+    latestByNode.set(event.node, event);
+  }
+
+  return Array.from(latestByNode.values());
+}
+
+function formatStateSummary(state: unknown) {
+  if (typeof state === "string") {
+    return state;
+  }
+
+  if (typeof state === "object" && state !== null) {
+    return JSON.stringify(state);
+  }
+
+  return "Stream event received";
+}
+
+function GraphProgressPanel({
+  events,
+  threadId,
+}: {
+  events: LangGraphProgressData[];
+  threadId: string;
+}) {
+  const nodeSummary = getGraphNodeSummary(events);
+
+  return (
+    <Card className="bg-background p-4 text-base text-foreground leading-normal">
+      <div className="space-y-4">
+        <div>
+          <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+            LangGraph thread
+          </p>
+          <p className="mt-1 break-all font-mono text-sm">{threadId}</p>
+        </div>
+
+        <div>
+          <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+            Graph progress
+          </p>
+          <div className="mt-2 space-y-2">
+            {nodeSummary.length > 0 ? (
+              nodeSummary.map((event) => {
+                const isStreaming = event.status === "streaming";
+
+                return (
+                  <div
+                    className="rounded-md border bg-muted/20 px-3 py-2"
+                    key={`${event.kind}-${event.node}`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        {isStreaming ? (
+                          <CircleDotDashedIcon className="size-4 shrink-0 text-emerald-600" />
+                        ) : (
+                          <CircleCheckIcon className="size-4 shrink-0 text-emerald-600" />
+                        )}
+                        <span className="truncate font-medium text-sm">
+                          {event.node}
+                        </span>
+                      </div>
+                      <Badge className="shrink-0" variant="outline">
+                        {event.source}
+                      </Badge>
+                    </div>
+                    {event.kind === "node-update" ? (
+                      <p className="mt-2 line-clamp-2 break-words text-muted-foreground text-xs">
+                        {formatStateSummary(event.state)}
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-muted-foreground text-xs">
+                        Streaming tokens from run {event.runId ?? "unknown"}
+                      </p>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Submit a message to watch LangGraph updates and streamed answer
+                tokens land as AI SDK data parts.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export interface LangGraphAgentWorkspaceProps {
+  assistantId: string | null;
+  isChatAvailable: boolean;
+  nodeVersion: string;
+  remoteUrl: string | null;
+  setupMessage: string | null;
+}
+
+export function LangGraphAgentWorkspace({
+  assistantId,
+  isChatAvailable,
+  nodeVersion,
+  remoteUrl,
+  setupMessage,
+}: LangGraphAgentWorkspaceProps) {
+  const {
+    error,
+    graphEvents,
+    hasMessages,
+    isBusy,
+    messages,
+    regenerate,
+    sendMessage,
+    startNewThread,
+    status,
+    stop,
+    threadId,
+  } = useLangGraphAgent();
+
+  return (
+    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal">
+        {isChatAvailable ? null : (
+          <>
+            <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
+              {setupMessage}
+            </div>
+            <Separator />
+          </>
+        )}
+
+        {error ? (
+          <>
+            <div className="px-4 py-3 text-destructive text-xs/relaxed">
+              {error.message}
+            </div>
+            <Separator />
+          </>
+        ) : null}
+
+        <Conversation>
+          <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
+            {hasMessages ? (
+              messages.map((message) => {
+                const text = getTextContent(message);
+
+                return (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
+                      )}
+                    >
+                      {text ? (
+                        <MessageResponse>{text}</MessageResponse>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">
+                          Waiting for LangGraph output.
+                        </p>
+                      )}
+                    </MessageContent>
+                  </Message>
+                );
+              })
+            ) : (
+              <ConversationEmptyState
+                description="Ask the remote LangGraph agent to explain, plan, or validate a product-agent integration path."
+                icon={<GitBranchIcon className="size-5" />}
+                title="LangGraph thread is ready"
+              />
+            )}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
+
+        <Separator />
+        <div className="px-4 py-4">
+          <div className="mx-auto w-full max-w-3xl">
+            <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
+              <PromptInputBody>
+                <PromptInputTextarea
+                  disabled={!isChatAvailable || isBusy}
+                  placeholder="Ask the LangGraph agent to reason through an integration or implementation question."
+                />
+              </PromptInputBody>
+              <Separator className="mt-3" />
+              <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline">LangGraph</Badge>
+                  <Badge variant="outline">AI SDK stream</Badge>
+                  <Badge variant="outline">thread scoped</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    disabled={isBusy}
+                    onClick={startNewThread}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <PlusIcon className="size-3.5" />
+                    New thread
+                  </Button>
+                  {isBusy ? (
+                    <Button
+                      onClick={stop}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <SquareIcon className="size-3.5" />
+                      Stop
+                    </Button>
+                  ) : null}
+                  {hasMessages ? (
+                    <Button
+                      onClick={() => regenerate()}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <RefreshCwIcon className="size-3.5" />
+                      Retry
+                    </Button>
+                  ) : null}
+                  <PromptInputSubmit
+                    disabled={!isChatAvailable}
+                    status={status}
+                  />
+                </div>
+              </PromptInputFooter>
+            </PromptInput>
+          </div>
+        </div>
+      </Card>
+
+      <div className="space-y-4">
+        <Card className="bg-background p-4 text-base text-foreground leading-normal">
+          <div className="space-y-4">
+            <div>
+              <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+                Runtime
+              </p>
+              <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
+            </div>
+            <div>
+              <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+                Remote API
+              </p>
+              <p className="mt-1 break-all text-muted-foreground text-sm">
+                {remoteUrl ?? "Missing LANGGRAPH_AGENT_API_URL"}
+              </p>
+            </div>
+            <div>
+              <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+                Assistant
+              </p>
+              <p className="mt-1 text-muted-foreground text-sm">
+                {assistantId ?? "Missing LANGGRAPH_AGENT_ASSISTANT_ID"}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <GraphProgressPanel events={graphEvents} threadId={threadId} />
+      </div>
+    </div>
+  );
+}

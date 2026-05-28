@@ -9,6 +9,7 @@ export const demoPatterns = [
   "structured-output",
   "mcp",
   "generative-ui",
+  "langgraph",
 ] as const;
 
 export type DemoPattern = (typeof demoPatterns)[number];

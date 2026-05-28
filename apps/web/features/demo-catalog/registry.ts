@@ -1,4 +1,3 @@
-import { objectGenerationDemoMeta } from "@/features/object-generation/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
   DemoCatalogEntry,
@@ -8,9 +7,11 @@ import type {
   RoadmapDemoCatalogEntry,
 } from "@/features/demo-catalog/types";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
+import { langGraphAgentDemoMeta } from "@/features/langgraph-agent/demo-meta";
 import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
 import { mcpAgentDemoMeta } from "@/features/mcp-agent/demo-meta";
 import { multimodalChatbotDemoMeta } from "@/features/multimodal-chatbot/demo-meta";
+import { objectGenerationDemoMeta } from "@/features/object-generation/demo-meta";
 import { openAiAgentsSdkDemoMeta } from "@/features/openai-agents-sdk-demo/demo-meta";
 import { persistentAgentDemoMeta } from "@/features/persistent-agent/demo-meta";
 import { ragChatbotDemoMeta } from "@/features/rag-chatbot/demo-meta";
@@ -23,6 +24,7 @@ import { ultraChatbotAgentDemoMeta } from "@/features/ultra-chatbot-agent/demo-m
 export const demoPatternLabels: Record<DemoPattern, string> = {
   foundation: "Foundation",
   "generative-ui": "Generative UI",
+  langgraph: "LangGraph",
   loop: "Loop Agent",
   mcp: "MCP",
   multimodal: "Multimodal",
@@ -42,6 +44,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,
   loopAgentDemoMeta,
+  langGraphAgentDemoMeta,
   skillsAgentDemoMeta,
   sandboxAgentDemoMeta,
   mcpAgentDemoMeta,

@@ -2,6 +2,7 @@
 
 # Dependencies
 node_modules
+.venv/
 .pnp
 .pnp.js
 
@@ -14,6 +15,8 @@ node_modules
 
 # Testing
 coverage
+__pycache__/
+.langgraph_api/
 
 # Turbo
 .turbo

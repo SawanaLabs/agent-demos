@@ -22,6 +22,7 @@ describe("demo catalog registry", () => {
       "persistent-agent",
       "streaming-chat-shell",
       "loop-agent",
+      "langgraph-agent",
       "skills-agent",
       "sandbox-agent",
       "mcp-agent",
@@ -41,6 +42,7 @@ describe("demo catalog registry", () => {
       "persistent-agent",
       "streaming-chat-shell",
       "loop-agent",
+      "langgraph-agent",
       "skills-agent",
       "sandbox-agent",
       "mcp-agent",
@@ -54,7 +56,8 @@ describe("demo catalog registry", () => {
   it("requires every ready entry to provide an active route and gallery visual", () => {
     expect(
       readyDemoCatalogEntries.every(
-        (entry) => entry.href.startsWith("/demos/") && !!entry.galleryVisual.ascii
+        (entry) =>
+          entry.href.startsWith("/demos/") && !!entry.galleryVisual.ascii
       )
     ).toBe(true);
   });
@@ -73,6 +76,7 @@ describe("demo catalog registry", () => {
       "persistent-agent",
       "streaming-chat-shell",
       "loop-agent",
+      "langgraph-agent",
       "skills-agent",
       "sandbox-agent",
       "mcp-agent",
@@ -136,6 +140,11 @@ describe("demo catalog registry", () => {
         accent: "amber",
         label: "Approval gate",
         slug: "loop-agent",
+      },
+      {
+        accent: "emerald",
+        label: "LangGraph bridge",
+        slug: "langgraph-agent",
       },
       {
         accent: "emerald",

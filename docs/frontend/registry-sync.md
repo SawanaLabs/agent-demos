@@ -1,7 +1,7 @@
 ---
 title: Registry Sync
 description: Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries.
-updateAt: 2026-05-27
+updateAt: 2026-05-29
 ---
 
 # Registry Sync
@@ -33,6 +33,9 @@ updateAt: 2026-05-27
   - the synced registry item still passes registry validation, registry build, and any required fresh-consumer acceptance checks
 - Keep the script narrow. It should check and copy already-clean files. It should not rescue a slice whose boundaries are still tangled.
 - Keep registry wiring files under registry ownership. `registry/<demo-slug>/registry.json`, route entry files, vendored exception files, and generated files under `apps/web/public/r/` stay outside v1 auto-sync.
+- Published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md) must stay outside sync manifests and synced files.
+- If an app-first source file imports `site-usage-gate` or other published-site host augmentation modules, that file is not copy-ready for registry sync.
+- Registry route entries should call demo runtime handlers directly. Do not sync an app route wrapper that exists only to meter usage on the published website.
 - Manifest transforms must be explicit and whitelist-based.
 - Unknown imports, unknown path shapes, unknown replacement patterns, or unexpected file drift must cause a hard failure.
 - Do not add fuzzy matching, inference, or fallback transforms.

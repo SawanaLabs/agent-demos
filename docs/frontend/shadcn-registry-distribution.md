@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-05-28
+updateAt: 2026-05-29
 ---
 
 # shadcn Registry Distribution
@@ -37,6 +37,8 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
 - Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
+- Registry source must not import published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md), and must not include usage-limit dialogs, access-code redemption, or website-only visitor metering.
+- If this published website wraps an app API route with the **Site Usage Gate**, the matching registry route entry should still call the portable demo runtime handler directly.
 - Registry source should import shadcn and AI Elements code through consumer-project aliases such as `@/components/ui/*`, `@/components/ai-elements/*`, and `@/lib/*`.
 - Use `files[].target` placeholders such as `@components/` and `@lib/` for files that can follow the consumer project's `components.json`.
 - Next.js route targets still need explicit `app/...` paths because shadcn registry target aliases do not provide an App Router placeholder.

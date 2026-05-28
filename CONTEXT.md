@@ -100,6 +100,10 @@ _Avoid_: User when no authentication exists, visitor scattered through business 
 An **Owner** represented by a browser-scoped HTTP-only cookie instead of a login session.
 _Avoid_: Anonymous user, temporary user
 
+**Site Visitor Owner**:
+A **Visitor Owner** scoped to the published demo website as a whole, used for ownership decisions that apply across multiple **Agent Demos**.
+_Avoid_: Per-demo visitor, registry consumer, authenticated user
+
 ## Relationships
 
 - An **Agent Demo** may use one or more **Reusable Agent Modules**.
@@ -125,6 +129,8 @@ _Avoid_: Anonymous user, temporary user
 - The **Ultra Chatbot Agent** should be an **Application Shape Port** of `vercel/chatbot`, not a line-by-line fork.
 - The **Ultra Chatbot Agent** should use a **Completeness-First Port** boundary for `vercel/chatbot`.
 - The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.
+- A **Site Visitor Owner** may interact with multiple **Agent Demos** on the published demo website.
+- A **Site Visitor Owner** stays outside any **Agent Demo** **Copy Boundary** and should not be distributed through the registry.
 
 ## RAG Chatbot Direction
 

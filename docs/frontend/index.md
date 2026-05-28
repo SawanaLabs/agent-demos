@@ -29,6 +29,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Registry Sync](./registry-sync.md): Author-side sync tooling and copy-ready rules for app-first registry demos.
 - [Sandbox Agent](./sandbox-agent.md): Stable source-core, preview, and sandbox lifecycle conventions for the sandbox prototype builder demo.
 - [shadcn Registry Distribution](./shadcn-registry-distribution.md): Rules for packaging Agent Demos as shadcn registry items, plus the boundary for the public `/registry-guide` consumer guide.
+- [Site Usage Gate](./site-usage-gate.md): Product-language boundary for published-site usage limits, metered turns, and access-code upgrades.
 - [Skills Agent](./skills-agent.md): Stable source-core, sandbox, and skill-catalog conventions for the skills-agent demo.
 - [Trace and Eval Agent](./trace-eval-agent.md): Stable research-agent, session-trace, and eval-gate conventions for the trace-eval-agent demo.
 - [Ultra Chatbot Agent](./ultra-chatbot-agent.md): Product and architecture boundary for the `vercel/chatbot` application-shape port.

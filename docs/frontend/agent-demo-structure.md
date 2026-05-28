@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-05-26
+updateAt: 2026-05-29
 ---
 
 # Agent Demo Structure
@@ -56,6 +56,9 @@ updateAt: 2026-05-26
 - Keep demo-specific customization under `apps/web/features/<demo-slug>/ui` so shared primitives can be refreshed independently.
 - Keep shared functions outside a feature slice only after reuse is real; do not prematurely create shared abstractions between demos.
 - Treat a feature slice plus its thin route/API entries as the default copy boundary for migrating a demo into another compatible project.
+- Published-site host augmentations, including the [Site Usage Gate](./site-usage-gate.md), are outside an **Agent Demo** copy boundary even when they wrap `apps/web/app/api/demos/*` route entries in this website.
+- Demo runtime handlers should remain independent from published-site host augmentations so registry route entries can call the demo behavior without site-only policy code.
+- Do not import published-site host augmentation modules from `apps/web/features/<demo-slug>/` demo slices.
 - Preserve compatibility with future shadcn registry distribution by keeping demo-owned files grouped and avoiding hidden cross-demo dependencies.
 - When a demo is maintained app-first for registry distribution, treat `apps/web/features/<demo-slug>/` as the source of truth only after the slice is copy-ready under the rules in [Registry Sync](./registry-sync.md).
 - When a demo is published through the shadcn registry, keep a portable registry source copy under `registry/<demo-slug>/` if the app feature slice depends on monorepo-only imports.

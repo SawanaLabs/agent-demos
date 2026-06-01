@@ -37,6 +37,7 @@ updateAt: 2026-06-01
 - Let any sandbox-backed tool lazily create or resume the sandbox. Do not gate sandbox access on prior skill activation.
 - Reconnect to an existing named sandbox with `Sandbox.get({ name: chatId })` before creating a fresh one for that same chat id.
 - Let Vercel Sandbox own timeout-based session shutdown. Do not add an application-level idle timer that calls `sandbox.stop()` in the background.
+- In the app runtime, keep shared sandbox lifecycle, file IO, retry, stop, and write-fallback behavior in `apps/web/features/shared/vercel-sandbox/server/session.ts`. Keep `apps/web/features/skills-agent/server/vercel-sandbox.ts` as a thin Adapter for skills-specific bootstrap, especially `uv` installation and Python project setup.
 - Use the official `experimental_createSkillTool` metadata, schema, and description as the base for the user-facing `skill` tool. The execution wrapper must refresh the active sandbox catalog from `/vercel/sandbox/project/.agents/skills` before each load so skills installed during the current chat can be activated.
 - Treat skill activation as skill-context loading and active-directory selection for relative sandbox paths. Keep the session-lifecycle layer thin and private; the user-facing tool surface should still expose `skill`, `bash`, `readFile`, and `writeFile`.
 - Programmatically inject visible skill metadata into the agent call options from the repo-local `.agents/skills` catalog. Include `name`, `description`, and `path`; do not hand-maintain a parallel skill list in the system prompt.
@@ -71,6 +72,7 @@ updateAt: 2026-06-01
 - Update this file when the canonical AI SDK source route changes.
 - Update this file when the sandbox provider changes away from `@vercel/sandbox`.
 - Update this file when the sandbox runtime, toolchain bootstrap, or Python usage contract changes.
+- Update this file when registry packaging starts deriving the portable `registry/skills-agent` sandbox runtime from the shared app Module.
 - Update this file when the initial skill source or the first exposed skill set changes.
 - Update this file when the primary artifact shifts away from `CONTEXT` or `SKILL.md` generation.
 - Update this file when the demo stops using `ToolLoopAgent` as its source-core implementation.

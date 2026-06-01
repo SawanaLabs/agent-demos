@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path, { posix as posixPath } from "node:path";
 import { Sandbox } from "@vercel/sandbox";
@@ -8,10 +9,20 @@ import {
   type VercelSandboxEnv,
 } from "./env";
 
-export const VERCEL_SANDBOX_WORKSPACE_ROOT = path.resolve(
-  process.cwd(),
-  "../.."
-);
+function resolveVercelSandboxWorkspaceRoot() {
+  const candidates = [process.cwd(), path.resolve(process.cwd(), "../..")];
+
+  for (const candidate of candidates) {
+    if (existsSync(path.join(candidate, "AGENTS.md"))) {
+      return candidate;
+    }
+  }
+
+  return process.cwd();
+}
+
+export const VERCEL_SANDBOX_WORKSPACE_ROOT =
+  resolveVercelSandboxWorkspaceRoot();
 export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
 export const VERCEL_SANDBOX_SKILLS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
 export const VERCEL_SANDBOX_ARTIFACTS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
@@ -30,7 +41,13 @@ interface SandboxFs {
 
 export interface VercelSandboxHandle {
   fs: SandboxFs;
-  runCommand(options: { args: string[]; cmd: string; cwd: string }): Promise<{
+  runCommand(options: {
+    args: string[];
+    cmd: string;
+    cwd: string;
+    detached?: boolean;
+    sudo?: boolean;
+  }): Promise<{
     exitCode: number;
     stderr(): Promise<string>;
     stdout(): Promise<string>;
@@ -69,6 +86,13 @@ export interface VercelSandboxSessionRegistry {
   getSession(sessionId: string): VercelSandboxSession;
   stopSession(sessionId: string): Promise<void>;
 }
+
+export type VercelSandboxSessionBootstrap = (context: {
+  projectRoot: string;
+  sandbox: VercelSandboxHandle;
+  sessionId: string;
+  workspaceRoot: string;
+}) => Promise<void>;
 
 interface SessionEntry {
   sandboxPromise: Promise<VercelSandboxHandle> | null;
@@ -280,9 +304,11 @@ async function writeSandboxFile(
 }
 
 export function createVercelSandboxSessionRegistry({
+  bootstrapSandbox,
   createSandbox,
   workspaceRoot = VERCEL_SANDBOX_WORKSPACE_ROOT,
 }: {
+  bootstrapSandbox?: VercelSandboxSessionBootstrap;
   createSandbox: VercelSandboxFactory;
   workspaceRoot?: string;
 }): VercelSandboxSessionRegistry {
@@ -357,6 +383,13 @@ export function createVercelSandboxSessionRegistry({
                   VERCEL_SANDBOX_AGENTS_FILE
                 );
               }
+
+              await bootstrapSandbox?.({
+                projectRoot: VERCEL_SANDBOX_PROJECT_ROOT,
+                sandbox,
+                sessionId,
+                workspaceRoot,
+              });
 
               entry.seededBaseWorkspace = true;
             }

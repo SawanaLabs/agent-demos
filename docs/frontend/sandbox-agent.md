@@ -1,7 +1,7 @@
 ---
 title: Sandbox Agent
 description: Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo.
-updateAt: 2026-05-24
+updateAt: 2026-06-01
 ---
 
 # Sandbox Agent
@@ -22,6 +22,7 @@ updateAt: 2026-05-24
 - Use the AI SDK `ToolLoopAgent` runtime plus `@vercel/sandbox` for the source core of this demo.
 - Use the AI SDK chat `id` as the Vercel Sandbox `name`. Keep one persistent named sandbox per chat session.
 - Keep sandbox persistence enabled and let Vercel own timeout-based shutdown. Do not add an application-level idle `stop()` timer.
+- In the app runtime, keep shared sandbox lifecycle, file IO, retry, stop, and write-fallback behavior in `apps/web/features/shared/vercel-sandbox/server/session.ts`. Keep `apps/web/features/sandbox-agent/server/vercel-sandbox.ts` as a thin Adapter for demo env wiring and preview-port setup.
 - Use the official `bash-tool` surface for `bash`, `readFile`, and `writeFile`.
 - Keep `startPreview` as the one demo-specific tool that bridges generated static files to a live preview URL.
 - Launch the preview server through the sandbox SDK's detached command path so the process survives the setup command that started it.
@@ -45,3 +46,4 @@ updateAt: 2026-05-24
 - Update this file when the sandbox provider changes away from `@vercel/sandbox`.
 - Update this file when the preview contract changes away from `WebPreview` plus a fixed sandbox port.
 - Update this file when the first shipped use case stops being a static frontend prototype workflow.
+- Update this file when registry packaging starts deriving the portable `registry/sandbox-agent` sandbox runtime from the shared app Module.

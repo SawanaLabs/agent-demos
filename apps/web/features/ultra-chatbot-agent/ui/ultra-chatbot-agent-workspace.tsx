@@ -56,6 +56,7 @@ import {
   type ReactNode,
   type SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -507,20 +508,45 @@ export function UltraChatbotAgentWorkspace({
     showResumeThinking && status === "streaming" ? "submitted" : status;
   const selectedModel =
     findModel(models, chatMeta.selectedChatModel) ?? models.at(0);
-  const currentChatRecordHint =
-    messages.length > 0
-      ? ({
-          activeStreamId: null,
-          capabilities: chatMeta.capabilities,
-          createdAt: chatMeta.createdAt ?? new Date().toISOString(),
-          id: chatMeta.id,
-          selectedChatModel: chatMeta.selectedChatModel,
-          title: buildHistoryTitleFromMessages(messages),
-          updatedAt: chatMeta.updatedAt ?? new Date().toISOString(),
-          visibility: chatMeta.visibility,
-          visitorId: initialSession?.chat.visitorId ?? "visitor",
-        } satisfies UltraChatbotAgentChatRecord)
-      : null;
+  const currentChatTitle = hasMessages
+    ? buildHistoryTitleFromMessages(messages)
+    : "New chat";
+  const hasPersistedChatMeta =
+    hasMessages && Boolean(chatMeta.createdAt) && Boolean(chatMeta.updatedAt);
+  const currentChatRecordHint = useMemo(() => {
+    const createdAt = chatMeta.createdAt;
+    const updatedAt = chatMeta.updatedAt;
+
+    if (!hasPersistedChatMeta) {
+      return null;
+    }
+
+    if (!(createdAt && updatedAt)) {
+      return null;
+    }
+
+    return {
+      activeStreamId: null,
+      capabilities: chatMeta.capabilities,
+      createdAt,
+      id: chatMeta.id,
+      selectedChatModel: chatMeta.selectedChatModel,
+      title: currentChatTitle,
+      updatedAt,
+      visibility: chatMeta.visibility,
+      visitorId: initialSession?.chat.visitorId ?? "visitor",
+    } satisfies UltraChatbotAgentChatRecord;
+  }, [
+    chatMeta.capabilities,
+    chatMeta.createdAt,
+    chatMeta.id,
+    chatMeta.selectedChatModel,
+    chatMeta.updatedAt,
+    chatMeta.visibility,
+    currentChatTitle,
+    hasPersistedChatMeta,
+    initialSession?.chat.visitorId,
+  ]);
   let sandboxButtonContent: ReactNode = chatMeta.capabilities.sandboxEnabled
     ? "Lock sandbox"
     : "Enable sandbox";

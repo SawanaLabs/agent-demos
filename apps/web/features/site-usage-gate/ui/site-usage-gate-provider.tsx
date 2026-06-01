@@ -96,9 +96,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
       const body = await readJson(response);
 
       if (!response.ok) {
-        setAccessCodeError(
-          getErrorMessage(body) ?? "This invite code is not active."
-        );
+        setAccessCodeError(getErrorMessage(body) ?? "Invalid code.");
         return;
       }
 
@@ -169,7 +167,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   variant="link"
                 >
                   <Key />
-                  Invite code
+                  邀请码
                 </Button>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row">
                   <Button
@@ -177,11 +175,11 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     type="button"
                     variant="outline"
                   >
-                    I'm good
+                    Maybe later
                   </Button>
                   <Button onClick={() => setView("waitlist")} type="button">
                     <Heart />
-                    愿意支持，搞快上线
+                    Join waitlist
                   </Button>
                 </div>
               </DialogFooter>
@@ -203,15 +201,15 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     <ArrowLeft />
                   </Button>
                 </div>
-                <DialogTitle>Invite code</DialogTitle>
+                <DialogTitle>邀请码</DialogTitle>
                 <DialogDescription>
-                  Enter the invite code you received to unlock the upgraded
-                  quota.
+                  Use this code to upgrade your quota to 100 messages every 5
+                  hours.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
                 <label className="font-medium text-xs" htmlFor="site-code">
-                  Invite code
+                  邀请码
                 </label>
                 <Input
                   autoCapitalize="characters"
@@ -237,7 +235,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   type="submit"
                 >
                   {isRedeemingCode && <Loader2 className="animate-spin" />}
-                  Apply invite code
+                  Apply code
                 </Button>
               </DialogFooter>
             </form>
@@ -258,10 +256,10 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     <ArrowLeft />
                   </Button>
                 </div>
-                <DialogTitle>Want more room?</DialogTitle>
+                <DialogTitle>Higher limits waitlist</DialogTitle>
                 <DialogDescription>
-                  Are you satisfied enough with this app to pay for higher
-                  limits?
+                  Tell us whether you would actually need a paid plan with
+                  higher message limits.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
@@ -275,7 +273,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   id="site-waitlist-message"
                   maxLength={2000}
                   onChange={(event) => setWaitlistMessage(event.target.value)}
-                  placeholder="Optional note"
+                  placeholder="What would make paid limits useful?"
                   value={waitlistMessage}
                 />
                 {waitlistError && (
@@ -283,16 +281,9 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                 )}
               </div>
               <DialogFooter>
-                <Button
-                  onClick={() => setIsOpen(false)}
-                  type="button"
-                  variant="outline"
-                >
-                  I'm good
-                </Button>
                 <Button disabled={isSubmittingWaitlist} type="submit">
                   {isSubmittingWaitlist && <Loader2 className="animate-spin" />}
-                  愿意支持，搞快上线
+                  Join waitlist
                 </Button>
               </DialogFooter>
             </form>
@@ -301,9 +292,10 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
           {view === "waitlist-success" && (
             <>
               <DialogHeader>
-                <DialogTitle>Intent saved</DialogTitle>
+                <DialogTitle>Waitlist saved</DialogTitle>
                 <DialogDescription>
-                  Your note was recorded for this demo.
+                  Thanks. This helps us decide whether higher-limit paid access
+                  is worth shipping.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>

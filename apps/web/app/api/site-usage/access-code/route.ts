@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return withVisitorCookie(
       Response.json(
         {
-          error: "Invalid invite code request.",
+          error: "Invalid code request.",
           ok: false,
         },
         { status: 400 }
@@ -42,7 +42,7 @@ function createAccessCodeResponse(result: SiteUsageAccessCodeRedeemResult) {
   if (!result.ok) {
     return Response.json(
       {
-        error: "Invalid invite code.",
+        error: "Invalid code.",
         ok: false,
       },
       { status: 400 }

@@ -1,6 +1,6 @@
 ---
 title: Site Usage Gate
-description: Product-language boundary for the published demo website's visitor usage limits and invite-code upgrades.
+description: Product-language boundary for the published demo website's visitor usage limits and invitation-code upgrades.
 updateAt: 2026-06-01
 ---
 
@@ -9,7 +9,7 @@ updateAt: 2026-06-01
 ## Scope
 
 - Covers the site-level usage gate for the published demo website.
-- Covers the product language for visitor-scoped metering, default trial limits, and invite-code upgrades.
+- Covers the product language for visitor-scoped metering, default trial limits, and invitation-code upgrades.
 - Covers the limit dialog and support-waitlist UI shown after a visitor reaches the active allowance.
 - Covers the boundary that keeps site usage gating out of shadcn registry distribution.
 
@@ -24,7 +24,7 @@ updateAt: 2026-06-01
 - **Daily Trial Allowance**: The default site-level allowance granted to a **Site Visitor Owner** for one UTC calendar day.
   _Avoid_: Subscription quota, billing period, rolling window
 
-- **Usage Access Code**: The internal domain name for an operator-provided proof string that upgrades a **Site Visitor Owner** from the default allowance to a configured usage policy. Visitor-facing UI calls it an "Invite code".
+- **Usage Access Code**: The internal domain name for an operator-provided proof string that upgrades a **Site Visitor Owner** from the default allowance to a configured usage policy. Visitor-facing UI calls it "邀请码".
   _Avoid_: One-time top-up, marketing invite, password
 
 - **Usage Policy**: The configured recurring allowance attached to a redeemed **Usage Access Code**, such as 100 **Metered Agent Turns** every 5 hours.
@@ -54,12 +54,14 @@ updateAt: 2026-06-01
 - The **Usage Limit Dialog** should open only after a structured limit response from the **Site Usage Gate**. It should not appear preemptively while the visitor still has allowance.
 - The first dialog view should tell the visitor the active allowance is exhausted and show the reset time converted to the visitor's local time zone.
 - The reset time should come from the server response, preferably as an ISO timestamp. The client may format it with the browser locale, but should not recompute the active usage window.
-- The first dialog view's primary action should be a support-waitlist action, with invite-code redemption kept as the secondary path.
-- The support-waitlist action opens a secondary view that asks whether the visitor is satisfied with the app and whether they would consider paying for more access.
-- The support-waitlist secondary view should include an optional message field, a primary action labeled along the lines of "愿意支持，搞快上线", and a secondary dismissal labeled along the lines of "I'm good".
-- The support-waitlist primary action should submit a **Support Waitlist Entry**. The secondary dismissal should close the secondary view without creating a waitlist record in the first version.
+- The first dialog view's primary action should be a support-waitlist action labeled "Join waitlist", with invite-code redemption kept as the secondary path. The dismissal action should use a short English label such as "Maybe later".
+- The support-waitlist action opens a secondary view that asks whether the visitor would actually need a paid plan with higher message limits.
+- The support-waitlist secondary view should frame the paid access question as a waitlist and feedback collection flow, not as a donation or tip request.
+- The support-waitlist secondary view should include an optional message field and one primary submit action labeled "Join waitlist". Do not add a secondary dismissal button inside this secondary view; the dialog close button already provides exit.
+- The support-waitlist primary action should submit a **Support Waitlist Entry**.
 - Invite-code redemption should be a secondary path opened through a link-style button from the first dialog view.
-- The invite-code secondary view should let the visitor enter a **Usage Access Code** to upgrade future allowance. The label, title, placeholder, submit action, and inline validation copy should use "Invite code" for visitors.
+- The invite-code secondary view should let the visitor enter a **Usage Access Code** to upgrade future allowance. The link, title, and label should use "邀请码" for visitors, while buttons can use short English action labels.
+- The invite-code secondary view should explain that a valid code upgrades the quota to 100 messages every 5 hours in the first version.
 - Visitor input for invite codes should be normalized to uppercase in the UI, and server-side redemption should treat code matching as case-insensitive.
 - Successful **Usage Access Code** redemption should refresh the visitor's effective **Usage Policy** and close or reset the **Usage Limit Dialog**. Invalid codes should show an inline error in the invite-code view.
 - **Support Waitlist Entry** should not be stored as a **Usage Event**.
@@ -72,7 +74,7 @@ updateAt: 2026-06-01
 - Redeeming a **Usage Access Code** upgrades the **Site Visitor Owner** so future usage follows the code's configured **Usage Policy**.
 - A redeemed **Usage Access Code** should resolve its **Usage Policy** live when usage is checked. Operator changes to the code's configured allowance or enabled state apply to already-upgraded **Site Visitor Owners**.
 - The first upgraded **Usage Policy** target is 100 **Metered Agent Turns** every 5 hours.
-- The first operator-configured invite code is `SAWANA`, stored and displayed in uppercase, granting the first upgraded **Usage Policy** target.
+- The first operator-configured 邀请码 is `SAWANA`, stored and displayed in uppercase, granting the first upgraded **Usage Policy** target.
 - **Usage Access Codes** are configurable operator-owned records and may define different upper limits later.
 - **Usage Access Codes** may be stored in operator-visible form in the first version. If a code leaks, the operator should disable or replace that code instead of treating it as a high-security secret.
 - A **Site Visitor Owner** has at most one active **Usage Access Code** binding. Redeeming a new valid code replaces the previous binding.
@@ -106,7 +108,8 @@ updateAt: 2026-06-01
 
 ## Flagged Ambiguities
 
-- "Access code" reads too technical for visitors. Resolved: use "Invite code" in the dialog while keeping **Usage Access Code** as the internal domain term for the operator-configured policy binding.
+- "Access code" and "Invite code" read too technical or ambiguous for visitors. Resolved: use "邀请码" in the dialog while keeping **Usage Access Code** as the internal domain term for the operator-configured policy binding.
+- The support-waitlist prompt can look like a donation request if it asks whether users want to "support" the app. Resolved: describe it as feedback for deciding whether to launch paid higher limits.
 - "100 turns for 5 hours" can mean a temporary pack. Resolved: after redemption, it is a recurring **Usage Policy** for that **Site Visitor Owner**.
 - "Waitlist" can sound like payment or checkout. Resolved: use **Support Waitlist Entry** for first-version willingness-to-pay collection without payment processing.
 - **Support Waitlist Entry** can look related to usage because it appears inside the **Usage Limit Dialog**. Resolved: persist it in `site_usage_waitlist_entries`, separate from **Usage Event** accounting.

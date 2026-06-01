@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-05-29
+updateAt: 2026-06-01
 ---
 
 # shadcn Registry Distribution
@@ -10,6 +10,7 @@ updateAt: 2026-05-29
 
 - Covers source registry files under `registry/`.
 - Covers generated static registry JSON under `apps/web/public/r/`.
+- Covers the public **Registry Export** manifest that decides which registry source chunks ship to consumers.
 - Covers how an **Agent Demo** becomes installable into a fresh Next.js App Router project initialized with shadcn/ui.
 - Covers the boundary between the public consumer guide at `/registry-guide` and these internal author-side rules.
 
@@ -34,10 +35,14 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 
 ## Current Rules
 
-- Keep `registry.json` as the root source registry and compose demo-owned registries with `include`.
+- Keep `registry/registry-demos.json` as the public registry manifest. It is the source of truth for registry namespace, production domain, public demo order, mainline guide demo, setup notes, and whether a demo enters the public **Registry Export**.
+- Generate the root `registry.json` from `registry/registry-demos.json` with `pnpm registry:generate`; do not hand-edit the root `include` list.
+- Keep `registry.json` as the generated root source registry that composes public demo-owned registries with `include`.
 - Put one demo's portable registry source under `registry/<demo-slug>/`.
 - Build static registry output with `pnpm registry:build`; the output is served by the web app from `/r/<name>.json`.
 - Treat `pnpm registry:build` as a packaging step only. It turns source `registry.json` files into distributable JSON. It does not derive registry source files from `apps/web/features/*`.
+- `pnpm registry:build` regenerates the root `registry.json`, removes stale generated public JSON files that are no longer in the manifest's public set, then runs `shadcn build`.
+- Keep demo source chunks such as `registry/skills-agent/` even when `publicRegistry` is `false`; unpublished chunks are local author work until their fresh-consumer acceptance checks pass.
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
 - Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
@@ -174,8 +179,9 @@ Validated again on May 27, 2026 against a clean local consumer app for the curre
 - `trace-eval-agent`
 - `persistent-agent`
 - `sandbox-agent`
-- `skills-agent`
 - `mcp-agent`
+
+`skills-agent` currently remains in source registry form but is excluded from the public **Registry Export** while its skill packaging is still under construction.
 
 The current acceptance bar for a queue-complete registry batch is:
 
@@ -197,7 +203,7 @@ Recent consumer acceptance exposed these concrete failure classes:
 Author-side workflow for every new registry item:
 
 ```bash
-pnpm --dir packages/ui exec shadcn registry validate registry.json -c ../..
+pnpm registry:validate
 pnpm registry:build
 ```
 

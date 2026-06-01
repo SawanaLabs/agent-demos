@@ -1,7 +1,7 @@
 ---
 title: Registry Sync
 description: Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries.
-updateAt: 2026-05-29
+updateAt: 2026-06-01
 ---
 
 # Registry Sync
@@ -47,7 +47,7 @@ updateAt: 2026-05-29
   - `--check`: inspect mappings and transforms without writing files
   - `--write`: perform the sync and write target files
 - Require an explicit mode. Exiting with an error on missing mode is preferred over guessing.
-- Run `pnpm registry:build` automatically after a successful `--write`.
+- Run `pnpm registry:build` automatically after a successful `--write`; it regenerates the root registry from `registry/registry-demos.json` and removes stale public output before building.
 - Do not treat fresh-consumer acceptance as part of the sync script. Keep that as a separate author verification step.
 - Fresh-consumer acceptance should still probe both page and API reachability after `pnpm dev` starts, because registry drift often shows up only after route compilation.
 

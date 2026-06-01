@@ -56,6 +56,10 @@ _Avoid_: Internal registry docs, author maintenance guide, blog-only announcemen
 A compact install prompt that links to the **Registry Guide Page** and shows a demo-specific registry command when the **Agent Demo** is registry-backed.
 _Avoid_: Full tutorial, duplicated registry guide, author setup notes
 
+**Registry Export**:
+The public shadcn registry surface that exposes only **Agent Demos** whose **Copy Boundary** is ready for **Registry Consumers**.
+_Avoid_: Every registry source file, generated JSON dump
+
 **Demo Quality Bar**:
 The internal standard that an **Agent Demo** must meet by making its pattern clear, its full-stack behavior complete, and its reuse potential credible through use and code structure.
 _Avoid_: Marketing checklist, feature list
@@ -123,6 +127,7 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.
 - A **Registry Guide Page** is written for **Registry Consumers** and should refer author maintenance details back to durable internal docs instead of duplicating them.
 - A **Registry Install Hint** may appear in the **Demo Gallery** or near an **Agent Demo**'s operational sidebar, and should stay shorter than the **Registry Guide Page**.
+- A **Registry Export** contains zero or more **Agent Demos** and may exclude registry source work that has not yet met the **Demo Quality Bar**.
 - An **Agent Demo** is evaluated against the **Demo Quality Bar**.
 - An **Agent Demo** is expected to become a **Production-Ready Demo** before it is treated as ready.
 - The **Roadmap** may include planned **Agent Demos** before they become interactive.

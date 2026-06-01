@@ -19,6 +19,127 @@ function assertNonEmptyString(value, field) {
   }
 }
 
+function normalizeRegistryPath(filePath) {
+  return filePath.split(path.sep).join("/");
+}
+
+function registryItemPathForEntry({ entry, manifest }) {
+  if (entry.registryItemFile === false) {
+    return null;
+  }
+
+  assertNonEmptyString(entry.target, `${manifest.demo}.entry.target`);
+
+  const registryPrefix = `registry/${manifest.demo}/`;
+  const target = normalizeRegistryPath(entry.target);
+
+  if (!target.startsWith(registryPrefix)) {
+    throw new Error(
+      [
+        `${manifest.demo} projection target must stay inside ${registryPrefix}`,
+        entry.target,
+      ].join(": ")
+    );
+  }
+
+  const registryItemPath = target.slice(registryPrefix.length);
+  assertNonEmptyString(registryItemPath, `${manifest.demo}.entry.target`);
+
+  return registryItemPath;
+}
+
+function readDemoRegistryItem({ manifest, repoRoot }) {
+  const registryJsonPath = path.join(
+    repoRoot,
+    "registry",
+    manifest.demo,
+    "registry.json"
+  );
+  const registryJsonDisplayPath = normalizeRegistryPath(
+    path.relative(repoRoot, registryJsonPath)
+  );
+
+  if (!fs.existsSync(registryJsonPath)) {
+    throw new Error(
+      `${manifest.demo} projection missing registry item manifest: ${registryJsonDisplayPath}.`
+    );
+  }
+
+  const registryJson = readJson(registryJsonPath);
+
+  if (!Array.isArray(registryJson.items)) {
+    throw new Error(
+      `${registryJsonDisplayPath} must define an items array for ${manifest.demo}.`
+    );
+  }
+
+  const registryItem = registryJson.items.find(
+    (item) => item?.name === manifest.demo
+  );
+
+  if (!registryItem) {
+    throw new Error(
+      `${registryJsonDisplayPath} must include an item named ${manifest.demo}.`
+    );
+  }
+
+  if (!Array.isArray(registryItem.files)) {
+    throw new Error(
+      `${registryJsonDisplayPath} item ${manifest.demo} must define files[].`
+    );
+  }
+
+  return { registryItem, registryJsonDisplayPath };
+}
+
+function registryItemFilePathSet({ manifest, repoRoot }) {
+  const { registryItem, registryJsonDisplayPath } = readDemoRegistryItem({
+    manifest,
+    repoRoot,
+  });
+  const filePaths = new Set();
+
+  registryItem.files.forEach((file, index) => {
+    assertNonEmptyString(
+      file?.path,
+      `${registryJsonDisplayPath}.items[${manifest.demo}].files[${index}].path`
+    );
+    filePaths.add(normalizeRegistryPath(file.path));
+  });
+
+  return filePaths;
+}
+
+function assertProjectedTargetsListedInRegistryItem({ manifest, repoRoot }) {
+  const requiredFilePaths = [];
+
+  for (const entry of manifest.entries) {
+    const registryItemPath = registryItemPathForEntry({ entry, manifest });
+
+    if (registryItemPath) {
+      requiredFilePaths.push({ entry, registryItemPath });
+    }
+  }
+
+  if (requiredFilePaths.length === 0) {
+    return;
+  }
+
+  const filePaths = registryItemFilePathSet({ manifest, repoRoot });
+
+  for (const { entry, registryItemPath } of requiredFilePaths) {
+    if (!filePaths.has(registryItemPath)) {
+      throw new Error(
+        [
+          `${manifest.demo} projection registry item files[] does not include ${registryItemPath}`,
+          `target ${entry.target}`,
+          `add ${registryItemPath} to registry/${manifest.demo}/registry.json or set registryItemFile to false`,
+        ].join(": ")
+      );
+    }
+  }
+}
+
 export function resolveProjectionManifests({
   demo,
   manifestPath,
@@ -144,6 +265,8 @@ export function checkRegistryProjection({ manifest, repoRoot }) {
   const changed = [];
   const unchanged = [];
 
+  assertProjectedTargetsListedInRegistryItem({ manifest, repoRoot });
+
   for (const entry of manifest.entries) {
     const projection = projectRegistryEntry({ entry, manifest, repoRoot });
 
@@ -160,6 +283,8 @@ export function checkRegistryProjection({ manifest, repoRoot }) {
 export function writeRegistryProjection({ manifest, repoRoot }) {
   const changed = [];
   const unchanged = [];
+
+  assertProjectedTargetsListedInRegistryItem({ manifest, repoRoot });
 
   for (const entry of manifest.entries) {
     const projection = projectRegistryEntry({

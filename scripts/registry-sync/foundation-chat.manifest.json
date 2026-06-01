@@ -112,8 +112,12 @@
       "target": "registry/foundation-chat/lib/foundation-chat/runtime.ts"
     },
     {
-      "source": "apps/web/features/foundation-chat/server/env.ts",
-      "target": "registry/foundation-chat/lib/foundation-chat/env.ts",
+      "source": "apps/web/features/shared/ai-gateway/server/contract.ts",
+      "target": "registry/foundation-chat/lib/ai-gateway/contract.ts"
+    },
+    {
+      "source": "apps/web/features/foundation-chat/server/env-source.ts",
+      "target": "registry/foundation-chat/lib/foundation-chat/env-source.ts",
       "transforms": [
         {
           "from": "import { env as appEnv } from \"@/env\";\n\n",
@@ -121,12 +125,24 @@
           "expectedMatches": 1
         },
         {
-          "from": "function readFoundationChatEnv(): FoundationChatEnv {\n  return appEnv;\n}\n",
-          "to": "function readFoundationChatEnv(): FoundationChatEnv {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
+          "from": "function getFoundationChatAppEnv() {\n  return appEnv;\n}\n",
+          "to": "function getFoundationChatAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
           "expectedMatches": 1
         }
       ],
       "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+    },
+    {
+      "source": "apps/web/features/foundation-chat/server/env.ts",
+      "target": "registry/foundation-chat/lib/foundation-chat/env.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/ai-gateway/server/contract\";",
+          "to": "from \"@/lib/ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/env", "appEnv", "@/features/shared/"]
     }
   ]
 }

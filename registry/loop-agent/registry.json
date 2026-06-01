@@ -71,6 +71,16 @@
           "target": "@lib/loop-agent/chat.ts"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/loop-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/env-source.ts"
+        },
+        {
           "path": "lib/loop-agent/env.ts",
           "type": "registry:lib",
           "target": "@lib/loop-agent/env.ts"

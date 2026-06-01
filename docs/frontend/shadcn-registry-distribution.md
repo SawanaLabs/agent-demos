@@ -45,6 +45,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Keep demo source chunks such as `registry/skills-agent/` even when `publicRegistry` is `false`; unpublished chunks are local author work until their fresh-consumer acceptance checks pass.
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
 - Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
+- For synced app-first demos, every manifest target under `registry/<demo-slug>/` is treated as a shipped file unless the manifest explicitly sets `registryItemFile: false`. The sync check asserts that each shipped target is present in `registry/<demo-slug>/registry.json` `files[].path`.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
 - Registry source must not import published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md), and must not include usage-limit dialogs, access-code redemption, or website-only visitor metering.
 - If this published website wraps an app API route with the **Site Usage Gate**, the matching registry route entry should still call the portable demo runtime handler directly.
@@ -63,6 +64,10 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - For demos that use `bash-tool`, `just-bash`, or other heavy route-only packages, prefer a split between page-facing runtime state and request handling, and prefer delayed imports for the heavy server path so a fresh consumer `pnpm build` does not fail under Next.js 16 Turbopack.
 - Registry copies must be valid from the consumer target path, not just from the source feature path. Relative imports that work under `apps/web/features/<demo-slug>/...` may break after files move into `components/<demo-slug>/` or `lib/<demo-slug>/`.
 - Use `envVars` only for local development examples such as `AI_GATEWAY_API_KEY`; do not encode production secrets or production-only values.
+- Registry env adapters may read `process.env` directly from `env.ts` or `env-source.ts` files because installed registry source belongs to the consumer app and does not have this repo's `@/env` wrapper.
+- Do not add `@t3-oss/env-nextjs` to ordinary demo registry items just to mirror the app preview's env stack. Registry `dependencies` can install npm packages, but an env management library changes the consumer host contract. Ship it only from an explicit base or template registry item whose purpose is to install that env architecture.
+- When app-first code uses `apps/web/env.ts`, `keys.ts`, or a shared env adapter, split the portable runtime contract from the app adapter before registry projection. The registry copy should install a registry env adapter that feeds `process.env` into the same contract.
+- Shared AI Gateway demos should install the portable contract at `@/lib/ai-gateway/contract`. Demo-owned `env.ts` files should import that contract, while demo-owned `env-source.ts` files should read the consumer app's `process.env`. Keep app-only `@/env`, `keys.ts`, and `@t3-oss/env-nextjs` out of ordinary demo registry items.
 - Do not hand-edit generated files under `apps/web/public/r/`. Rebuild them from source registry files with `pnpm registry:build`.
 
 ## Source Ownership
@@ -73,6 +78,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Keep per-demo sync tooling under `scripts/registry-sync/`.
 - Keep registry-only wiring files under registry ownership even in an app-first model. That includes `registry/<demo-slug>/registry.json`, route-entry files, vendored exception files, and generated output under `apps/web/public/r/`.
 - If a demo is not copy-ready yet, fix the slice before introducing sync tooling. Do not use sync as a workaround for a tangled boundary.
+- Once a sync manifest exists, treat `files[]` as the distribution contract and the manifest as the projection contract. Keep both updated in the same change when a synced file is added or removed.
 - Until a sync step exists for a given demo, update the app preview files and the registry source files in the same change and verify both paths.
 
 ## Foundation Chat Item
@@ -129,6 +135,7 @@ When publishing the next demo, start from the `foundation-chat` registry shape a
 - Keep every directly imported npm package in `dependencies`.
 - Keep env examples in `envVars`.
 - Keep monorepo-only imports out of registry source files.
+- Include any shared portable contract files explicitly, such as `lib/ai-gateway/contract.ts` with target `@lib/ai-gateway/contract.ts`, before the demo env adapter that imports them.
 
 The first move for a new demo should be structural copy from `registry/foundation-chat/`, followed by narrowing, not inventing a new registry layout from scratch.
 
@@ -203,6 +210,7 @@ Recent consumer acceptance exposed these concrete failure classes:
 Author-side workflow for every new registry item:
 
 ```bash
+pnpm registry:sync:check
 pnpm registry:validate
 pnpm registry:build
 ```

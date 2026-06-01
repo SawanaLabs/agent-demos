@@ -13,6 +13,8 @@ import {
 
 const expectedMatchPattern = /expected 2 match/;
 const missingTargetPattern = /missing target file/;
+const missingRegistryItemFilePattern =
+  /registry item files\[\] does not include lib\/demo\/runtime\.ts/;
 
 async function withFixture(run) {
   const repoRoot = await mkdtemp(path.join(os.tmpdir(), "registry-sync-"));
@@ -34,6 +36,29 @@ async function withFixture(run) {
     fs.writeFileSync(
       path.join(repoRoot, "registry/demo/lib/demo/runtime.ts"),
       "export const source = process.env.VALUE;\n"
+    );
+    fs.writeFileSync(
+      path.join(repoRoot, "registry/demo/registry.json"),
+      JSON.stringify(
+        {
+          $schema: "https://ui.shadcn.com/schema/registry.json",
+          items: [
+            {
+              files: [
+                {
+                  path: "lib/demo/runtime.ts",
+                  target: "@lib/demo/runtime.ts",
+                  type: "registry:lib",
+                },
+              ],
+              name: "demo",
+              type: "registry:block",
+            },
+          ],
+        },
+        null,
+        2
+      )
     );
 
     const manifestPath = path.join(
@@ -122,6 +147,37 @@ test("writes newly projected targets", async () => {
       fs.readFileSync(targetPath, "utf8"),
       "export const source = process.env.VALUE;\n"
     );
+  });
+});
+
+test("fails when a projected target is missing from registry item files", async () => {
+  await withFixture(({ manifestPath, repoRoot }) => {
+    const registryPath = path.join(repoRoot, "registry/demo/registry.json");
+    const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    registry.items[0].files = [];
+    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+    const manifest = readProjectionManifest(manifestPath);
+
+    assert.throws(
+      () => checkRegistryProjection({ manifest, repoRoot }),
+      missingRegistryItemFilePattern
+    );
+  });
+});
+
+test("allows manifest entries that explicitly skip registry item files", async () => {
+  await withFixture(({ manifestPath, repoRoot }) => {
+    const registryPath = path.join(repoRoot, "registry/demo/registry.json");
+    const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    registry.items[0].files = [];
+    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+    const manifest = readProjectionManifest(manifestPath);
+    manifest.entries[0].registryItemFile = false;
+
+    assert.deepEqual(checkRegistryProjection({ manifest, repoRoot }), {
+      changed: [],
+      unchanged: ["registry/demo/lib/demo/runtime.ts"],
+    });
   });
 });
 

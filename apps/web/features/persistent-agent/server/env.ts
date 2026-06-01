@@ -1,116 +1,53 @@
-import { createGateway } from "ai";
+import {
+  type AiGatewayContractConfig,
+  type AiGatewayContractSetupState,
+  type AiGatewayEnvRecord,
+  type AiGatewaySetupConfig,
+  buildAiGatewayContractSetupState,
+  createAiGatewayFromContract,
+  readAiGatewayContractConfig,
+} from "@/features/shared/ai-gateway/server/contract";
 import { getPersistentAgentAppEnv } from "./env-source";
 
-const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
-const DEFAULT_CHAT_MODEL = "openai/gpt-5-mini";
-const MINIMUM_NODE_VERSION = "22.13.0";
-const nodeVersionPattern = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/;
+const DEFAULT_PERSISTENT_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
+const missingDatabaseUrlIssue =
+  "DATABASE_URL is missing. Persistent-agent chat storage requires a writable Postgres database.";
+const missingRedisUrlIssue =
+  "REDIS_URL is missing. Persistent-agent resume requires Redis-backed resumable streams.";
 
-interface ParsedNodeVersion {
-  major: number;
-  minor: number;
-  patch: number;
-}
+export type PersistentAgentEnv = AiGatewayEnvRecord;
 
-export type PersistentAgentEnv = Record<string, string | undefined>;
-
-export interface PersistentAgentConfig {
-  apiKey: string;
-  baseURL: string;
-  chatModel: string;
+export interface PersistentAgentConfig extends AiGatewayContractConfig {
   databaseUrl: string | undefined;
   redisUrl: string | undefined;
 }
 
-export interface PersistentAgentSetupState {
-  config: Omit<PersistentAgentConfig, "apiKey" | "databaseUrl" | "redisUrl">;
-  isReady: boolean;
-  issues: string[];
-  nodeVersion: string;
-}
+export interface PersistentAgentSetupState
+  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
 
-function parseNodeVersion(version: string): ParsedNodeVersion {
-  const match = nodeVersionPattern.exec(version);
-  const major = Number(match?.[1]);
-  const minor = Number(match?.[2]);
-  const patch = Number(match?.[3]);
+export type PersistentAgentGateway = ReturnType<
+  typeof createAiGatewayFromContract
+>;
 
-  if (![major, minor, patch].every(Number.isInteger)) {
-    throw new Error(`Unable to parse Node.js version: "${version}".`);
-  }
-
-  return { major, minor, patch };
-}
-
-function compareNodeVersions(
-  left: ParsedNodeVersion,
-  right: ParsedNodeVersion
-) {
-  if (left.major !== right.major) {
-    return left.major - right.major;
-  }
-
-  if (left.minor !== right.minor) {
-    return left.minor - right.minor;
-  }
-
-  return left.patch - right.patch;
-}
-
-function assertSupportedNodeRuntime(version = process.version) {
-  const parsedVersion = parseNodeVersion(version);
-  const minimumVersion = parseNodeVersion(MINIMUM_NODE_VERSION);
-
-  if (compareNodeVersions(parsedVersion, minimumVersion) < 0) {
-    throw new Error(
-      `Node.js ${version} is unsupported. This demo workspace requires Node.js >=${MINIMUM_NODE_VERSION}.`
-    );
-  }
-}
+const persistentAgentContract = {
+  defaultChatModel: DEFAULT_PERSISTENT_AGENT_CHAT_MODEL,
+  missingApiKeyError:
+    "Missing AI_GATEWAY_API_KEY. Add it to .env.local before using the persistent agent.",
+  missingApiKeyIssue:
+    "AI_GATEWAY_API_KEY is missing. The demo can render, but persistent-agent chat requests will fail until it is configured.",
+} as const;
 
 export function getPersistentAgentEnv(): PersistentAgentEnv {
   return getPersistentAgentAppEnv();
 }
 
-function readRequiredEnv(
-  env: PersistentAgentEnv,
-  name: keyof PersistentAgentEnv
-) {
-  const value = env[name];
-
-  if (!value) {
-    throw new Error(
-      `Missing ${name}. Add it to .env.local before using the persistent agent.`
-    );
-  }
-
-  return value;
-}
-
-function resolvePersistentAgentEnv(
-  env: PersistentAgentEnv = getPersistentAgentEnv()
-) {
-  return {
-    apiKey: env.AI_GATEWAY_API_KEY,
-    baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
-    databaseUrl: env.DATABASE_URL,
-    redisUrl: env.REDIS_URL,
-  };
-}
-
 export function getPersistentAgentConfig(
   env: PersistentAgentEnv = getPersistentAgentEnv()
 ): PersistentAgentConfig {
-  assertSupportedNodeRuntime();
-  const resolvedEnv = resolvePersistentAgentEnv(env);
-
   return {
-    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
-    baseURL: resolvedEnv.baseURL,
-    chatModel: resolvedEnv.chatModel,
-    databaseUrl: resolvedEnv.databaseUrl,
-    redisUrl: resolvedEnv.redisUrl,
+    ...readAiGatewayContractConfig(env, persistentAgentContract),
+    databaseUrl: env.DATABASE_URL,
+    redisUrl: env.REDIS_URL,
   };
 }
 
@@ -120,9 +57,7 @@ export function getPersistentAgentDatabaseConfig(
   const databaseUrl = env.DATABASE_URL;
 
   if (!databaseUrl) {
-    throw new Error(
-      "DATABASE_URL is missing. Persistent-agent chat storage requires a writable Postgres database."
-    );
+    throw new Error(missingDatabaseUrlIssue);
   }
 
   return { databaseUrl };
@@ -134,9 +69,7 @@ export function getPersistentAgentRedisConfig(
   const redisUrl = env.REDIS_URL;
 
   if (!redisUrl) {
-    throw new Error(
-      "REDIS_URL is missing. Persistent-agent resume requires Redis-backed resumable streams."
-    );
+    throw new Error(missingRedisUrlIssue);
   }
 
   return { redisUrl };
@@ -145,53 +78,17 @@ export function getPersistentAgentRedisConfig(
 export function getPersistentAgentSetupState(
   env: PersistentAgentEnv = getPersistentAgentEnv()
 ): PersistentAgentSetupState {
-  const issues: string[] = [];
-  const resolvedEnv = resolvePersistentAgentEnv(env);
-
-  try {
-    assertSupportedNodeRuntime();
-  } catch (error) {
-    issues.push(
-      error instanceof Error ? error.message : "Unsupported Node.js runtime."
-    );
-  }
-
-  if (!resolvedEnv.apiKey) {
-    issues.push(
-      "AI_GATEWAY_API_KEY is missing. The demo can render, but persistent-agent chat requests will fail until it is configured."
-    );
-  }
-
-  if (!resolvedEnv.databaseUrl) {
-    issues.push(
-      "DATABASE_URL is missing. Persistent-agent chat storage requires a writable Postgres database."
-    );
-  }
-
-  if (!resolvedEnv.redisUrl) {
-    issues.push(
-      "REDIS_URL is missing. Persistent-agent resume requires Redis-backed resumable streams."
-    );
-  }
-
-  return {
-    config: {
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolvedEnv.chatModel,
-    },
-    isReady: issues.length === 0,
-    issues,
-    nodeVersion: process.version,
-  };
+  return buildAiGatewayContractSetupState(env, {
+    ...persistentAgentContract,
+    getAdditionalIssues: (_resolvedEnv, currentEnv) => [
+      ...(currentEnv.DATABASE_URL ? [] : [missingDatabaseUrlIssue]),
+      ...(currentEnv.REDIS_URL ? [] : [missingRedisUrlIssue]),
+    ],
+  });
 }
 
 export function createPersistentAgentGateway(
   env: PersistentAgentEnv = getPersistentAgentEnv()
-): ReturnType<typeof createGateway> {
-  const { apiKey, baseURL } = getPersistentAgentConfig(env);
-
-  return createGateway({
-    apiKey,
-    baseURL,
-  });
+): PersistentAgentGateway {
+  return createAiGatewayFromContract(env, persistentAgentContract);
 }

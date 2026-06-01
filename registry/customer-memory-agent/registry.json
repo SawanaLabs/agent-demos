@@ -118,6 +118,11 @@
           "target": "@lib/customer-memory-agent/database.ts"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
           "path": "lib/customer-memory-agent/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/customer-memory-agent/env-source.ts"

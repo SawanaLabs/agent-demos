@@ -88,14 +88,19 @@
           "target": "@lib/rag-chatbot/database.ts"
         },
         {
-          "path": "lib/rag-chatbot/env.ts",
+          "path": "lib/ai-gateway/contract.ts",
           "type": "registry:lib",
-          "target": "@lib/rag-chatbot/env.ts"
+          "target": "@lib/ai-gateway/contract.ts"
         },
         {
           "path": "lib/rag-chatbot/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/rag-chatbot/env-source.ts"
+        },
+        {
+          "path": "lib/rag-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/env.ts"
         },
         {
           "path": "lib/rag-chatbot/ingestion.ts",

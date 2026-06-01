@@ -92,6 +92,16 @@
           "target": "@lib/mcp-agent/server/chat.ts"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/mcp-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/env-source.ts"
+        },
+        {
           "path": "lib/mcp-agent/server/env.ts",
           "type": "registry:lib",
           "target": "@lib/mcp-agent/server/env.ts"

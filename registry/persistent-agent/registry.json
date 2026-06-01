@@ -97,6 +97,16 @@
           "target": "@lib/persistent-agent/server/database.ts"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/persistent-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/env-source.ts"
+        },
+        {
           "path": "lib/persistent-agent/server/env.ts",
           "type": "registry:lib",
           "target": "@lib/persistent-agent/server/env.ts"

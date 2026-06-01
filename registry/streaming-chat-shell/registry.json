@@ -71,6 +71,16 @@
           "target": "@lib/streaming-chat-shell/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/streaming-chat-shell/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/env-source.ts"
+        },
+        {
           "path": "lib/streaming-chat-shell/env.ts",
           "type": "registry:lib",
           "target": "@lib/streaming-chat-shell/env.ts"

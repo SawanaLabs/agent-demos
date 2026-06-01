@@ -68,6 +68,16 @@
           "target": "@components/ai-elements/prompt-input.tsx"
         },
         {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/foundation-chat/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/foundation-chat/env-source.ts"
+        },
+        {
           "path": "lib/foundation-chat/env.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/env.ts"

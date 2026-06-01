@@ -64,6 +64,16 @@
           "target": "@components/ai-elements/prompt-input.tsx"
         },
         {
+          "path": "registry/foundation-chat/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/foundation-chat/lib/foundation-chat/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/foundation-chat/env-source.ts"
+        },
+        {
           "path": "registry/foundation-chat/lib/foundation-chat/env.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/env.ts"
@@ -161,14 +171,19 @@
           "target": "@lib/rag-chatbot/database.ts"
         },
         {
-          "path": "registry/rag-chatbot/lib/rag-chatbot/env.ts",
+          "path": "registry/rag-chatbot/lib/ai-gateway/contract.ts",
           "type": "registry:lib",
-          "target": "@lib/rag-chatbot/env.ts"
+          "target": "@lib/ai-gateway/contract.ts"
         },
         {
           "path": "registry/rag-chatbot/lib/rag-chatbot/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/rag-chatbot/env-source.ts"
+        },
+        {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/env.ts"
         },
         {
           "path": "registry/rag-chatbot/lib/rag-chatbot/ingestion.ts",
@@ -285,6 +300,16 @@
           "target": "@components/ai-elements/prompt-input.tsx"
         },
         {
+          "path": "registry/multimodal-chatbot/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/multimodal-chatbot/lib/multimodal-chatbot/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/multimodal-chatbot/env-source.ts"
+        },
+        {
           "path": "registry/multimodal-chatbot/lib/multimodal-chatbot/env.ts",
           "type": "registry:lib",
           "target": "@lib/multimodal-chatbot/env.ts"
@@ -377,6 +402,16 @@
           "path": "registry/object-generation/components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/object-generation/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/object-generation/lib/object-generation/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/env-source.ts"
         },
         {
           "path": "registry/object-generation/lib/object-generation/env.ts",
@@ -527,6 +562,11 @@
           "target": "@lib/customer-memory-agent/database.ts"
         },
         {
+          "path": "registry/customer-memory-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
           "path": "registry/customer-memory-agent/lib/customer-memory-agent/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/customer-memory-agent/env-source.ts"
@@ -665,6 +705,16 @@
           "target": "@lib/streaming-chat-shell/contract.ts"
         },
         {
+          "path": "registry/streaming-chat-shell/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/streaming-chat-shell/env-source.ts"
+        },
+        {
           "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/env.ts",
           "type": "registry:lib",
           "target": "@lib/streaming-chat-shell/env.ts"
@@ -755,6 +805,16 @@
           "path": "registry/loop-agent/lib/loop-agent/chat.ts",
           "type": "registry:lib",
           "target": "@lib/loop-agent/chat.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/loop-agent/lib/loop-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/env-source.ts"
         },
         {
           "path": "registry/loop-agent/lib/loop-agent/env.ts",
@@ -894,6 +954,16 @@
           "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/evaluation.ts",
           "type": "registry:lib",
           "target": "@lib/trace-eval-agent/server/evaluation.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/trace-eval-agent/server/env-source.ts"
         },
         {
           "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/env.ts",
@@ -1047,6 +1117,16 @@
           "target": "@lib/persistent-agent/server/database.ts"
         },
         {
+          "path": "registry/persistent-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/env-source.ts"
+        },
+        {
           "path": "registry/persistent-agent/lib/persistent-agent/server/env.ts",
           "type": "registry:lib",
           "target": "@lib/persistent-agent/server/env.ts"
@@ -1194,6 +1274,16 @@
           "target": "@lib/sandbox-agent/server/chat.ts"
         },
         {
+          "path": "registry/sandbox-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/env-source.ts"
+        },
+        {
           "path": "registry/sandbox-agent/lib/sandbox-agent/server/env.ts",
           "type": "registry:lib",
           "target": "@lib/sandbox-agent/server/env.ts"
@@ -1329,6 +1419,16 @@
           "path": "registry/mcp-agent/lib/mcp-agent/server/chat.ts",
           "type": "registry:lib",
           "target": "@lib/mcp-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/mcp-agent/lib/mcp-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/mcp-agent/server/env-source.ts"
         },
         {
           "path": "registry/mcp-agent/lib/mcp-agent/server/env.ts",

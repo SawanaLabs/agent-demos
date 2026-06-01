@@ -1,7 +1,7 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import { DEFAULT_GATEWAY_BASE_URL } from "./contract";
 
-export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
 
 export const keys = () =>

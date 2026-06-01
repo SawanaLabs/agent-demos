@@ -1,24 +1,19 @@
-import { createGateway } from "ai";
+import {
+  type AiGatewayContractConfig,
+  type AiGatewayContractSetupState,
+  type AiGatewayEnvRecord,
+  type AiGatewaySetupConfig,
+  buildAiGatewayContractSetupState,
+  createAiGatewayFromContract,
+  readAiGatewayContractConfig,
+} from "@/features/shared/ai-gateway/server/contract";
 import { getSandboxAgentAppEnv } from "./env-source";
 
-const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const DEFAULT_SANDBOX_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
-const MINIMUM_NODE_VERSION = "22.13.0";
-const nodeVersionPattern = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/;
 
-interface ParsedNodeVersion {
-  major: number;
-  minor: number;
-  patch: number;
-}
+export type SandboxAgentEnv = AiGatewayEnvRecord;
 
-export type SandboxAgentEnv = Record<string, string | undefined>;
-
-export interface SandboxAgentConfig {
-  apiKey: string;
-  baseURL: string;
-  chatModel: string;
-}
+export interface SandboxAgentConfig extends AiGatewayContractConfig {}
 
 export interface SandboxAgentSandboxTokenCredentials {
   projectId: string;
@@ -34,88 +29,31 @@ export interface SandboxAgentSandboxSetupState {
   runtime: "node24";
 }
 
-export interface SandboxAgentSetupState {
-  config: Omit<SandboxAgentConfig, "apiKey">;
-  isReady: boolean;
-  issues: string[];
-  nodeVersion: string;
+export interface SandboxAgentSetupState
+  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {
   sandboxProvider: SandboxAgentSandboxSetupState["providerLabel"];
 }
 
-function parseNodeVersion(version: string): ParsedNodeVersion {
-  const match = nodeVersionPattern.exec(version);
-  const major = Number(match?.[1]);
-  const minor = Number(match?.[2]);
-  const patch = Number(match?.[3]);
+export type SandboxAgentGateway = ReturnType<
+  typeof createAiGatewayFromContract
+>;
 
-  if (![major, minor, patch].every(Number.isInteger)) {
-    throw new Error(`Unable to parse Node.js version: "${version}".`);
-  }
-
-  return { major, minor, patch };
-}
-
-function compareNodeVersions(
-  left: ParsedNodeVersion,
-  right: ParsedNodeVersion
-) {
-  if (left.major !== right.major) {
-    return left.major - right.major;
-  }
-
-  if (left.minor !== right.minor) {
-    return left.minor - right.minor;
-  }
-
-  return left.patch - right.patch;
-}
-
-function assertSupportedNodeRuntime(version = process.version) {
-  const parsedVersion = parseNodeVersion(version);
-  const minimumVersion = parseNodeVersion(MINIMUM_NODE_VERSION);
-
-  if (compareNodeVersions(parsedVersion, minimumVersion) < 0) {
-    throw new Error(
-      `Node.js ${version} is unsupported. This demo workspace requires Node.js >=${MINIMUM_NODE_VERSION}.`
-    );
-  }
-}
+const sandboxAgentContract = {
+  defaultChatModel: DEFAULT_SANDBOX_AGENT_CHAT_MODEL,
+  missingApiKeyError:
+    "Missing AI_GATEWAY_API_KEY. Add it to .env.local before using the sandbox agent.",
+  missingApiKeyIssue:
+    "AI_GATEWAY_API_KEY is missing. The demo can render, but sandbox chat requests will fail until it is configured.",
+} as const;
 
 export function getSandboxAgentEnv(): SandboxAgentEnv {
   return getSandboxAgentAppEnv();
 }
 
-function readRequiredEnv(env: SandboxAgentEnv, name: keyof SandboxAgentEnv) {
-  const value = env[name];
-
-  if (!value) {
-    throw new Error(
-      `Missing ${name}. Add it to .env.local before using the sandbox agent.`
-    );
-  }
-
-  return value;
-}
-
-function resolveSandboxAgentEnv(env: SandboxAgentEnv = getSandboxAgentEnv()) {
-  return {
-    apiKey: env.AI_GATEWAY_API_KEY,
-    baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_SANDBOX_AGENT_CHAT_MODEL,
-  };
-}
-
 export function getSandboxAgentConfig(
   env: SandboxAgentEnv = getSandboxAgentEnv()
 ): SandboxAgentConfig {
-  assertSupportedNodeRuntime();
-  const resolvedEnv = resolveSandboxAgentEnv(env);
-
-  return {
-    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
-    baseURL: resolvedEnv.baseURL,
-    chatModel: resolvedEnv.chatModel,
-  };
+  return readAiGatewayContractConfig(env, sandboxAgentContract);
 }
 
 export function hasSandboxAgentSandboxTokenCredentials(env: SandboxAgentEnv) {
@@ -173,45 +111,20 @@ export function getSandboxAgentSandboxSetupState(
 export function getSandboxAgentSetupState(
   env: SandboxAgentEnv = getSandboxAgentEnv()
 ): SandboxAgentSetupState {
-  const issues: string[] = [];
-  const resolvedEnv = resolveSandboxAgentEnv(env);
   const sandboxSetup = getSandboxAgentSandboxSetupState(env);
-
-  try {
-    assertSupportedNodeRuntime();
-  } catch (error) {
-    issues.push(
-      error instanceof Error ? error.message : "Unsupported Node.js runtime."
-    );
-  }
-
-  if (!resolvedEnv.apiKey) {
-    issues.push(
-      "AI_GATEWAY_API_KEY is missing. The demo can render, but sandbox chat requests will fail until it is configured."
-    );
-  }
-
-  issues.push(...sandboxSetup.issues);
+  const gatewaySetup = buildAiGatewayContractSetupState(env, {
+    ...sandboxAgentContract,
+    getAdditionalIssues: () => sandboxSetup.issues,
+  });
 
   return {
-    config: {
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolvedEnv.chatModel,
-    },
-    isReady: issues.length === 0,
-    issues,
-    nodeVersion: process.version,
+    ...gatewaySetup,
     sandboxProvider: sandboxSetup.providerLabel,
   };
 }
 
 export function createSandboxAgentGateway(
   env: SandboxAgentEnv = getSandboxAgentEnv()
-): ReturnType<typeof createGateway> {
-  const { apiKey, baseURL } = getSandboxAgentConfig(env);
-
-  return createGateway({
-    apiKey,
-    baseURL,
-  });
+): SandboxAgentGateway {
+  return createAiGatewayFromContract(env, sandboxAgentContract);
 }

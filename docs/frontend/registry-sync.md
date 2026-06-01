@@ -17,8 +17,11 @@ updateAt: 2026-06-01
 - **Registry projection Module**: The shared author-side implementation in `scripts/registry-sync/registry-projection.mjs` that checks and writes registry source files from explicit manifests.
 - **Registry sync CLI**: The shared command entrypoint at `scripts/registry-sync/sync-registry-demo.mjs`.
 - **Registry sync manifest**: A demo-specific mapping file that declares source files, target files, and allowed transforms for one Agent Demo.
+- **Registry item file assertion**: The projection check that requires each shipped `registry/<demo-slug>/...` target to appear in the demo-owned `registry/<demo-slug>/registry.json` `files[].path` list.
 - **Copy-ready feature slice**: An app-first demo slice whose registry copy can be derived through one-to-one file mapping plus a small whitelist of explicit transforms.
 - **Registry-only file**: A file that belongs to registry wiring or registry-specific vendoring and should stay outside automatic sync.
+- **Registry env adapter**: A registry-installed `env.ts` or `env-source.ts` file that reads the consumer app's `process.env` and feeds a portable demo or shared runtime contract.
+- **Shared registry projection**: An explicit projection that copies a portable shared source module into one demo's `registry/<demo-slug>/` tree and lists that projected file in the demo-owned registry item.
 
 ## Current Rules
 
@@ -35,6 +38,12 @@ updateAt: 2026-06-01
 - Keep the script narrow. It should check and copy already-clean files. It should not rescue a slice whose boundaries are still tangled.
 - Keep registry wiring files under registry ownership. `registry/<demo-slug>/registry.json`, route entry files, vendored exception files, and generated files under `apps/web/public/r/` stay outside v1 auto-sync.
 - If a synced app-first file imports a shared UI helper that must travel with the registry item, add that helper as an explicit manifest entry and add the projected file to `registry/<demo-slug>/registry.json`. Do not leave the consumer to discover the missing helper at install time.
+- Shared app modules may enter registry sync only through shared registry projection entries. The projected source must be portable after explicit transforms, and the demo-owned `registry/<demo-slug>/registry.json` must list every projected shared file.
+- Every manifest entry whose target lands under `registry/<demo-slug>/` is treated as a shipped registry file by default. `pnpm registry:sync:check` fails when the target's path relative to `registry/<demo-slug>/` is absent from that demo's `registry.json` `files[].path` list.
+- Use `registryItemFile: false` only for an author-side intermediate target that is intentionally excluded from shadcn installation. Shared helpers, env adapters, runtime contracts, routes, and UI files that the consumer needs should stay listed in `files[]`.
+- For shared AI Gateway code, project the portable contract from `apps/web/features/shared/ai-gateway/server/contract.ts` into `registry/<demo-slug>/lib/ai-gateway/contract.ts` and list it with target `@lib/ai-gateway/contract.ts`. Do not project `keys.ts`, `env.ts`, or app aggregation modules into registry items.
+- If app-first code imports `apps/web/env.ts`, `@/env`, `keys.ts`, or another app env adapter, project a registry env adapter instead of carrying the app adapter into the registry item. Keep the shared runtime contract identical across app and registry copies.
+- Ordinary demo registry items should not add `@t3-oss/env-nextjs` only to preserve app preview env validation. Use the registry env adapter plus `envVars` unless the item is intentionally installing a broader app env architecture.
 - Published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md) must stay outside sync manifests and synced files.
 - If an app-first source file imports `site-usage-gate` or other published-site host augmentation modules, that file is not copy-ready for registry sync.
 - Registry route entries should call demo runtime handlers directly. Do not sync an app route wrapper that exists only to meter usage on the published website.
@@ -52,6 +61,7 @@ updateAt: 2026-06-01
 - Use `pnpm registry:sync:check` to run all `scripts/registry-sync/*.manifest.json` projections in check mode.
 - Use `pnpm registry:sync:write` to write all declared projections. This command writes registry source files only; it does not build generated public registry output.
 - `pnpm registry:check`, `pnpm registry:build`, and `pnpm registry:validate` must run `pnpm registry:sync:check` before checking, building, or validating registry output.
+- Both `--check` and `--write` validate registry item file coverage before comparing or writing projected file contents.
 - Public registry JSON under `apps/web/public/r/` is generated output, but it must still be formatter-clean. `pnpm registry:build` runs `pnpm registry:public:format` after shadcn build output, and `pnpm registry:check` runs `pnpm registry:public:check`.
 - Demo-specific compatibility scripts may run `pnpm registry:build` automatically after a successful `--write`; `scripts/registry-sync/foundation-chat.sh --write` currently does this.
 - Registry projection `--write` may create a new target file when a manifest adds a new projected file. `--check` still fails when that target is missing.
@@ -73,12 +83,16 @@ updateAt: 2026-06-01
   - `ui/use-foundation-chat.ts`
   - shared UI helper `apps/web/components/demo-breadcrumb.tsx`
   - `server/runtime.ts`
+  - shared AI Gateway contract `apps/web/features/shared/ai-gateway/server/contract.ts`
+  - `server/env-source.ts`
   - `server/env.ts`
 
 Current explicit transform exception:
 
 - `apps/web/components/demo-breadcrumb.tsx` rewrites `@workspace/ui` imports to consumer-project aliases and is listed as a registry item file.
-- `server/env.ts` removes the app-only `@/env` import and rewrites the default env reader from `appEnv` to `process.env` for the registry copy.
+- `server/env-source.ts` removes the app-only `@/env` import and rewrites the default env reader from `appEnv` to `process.env` for the registry copy.
+- `server/env.ts` rewrites the app shared contract import from `@/features/shared/ai-gateway/server/contract` to the consumer install path `@/lib/ai-gateway/contract`.
+- The shared AI Gateway contract, env adapter, runtime helper, `demo-breadcrumb`, and UI files are all projected targets and must appear in `registry/foundation-chat/registry.json` `files[]`.
 
 Minimal author workflow:
 

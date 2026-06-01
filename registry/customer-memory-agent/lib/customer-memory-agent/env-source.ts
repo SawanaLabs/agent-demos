@@ -1,6 +1,4 @@
-import type { CustomerMemoryAgentEnv } from "./env";
-
-export function getCustomerMemoryAgentAppEnv(): CustomerMemoryAgentEnv {
+export function getCustomerMemoryAgentAppEnv() {
   // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.
   return process.env;
 }

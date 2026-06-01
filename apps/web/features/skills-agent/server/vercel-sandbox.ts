@@ -27,6 +27,8 @@ export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
 export const VERCEL_SANDBOX_SKILLS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
 export const VERCEL_SANDBOX_ARTIFACTS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
 export const VERCEL_SANDBOX_AGENTS_FILE = `${VERCEL_SANDBOX_PROJECT_ROOT}/AGENTS.md`;
+const VERCEL_SANDBOX_PYTHON_VERSION = "3.13";
+const VERCEL_SANDBOX_PYTHON_PROJECT_NAME = "skills-agent-sandbox";
 
 interface SandboxFs {
   exists(path: string): Promise<boolean>;
@@ -41,7 +43,12 @@ interface SandboxFs {
 
 export interface VercelSandboxHandle {
   fs: SandboxFs;
-  runCommand(options: { args: string[]; cmd: string; cwd: string }): Promise<{
+  runCommand(options: {
+    args: string[];
+    cmd: string;
+    cwd: string;
+    sudo?: boolean;
+  }): Promise<{
     exitCode: number;
     stderr(): Promise<string>;
     stdout(): Promise<string>;
@@ -238,6 +245,96 @@ function createSandboxOperationError({
   );
 }
 
+function buildUvInstallCommand() {
+  return [
+    "set -euo pipefail",
+    "if ! command -v curl >/dev/null 2>&1; then",
+    "  dnf install -y curl",
+    "fi",
+    "if ! command -v uv >/dev/null 2>&1; then",
+    "  curl --retry 1 --retry-delay 1 -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL=/usr/local/bin sh",
+    "fi",
+    "uv --version",
+  ].join("\n");
+}
+
+function buildPythonProjectBootstrapCommand() {
+  return [
+    "set -euo pipefail",
+    "command -v uv >/dev/null 2>&1 || { echo 'uv is not available after sandbox bootstrap.' >&2; exit 127; }",
+    "if [ -f pyproject.toml ] && [ -f .python-version ] && [ -d .venv ]; then",
+    "  uv --version",
+    "  exit 0",
+    "fi",
+    `uv python install ${VERCEL_SANDBOX_PYTHON_VERSION}`,
+    "if [ ! -f pyproject.toml ]; then",
+    `  uv init --bare --name ${VERCEL_SANDBOX_PYTHON_PROJECT_NAME} --python ${VERCEL_SANDBOX_PYTHON_VERSION}`,
+    "fi",
+    `uv python pin ${VERCEL_SANDBOX_PYTHON_VERSION}`,
+    `uv venv .venv --python ${VERCEL_SANDBOX_PYTHON_VERSION} --allow-existing`,
+    "uv run python --version",
+  ].join("\n");
+}
+
+async function runSandboxBootstrapCommand({
+  action,
+  command,
+  sandbox,
+  sudo,
+}: {
+  action: string;
+  command: string;
+  sandbox: VercelSandboxHandle;
+  sudo?: boolean;
+}) {
+  let result: Awaited<ReturnType<VercelSandboxHandle["runCommand"]>>;
+
+  try {
+    const commandOptions: Parameters<VercelSandboxHandle["runCommand"]>[0] = {
+      args: ["-lc", command],
+      cmd: "bash",
+      cwd: VERCEL_SANDBOX_PROJECT_ROOT,
+    };
+
+    if (sudo) {
+      commandOptions.sudo = true;
+    }
+
+    result = await sandbox.runCommand(commandOptions);
+  } catch (error) {
+    throw createSandboxOperationError({
+      action,
+      error,
+      target: VERCEL_SANDBOX_PROJECT_ROOT,
+    });
+  }
+
+  if (result.exitCode === 0) {
+    return;
+  }
+
+  const stderr = (await result.stderr()).trim();
+  const stdout = (await result.stdout()).trim();
+
+  throw new Error(
+    `Sandbox ${action} failed for ${VERCEL_SANDBOX_PROJECT_ROOT}. ${stderr || stdout || command}`
+  );
+}
+
+async function bootstrapSandboxPythonProject(sandbox: VercelSandboxHandle) {
+  await runSandboxBootstrapCommand({
+    action: "uv install",
+    command: buildUvInstallCommand(),
+    sandbox,
+    sudo: true,
+  });
+  await runSandboxBootstrapCommand({
+    action: "Python project bootstrap",
+    command: buildPythonProjectBootstrapCommand(),
+    sandbox,
+  });
+}
+
 async function writeSandboxFile(
   sandbox: VercelSandboxHandle,
   resolvedPath: string,
@@ -369,6 +466,7 @@ export function createVercelSandboxSessionRegistry({
                 );
               }
 
+              await bootstrapSandboxPythonProject(sandbox);
               entry.seededBaseWorkspace = true;
             }
 

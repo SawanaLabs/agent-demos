@@ -3,6 +3,8 @@ import { getSkillsAgentAppEnv } from "./env-source";
 
 const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const DEFAULT_SKILLS_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
+export const SKILLS_AGENT_SANDBOX_ENVIRONMENT_LABEL =
+  "Node 24 + uv Python 3.13";
 const MINIMUM_NODE_VERSION = "22.13.0";
 const nodeVersionPattern = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/;
 

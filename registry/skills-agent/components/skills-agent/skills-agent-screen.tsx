@@ -63,8 +63,8 @@ export async function SkillsAgentScreen() {
           <SkillsAgentWorkspace
             availableSkills={runtimeState.availableSkills}
             chatModel={runtimeState.chatModel}
+            environmentLabel={runtimeState.environmentLabel}
             isChatAvailable={runtimeState.isChatAvailable}
-            nodeVersion={runtimeState.nodeVersion}
             sandboxProvider={runtimeState.sandboxProvider}
             setupMessage={runtimeState.setupMessage}
           />

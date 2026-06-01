@@ -92,7 +92,8 @@ type FakeSandboxApiError = Error & {
 
 class FakeSandbox {
   readonly fs = new FakeSandboxFileSystem();
-  readonly commands: Array<{ command: string; cwd: string }> = [];
+  readonly commands: Array<{ command: string; cwd: string; sudo?: boolean }> =
+    [];
   failRunCommandCount = 0;
   failRunCommandError: FakeSandboxApiError | null = null;
   failStopCount = 0;
@@ -143,7 +144,12 @@ class FakeSandbox {
     return null;
   }
 
-  runCommand(options: { args: string[]; cmd: string; cwd: string }) {
+  runCommand(options: {
+    args: string[];
+    cmd: string;
+    cwd: string;
+    sudo?: boolean;
+  }) {
     if (this.failRunCommandCount > 0) {
       this.failRunCommandCount -= 1;
       return Promise.reject(
@@ -151,10 +157,16 @@ class FakeSandbox {
       );
     }
 
-    this.commands.push({
+    const commandRecord: { command: string; cwd: string; sudo?: boolean } = {
       command: `${options.cmd} ${options.args.join(" ")}`,
       cwd: options.cwd,
-    });
+    };
+
+    if (options.sudo) {
+      commandRecord.sudo = true;
+    }
+
+    this.commands.push(commandRecord);
 
     if (options.cmd === "bash" && options.args[0] === "-lc") {
       const script = options.args[1] ?? "";
@@ -393,6 +405,47 @@ describe("skills agent sandbox session registry", () => {
 
     expect(requestedSessionIds).toEqual(["chat-1"]);
     expect(sandboxes).toHaveLength(1);
+  });
+
+  it("bootstraps uv and a Python project in the sandbox root", async () => {
+    const workspaceRoot = await createWorkspaceFixture();
+    const sandboxes: FakeSandbox[] = [];
+    const registry = createSkillsAgentSessionRegistry({
+      createSandbox: () => {
+        const sandbox = new FakeSandbox();
+        sandboxes.push(sandbox);
+        return Promise.resolve(sandbox as never);
+      },
+      workspaceRoot,
+    });
+
+    await registry.getSession("chat-1").readFile("AGENTS.md");
+
+    const uvInstallCommand = sandboxes[0]?.commands.find(({ command }) =>
+      command.includes("UV_UNMANAGED_INSTALL=/usr/local/bin")
+    );
+    const pythonBootstrapCommand = sandboxes[0]?.commands.find(({ command }) =>
+      command.includes(
+        "uv init --bare --name skills-agent-sandbox --python 3.13"
+      )
+    );
+
+    expect(uvInstallCommand).toMatchObject({
+      cwd: SANDBOX_PROJECT_ROOT,
+      sudo: true,
+    });
+    expect(uvInstallCommand?.command).toContain("dnf install -y curl");
+    expect(pythonBootstrapCommand).toMatchObject({
+      cwd: SANDBOX_PROJECT_ROOT,
+    });
+    expect(pythonBootstrapCommand?.sudo).toBeUndefined();
+    expect(pythonBootstrapCommand?.command).toContain("uv python install 3.13");
+    expect(pythonBootstrapCommand?.command).toContain("uv python pin 3.13");
+    expect(pythonBootstrapCommand?.command).toContain(
+      "uv venv .venv --python 3.13 --allow-existing"
+    );
+    expect(pythonBootstrapCommand?.command).not.toContain("VIRTUAL_ENV");
+    expect(pythonBootstrapCommand?.command).not.toContain("UV_CACHE_DIR");
   });
 
   it("loads a skill that was installed into the sandbox after session creation", async () => {

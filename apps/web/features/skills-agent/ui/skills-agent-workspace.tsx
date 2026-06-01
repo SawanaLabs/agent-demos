@@ -99,7 +99,7 @@ function readObjectField(value: unknown, field: string): string | null {
 }
 
 function getActivatedSkills(toolParts: ToolPart[]) {
-  return toolParts
+  const skillNames = toolParts
     .filter(
       (part) =>
         getToolName(part) === "skill" && part.state === "output-available"
@@ -116,6 +116,8 @@ function getActivatedSkills(toolParts: ToolPart[]) {
       );
     })
     .filter((name): name is string => Boolean(name));
+
+  return Array.from(new Set(skillNames));
 }
 
 function getDraftArtifacts(toolParts: ToolPart[]) {
@@ -240,8 +242,8 @@ export interface SkillsAgentWorkspaceProps {
     name: string;
   }>;
   chatModel: string;
+  environmentLabel: string;
   isChatAvailable: boolean;
-  nodeVersion: string;
   sandboxProvider: string;
   setupMessage: string | null;
 }
@@ -249,8 +251,8 @@ export interface SkillsAgentWorkspaceProps {
 export function SkillsAgentWorkspace({
   availableSkills,
   chatModel,
+  environmentLabel,
   isChatAvailable,
-  nodeVersion,
   sandboxProvider,
   setupMessage,
 }: SkillsAgentWorkspaceProps) {
@@ -396,7 +398,9 @@ export function SkillsAgentWorkspace({
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
               Runtime
             </p>
-            <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
+            <Badge className="mt-2" variant="secondary">
+              {environmentLabel}
+            </Badge>
             <p className="mt-1 text-muted-foreground text-sm">
               {sandboxProvider}
             </p>

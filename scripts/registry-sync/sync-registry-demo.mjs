@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import {
   resolveProjectionManifests,
   runRegistryProjection,
+  runSharedRegistryAssetProjection,
 } from "./registry-projection.mjs";
 
 const repoRoot = path.resolve(
@@ -20,8 +21,8 @@ function usage() {
   node scripts/registry-sync/sync-registry-demo.mjs --manifest scripts/registry-sync/foundation-chat.manifest.json --write
 
 Options:
-  --all       Run every scripts/registry-sync/*.manifest.json projection.
-  --demo      Run one projection manifest by demo slug.
+  --all       Run shared registry assets plus every scripts/registry-sync/*.manifest.json projection.
+  --demo      Run shared registry assets for one demo plus that demo's projection manifest.
   --manifest  Run one projection manifest by path.
   --check     Fail if projected registry source has drifted.
   --write     Write projected registry source.
@@ -144,8 +145,24 @@ function main() {
         manifestPath: args.manifestPath,
         repoRoot,
       });
+  const sharedAssetManifestPath = path.join(
+    repoRoot,
+    "scripts/registry-sync/shared-registry-assets.json"
+  );
   const mode = args.write ? "write" : "check";
   let hasDrift = false;
+
+  if (args.all || args.demo) {
+    const result = runSharedRegistryAssetProjection({
+      demo: args.demo,
+      manifestPath: sharedAssetManifestPath,
+      mode,
+      repoRoot,
+    });
+
+    printResult(result);
+    hasDrift ||= result.mode === "check" && result.changed.length > 0;
+  }
 
   for (const manifestPath of manifestPaths) {
     const result = runRegistryProjection({

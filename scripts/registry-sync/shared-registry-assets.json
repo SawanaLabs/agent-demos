@@ -1,0 +1,15 @@
+{
+  "registryDemos": "registry/registry-demos.json",
+  "entries": [
+    {
+      "name": "ai-gateway-contract",
+      "source": "apps/web/features/shared/ai-gateway/server/contract.ts",
+      "target": "lib/ai-gateway/contract.ts"
+    },
+    {
+      "name": "ai-elements-prompt-input",
+      "source": "registry/_shared/components/ai-elements/prompt-input.tsx",
+      "target": "components/ai-elements/prompt-input.tsx"
+    }
+  ]
+}

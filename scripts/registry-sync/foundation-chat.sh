@@ -30,10 +30,8 @@ esac
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 repo_root="$(cd "$script_dir/../.." && pwd)"
-manifest_path="$script_dir/foundation-chat.manifest.json"
-
 if [[ "$mode" == "--write" ]]; then
-  node "$script_dir/sync-registry-demo.mjs" --manifest "$manifest_path" --write --build
+  node "$script_dir/sync-registry-demo.mjs" --demo foundation-chat --write --build
 else
-  node "$script_dir/sync-registry-demo.mjs" --manifest "$manifest_path" --check
+  node "$script_dir/sync-registry-demo.mjs" --demo foundation-chat --check
 fi

@@ -112,10 +112,6 @@
       "target": "registry/foundation-chat/lib/foundation-chat/runtime.ts"
     },
     {
-      "source": "apps/web/features/shared/ai-gateway/server/contract.ts",
-      "target": "registry/foundation-chat/lib/ai-gateway/contract.ts"
-    },
-    {
       "source": "apps/web/features/foundation-chat/server/env-source.ts",
       "target": "registry/foundation-chat/lib/foundation-chat/env-source.ts",
       "transforms": [

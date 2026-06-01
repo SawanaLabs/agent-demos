@@ -6,9 +6,12 @@ import path from "node:path";
 import test from "node:test";
 import {
   checkRegistryProjection,
+  checkSharedRegistryAssetProjection,
   readProjectionManifest,
+  readSharedRegistryAssetManifest,
   resolveProjectionManifests,
   writeRegistryProjection,
+  writeSharedRegistryAssetProjection,
 } from "./registry-projection.mjs";
 
 const expectedMatchPattern = /expected 2 match/;
@@ -101,6 +104,117 @@ async function withFixture(run) {
   }
 }
 
+async function withSharedAssetFixture(run) {
+  const repoRoot = await mkdtemp(
+    path.join(os.tmpdir(), "registry-shared-sync-")
+  );
+
+  try {
+    fs.mkdirSync(
+      path.join(repoRoot, "apps/web/features/shared/ai-gateway/server"),
+      { recursive: true }
+    );
+    fs.mkdirSync(path.join(repoRoot, "registry/public-demo/lib/ai-gateway"), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(repoRoot, "registry/private-demo/lib/ai-gateway"), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(repoRoot, "scripts/registry-sync"), {
+      recursive: true,
+    });
+    fs.writeFileSync(
+      path.join(
+        repoRoot,
+        "apps/web/features/shared/ai-gateway/server/contract.ts"
+      ),
+      "export const sharedGatewayContract = 'current';\n"
+    );
+    fs.writeFileSync(
+      path.join(repoRoot, "registry/public-demo/lib/ai-gateway/contract.ts"),
+      "export const sharedGatewayContract = 'current';\n"
+    );
+    fs.writeFileSync(
+      path.join(repoRoot, "registry/private-demo/lib/ai-gateway/contract.ts"),
+      "stale\n"
+    );
+
+    for (const slug of ["public-demo", "private-demo"]) {
+      fs.writeFileSync(
+        path.join(repoRoot, "registry", slug, "registry.json"),
+        JSON.stringify(
+          {
+            $schema: "https://ui.shadcn.com/schema/registry.json",
+            items: [
+              {
+                files: [
+                  {
+                    path: "lib/ai-gateway/contract.ts",
+                    target: "@lib/ai-gateway/contract.ts",
+                    type: "registry:lib",
+                  },
+                ],
+                name: slug,
+                type: "registry:block",
+              },
+            ],
+          },
+          null,
+          2
+        )
+      );
+    }
+
+    fs.writeFileSync(
+      path.join(repoRoot, "registry/registry-demos.json"),
+      JSON.stringify(
+        {
+          demos: [
+            {
+              publicRegistry: true,
+              registryPath: "registry/public-demo/registry.json",
+              slug: "public-demo",
+            },
+            {
+              publicRegistry: false,
+              registryPath: "registry/private-demo/registry.json",
+              slug: "private-demo",
+            },
+          ],
+        },
+        null,
+        2
+      )
+    );
+
+    const manifestPath = path.join(
+      repoRoot,
+      "scripts/registry-sync/shared-registry-assets.json"
+    );
+    fs.writeFileSync(
+      manifestPath,
+      JSON.stringify(
+        {
+          entries: [
+            {
+              name: "ai-gateway-contract",
+              source: "apps/web/features/shared/ai-gateway/server/contract.ts",
+              target: "lib/ai-gateway/contract.ts",
+            },
+          ],
+          registryDemos: "registry/registry-demos.json",
+        },
+        null,
+        2
+      )
+    );
+
+    await run({ manifestPath, repoRoot });
+  } finally {
+    await rm(repoRoot, { force: true, recursive: true });
+  }
+}
+
 test("checks a clean projection manifest", async () => {
   await withFixture(({ manifestPath, repoRoot }) => {
     const manifest = readProjectionManifest(manifestPath);
@@ -146,6 +260,34 @@ test("writes newly projected targets", async () => {
     assert.equal(
       fs.readFileSync(targetPath, "utf8"),
       "export const source = process.env.VALUE;\n"
+    );
+  });
+});
+
+test("projects shared registry assets into every registry demo source chunk", async () => {
+  await withSharedAssetFixture(({ manifestPath, repoRoot }) => {
+    const manifest = readSharedRegistryAssetManifest(manifestPath);
+
+    assert.deepEqual(
+      checkSharedRegistryAssetProjection({ manifest, repoRoot }),
+      {
+        changed: ["registry/private-demo/lib/ai-gateway/contract.ts"],
+        unchanged: ["registry/public-demo/lib/ai-gateway/contract.ts"],
+      }
+    );
+    assert.deepEqual(
+      writeSharedRegistryAssetProjection({ manifest, repoRoot }),
+      {
+        changed: ["registry/private-demo/lib/ai-gateway/contract.ts"],
+        unchanged: ["registry/public-demo/lib/ai-gateway/contract.ts"],
+      }
+    );
+    assert.equal(
+      fs.readFileSync(
+        path.join(repoRoot, "registry/private-demo/lib/ai-gateway/contract.ts"),
+        "utf8"
+      ),
+      "export const sharedGatewayContract = 'current';\n"
     );
   });
 });

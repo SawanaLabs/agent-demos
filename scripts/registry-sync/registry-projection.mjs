@@ -23,14 +23,53 @@ function normalizeRegistryPath(filePath) {
   return filePath.split(path.sep).join("/");
 }
 
-function registryItemPathForEntry({ entry, manifest }) {
+function assertRelativeRegistryPath(filePath, field) {
+  assertNonEmptyString(filePath, field);
+
+  const normalized = normalizeRegistryPath(filePath);
+
+  if (
+    path.isAbsolute(filePath) ||
+    normalized === ".." ||
+    normalized.startsWith("../") ||
+    normalized.includes("/../")
+  ) {
+    throw new Error(`Expected ${field} to stay inside a registry chunk.`);
+  }
+
+  return normalized;
+}
+
+function registryManifestPathForDemo({ manifest, repoRoot }) {
+  const registryPath =
+    manifest.registryPath ??
+    path.join("registry", manifest.demo, "registry.json");
+
+  assertNonEmptyString(registryPath, `${manifest.demo}.registryPath`);
+
+  return path.isAbsolute(registryPath)
+    ? registryPath
+    : path.join(repoRoot, registryPath);
+}
+
+function registryChunkPathForManifest({ manifest, repoRoot }) {
+  return path.dirname(registryManifestPathForDemo({ manifest, repoRoot }));
+}
+
+function registryItemPathForEntry({ entry, manifest, repoRoot }) {
   if (entry.registryItemFile === false) {
     return null;
   }
 
   assertNonEmptyString(entry.target, `${manifest.demo}.entry.target`);
 
-  const registryPrefix = `registry/${manifest.demo}/`;
+  const registryChunkPath = registryChunkPathForManifest({
+    manifest,
+    repoRoot,
+  });
+  const registryPrefix = `${normalizeRegistryPath(
+    path.relative(repoRoot, registryChunkPath)
+  )}/`;
   const target = normalizeRegistryPath(entry.target);
 
   if (!target.startsWith(registryPrefix)) {
@@ -49,12 +88,7 @@ function registryItemPathForEntry({ entry, manifest }) {
 }
 
 function readDemoRegistryItem({ manifest, repoRoot }) {
-  const registryJsonPath = path.join(
-    repoRoot,
-    "registry",
-    manifest.demo,
-    "registry.json"
-  );
+  const registryJsonPath = registryManifestPathForDemo({ manifest, repoRoot });
   const registryJsonDisplayPath = normalizeRegistryPath(
     path.relative(repoRoot, registryJsonPath)
   );
@@ -114,7 +148,11 @@ function assertProjectedTargetsListedInRegistryItem({ manifest, repoRoot }) {
   const requiredFilePaths = [];
 
   for (const entry of manifest.entries) {
-    const registryItemPath = registryItemPathForEntry({ entry, manifest });
+    const registryItemPath = registryItemPathForEntry({
+      entry,
+      manifest,
+      repoRoot,
+    });
 
     if (registryItemPath) {
       requiredFilePaths.push({ entry, registryItemPath });
@@ -171,6 +209,13 @@ export function readProjectionManifest(manifestPath) {
   const manifest = readJson(manifestPath);
   assertNonEmptyString(manifest.demo, "manifest.demo");
 
+  if (manifest.registryPath !== undefined) {
+    assertNonEmptyString(
+      manifest.registryPath,
+      `${manifest.demo}.registryPath`
+    );
+  }
+
   if (!Array.isArray(manifest.entries) || manifest.entries.length === 0) {
     throw new Error(
       `Expected ${manifestPath} to define at least one projection entry.`
@@ -178,6 +223,162 @@ export function readProjectionManifest(manifestPath) {
   }
 
   return manifest;
+}
+
+export function readSharedRegistryAssetManifest(manifestPath) {
+  const manifest = readJson(manifestPath);
+  assertNonEmptyString(manifest.registryDemos, "manifest.registryDemos");
+
+  if (!Array.isArray(manifest.entries) || manifest.entries.length === 0) {
+    throw new Error(
+      `Expected ${manifestPath} to define at least one shared registry asset.`
+    );
+  }
+
+  manifest.entries.forEach((entry, index) => {
+    assertNonEmptyString(entry.name, `manifest.entries[${index}].name`);
+    assertNonEmptyString(entry.source, `${entry.name}.source`);
+    entry.target = assertRelativeRegistryPath(
+      entry.target,
+      `${entry.name}.target`
+    );
+  });
+
+  return manifest;
+}
+
+function readSharedRegistryAssetDemos({ manifest, repoRoot }) {
+  const registryDemosPath = path.join(repoRoot, manifest.registryDemos);
+
+  if (!fs.existsSync(registryDemosPath)) {
+    throw new Error(
+      `Shared registry asset manifest references missing registry demos file: ${manifest.registryDemos}.`
+    );
+  }
+
+  const registryDemos = readJson(registryDemosPath);
+
+  if (!Array.isArray(registryDemos.demos) || registryDemos.demos.length === 0) {
+    throw new Error(
+      `${manifest.registryDemos} must define a non-empty demos array.`
+    );
+  }
+
+  const seenSlugs = new Set();
+
+  return registryDemos.demos.map((demo, index) => {
+    assertNonEmptyString(demo?.slug, `registryDemos.demos[${index}].slug`);
+    assertNonEmptyString(
+      demo?.registryPath,
+      `registryDemos.demos[${demo.slug}].registryPath`
+    );
+
+    if (seenSlugs.has(demo.slug)) {
+      throw new Error(`Duplicate registry demo slug: ${demo.slug}.`);
+    }
+    seenSlugs.add(demo.slug);
+
+    return {
+      registryPath: demo.registryPath,
+      slug: demo.slug,
+    };
+  });
+}
+
+function sharedAssetProjectionManifestForDemo({ demo, manifest }) {
+  const registryChunkPath = normalizeRegistryPath(
+    path.dirname(demo.registryPath)
+  );
+
+  return {
+    demo: demo.slug,
+    entries: manifest.entries.map((entry) => ({
+      ...entry,
+      target: normalizeRegistryPath(path.join(registryChunkPath, entry.target)),
+    })),
+    registryPath: demo.registryPath,
+  };
+}
+
+function runSharedRegistryAssetsProjection({ demo, manifest, mode, repoRoot }) {
+  const demos = readSharedRegistryAssetDemos({ manifest, repoRoot }).filter(
+    (entry) => !demo || entry.slug === demo
+  );
+
+  if (demos.length === 0) {
+    throw new Error(`Shared registry asset target demo not found: ${demo}.`);
+  }
+
+  const changed = [];
+  const unchanged = [];
+
+  for (const targetDemo of demos) {
+    const projectionManifest = sharedAssetProjectionManifestForDemo({
+      demo: targetDemo,
+      manifest,
+    });
+    const result =
+      mode === "check"
+        ? checkRegistryProjection({ manifest: projectionManifest, repoRoot })
+        : writeRegistryProjection({ manifest: projectionManifest, repoRoot });
+
+    changed.push(...result.changed);
+    unchanged.push(...result.unchanged);
+  }
+
+  return { changed, unchanged };
+}
+
+export function checkSharedRegistryAssetProjection({
+  demo,
+  manifest,
+  repoRoot,
+}) {
+  return runSharedRegistryAssetsProjection({
+    demo,
+    manifest,
+    mode: "check",
+    repoRoot,
+  });
+}
+
+export function writeSharedRegistryAssetProjection({
+  demo,
+  manifest,
+  repoRoot,
+}) {
+  return runSharedRegistryAssetsProjection({
+    demo,
+    manifest,
+    mode: "write",
+    repoRoot,
+  });
+}
+
+export function runSharedRegistryAssetProjection({
+  demo,
+  manifestPath,
+  mode,
+  repoRoot,
+}) {
+  if (!["check", "write"].includes(mode)) {
+    throw new Error(
+      `Unsupported shared registry asset projection mode: ${mode}.`
+    );
+  }
+
+  const manifest = readSharedRegistryAssetManifest(manifestPath);
+  const result =
+    mode === "check"
+      ? checkSharedRegistryAssetProjection({ demo, manifest, repoRoot })
+      : writeSharedRegistryAssetProjection({ demo, manifest, repoRoot });
+
+  return {
+    ...result,
+    demo: demo ? `${demo} shared registry assets` : "shared registry assets",
+    manifestPath,
+    mode,
+  };
 }
 
 function applyTransforms({ entry, manifest, source }) {

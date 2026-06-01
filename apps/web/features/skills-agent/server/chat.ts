@@ -71,7 +71,7 @@ export async function streamSkillsAgent(
     }),
     providerOptions: SKILLS_AGENT_PROVIDER_OPTIONS,
     callOptionsSchema: skillsAgentCallOptionsSchema,
-    stopWhen: stepCountIs(8),
+    stopWhen: stepCountIs(20),
     tools: workspace.toolset.tools,
   });
 

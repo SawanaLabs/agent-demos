@@ -50,9 +50,15 @@
     },
     {
       "path": "registry/foundation-chat/components/foundation-chat/use-foundation-chat.ts",
-      "content": "\"use client\";\n\nimport { Chat, useChat } from \"@ai-sdk/react\";\nimport { DefaultChatTransport, type UIMessage } from \"ai\";\nimport { useState } from \"react\";\n\nexport function useFoundationChat() {\n  const [chat] = useState(\n    () =>\n      new Chat<UIMessage>({\n        transport: new DefaultChatTransport({\n          api: \"/api/demos/foundation-chat\",\n        }),\n      })\n  );\n  const controller = useChat({ chat });\n  const hasMessages = controller.messages.length > 0;\n  const isBusy =\n    controller.status === \"submitted\" || controller.status === \"streaming\";\n\n  return {\n    ...controller,\n    hasMessages,\n    isBusy,\n  };\n}\n",
+      "content": "\"use client\";\n\nimport { useDemoChat } from \"@/components/demo-chat/use-demo-chat\";\n\nexport function useFoundationChat() {\n  return useDemoChat({ api: \"/api/demos/foundation-chat\" });\n}\n",
       "type": "registry:component",
       "target": "@components/foundation-chat/use-foundation-chat.ts"
+    },
+    {
+      "path": "registry/foundation-chat/components/demo-chat/use-demo-chat.ts",
+      "content": "\"use client\";\n\nimport { Chat, useChat } from \"@ai-sdk/react\";\nimport { type ChatStatus, DefaultChatTransport, type UIMessage } from \"ai\";\nimport { useState } from \"react\";\n\ninterface CreateDemoChatOptions {\n  api: string;\n}\n\ninterface UseDemoChatWithApiOptions extends CreateDemoChatOptions {\n  createChat?: never;\n}\n\ninterface UseDemoChatWithFactoryOptions<TMessage extends UIMessage> {\n  api?: never;\n  createChat: () => Chat<TMessage>;\n}\n\ntype UseDemoChatOptions<TMessage extends UIMessage> =\n  | UseDemoChatWithApiOptions\n  | UseDemoChatWithFactoryOptions<TMessage>;\n\nexport function createDemoChat<TMessage extends UIMessage = UIMessage>({\n  api,\n}: CreateDemoChatOptions) {\n  return new Chat<TMessage>({\n    transport: new DefaultChatTransport({\n      api,\n    }),\n  });\n}\n\nexport function isDemoChatBusyStatus(status: ChatStatus) {\n  return status === \"submitted\" || status === \"streaming\";\n}\n\nexport function useDemoChat<TMessage extends UIMessage = UIMessage>(\n  options: UseDemoChatOptions<TMessage>\n) {\n  const [chat] = useState(() => {\n    if (options.createChat) {\n      return options.createChat();\n    }\n\n    return createDemoChat<TMessage>({ api: options.api });\n  });\n  const controller = useChat({ chat });\n  const hasMessages = controller.messages.length > 0;\n  const isBusy = isDemoChatBusyStatus(controller.status);\n\n  return {\n    ...controller,\n    chat,\n    hasMessages,\n    isBusy,\n  };\n}\n",
+      "type": "registry:component",
+      "target": "@components/demo-chat/use-demo-chat.ts"
     },
     {
       "path": "registry/foundation-chat/components/demo-workspace-shell.tsx",

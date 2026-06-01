@@ -1,26 +1,16 @@
 "use client";
 
-import { type Chat, useChat } from "@ai-sdk/react";
+import type { Chat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
-import { useState } from "react";
 
-interface UseCustomerMemoryChatWithFactoryOptions<TMessage extends UIMessage> {
+import { useDemoChat } from "@/features/shared/chat/ui/use-demo-chat";
+
+interface UseCustomerMemoryChatOptions<TMessage extends UIMessage> {
   createChat: () => Chat<TMessage>;
 }
 
 export function useCustomerMemoryChat<TMessage extends UIMessage = UIMessage>(
-  options: UseCustomerMemoryChatWithFactoryOptions<TMessage>
+  options: UseCustomerMemoryChatOptions<TMessage>
 ) {
-  const [chat] = useState(() => options.createChat());
-  const controller = useChat({ chat });
-  const hasMessages = controller.messages.length > 0;
-  const isBusy =
-    controller.status === "submitted" || controller.status === "streaming";
-
-  return {
-    ...controller,
-    chat,
-    hasMessages,
-    isBusy,
-  };
+  return useDemoChat(options);
 }

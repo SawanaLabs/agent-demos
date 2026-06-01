@@ -83,7 +83,15 @@
     },
     {
       "source": "apps/web/features/foundation-chat/ui/use-foundation-chat.ts",
-      "target": "registry/foundation-chat/components/foundation-chat/use-foundation-chat.ts"
+      "target": "registry/foundation-chat/components/foundation-chat/use-foundation-chat.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/chat/ui/use-demo-chat\";",
+          "to": "from \"@/components/demo-chat/use-demo-chat\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/features/shared/"]
     },
     {
       "source": "apps/web/features/foundation-chat/server/runtime.ts",

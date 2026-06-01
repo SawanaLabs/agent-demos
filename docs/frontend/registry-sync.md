@@ -44,11 +44,11 @@ updateAt: 2026-06-02
 - Use `registryItemFile: false` only for an author-side intermediate target that is intentionally excluded from shadcn installation. Shared helpers, env adapters, runtime contracts, routes, and UI files that the consumer needs should stay listed in `files[]`.
 - Put shared portable assets in `scripts/registry-sync/shared-registry-assets.json`, not in one demo's manifest. Entries without `demos` project into every registry source chunk; entries with `demos` project only into those named chunks.
 - The current global shared asset set projects the portable AI Gateway contract into `registry/<demo-slug>/lib/ai-gateway/contract.ts` and the vendored AI Elements `prompt-input` into `registry/<demo-slug>/components/ai-elements/prompt-input.tsx` for every registry source chunk.
-- The current selected shared asset set projects `apps/web/components/demo-breadcrumb.tsx` and `apps/web/components/demo-workspace-shell.tsx` into `foundation-chat` so that the copied screen can use the same page shell contract as the app preview without duplicating shell implementation inside the demo manifest.
+- The current selected shared asset set projects `apps/web/components/demo-breadcrumb.tsx`, `apps/web/components/demo-workspace-shell.tsx`, and `apps/web/features/shared/chat/ui/use-demo-chat.ts` into `foundation-chat` so that the copied screen and ordinary chat controller can use the same contracts as the app preview without duplicating those implementations inside the demo manifest.
 - For shared AI Gateway code, project the portable contract from `apps/web/features/shared/ai-gateway/server/contract.ts` and list it with target `@lib/ai-gateway/contract.ts`. Do not project `keys.ts`, `env.ts`, or app aggregation modules into registry items.
 - For registry-only vendored shared assets, keep the canonical source under `registry/_shared/` and project that file into each demo chunk. Do not make one demo chunk the source of truth for other demo chunks.
 - If app-first code imports `apps/web/env.ts`, `@/env`, `keys.ts`, or another app env adapter, project a registry env adapter instead of carrying the app adapter into the registry item. Keep the shared runtime contract identical across app and registry copies.
-- If app-first code imports the Demo Workspace Shell, Demo Breadcrumb, Visitor Owner Route Module, or another shared app seam that is portable after alias transforms, add that seam to the shared registry asset manifest with an explicit `demos` list. Do not copy the shared file through a single demo manifest.
+- If app-first code imports the Demo Workspace Shell, Demo Breadcrumb, Demo Chat Controller Module, Visitor Owner Route Module, or another shared app seam that is portable after alias transforms, add that seam to the shared registry asset manifest with an explicit `demos` list. Do not copy the shared file through a single demo manifest.
 - Ordinary demo registry items should not add `@t3-oss/env-nextjs` only to preserve app preview env validation. Use the registry env adapter plus `envVars` unless the item is intentionally installing a broader app env architecture.
 - Published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md) must stay outside sync manifests and synced files.
 - If an app-first source file imports `site-usage-gate` or other published-site host augmentation modules, that file is not copy-ready for registry sync.
@@ -98,14 +98,16 @@ Shared assets are synced before this demo manifest:
 - shared registry vendored `registry/_shared/components/ai-elements/prompt-input.tsx`
 - selected shared `apps/web/components/demo-breadcrumb.tsx`
 - selected shared `apps/web/components/demo-workspace-shell.tsx`
+- selected shared `apps/web/features/shared/chat/ui/use-demo-chat.ts`
 
 Current explicit transform exception:
 
 - `apps/web/components/demo-breadcrumb.tsx` rewrites `@workspace/ui` imports to consumer-project aliases and is listed as a registry item file through the shared registry asset manifest.
 - `apps/web/components/demo-workspace-shell.tsx` rewrites `@workspace/ui` and `@workspace/ui/lib/utils` imports to consumer-project aliases and is listed as a registry item file through the shared registry asset manifest.
+- `apps/web/features/shared/chat/ui/use-demo-chat.ts` is projected to `components/demo-chat/use-demo-chat.ts`, while synced feature hooks rewrite their shared app alias to the consumer install alias.
 - `server/env-source.ts` removes the app-only `@/env` import and rewrites the default env reader from `appEnv` to `process.env` for the registry copy.
 - `server/env.ts` rewrites the app shared contract import from `@/features/shared/ai-gateway/server/contract` to the consumer install path `@/lib/ai-gateway/contract`.
-- The shared AI Gateway contract, vendored `prompt-input`, env adapter, runtime helper, `demo-breadcrumb`, `demo-workspace-shell`, and UI files are all projected targets and must appear in `registry/foundation-chat/registry.json` `files[]`.
+- The shared AI Gateway contract, vendored `prompt-input`, env adapter, runtime helper, `demo-breadcrumb`, `demo-workspace-shell`, `demo-chat/use-demo-chat`, and UI files are all projected targets and must appear in `registry/foundation-chat/registry.json` `files[]`.
 
 Minimal author workflow:
 

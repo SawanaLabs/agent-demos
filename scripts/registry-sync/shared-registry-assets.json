@@ -53,6 +53,12 @@
         }
       ],
       "forbidPatternsAfterTransform": ["@workspace/"]
+    },
+    {
+      "name": "demo-chat-controller",
+      "demos": ["foundation-chat"],
+      "source": "apps/web/features/shared/chat/ui/use-demo-chat.ts",
+      "target": "components/demo-chat/use-demo-chat.ts"
     }
   ]
 }

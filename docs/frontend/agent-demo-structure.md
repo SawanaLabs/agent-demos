@@ -21,6 +21,7 @@ updateAt: 2026-06-02
 - **Demo UI component**: A feature-local component built from UI primitives for one agent demo's experience.
 - **Demo metadata module**: A feature-local `demo-meta.ts` file that exposes the canonical catalog and documentation metadata for one agent demo.
 - **Demo Workspace Shell**: The shared screen chrome in `apps/web/components/demo-workspace-shell.tsx` that owns the repeated Agent Demo page frame, breadcrumb, title, summary, badges, and workspace slot.
+- **Demo Chat Controller Module**: The shared client hook and helpers in `apps/web/features/shared/chat/ui/use-demo-chat.ts` that own the repeated AI SDK `Chat`, `DefaultChatTransport`, `useChat`, `hasMessages`, and `isBusy` wiring for ordinary demo chat workspaces.
 - **Visitor Owner Route Module**: The shared route-side module in `apps/web/features/shared/visitor-owner/server/route-owner.ts` that resolves a cookie-scoped visitor owner and appends the owner cookie around a route handler.
 
 ## Current Subdomain Docs
@@ -49,6 +50,9 @@ updateAt: 2026-06-02
 - Use the **Demo Workspace Shell** for implemented Agent Demo screens instead of copying the same `main`, breadcrumb, heading, summary, badge rail, and workspace wrapper in every feature slice.
 - Keep feature-specific workspace implementation under `apps/web/features/<demo-slug>/ui`; the **Demo Workspace Shell** should own only the repeated screen chrome and workspace slot.
 - For synced registry demos that use the **Demo Workspace Shell**, project `apps/web/components/demo-workspace-shell.tsx` through `scripts/registry-sync/shared-registry-assets.json` with an explicit `demos` list, and list the projected `components/demo-workspace-shell.tsx` file in the demo-owned registry item.
+- Use the **Demo Chat Controller Module** for ordinary AI SDK chat demos whose client runtime only needs an endpoint-backed `DefaultChatTransport` or a custom `Chat` factory. Keep feature-local hooks focused on the demo endpoint and custom chat factory details.
+- Keep route-backed, resumable, persisted, or heavily stateful chat surfaces local until their session state can be isolated cleanly behind the shared controller.
+- For synced registry demos that use the **Demo Chat Controller Module**, project `apps/web/features/shared/chat/ui/use-demo-chat.ts` through `scripts/registry-sync/shared-registry-assets.json` with an explicit `demos` list, rewrite app aliases through the demo sync manifest, and list the projected `components/demo-chat/use-demo-chat.ts` file in the demo-owned registry item.
 - Keep the page heading in normal document flow and put the primary **Demo Workspace** in a viewport-height wrapper at the desktop breakpoint, usually `lg:h-svh`; use the breakpoint where the workspace switches from stacked mobile layout into its desktop grid. Inside that wrapper, the workspace root and primary chat panel should use matching `h-full` plus `min-h-0` constraints so new messages scroll inside the workspace instead of extending the page.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
@@ -81,4 +85,4 @@ updateAt: 2026-06-02
 - Update this file when the feature-slice layout changes.
 - Update this file when a new shared UI primitive boundary appears in `packages/ui`.
 - Update this file when a demo's copy boundary changes or shadcn registry distribution rules become concrete.
-- Update this file when **Demo Workspace Shell** or **Visitor Owner Route Module** rules change.
+- Update this file when **Demo Workspace Shell**, **Demo Chat Controller Module**, or **Visitor Owner Route Module** rules change.

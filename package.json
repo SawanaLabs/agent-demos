@@ -3,6 +3,7 @@
     "@biomejs/biome": "2.4.15",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
+    "concurrently": "^10.0.1",
     "turbo": "^2.8.17",
     "typescript": "5.9.3",
     "ultracite": "7.7.0"
@@ -16,8 +17,10 @@
     "db:push": "pnpm --filter @workspace/database db:push",
     "db:studio": "pnpm --filter @workspace/database db:studio",
     "dev": "turbo dev",
+    "dev:langgraph-agent": "concurrently -k -n api,web \"pnpm dev:langgraph-agent-api\" \"pnpm dev:langgraph-agent-web\"",
     "dev:langgraph-agent-api": "set -a; [ ! -f .env ] || . ./.env; [ ! -f .env.local ] || . ./.env.local; set +a; LANGGRAPH_AGENT_MODEL=${LANGGRAPH_AGENT_MODEL:-openai/gpt-5-mini}; export LANGGRAPH_AGENT_MODEL; cd apps/langgraph-agent-api && uv run langgraph dev --no-browser --no-reload --port 2024",
     "dev:langgraph-agent-web": "set -a; [ ! -f .env ] || . ./.env; [ ! -f .env.local ] || . ./.env.local; set +a; LANGGRAPH_AGENT_MODEL=${LANGGRAPH_AGENT_MODEL:-openai/gpt-5-mini} LANGGRAPH_AGENT_API_URL=http://localhost:2024 LANGGRAPH_AGENT_ASSISTANT_ID=agent pnpm --dir apps/web dev",
+    "dev:langchain-agent": "pnpm dev:langgraph-agent",
     "lint": "ultracite check",
     "format": "ultracite fix",
     "registry:build": "pnpm --dir packages/ui exec shadcn build registry.json -o apps/web/public/r -c ../..",

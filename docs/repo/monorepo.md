@@ -1,7 +1,7 @@
 ---
 title: Monorepo
 description: Durable conventions for the pnpm and Turborepo workspace structure.
-updateAt: 2026-05-26
+updateAt: 2026-06-01
 ---
 
 # Monorepo
@@ -21,6 +21,8 @@ updateAt: 2026-05-26
 - `packages/eslint-config` is still present for template compatibility, but the root quality gate is Ultracite.
 - Root scripts coordinate shared workflows:
   - `pnpm dev` runs Turbo dev tasks.
+  - `pnpm dev:langgraph-agent` runs the local LangGraph Python backend and the paired Next.js frontend together.
+  - `pnpm dev:langchain-agent` is a compatibility alias for `pnpm dev:langgraph-agent`.
   - `pnpm build` runs Turbo build tasks.
   - `pnpm typecheck` runs Turbo typecheck tasks.
   - `pnpm lint` and `pnpm check` run `ultracite check`.

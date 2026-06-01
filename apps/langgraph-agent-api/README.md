@@ -5,17 +5,26 @@ Python LangGraph backend for the `langgraph-agent` frontend demo.
 ## Setup
 
 ```bash
+pnpm dev:langgraph-agent
+```
+
+`pnpm dev:langchain-agent` is also available as a compatibility alias.
+
+To run only the Python backend:
+
+```bash
 pnpm dev:langgraph-agent-api
 ```
 
-Set these frontend variables in `apps/web/.env.local`:
+When running the frontend outside the paired script, set these variables in
+`apps/web/.env.local`:
 
 ```bash
 LANGGRAPH_AGENT_API_URL=http://localhost:2024
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 ```
 
-For the paired local web app, use:
+To run only the paired local web app process:
 
 ```bash
 pnpm dev:langgraph-agent-web

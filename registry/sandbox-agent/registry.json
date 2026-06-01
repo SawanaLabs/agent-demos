@@ -21,6 +21,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "tabs",
         "textarea",

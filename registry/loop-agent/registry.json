@@ -18,6 +18,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/chain-of-thought.json",

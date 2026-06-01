@@ -1,6 +1,7 @@
 import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { TooltipProvider } from "@workspace/ui/components/tooltip";
+import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
 
 import { getLangGraphAgentRuntimeState } from "@/features/langgraph-agent/server/runtime";
 import { LangGraphAgentWorkspace } from "@/features/langgraph-agent/ui/langgraph-agent-workspace";
@@ -14,9 +15,10 @@ export function LangGraphAgentScreen() {
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6">
           <Card className="grid gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
             <div className="space-y-2">
-              <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-                Demo / LangGraph Agent
-              </p>
+              <DemoBreadcrumb
+                className="font-heading text-xs tracking-[0.16em]"
+                title="LangGraph Agent"
+              />
               <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
                 Official LangGraph thread streaming in a Next.js AI Elements
                 workspace

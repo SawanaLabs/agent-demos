@@ -16,6 +16,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "button-group",
         "card",

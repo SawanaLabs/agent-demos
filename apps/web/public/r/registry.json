@@ -17,6 +17,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "button-group",
         "card",
@@ -95,6 +96,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
@@ -224,6 +226,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/attachments.json",
@@ -311,6 +314,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "progress",
         "textarea",
@@ -426,6 +430,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "skeleton",
         "textarea",
@@ -606,6 +611,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "collapsible",
         "textarea",
@@ -698,6 +704,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/chain-of-thought.json",
@@ -790,6 +797,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
@@ -965,6 +973,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
@@ -1087,6 +1096,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "tabs",
         "textarea",
@@ -1250,6 +1260,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
@@ -1436,6 +1447,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",

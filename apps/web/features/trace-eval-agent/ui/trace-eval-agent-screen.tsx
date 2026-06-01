@@ -1,4 +1,5 @@
 import { Badge } from "@workspace/ui/components/badge";
+import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
 
 import { getTraceEvalAgentRuntimeState } from "../server/runtime";
 import { TraceEvalAgentWorkspace } from "./trace-eval-agent-workspace";
@@ -11,9 +12,7 @@ export function TraceEvalAgentScreen() {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6">
         <header className="grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
           <div className="space-y-2">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Demo / Trace and Eval Agent
-            </p>
+            <DemoBreadcrumb title="Trace and Eval Agent" />
             <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
               Live research chat with session trace and evaluation
             </h1>

@@ -3,6 +3,7 @@ import { Geist, JetBrains_Mono } from "next/font/google";
 import "@workspace/ui/globals.css";
 import { cn } from "@workspace/ui/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SiteUsageGateProvider } from "@/features/site-usage-gate/ui/site-usage-gate-provider";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <SiteUsageGateProvider>{children}</SiteUsageGateProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,7 +1,12 @@
 import { handleObjectGenerationRequest } from "@/features/object-generation/server/runtime";
+import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
 
 export const maxDuration = 30;
 
-export function POST(request: Request) {
-  return handleObjectGenerationRequest(request);
-}
+export const POST = withSiteUsageGate(
+  {
+    action: "send_message",
+    demoSlug: "object-generation",
+  },
+  async (request) => handleObjectGenerationRequest(request)
+);

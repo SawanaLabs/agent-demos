@@ -27,6 +27,10 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Public copy should link inline to source material such as the GitHub repo, shadcn registry docs, AI SDK docs, and AI Elements docs.
 - Keep author maintenance, publishing, sync tooling, and fresh-consumer acceptance details in this internal document instead of duplicating them on `/registry-guide`.
 - Homepage registry entry points should stay compact. The current public entry appears on the homepage and points to `/registry-guide`; demo screen-level install hints are planned separately.
+- The public page's coding-agent handoff should optimize for a new-project mainline. Trust a capable user-directed agent to recognize when the user is already inside an existing project, but do not expand the public handoff copy around that side path.
+- The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@ai-sdk-6-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
+- Use a visible handoff title like "Hand this guide to your agent" so the page frames the prompt as a guide-backed task brief instead of a standalone path summary.
+- Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
 
 ## Current Rules
 

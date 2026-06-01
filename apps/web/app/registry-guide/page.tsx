@@ -22,6 +22,21 @@ import { RegistrySmoothScroll } from "@/features/registry-guide/registry-smooth-
 const quickInstallCommand = `${registryGuideConfig.namespaceSetupCommand}
 ${registryGuideConfig.foundationChatCommand}`;
 
+const registryGuideUrl = `https://${registryGuideConfig.domain}/registry-guide`;
+
+const agentTaskBrief = `I want to quickly launch a production-ready AI project from a new shadcn Next.js app.
+
+Use this guide as the source of truth before planning:
+${registryGuideUrl}
+
+Follow the guide's new-project path: create the shadcn Next.js app, install Foundation Chat from the registry, configure the AI Gateway env, verify one local chat message, and prepare the Vercel deployment env.
+
+Acceptance criteria:
+- A new shadcn Next.js app is initialized.
+- Foundation Chat is installed from @ai-sdk-6-demos.
+- Local chat works with AI_GATEWAY_API_KEY.
+- Vercel deployment is prepared with the same env var.`;
+
 export const metadata: Metadata = {
   description:
     "Create a shadcn Next.js app, install Foundation Chat through the public registry, run it locally, and deploy it to Vercel.",
@@ -232,20 +247,17 @@ export default function RegistryGuidePage() {
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
               Coding agents
             </p>
-            <h2 className="font-medium text-xl">Give the agent this path</h2>
+            <h2 className="font-medium text-xl">
+              Hand this guide to your agent
+            </h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              If you paste this page into a coding agent, ask it to follow the
-              same path: create the shadcn Next.js app from the selected Create
-              command, install Foundation Chat, add env placeholders, run a
-              local chat check, then prepare the Vercel env. For the database
-              and sandbox demos below, the agent should stop and ask for the
-              missing service credentials instead of inventing them.
+              Give this task brief to a coding agent when you want it to
+              initialize the project for you. The brief points the agent back to
+              this guide as the source of truth, then gives it clear acceptance
+              criteria instead of asking it to rediscover the setup path.
             </p>
           </div>
-          <GuideCommandPanel
-            code="Use the shadcn Create command I selected to create a Next.js app, then install @ai-sdk-6-demos/foundation-chat, set the documented AI Gateway env placeholders, verify local chat works, and prepare the Vercel environment variables before summarizing the diff."
-            title="agent prompt"
-          />
+          <GuideCommandPanel code={agentTaskBrief} title="agent task brief" />
         </section>
 
         <section

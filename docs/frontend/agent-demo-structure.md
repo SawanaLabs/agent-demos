@@ -20,6 +20,7 @@ updateAt: 2026-06-01
 - **UI primitive**: A shared low-level component, hook, style primitive, or UI utility exported from `packages/ui`.
 - **Demo UI component**: A feature-local component built from UI primitives for one agent demo's experience.
 - **Demo metadata module**: A feature-local `demo-meta.ts` file that exposes the canonical catalog and documentation metadata for one agent demo.
+- **Demo Workspace Shell**: The shared screen chrome in `apps/web/components/demo-workspace-shell.tsx` that owns the repeated Agent Demo page frame, breadcrumb, title, summary, badges, and workspace slot.
 - **Visitor Owner Route Module**: The shared route-side module in `apps/web/features/shared/visitor-owner/server/route-owner.ts` that resolves a cookie-scoped visitor owner and appends the owner cookie around a route handler.
 
 ## Current Subdomain Docs
@@ -45,6 +46,8 @@ updateAt: 2026-06-01
 - If an official source core is a large single file, split it into cohesive feature-slice modules when that improves maintainability; keep the behavior, core control flow, and key code recognizable so the split remains structural abstraction instead of custom rewriting.
 - Frontend implementation may diverge more from the official example so the demo can use AI Elements and meet the project's interaction quality bar.
 - Shape each demo page primarily as an operable application workspace.
+- Use the **Demo Workspace Shell** for implemented Agent Demo screens instead of copying the same `main`, breadcrumb, heading, summary, badge rail, and workspace wrapper in every feature slice.
+- Keep feature-specific workspace implementation under `apps/web/features/<demo-slug>/ui`; the **Demo Workspace Shell** should own only the repeated screen chrome and workspace slot.
 - Keep the page heading in normal document flow and put the primary **Demo Workspace** in a viewport-height wrapper at the desktop breakpoint, usually `lg:h-svh`; use the breakpoint where the workspace switches from stacked mobile layout into its desktop grid. Inside that wrapper, the workspace root and primary chat panel should use matching `h-full` plus `min-h-0` constraints so new messages scroll inside the workspace instead of extending the page.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
@@ -76,3 +79,4 @@ updateAt: 2026-06-01
 - Update this file when the feature-slice layout changes.
 - Update this file when a new shared UI primitive boundary appears in `packages/ui`.
 - Update this file when a demo's copy boundary changes or shadcn registry distribution rules become concrete.
+- Update this file when **Demo Workspace Shell** or **Visitor Owner Route Module** rules change.

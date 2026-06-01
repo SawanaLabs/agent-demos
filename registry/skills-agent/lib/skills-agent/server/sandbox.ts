@@ -22,6 +22,7 @@ import { SKILLS_AGENT_WORKSPACE_ROOT } from "./local-skill-catalog";
 import {
   type LoadedSkill,
   loadSkill,
+  parseSkillMetadata,
   type SkillMetadata,
 } from "./skill-catalog";
 
@@ -34,6 +35,8 @@ export const SANDBOX_AGENTS_FILE = VERCEL_SANDBOX_AGENTS_FILE;
 
 export interface SkillsAgentSession extends VercelSandboxSession {
   readonly activeSkillDirectory: string | null;
+  discoverSkills(skills: SkillMetadata[]): Promise<SkillMetadata[]>;
+  listSkillFiles(skillDirectory: string): Promise<string[]>;
   loadSkill(skills: SkillMetadata[], name: string): Promise<LoadedSkill>;
 }
 
@@ -64,6 +67,131 @@ function resolveSessionPath(entry: SessionEntry, targetPath: string) {
   }
 
   return targetPath;
+}
+
+function shellQuote(value: string) {
+  return `'${value.replace(/'/g, `'"'"'`)}'`;
+}
+
+function isSandboxSkillPath(skillPath: string) {
+  return (
+    skillPath === SANDBOX_SKILLS_ROOT ||
+    skillPath.startsWith(`${SANDBOX_SKILLS_ROOT}/`)
+  );
+}
+
+function createSandboxSkillSource(baseSession: VercelSandboxSession) {
+  return {
+    exec: async () => ({
+      stderr: "",
+      stdout: "",
+    }),
+    readdir: async () => [],
+    readFile: (filePath: string, encoding: BufferEncoding | "utf-8") =>
+      baseSession.readFile(filePath).then((content) => {
+        if (encoding !== "utf-8") {
+          throw new Error(`Unexpected encoding ${encoding}`);
+        }
+
+        return content;
+      }),
+  };
+}
+
+function mergeSkillCatalog(
+  primarySkills: SkillMetadata[],
+  fallbackSkills: SkillMetadata[]
+) {
+  const seen = new Set<string>();
+  const mergedSkills: SkillMetadata[] = [];
+
+  for (const skill of [...primarySkills, ...fallbackSkills]) {
+    const key = skill.name.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    mergedSkills.push(skill);
+  }
+
+  return mergedSkills;
+}
+
+function findSkill(skills: SkillMetadata[], name: string) {
+  return skills.find(
+    (candidate) => candidate.name.toLowerCase() === name.toLowerCase()
+  );
+}
+
+async function discoverSandboxSkills(baseSession: VercelSandboxSession) {
+  const command = [
+    `if [ -d ${shellQuote(SANDBOX_SKILLS_ROOT)} ]; then`,
+    `find ${shellQuote(SANDBOX_SKILLS_ROOT)} -mindepth 2 -maxdepth 2 -type f -name 'SKILL.md' -print`,
+    "fi",
+  ].join(" ");
+  const result = await baseSession.runCommand(command);
+
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `Sandbox skill discovery failed. ${result.stderr.trim() || result.stdout.trim() || result.command}`
+    );
+  }
+
+  const seen = new Set<string>();
+  const skills: SkillMetadata[] = [];
+  const skillFiles = result.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right));
+
+  for (const skillFile of skillFiles) {
+    const content = await baseSession.readFile(skillFile);
+    const metadata = parseSkillMetadata(content);
+
+    if (!metadata) {
+      continue;
+    }
+
+    const key = metadata.name.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    skills.push({
+      ...metadata,
+      path: posixPath.dirname(skillFile),
+    });
+  }
+
+  return skills;
+}
+
+async function listSandboxSkillFiles(
+  baseSession: VercelSandboxSession,
+  skillDirectory: string
+) {
+  const command = [
+    `if [ -d ${shellQuote(skillDirectory)} ]; then`,
+    `cd ${shellQuote(skillDirectory)} && find . -type f ! -path './SKILL.md' -print | sed 's#^./##' | sort`,
+    "fi",
+  ].join(" ");
+  const result = await baseSession.runCommand(command);
+
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `Sandbox skill file listing failed for ${skillDirectory}. ${result.stderr.trim() || result.stdout.trim() || result.command}`
+    );
+  }
+
+  return result.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 export const createSkillsAgentSandbox = createVercelSandbox;
@@ -126,42 +254,43 @@ export function createSkillsAgentSessionRegistry({
           return entry.activeSkillDirectory;
         },
         artifactsRoot: SANDBOX_ARTIFACTS_ROOT,
+        async discoverSkills(skills) {
+          return mergeSkillCatalog(
+            await discoverSandboxSkills(baseSession),
+            skills
+          );
+        },
+        listSkillFiles(skillDirectory) {
+          return listSandboxSkillFiles(baseSession, skillDirectory);
+        },
         projectRoot: SANDBOX_PROJECT_ROOT,
         sessionId,
         async loadSkill(skills, name) {
-          const skill = skills.find(
-            (candidate) => candidate.name.toLowerCase() === name.toLowerCase()
+          const availableSkills = mergeSkillCatalog(
+            await discoverSandboxSkills(baseSession),
+            skills
           );
+          const skill = findSkill(availableSkills, name);
 
           if (!skill) {
             throw new Error(`Skill "${name}" was not found in the catalog.`);
           }
 
-          await ensureSkillHydrated(entry, sessionId, skill);
+          if (!isSandboxSkillPath(skill.path)) {
+            await ensureSkillHydrated(entry, sessionId, skill);
+          }
 
           return loadSkill(
-            {
-              exec: async () => ({
-                stderr: "",
-                stdout: "",
-              }),
-              readdir: async () => [],
-              readFile: (filePath, encoding) =>
-                baseSession.readFile(filePath).then((content) => {
-                  if (encoding !== "utf-8") {
-                    throw new Error(`Unexpected encoding ${encoding}`);
-                  }
-
-                  return content;
-                }),
-            },
+            createSandboxSkillSource(baseSession),
             [
               {
                 ...skill,
-                path: posixPath.join(
-                  SANDBOX_SKILLS_ROOT,
-                  path.basename(skill.path)
-                ),
+                path: isSandboxSkillPath(skill.path)
+                  ? skill.path
+                  : posixPath.join(
+                      SANDBOX_SKILLS_ROOT,
+                      path.basename(skill.path)
+                    ),
               },
             ],
             name

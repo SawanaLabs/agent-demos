@@ -24,7 +24,7 @@ updateAt: 2026-05-23
 
 - Treat `https://ai-sdk.dev/cookbook/guides/agent-skills` as the canonical public source route for this demo's source core. Re-verify the stable public route before implementation starts.
 - Preserve the guide's core behavior: discover skills, expose the discovered skill catalog to the agent, load full skill instructions on demand, and run the agent with a sandbox-backed capability layer.
-- Prefer the official `bash-tool` + `experimental_createSkillTool` combination over repo-local tool wrappers when implementing the sandbox capability layer.
+- Prefer the official `bash-tool` + `experimental_createSkillTool` combination for the sandbox capability layer. Add repo-local wrapping only for capability gaps in the current package, such as runtime skill discovery inside the active sandbox.
 - Use the current stable `ToolLoopAgent` interface for implementation. In this repository's current `ai` version, the stable methods are `generate()` and `stream()`. Do not build the web demo around an assumed `run()` method.
 - Use `@vercel/sandbox` as the sandbox runtime for this demo. Do not introduce a separate local execution model for the first implementation.
 - Use the AI SDK chat `id` as the sandbox session key. Do not mint a second application-level session id for the same conversation.
@@ -34,12 +34,12 @@ updateAt: 2026-05-23
 - Let any sandbox-backed tool lazily create or resume the sandbox. Do not gate sandbox access on prior skill activation.
 - Reconnect to an existing named sandbox with `Sandbox.get({ name: chatId })` before creating a fresh one for that same chat id.
 - Let Vercel Sandbox own timeout-based session shutdown. Do not add an application-level idle timer that calls `sandbox.stop()` in the background.
-- Use the official `experimental_createSkillTool` for the user-facing `skill` tool. In the current package version, that tool reads `SKILL.md` from the local workspace, while the session lifecycle mirrors `AGENTS.md` and the selected skill directory into the per-chat sandbox before sandbox-backed file or command tools run.
-- Treat official skill activation as skill-context loading, not as the only sandbox lifecycle boundary. Keep the session-lifecycle layer thin and private; the user-facing tool surface should come from `experimental_createSkillTool` and `createBashTool`, not repo-local `loadSkill`, `pathExists`, `readFile`, or `writeFile` wrappers.
+- Use the official `experimental_createSkillTool` metadata, schema, and description as the base for the user-facing `skill` tool. The execution wrapper must refresh the active sandbox catalog from `/vercel/sandbox/project/.agents/skills` before each load so skills installed during the current chat can be activated.
+- Treat skill activation as skill-context loading and active-directory selection for relative sandbox paths. Keep the session-lifecycle layer thin and private; the user-facing tool surface should still expose `skill`, `bash`, `readFile`, and `writeFile`.
 - Programmatically inject visible skill metadata into the agent call options from the repo-local `.agents/skills` catalog. Include `name`, `description`, and `path`; do not hand-maintain a parallel skill list in the system prompt.
 - Keep the `skills-agent` server seam deep. `chat.ts` should assemble the agent, while a dedicated workspace module should own `AGENTS.md` loading, visible catalog formatting, official tool construction, sandbox roots, and session acquisition.
 - Keep skill routing description-driven. Do not hardcode per-skill trigger rules like `rough ideas -> grill-with-docs` in the system prompt when the skill descriptions already cover that choice.
-- Seed a new sandbox with the thinnest setup environment that still supports repo-local skills: `AGENTS.md`, the discovered skill files uploaded by `createSkillTool`, and any explicit demo artifact roots required by `bash-tool`. Let the agent create `CONTEXT.md`, `docs/adr/`, and other follow-on files inside the sandbox when the skill requires them.
+- Seed a new sandbox with the thinnest setup environment that still supports repo-local and runtime-installed skills: `AGENTS.md`, `.agents/skills/`, and `artifacts/`. Copy repo-local skill directories into `.agents/skills/` on activation, and let newly installed skill directories remain discoverable from that same sandbox root.
 - Retry sandbox creation once when the provider bootstrap fails, then surface the error. Do not cache a failed sandbox-creation promise for the rest of the chat session.
 - Keep the sandbox integration explicit in runtime state and setup messaging. Missing Vercel Sandbox credentials or project binding must surface as setup errors in the demo workspace.
 - The current demo does not persist the AI SDK chat `id` across full page refreshes. Persistence guarantees apply to a stable page/chat lifecycle for now; cross-refresh thread restoration is future work.

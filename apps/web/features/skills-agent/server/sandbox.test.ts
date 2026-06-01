@@ -97,6 +97,51 @@ class FakeSandbox {
   failStopCount = 0;
   stopCount = 0;
 
+  getSandboxSkillFiles() {
+    return Array.from(this.fs.files.keys())
+      .filter((filePath) => {
+        if (!filePath.startsWith(`${SANDBOX_SKILLS_ROOT}/`)) {
+          return false;
+        }
+
+        const relativePath = path.posix.relative(SANDBOX_SKILLS_ROOT, filePath);
+        const pathParts = relativePath.split("/");
+
+        return pathParts.length === 2 && pathParts[1] === "SKILL.md";
+      })
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  getSkillDirectoryFiles(skillDirectory: string) {
+    return Array.from(this.fs.files.keys())
+      .filter((filePath) => {
+        if (!filePath.startsWith(`${skillDirectory}/`)) {
+          return false;
+        }
+
+        return path.posix.basename(filePath) !== "SKILL.md";
+      })
+      .map((filePath) => path.posix.relative(skillDirectory, filePath))
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  runFindCommand(script: string): string | null {
+    if (
+      script.includes(`find '${SANDBOX_SKILLS_ROOT}'`) &&
+      script.includes("-name 'SKILL.md'")
+    ) {
+      return this.getSandboxSkillFiles().join("\n");
+    }
+
+    const listFilesMatch = script.match(/cd '([^']+)' && find \./);
+
+    if (listFilesMatch?.[1]) {
+      return this.getSkillDirectoryFiles(listFilesMatch[1]).join("\n");
+    }
+
+    return null;
+  }
+
   runCommand(options: { args: string[]; cmd: string; cwd: string }) {
     if (this.failRunCommandCount > 0) {
       this.failRunCommandCount -= 1;
@@ -123,6 +168,16 @@ class FakeSandbox {
             Buffer.from(base64Content ?? "", "base64").toString("utf-8")
           );
         }
+      }
+
+      const findStdout = this.runFindCommand(script);
+
+      if (findStdout !== null) {
+        return Promise.resolve({
+          exitCode: 0,
+          stderr: async () => "",
+          stdout: async () => findStdout,
+        });
       }
     }
 
@@ -324,6 +379,49 @@ describe("skills agent sandbox session registry", () => {
 
     expect(requestedSessionIds).toEqual(["chat-1"]);
     expect(sandboxes).toHaveLength(1);
+  });
+
+  it("loads a skill that was installed into the sandbox after session creation", async () => {
+    const workspaceRoot = await createWorkspaceFixture();
+    const sandboxes: FakeSandbox[] = [];
+    const registry = createSkillsAgentSessionRegistry({
+      createSandbox: () => {
+        const sandbox = new FakeSandbox();
+        sandboxes.push(sandbox);
+        return Promise.resolve(sandbox as never);
+      },
+      workspaceRoot,
+    });
+    const session = registry.getSession("chat-1");
+
+    await session.writeFile(
+      ".agents/skills/word-skill/SKILL.md",
+      `---
+name: word-skill
+description: Work with Word documents.
+---
+
+# Word Skill
+
+Use this workflow for Word documents.
+`
+    );
+    await session.writeFile(
+      ".agents/skills/word-skill/references/word.md",
+      "# Word Reference\n"
+    );
+
+    await expect(session.loadSkill([], "word-skill")).resolves.toEqual({
+      content: "# Word Skill\n\nUse this workflow for Word documents.",
+      name: "word-skill",
+      skillDirectory: `${SANDBOX_SKILLS_ROOT}/word-skill`,
+    });
+    await expect(session.readFile("./references/word.md")).resolves.toBe(
+      "# Word Reference\n"
+    );
+    await expect(
+      session.listSkillFiles(`${SANDBOX_SKILLS_ROOT}/word-skill`)
+    ).resolves.toEqual(["references/word.md"]);
   });
 
   it("falls back to a shell write when the sandbox file API rejects a write", async () => {

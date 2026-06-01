@@ -8,7 +8,7 @@ const now = new Date("2026-05-29T10:00:00.000Z");
 function createStore(
   events: Date[] = [],
   policy: { allowanceUnits: number; windowSeconds?: number } = {
-    allowanceUnits: 10,
+    allowanceUnits: 50,
   }
 ) {
   const calls: string[] = [];
@@ -42,9 +42,9 @@ function createStore(
 describe("site usage gate route wrapper", () => {
   it("returns structured 429 and does not call the handler when the visitor is out of quota", async () => {
     const { calls, store } = createStore(
-      Array.from({ length: 10 }, (_, index) => {
-        const event = new Date(now);
-        event.setUTCHours(index);
+      Array.from({ length: 50 }, (_, index) => {
+        const event = new Date("2026-05-29T00:00:00.000Z");
+        event.setUTCMinutes(index);
         return event;
       })
     );
@@ -69,7 +69,7 @@ describe("site usage gate route wrapper", () => {
     await expect(response.json()).resolves.toMatchObject({
       code: siteUsageLimitErrorCode,
       policy: {
-        allowanceUnits: 10,
+        allowanceUnits: 50,
       },
       resetAt: "2026-05-30T00:00:00.000Z",
     });

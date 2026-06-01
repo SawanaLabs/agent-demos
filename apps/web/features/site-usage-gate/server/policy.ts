@@ -3,7 +3,7 @@ import type { SiteUsagePolicyScope } from "../contract";
 const millisecondsPerSecond = 1000;
 const secondsPerDay = 24 * 60 * 60;
 
-export const defaultSiteUsageAllowanceUnits = 10;
+export const defaultSiteUsageAllowanceUnits = 50;
 
 export interface ActiveAccessCodePolicy {
   allowanceUnits: number;

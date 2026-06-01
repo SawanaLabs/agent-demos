@@ -66,7 +66,7 @@ updateAt: 2026-06-01
 - Successful **Usage Access Code** redemption should refresh the visitor's effective **Usage Policy** and close or reset the **Usage Limit Dialog**. Invalid codes should show an inline error in the invite-code view.
 - **Support Waitlist Entry** should not be stored as a **Usage Event**.
 - Do not use global Next.js middleware for the first version. Metering belongs at explicit model-backed demo route entries so non-metered endpoints such as session lookup, upload, records, MCP, and history routes are not accidentally charged.
-- A **Site Visitor Owner** starts with a **Daily Trial Allowance** of 10 **Metered Agent Turns** per UTC calendar day.
+- A **Site Visitor Owner** starts with a **Daily Trial Allowance** of 50 **Metered Agent Turns** per UTC calendar day.
 - A **Metered Agent Turn** is counted when a visitor sends a message, submits an edited message, requests generated suggestions, or resends output.
 - A **Metered Agent Turn** counts once even when the **Agent Demo** performs multiple internal model calls or tool steps.
 - Invalid request bodies, missing environment setup, and usage-gate rejections should not consume a **Metered Agent Turn**.

@@ -25,6 +25,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
+  registryGuideAgentTaskBrief,
   registryGuideConfig,
   supportedRegistryDemoNotes,
 } from "@/features/registry-guide/registry-guide-data";
@@ -32,21 +33,6 @@ import { RegistrySmoothScroll } from "@/features/registry-guide/registry-smooth-
 
 const quickInstallCommand = `${registryGuideConfig.namespaceSetupCommand}
 ${registryGuideConfig.foundationChatCommand}`;
-
-const registryGuideUrl = `https://${registryGuideConfig.domain}/registry-guide`;
-
-const agentTaskBrief = `I want to quickly launch a production-ready AI project from a new shadcn Next.js app.
-
-Use this guide as the source of truth before planning:
-${registryGuideUrl}
-
-Follow the guide's new-project path: create the shadcn Next.js app, install Foundation Chat from the registry, configure the AI Gateway env, verify one local chat message, and prepare the Vercel deployment env.
-
-Acceptance criteria:
-- A new shadcn Next.js app is initialized.
-- Foundation Chat is installed from @ai-sdk-6-demos.
-- Local chat works with AI_GATEWAY_API_KEY.
-- Vercel deployment is prepared with the same env var.`;
 
 export const metadata: Metadata = {
   description:
@@ -305,8 +291,10 @@ export default function RegistryGuidePage() {
             </p>
           </div>
           <GuideCommandPanel
-            actions={<OpenAgentBriefInChatButton query={agentTaskBrief} />}
-            code={agentTaskBrief}
+            actions={
+              <OpenAgentBriefInChatButton query={registryGuideAgentTaskBrief} />
+            }
+            code={registryGuideAgentTaskBrief}
             title="agent task brief"
           />
         </section>

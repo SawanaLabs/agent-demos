@@ -24,6 +24,21 @@ export const registryGuideConfig = {
   },
 } as const;
 
+export const registryGuideUrl = `https://${registryGuideConfig.domain}/registry-guide`;
+
+export const registryGuideAgentTaskBrief = `I want to quickly launch a production-ready AI project from a new shadcn Next.js app.
+
+Use this guide as the source of truth before planning:
+${registryGuideUrl}
+
+Follow the guide's new-project path: create the shadcn Next.js app, install Foundation Chat from the registry, configure the AI Gateway env, verify one local chat message, and prepare the Vercel deployment env.
+
+Acceptance criteria:
+- A new shadcn Next.js app is initialized.
+- Foundation Chat is installed from @ai-sdk-6-demos.
+- Local chat works with AI_GATEWAY_API_KEY.
+- Vercel deployment is prepared with the same env var.`;
+
 export const foundationChatEnvExample = `AI_GATEWAY_API_KEY=...
 AI_GATEWAY_BASE_URL=https://ai-gateway.vercel.sh/v3/ai
 AI_GATEWAY_CHAT_MODEL=openai/gpt-4.1-mini`;

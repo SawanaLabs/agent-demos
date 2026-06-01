@@ -1,15 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Card } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ArrowLeft } from "lucide-react";
+import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
 
 import { getFoundationChatRuntimeState } from "@/lib/foundation-chat/runtime";
 import { FoundationChatWorkspace } from "@/components/foundation-chat/foundation-chat-workspace";
@@ -23,28 +15,10 @@ export function FoundationChatScreen() {
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6">
           <Card className="grid gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
             <div className="space-y-2">
-              <Breadcrumb>
-                <BreadcrumbList className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      aria-label="Back to demos"
-                      className="-ml-1 inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-                      href="/"
-                    >
-                      <ArrowLeft aria-hidden="true" className="size-3.5 shrink-0" />
-                      <span>Demo</span>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="text-muted-foreground">
-                    /
-                  </BreadcrumbSeparator>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="font-normal text-muted-foreground">
-                      Foundation Chat
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <DemoBreadcrumb
+                className="font-heading text-xs tracking-[0.16em]"
+                title="Foundation Chat"
+              />
               <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
                 Production-ready AI Gateway chat shell for the rest of the demos
               </h1>

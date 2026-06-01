@@ -58,6 +58,11 @@
           "target": "@components/foundation-chat/use-foundation-chat.ts"
         },
         {
+          "path": "components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"

@@ -1,6 +1,5 @@
 "use client";
 
-import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
 import {
   Conversation,
   ConversationContent,
@@ -25,8 +24,15 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
+import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
 
 import { useFoundationChat } from "./use-foundation-chat";
+
+const foundationChatSamplePrompts = [
+  "Explain the minimum files this Foundation Chat demo needs in a fresh Next.js app.",
+  "Show how the AI Gateway key flows from env vars into the chat route.",
+  "Suggest the next demo slice to build after this baseline chat is working.",
+] as const;
 
 function getTextContent(message: UIMessage) {
   return message.parts
@@ -162,6 +168,23 @@ export function FoundationChatWorkspace({
                 </div>
               </PromptInputFooter>
             </PromptInput>
+
+            {hasMessages ? null : (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {foundationChatSamplePrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    onClick={() => sendMessage({ text: prompt })}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <BotIcon className="size-3.5" />
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Card>

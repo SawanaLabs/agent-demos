@@ -14,7 +14,8 @@ updateAt: 2026-06-01
 
 ## Domain Language
 
-- **Registry sync script**: A demo-specific authoring script that checks or writes a registry source copy from an app-first feature slice.
+- **Registry projection Module**: The shared author-side implementation in `scripts/registry-sync/registry-projection.mjs` that checks and writes registry source files from explicit manifests.
+- **Registry sync CLI**: The shared command entrypoint at `scripts/registry-sync/sync-registry-demo.mjs`.
 - **Registry sync manifest**: A demo-specific mapping file that declares source files, target files, and allowed transforms for one Agent Demo.
 - **Copy-ready feature slice**: An app-first demo slice whose registry copy can be derived through one-to-one file mapping plus a small whitelist of explicit transforms.
 - **Registry-only file**: A file that belongs to registry wiring or registry-specific vendoring and should stay outside automatic sync.
@@ -22,7 +23,7 @@ updateAt: 2026-06-01
 ## Current Rules
 
 - Use app-first ownership for registry-ready demos. `apps/web/features/<demo-slug>/` is the source of truth once that demo is copy-ready.
-- Place per-demo sync tooling under `scripts/registry-sync/`, using one shell script plus one manifest file per demo.
+- Place registry projection tooling under `scripts/registry-sync/`. Use one shared CLI plus one manifest file per sync-ready demo. Demo-specific shell scripts may remain as compatibility wrappers.
 - Treat sync tooling as author tooling. Do not place it inside `apps/web/features/<demo-slug>/` or `registry/<demo-slug>/`.
 - Only add a sync script after the demo is copy-ready.
 - A demo is copy-ready only when all of these are true:
@@ -33,6 +34,7 @@ updateAt: 2026-06-01
   - the synced registry item still passes registry validation, registry build, and any required fresh-consumer acceptance checks
 - Keep the script narrow. It should check and copy already-clean files. It should not rescue a slice whose boundaries are still tangled.
 - Keep registry wiring files under registry ownership. `registry/<demo-slug>/registry.json`, route entry files, vendored exception files, and generated files under `apps/web/public/r/` stay outside v1 auto-sync.
+- If a synced app-first file imports a shared UI helper that must travel with the registry item, add that helper as an explicit manifest entry and add the projected file to `registry/<demo-slug>/registry.json`. Do not leave the consumer to discover the missing helper at install time.
 - Published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md) must stay outside sync manifests and synced files.
 - If an app-first source file imports `site-usage-gate` or other published-site host augmentation modules, that file is not copy-ready for registry sync.
 - Registry route entries should call demo runtime handlers directly. Do not sync an app route wrapper that exists only to meter usage on the published website.
@@ -47,7 +49,12 @@ updateAt: 2026-06-01
   - `--check`: inspect mappings and transforms without writing files
   - `--write`: perform the sync and write target files
 - Require an explicit mode. Exiting with an error on missing mode is preferred over guessing.
-- Run `pnpm registry:build` automatically after a successful `--write`; it regenerates the root registry from `registry/registry-demos.json` and removes stale public output before building.
+- Use `pnpm registry:sync:check` to run all `scripts/registry-sync/*.manifest.json` projections in check mode.
+- Use `pnpm registry:sync:write` to write all declared projections. This command writes registry source files only; it does not build generated public registry output.
+- `pnpm registry:check`, `pnpm registry:build`, and `pnpm registry:validate` must run `pnpm registry:sync:check` before checking, building, or validating registry output.
+- Public registry JSON under `apps/web/public/r/` is generated output, but it must still be formatter-clean. `pnpm registry:build` runs `pnpm registry:public:format` after shadcn build output, and `pnpm registry:check` runs `pnpm registry:public:check`.
+- Demo-specific compatibility scripts may run `pnpm registry:build` automatically after a successful `--write`; `scripts/registry-sync/foundation-chat.sh --write` currently does this.
+- Registry projection `--write` may create a new target file when a manifest adds a new projected file. `--check` still fails when that target is missing.
 - Do not treat fresh-consumer acceptance as part of the sync script. Keep that as a separate author verification step.
 - Fresh-consumer acceptance should still probe both page and API reachability after `pnpm dev` starts, because registry drift often shows up only after route compilation.
 
@@ -58,21 +65,26 @@ updateAt: 2026-06-01
 - Use the live `foundation-chat` files for the concrete example:
   - app-first source: `apps/web/features/foundation-chat/`
   - registry source: `registry/foundation-chat/`
-- The current v1 sync entrypoint is `scripts/registry-sync/foundation-chat.sh`.
+- The current shared sync entrypoint is `scripts/registry-sync/sync-registry-demo.mjs`.
+- `scripts/registry-sync/foundation-chat.sh` remains as a compatibility wrapper for the first demo-specific workflow.
 - The current v1 sync scope for `foundation-chat` is limited to already-mirrored demo files with one-to-one targets:
   - `ui/foundation-chat-screen.tsx`
   - `ui/foundation-chat-workspace.tsx`
   - `ui/use-foundation-chat.ts`
+  - shared UI helper `apps/web/components/demo-breadcrumb.tsx`
   - `server/runtime.ts`
   - `server/env.ts`
 
 Current explicit transform exception:
 
+- `apps/web/components/demo-breadcrumb.tsx` rewrites `@workspace/ui` imports to consumer-project aliases and is listed as a registry item file.
 - `server/env.ts` removes the app-only `@/env` import and rewrites the default env reader from `appEnv` to `process.env` for the registry copy.
 
 Minimal author workflow:
 
 ```bash
+pnpm registry:sync:check
+pnpm registry:sync:write
 scripts/registry-sync/foundation-chat.sh --check
 scripts/registry-sync/foundation-chat.sh --write
 ```

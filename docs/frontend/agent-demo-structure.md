@@ -23,6 +23,7 @@ updateAt: 2026-06-02
 - **Demo Workspace Shell**: The shared screen chrome in `apps/web/components/demo-workspace-shell.tsx` that owns the repeated Agent Demo page frame, breadcrumb, title, summary, badges, and workspace slot.
 - **Demo Chat Controller Module**: The shared client hook and helpers in `apps/web/features/shared/chat/ui/use-demo-chat.ts` that own the repeated AI SDK `Chat`, `DefaultChatTransport`, `useChat`, `hasMessages`, and `isBusy` wiring for ordinary demo chat workspaces.
 - **Visitor Owner Route Module**: The shared route-side module in `apps/web/features/shared/visitor-owner/server/route-owner.ts` that resolves a cookie-scoped visitor owner and appends the owner cookie around a route handler.
+- **Metered Demo Route Module**: The published-site host wrapper in `apps/web/features/site-usage-gate/server/metered-demo-route.ts` that keeps site usage metering outside registry-copyable demo feature slices.
 
 ## Current Subdomain Docs
 
@@ -67,6 +68,7 @@ updateAt: 2026-06-02
 - Keep shared functions outside a feature slice only after reuse is real; do not prematurely create shared abstractions between demos.
 - Treat a feature slice plus its thin route/API entries as the default copy boundary for migrating a demo into another compatible project.
 - Published-site host augmentations, including the [Site Usage Gate](./site-usage-gate.md), are outside an **Agent Demo** copy boundary even when they wrap `apps/web/app/api/demos/*` route entries in this website.
+- Published-site model-backed API route entries should use the **Metered Demo Route Module** for host metering and optional demo visitor ownership while keeping the demo runtime handler portable.
 - Demo runtime handlers should remain independent from published-site host augmentations so registry route entries can call the demo behavior without site-only policy code.
 - Do not import published-site host augmentation modules from `apps/web/features/<demo-slug>/` demo slices.
 - For demos with cookie-scoped ownership, keep demo-specific visitor policy in a feature-local adapter over the **Visitor Owner Route Module**. Route entries should call that adapter, pass `visitorId` into the demo runtime, and leave cookie serialization plus `set-cookie` mutation inside the owner module.
@@ -85,4 +87,4 @@ updateAt: 2026-06-02
 - Update this file when the feature-slice layout changes.
 - Update this file when a new shared UI primitive boundary appears in `packages/ui`.
 - Update this file when a demo's copy boundary changes or shadcn registry distribution rules become concrete.
-- Update this file when **Demo Workspace Shell**, **Demo Chat Controller Module**, or **Visitor Owner Route Module** rules change.
+- Update this file when **Demo Workspace Shell**, **Demo Chat Controller Module**, **Visitor Owner Route Module**, or **Metered Demo Route Module** rules change.

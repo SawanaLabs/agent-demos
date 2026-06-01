@@ -1,13 +1,11 @@
 import { handleRagChatbotRequest } from "@/features/rag-chatbot/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "rag-chatbot",
-  },
-  async (request) => handleRagChatbotRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "rag-chatbot",
+  handler: ({ request }) => handleRagChatbotRequest(request),
+});

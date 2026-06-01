@@ -1,12 +1,10 @@
 import { handleMcpAgentRequest } from "@/features/mcp-agent/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "mcp-agent",
-  },
-  async (request) => handleMcpAgentRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "mcp-agent",
+  handler: ({ request }) => handleMcpAgentRequest(request),
+});

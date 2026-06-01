@@ -1,12 +1,10 @@
 import { handleOpenAiAgentsSdkDemoRequest } from "@/features/openai-agents-sdk-demo/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "openai-agents-sdk-demo",
-  },
-  async (request) => handleOpenAiAgentsSdkDemoRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "openai-agents-sdk-demo",
+  handler: ({ request }) => handleOpenAiAgentsSdkDemoRequest(request),
+});

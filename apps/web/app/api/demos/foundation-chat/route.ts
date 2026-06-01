@@ -1,12 +1,10 @@
 import { handleFoundationChatRequest } from "@/features/foundation-chat/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "foundation-chat",
-  },
-  async (request) => handleFoundationChatRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "foundation-chat",
+  handler: ({ request }) => handleFoundationChatRequest(request),
+});

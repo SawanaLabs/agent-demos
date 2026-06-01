@@ -1,7 +1,7 @@
 ---
 title: Site Usage Gate
 description: Product-language boundary for the published demo website's visitor usage limits and invitation-code upgrades.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # Site Usage Gate
@@ -36,6 +36,9 @@ updateAt: 2026-06-01
 - **Published-Site Host Augmentation**: Site-owned route or UI wiring that applies only to this published demo website and stays outside each **Agent Demo** **Copy Boundary**.
   _Avoid_: Demo runtime dependency, registry item feature, global middleware
 
+- **Metered Demo Route Module**: The host-only route-entry composer in `apps/web/features/site-usage-gate/server/metered-demo-route.ts` that combines the **Site Usage Gate**, optional demo **Visitor Owner Route Module** adapter, and demo runtime handler.
+  _Avoid_: Registry runtime dependency, demo feature module, global middleware
+
 - **Usage Limit Dialog**: A shadcn Dialog shown only after the **Site Usage Gate** rejects a **Metered Agent Turn** because the active allowance is exhausted.
   _Avoid_: Always-visible upgrade prompt, demo-local modal, paywall
 
@@ -47,6 +50,8 @@ updateAt: 2026-06-01
 - The first **Site Usage Gate** version is for this published demo website only. It must stay outside `registry/*` and any **Agent Demo** **Copy Boundary**.
 - **Site Usage Gate** implementation should live under `apps/web/features/site-usage-gate/*` as a **Published-Site Host Augmentation**.
 - `apps/web/app/api/demos/*` route entries may import **Site Usage Gate** server helpers to wrap model-backed demo requests for the published website.
+- Metered demo API route entries should use the **Metered Demo Route Module** rather than calling the lower-level database-backed route handler directly.
+- Visitor-owned metered routes should use `createVisitorOwnedMeteredDemoRoute` so the **Site Usage Gate** rejects exhausted visitors before demo visitor ownership is resolved, and successful responses keep both the demo visitor cookie and the site visitor cookie.
 - **Agent Demo** feature slices under `apps/web/features/<demo-slug>/` must not import **Site Usage Gate** modules.
 - Registry source files under `registry/*` must not import **Site Usage Gate** modules or include invite-code UI.
 - Demo runtime handlers should remain usable without the **Site Usage Gate** so registry copies can call the same demo behavior directly.
@@ -98,7 +103,8 @@ updateAt: 2026-06-01
 - Persistence uses `site_usage_visitors`, `site_usage_access_codes`, `site_usage_events`, and `site_usage_waitlist_entries`.
 - The visitor cookie is `site_visitor_id`. It identifies the **Site Visitor Owner** for this published website and is separate from demo-specific visitor cookies such as persistent-agent and customer-memory cookies.
 - `apps/web/features/site-usage-gate/server/route-wrapper.ts` owns the allowance check and post-success usage-event creation contract.
-- `apps/web/features/site-usage-gate/server/route-handler.ts` is the database-backed wrapper used by published-site demo API routes.
+- `apps/web/features/site-usage-gate/server/metered-demo-route.ts` owns host-only published-site demo route composition for model-backed route entries.
+- `apps/web/features/site-usage-gate/server/route-handler.ts` is the lower-level database-backed metering entry used by the **Metered Demo Route Module**.
 - Site visitor cookie mechanics reuse `apps/web/features/shared/visitor-owner/server/route-owner.ts`, but the **Site Visitor Owner** policy remains site-owned and separate from demo-specific visitor owners.
 - Invite-code redemption is handled by `apps/web/app/api/site-usage/access-code/route.ts`; the route name stays `access-code` because **Usage Access Code** is the internal domain term.
 - Support-waitlist submission is handled by `apps/web/app/api/site-usage/waitlist/route.ts`.

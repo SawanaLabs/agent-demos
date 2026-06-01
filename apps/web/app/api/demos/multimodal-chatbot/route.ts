@@ -1,12 +1,10 @@
 import { handleMultimodalChatbotRequest } from "@/features/multimodal-chatbot/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "multimodal-chatbot",
-  },
-  async (request) => handleMultimodalChatbotRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "multimodal-chatbot",
+  handler: ({ request }) => handleMultimodalChatbotRequest(request),
+});

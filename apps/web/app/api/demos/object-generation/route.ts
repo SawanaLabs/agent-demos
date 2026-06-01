@@ -1,12 +1,10 @@
 import { handleObjectGenerationRequest } from "@/features/object-generation/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const maxDuration = 30;
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "object-generation",
-  },
-  async (request) => handleObjectGenerationRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "object-generation",
+  handler: ({ request }) => handleObjectGenerationRequest(request),
+});

@@ -1,12 +1,10 @@
 import { handleLangGraphAgentRequest } from "@/features/langgraph-agent/server/runtime";
-import { withSiteUsageGate } from "@/features/site-usage-gate/server/route-handler";
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
-export const POST = withSiteUsageGate(
-  {
-    action: "send_message",
-    demoSlug: "langgraph-agent",
-  },
-  async (request) => handleLangGraphAgentRequest(request)
-);
+export const POST = createMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "langgraph-agent",
+  handler: ({ request }) => handleLangGraphAgentRequest(request),
+});

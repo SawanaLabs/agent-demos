@@ -130,7 +130,7 @@ async function discoverSandboxSkills(baseSession: VercelSandboxSession) {
     `if [ -d ${shellQuote(SANDBOX_SKILLS_ROOT)} ]; then`,
     `find ${shellQuote(SANDBOX_SKILLS_ROOT)} -mindepth 2 -maxdepth 2 -type f -name 'SKILL.md' -print`,
     "fi",
-  ].join(" ");
+  ].join("\n");
   const result = await baseSession.runCommand(command);
 
   if (result.exitCode !== 0) {
@@ -179,7 +179,7 @@ async function listSandboxSkillFiles(
     `if [ -d ${shellQuote(skillDirectory)} ]; then`,
     `cd ${shellQuote(skillDirectory)} && find . -type f ! -path './SKILL.md' -print | sed 's#^./##' | sort`,
     "fi",
-  ].join(" ");
+  ].join("\n");
   const result = await baseSession.runCommand(command);
 
   if (result.exitCode !== 0) {

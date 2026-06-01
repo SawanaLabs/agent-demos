@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -157,6 +158,19 @@ class FakeSandbox {
 
     if (options.cmd === "bash" && options.args[0] === "-lc") {
       const script = options.args[1] ?? "";
+      const syntaxCheck = spawnSync("bash", ["-n"], {
+        encoding: "utf-8",
+        input: script,
+      });
+
+      if (syntaxCheck.status !== 0) {
+        return Promise.resolve({
+          exitCode: syntaxCheck.status ?? 2,
+          stderr: async () => syntaxCheck.stderr,
+          stdout: async () => syntaxCheck.stdout,
+        });
+      }
+
       const match = script.match(shellFallbackWritePattern);
 
       if (match) {

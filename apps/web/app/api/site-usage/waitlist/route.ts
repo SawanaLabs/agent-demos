@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createSiteUsageWaitlistEntry } from "@/features/site-usage-gate/server/store";
 import {
+  appendSiteUsageVisitorCookie,
   resolveSiteUsageViewerContext,
-  serializeSiteUsageVisitorCookie,
 } from "@/features/site-usage-gate/server/viewer-context";
 
 const waitlistRequestSchema = z.object({
@@ -51,12 +51,5 @@ function withVisitorCookie(
   response: Response,
   viewer: { isNewVisitor: boolean; visitorId: string }
 ) {
-  if (viewer.isNewVisitor) {
-    response.headers.append(
-      "set-cookie",
-      serializeSiteUsageVisitorCookie(viewer.visitorId)
-    );
-  }
-
-  return response;
+  return appendSiteUsageVisitorCookie(response, viewer);
 }

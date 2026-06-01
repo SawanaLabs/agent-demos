@@ -99,6 +99,7 @@ updateAt: 2026-06-01
 - The visitor cookie is `site_visitor_id`. It identifies the **Site Visitor Owner** for this published website and is separate from demo-specific visitor cookies such as persistent-agent and customer-memory cookies.
 - `apps/web/features/site-usage-gate/server/route-wrapper.ts` owns the allowance check and post-success usage-event creation contract.
 - `apps/web/features/site-usage-gate/server/route-handler.ts` is the database-backed wrapper used by published-site demo API routes.
+- Site visitor cookie mechanics reuse `apps/web/features/shared/visitor-owner/server/route-owner.ts`, but the **Site Visitor Owner** policy remains site-owned and separate from demo-specific visitor owners.
 - Invite-code redemption is handled by `apps/web/app/api/site-usage/access-code/route.ts`; the route name stays `access-code` because **Usage Access Code** is the internal domain term.
 - Support-waitlist submission is handled by `apps/web/app/api/site-usage/waitlist/route.ts`.
 - Usage-event cleanup is handled by `apps/web/app/api/cron/site-usage-cleanup/route.ts` and scheduled from `vercel.json` with the same UTC cadence as the other visitor-data cleanup jobs.

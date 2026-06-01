@@ -20,6 +20,7 @@ updateAt: 2026-06-01
 - **UI primitive**: A shared low-level component, hook, style primitive, or UI utility exported from `packages/ui`.
 - **Demo UI component**: A feature-local component built from UI primitives for one agent demo's experience.
 - **Demo metadata module**: A feature-local `demo-meta.ts` file that exposes the canonical catalog and documentation metadata for one agent demo.
+- **Visitor Owner Route Module**: The shared route-side module in `apps/web/features/shared/visitor-owner/server/route-owner.ts` that resolves a cookie-scoped visitor owner and appends the owner cookie around a route handler.
 
 ## Current Subdomain Docs
 
@@ -60,6 +61,8 @@ updateAt: 2026-06-01
 - Published-site host augmentations, including the [Site Usage Gate](./site-usage-gate.md), are outside an **Agent Demo** copy boundary even when they wrap `apps/web/app/api/demos/*` route entries in this website.
 - Demo runtime handlers should remain independent from published-site host augmentations so registry route entries can call the demo behavior without site-only policy code.
 - Do not import published-site host augmentation modules from `apps/web/features/<demo-slug>/` demo slices.
+- For demos with cookie-scoped ownership, keep demo-specific visitor policy in a feature-local adapter over the **Visitor Owner Route Module**. Route entries should call that adapter, pass `visitorId` into the demo runtime, and leave cookie serialization plus `set-cookie` mutation inside the owner module.
+- Keep **Site Visitor Owner** policy separate from demo-specific visitor owners. The published-site visitor cookie may reuse the shared cookie mechanics, but it remains a host augmentation and is not part of any Agent Demo copy boundary.
 - Preserve compatibility with future shadcn registry distribution by keeping demo-owned files grouped and avoiding hidden cross-demo dependencies.
 - When a demo is maintained app-first for registry distribution, treat `apps/web/features/<demo-slug>/` as the source of truth only after the slice is copy-ready under the rules in [Registry Sync](./registry-sync.md).
 - When a demo is published through the shadcn registry, keep a portable registry source copy under `registry/<demo-slug>/` if the app feature slice depends on monorepo-only imports.

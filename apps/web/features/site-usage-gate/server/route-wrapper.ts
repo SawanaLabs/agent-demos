@@ -8,9 +8,9 @@ import {
   resolveSiteUsagePolicy,
 } from "./policy";
 import {
+  appendSiteUsageVisitorCookie,
   createSiteUsageVisitorId,
   resolveSiteUsageViewerContext,
-  serializeSiteUsageVisitorCookie,
 } from "./viewer-context";
 
 export interface SiteUsageGateStore {
@@ -111,14 +111,7 @@ export function createSiteUsageGate({
         });
       }
 
-      if (viewer.isNewVisitor) {
-        response.headers.append(
-          "set-cookie",
-          serializeSiteUsageVisitorCookie(viewer.visitorId)
-        );
-      }
-
-      return response;
+      return appendSiteUsageVisitorCookie(response, viewer);
     },
   };
 }

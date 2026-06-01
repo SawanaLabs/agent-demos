@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent
 description: Product and architecture boundary for the vercel/chatbot application-shape port.
-updateAt: 2026-05-28
+updateAt: 2026-06-01
 ---
 
 # Ultra Chatbot Agent
@@ -19,6 +19,7 @@ updateAt: 2026-05-28
 - Keep the copy boundary centered on `apps/web/features/ultra-chatbot-agent` plus thin Next.js page and API route entries.
 - Use a Visitor Owner for the first release while keeping the Owner concept explicit enough to support authenticated ownership later.
 - Treat the entire auth tree from the reference app as an explicit first-release defer bucket. Ultra uses an HTTP-only visitor cookie in `apps/web/features/ultra-chatbot-agent/server/viewer-context.ts` and therefore does not port login, register, sign-out, guest-session bootstrap, or account navigation yet.
+- Keep Ultra visitor-cookie parsing, creation, serialization, and route response mutation behind the shared Visitor Owner Route Module. Route entries should use the feature-local `handleUltraChatbotAgentVisitorRequest` adapter and only pass `visitorId` into Ultra runtime handlers.
 - Prefer this repository's feature-slice structure, AI Elements UI primitives, env-contract modules, and focused core-contract tests.
 - Treat `persistent-agent` as the infrastructure reference for URL-backed persistence and resume streams, not as the place to keep growing chatbot-product features.
 - When Ultra changes agent runtime strategy, treat the change as a server orchestration seam inside `apps/web/features/ultra-chatbot-agent/server/runtime.ts`. Keep the existing application shape intact: route-backed chat, Visitor Owner ownership, Postgres persistence, Redis resume streams, history, voting, visibility, and artifact or document surfaces remain part of the stable workspace shell.

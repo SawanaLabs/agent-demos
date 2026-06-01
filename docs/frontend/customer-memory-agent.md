@@ -1,7 +1,7 @@
 ---
 title: Memory & Persistence Agent
 description: Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo.
-updateAt: 2026-05-24
+updateAt: 2026-06-01
 ---
 
 # Memory & Persistence Agent
@@ -40,6 +40,7 @@ updateAt: 2026-05-24
 - The first three customer use cases are shared read-only demos. Their data still lives in Postgres; the UI simply blocks write operations and the server enforces the same restriction with explicit `403` errors.
 - The fourth customer profile is `demo-sandbox`. It remains writable and persists to Postgres, but every browser is isolated by `visitorId`.
 - Do not introduce a `userId` or owner table for this demo. `visitorId` is the only viewer identity dimension.
+- Keep `cm_visitor_id` parsing, creation, serialization, and route response mutation behind the shared Visitor Owner Route Module. Route entries should use the feature-local `handleCustomerMemoryVisitorRequest` adapter and only pass `visitorId` into the runtime.
 - Keep shared demo data and sandbox data on the same schema, and scope only the tables that need viewer isolation. Current isolation lives on customer-memory threads, memory records, memory events, and embeddings through `visitorId`/memory joins.
 - Keep long-term customer memory separate from raw message history. The agent should not treat the entire restored thread as a memory store.
 - First-version compaction uses handoff only. Do not add semantic recall inside the compaction path.

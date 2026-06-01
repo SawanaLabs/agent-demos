@@ -57,7 +57,7 @@ updateAt: 2026-06-01
 - The first dialog view's primary action should be a support-waitlist action labeled "Join waitlist", with invite-code redemption kept as the secondary path. The dismissal action should use a short English label such as "Maybe later".
 - The support-waitlist action opens a secondary view that asks whether the visitor would actually need a paid plan with higher message limits.
 - The support-waitlist secondary view should frame the paid access question as a waitlist and feedback collection flow, not as a donation or tip request.
-- The support-waitlist secondary view should include an optional message field and one primary submit action labeled "Join waitlist". Do not add a secondary dismissal button inside this secondary view; the dialog close button already provides exit.
+- The support-waitlist secondary view should include an optional message field labeled `Message (optional)` with the optional suffix visually subdued, and one primary submit action labeled "Join waitlist". Do not add a secondary dismissal button inside this secondary view; the dialog close button already provides exit.
 - The support-waitlist primary action should submit a **Support Waitlist Entry**.
 - Invite-code redemption should be a secondary path opened through a link-style button from the first dialog view.
 - The invite-code secondary view should let the visitor enter a **Usage Access Code** to upgrade future allowance. The link, title, and label should use "邀请码" for visitors, while buttons can use short English action labels.

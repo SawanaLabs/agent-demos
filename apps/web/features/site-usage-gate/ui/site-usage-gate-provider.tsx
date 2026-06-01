@@ -267,7 +267,10 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   className="font-medium text-xs"
                   htmlFor="site-waitlist-message"
                 >
-                  Message
+                  Message{" "}
+                  <span className="font-normal text-muted-foreground">
+                    (optional)
+                  </span>
                 </label>
                 <Textarea
                   id="site-waitlist-message"

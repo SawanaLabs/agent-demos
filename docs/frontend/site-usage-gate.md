@@ -74,8 +74,8 @@ updateAt: 2026-06-01
 - Redeeming a **Usage Access Code** upgrades the **Site Visitor Owner** so future usage follows the code's configured **Usage Policy**.
 - A redeemed **Usage Access Code** should resolve its **Usage Policy** live when usage is checked. Operator changes to the code's configured allowance or enabled state apply to already-upgraded **Site Visitor Owners**.
 - The first upgraded **Usage Policy** target is 100 **Metered Agent Turns** every 5 hours.
-- The first operator-configured 邀请码 is `SAWANA`, stored and displayed in uppercase, granting the first upgraded **Usage Policy** target.
 - **Usage Access Codes** are configurable operator-owned records and may define different upper limits later.
+- Do not record live **Usage Access Code** values in docs, UI placeholders, tests, fixtures, examples, screenshots, or logs. Use synthetic examples such as `YOUR-CODE` or `DEMO-CODE`.
 - **Usage Access Codes** may be stored in operator-visible form in the first version. If a code leaks, the operator should disable or replace that code instead of treating it as a high-security secret.
 - A **Site Visitor Owner** has at most one active **Usage Access Code** binding. Redeeming a new valid code replaces the previous binding.
 - First-version usage accounting persistence should use three Postgres tables: site visitors, access codes, and usage events.

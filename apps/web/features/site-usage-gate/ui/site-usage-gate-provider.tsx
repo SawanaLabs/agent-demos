@@ -221,7 +221,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                       normalizeSiteUsageInviteCode(event.target.value)
                     )
                   }
-                  placeholder="SAWANA"
+                  placeholder="YOUR-CODE"
                   spellCheck={false}
                   value={accessCode}
                 />

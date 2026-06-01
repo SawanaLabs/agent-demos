@@ -167,7 +167,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   variant="link"
                 >
                   <Key />
-                  邀请码
+                  Invite code
                 </Button>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row">
                   <Button
@@ -201,7 +201,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     <ArrowLeft />
                   </Button>
                 </div>
-                <DialogTitle>邀请码</DialogTitle>
+                <DialogTitle>Invite code</DialogTitle>
                 <DialogDescription>
                   Use this code to upgrade your quota to 100 messages every 5
                   hours.
@@ -209,7 +209,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
               </DialogHeader>
               <div className="space-y-2">
                 <label className="font-medium text-xs" htmlFor="site-code">
-                  邀请码
+                  Invite code
                 </label>
                 <Input
                   autoCapitalize="characters"

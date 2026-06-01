@@ -6,18 +6,13 @@
       "target": "registry/foundation-chat/components/foundation-chat/foundation-chat-screen.tsx",
       "transforms": [
         {
-          "from": "from \"@workspace/ui/components/badge\";",
-          "to": "from \"@/components/ui/badge\";",
-          "expectedMatches": 1
-        },
-        {
-          "from": "from \"@workspace/ui/components/card\";",
-          "to": "from \"@/components/ui/card\";",
-          "expectedMatches": 1
-        },
-        {
           "from": "from \"@workspace/ui/components/tooltip\";",
           "to": "from \"@/components/ui/tooltip\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/components/demo-workspace-shell\";",
+          "to": "from \"@/components/demo-workspace-shell\";",
           "expectedMatches": 1
         },
         {
@@ -89,23 +84,6 @@
     {
       "source": "apps/web/features/foundation-chat/ui/use-foundation-chat.ts",
       "target": "registry/foundation-chat/components/foundation-chat/use-foundation-chat.ts"
-    },
-    {
-      "source": "apps/web/components/demo-breadcrumb.tsx",
-      "target": "registry/foundation-chat/components/demo-breadcrumb.tsx",
-      "transforms": [
-        {
-          "from": "from \"@workspace/ui/components/breadcrumb\";",
-          "to": "from \"@/components/ui/breadcrumb\";",
-          "expectedMatches": 1
-        },
-        {
-          "from": "from \"@workspace/ui/lib/utils\";",
-          "to": "from \"@/lib/utils\";",
-          "expectedMatches": 1
-        }
-      ],
-      "forbidPatternsAfterTransform": ["@workspace/"]
     },
     {
       "source": "apps/web/features/foundation-chat/server/runtime.ts",

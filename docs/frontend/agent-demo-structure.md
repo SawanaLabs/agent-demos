@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # Agent Demo Structure
@@ -48,6 +48,7 @@ updateAt: 2026-06-01
 - Shape each demo page primarily as an operable application workspace.
 - Use the **Demo Workspace Shell** for implemented Agent Demo screens instead of copying the same `main`, breadcrumb, heading, summary, badge rail, and workspace wrapper in every feature slice.
 - Keep feature-specific workspace implementation under `apps/web/features/<demo-slug>/ui`; the **Demo Workspace Shell** should own only the repeated screen chrome and workspace slot.
+- For synced registry demos that use the **Demo Workspace Shell**, project `apps/web/components/demo-workspace-shell.tsx` through `scripts/registry-sync/shared-registry-assets.json` with an explicit `demos` list, and list the projected `components/demo-workspace-shell.tsx` file in the demo-owned registry item.
 - Keep the page heading in normal document flow and put the primary **Demo Workspace** in a viewport-height wrapper at the desktop breakpoint, usually `lg:h-svh`; use the breakpoint where the workspace switches from stacked mobile layout into its desktop grid. Inside that wrapper, the workspace root and primary chat panel should use matching `h-full` plus `min-h-0` constraints so new messages scroll inside the workspace instead of extending the page.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
@@ -70,6 +71,7 @@ updateAt: 2026-06-01
 - When a demo is maintained app-first for registry distribution, treat `apps/web/features/<demo-slug>/` as the source of truth only after the slice is copy-ready under the rules in [Registry Sync](./registry-sync.md).
 - When a demo is published through the shadcn registry, keep a portable registry source copy under `registry/<demo-slug>/` if the app feature slice depends on monorepo-only imports.
 - Keep registry sync tooling outside feature slices under `scripts/registry-sync/` so author tooling does not become part of the runtime or distribution boundary.
+- Keep shared app seams that can travel to registry, such as the **Demo Workspace Shell** and **Demo Breadcrumb**, in the shared registry asset manifest instead of repeating them in each demo-specific sync manifest.
 - Use `foundation-chat` as the baseline registry reference when publishing the next demo. Reuse its registry directory shape, validation flow, and fresh-consumer acceptance path unless the registry distribution doc records a newer standard.
 - Do not put `@workspace/*` imports or cross-demo shared feature imports in registry source files.
 - Document the working registry install command in the feature-local `README.md` after the registry item exists.

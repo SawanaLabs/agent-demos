@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # shadcn Registry Distribution
@@ -49,11 +49,12 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
 - Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
 - For synced app-first demos, every manifest target under `registry/<demo-slug>/` is treated as a shipped file unless the manifest explicitly sets `registryItemFile: false`. The sync check asserts that each shipped target is present in `registry/<demo-slug>/registry.json` `files[].path`.
-- Cross-demo shared registry assets are projected by `scripts/registry-sync/shared-registry-assets.json` into every source chunk listed by `registry/registry-demos.json`. This keeps each installed demo self-contained while giving shared portable files one author-side owner.
+- Shared registry assets are projected by `scripts/registry-sync/shared-registry-assets.json` into every source chunk listed by `registry/registry-demos.json`, or into an explicit source-chunk subset when an entry declares `demos`. This keeps each installed demo self-contained while giving shared portable files one author-side owner.
 - Keep registry-only shared vendored assets under `registry/_shared/`, then project them into demo chunks. Do not reference `registry/_shared/` directly from a demo-owned `registry.json`.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
 - Registry source must not import published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md), and must not include usage-limit dialogs, access-code redemption, or website-only visitor metering.
 - If this published website wraps an app API route with the **Site Usage Gate**, the matching registry route entry should still call the portable demo runtime handler directly.
+- If an app-first screen uses the **Demo Workspace Shell**, the registry item should install the projected `components/demo-workspace-shell.tsx` plus its projected `components/demo-breadcrumb.tsx` dependency through the shared registry asset manifest. Keep screen files thin and avoid re-copying page chrome in each synced demo.
 - Registry source should import shadcn and AI Elements code through consumer-project aliases such as `@/components/ui/*`, `@/components/ai-elements/*`, and `@/lib/*`.
 - Use `files[].target` placeholders such as `@components/` and `@lib/` for files that can follow the consumer project's `components.json`.
 - Next.js route targets still need explicit `app/...` paths because shadcn registry target aliases do not provide an App Router placeholder.
@@ -85,7 +86,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - If a demo is not copy-ready yet, fix the slice before introducing sync tooling. Do not use sync as a workaround for a tangled boundary.
 - Once a sync manifest exists, treat `files[]` as the distribution contract and the manifest as the projection contract. Keep both updated in the same change when a synced file is added or removed.
 - Until a sync step exists for a given demo, update the app preview files and the registry source files in the same change and verify both paths.
-- For portable assets shared by many demo chunks, prefer the shared registry asset manifest over repeating the file in each demo-specific sync manifest.
+- For portable assets shared by many demo chunks, or shared by a selected subset of chunks, prefer the shared registry asset manifest over repeating the file in each demo-specific sync manifest.
 
 ## Foundation Chat Item
 
@@ -142,7 +143,7 @@ When publishing the next demo, start from the `foundation-chat` registry shape a
 - Keep env examples in `envVars`.
 - Keep monorepo-only imports out of registry source files.
 - Include any shared portable contract files explicitly, such as `lib/ai-gateway/contract.ts` with target `@lib/ai-gateway/contract.ts`, before the demo env adapter that imports them.
-- If the file is shared across registry chunks, add it to `scripts/registry-sync/shared-registry-assets.json` and keep the per-demo `registry.json` `files[]` entries aligned through `pnpm registry:sync:check`.
+- If the file is shared across registry chunks or a named subset of chunks, add it to `scripts/registry-sync/shared-registry-assets.json` and keep the per-demo `registry.json` `files[]` entries aligned through `pnpm registry:sync:check`.
 
 The first move for a new demo should be structural copy from `registry/foundation-chat/`, followed by narrowing, not inventing a new registry layout from scratch.
 

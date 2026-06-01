@@ -40,6 +40,30 @@ function assertRelativeRegistryPath(filePath, field) {
   return normalized;
 }
 
+function normalizeSharedAssetTargetDemos(value, field) {
+  if (value === undefined) {
+    return null;
+  }
+
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`Expected ${field} to be a non-empty string array.`);
+  }
+
+  const seen = new Set();
+
+  return value.map((demo, index) => {
+    assertNonEmptyString(demo, `${field}[${index}]`);
+
+    if (seen.has(demo)) {
+      throw new Error(`Duplicate shared registry asset target demo: ${demo}.`);
+    }
+
+    seen.add(demo);
+
+    return demo;
+  });
+}
+
 function registryManifestPathForDemo({ manifest, repoRoot }) {
   const registryPath =
     manifest.registryPath ??
@@ -238,6 +262,10 @@ export function readSharedRegistryAssetManifest(manifestPath) {
   manifest.entries.forEach((entry, index) => {
     assertNonEmptyString(entry.name, `manifest.entries[${index}].name`);
     assertNonEmptyString(entry.source, `${entry.name}.source`);
+    entry.demos = normalizeSharedAssetTargetDemos(
+      entry.demos,
+      `${entry.name}.demos`
+    );
     entry.target = assertRelativeRegistryPath(
       entry.target,
       `${entry.name}.target`
@@ -285,14 +313,35 @@ function readSharedRegistryAssetDemos({ manifest, repoRoot }) {
   });
 }
 
+function assertSharedRegistryAssetDemoReferences({ demos, manifest }) {
+  const demoSlugs = new Set(demos.map((demo) => demo.slug));
+
+  for (const entry of manifest.entries) {
+    for (const demo of entry.demos ?? []) {
+      if (!demoSlugs.has(demo)) {
+        throw new Error(
+          `Shared registry asset ${entry.name} references unknown demo: ${demo}.`
+        );
+      }
+    }
+  }
+}
+
+function sharedRegistryAssetEntriesForDemo({ demo, manifest }) {
+  return manifest.entries.filter(
+    (entry) => !entry.demos || entry.demos.includes(demo.slug)
+  );
+}
+
 function sharedAssetProjectionManifestForDemo({ demo, manifest }) {
   const registryChunkPath = normalizeRegistryPath(
     path.dirname(demo.registryPath)
   );
+  const entries = sharedRegistryAssetEntriesForDemo({ demo, manifest });
 
   return {
     demo: demo.slug,
-    entries: manifest.entries.map((entry) => ({
+    entries: entries.map((entry) => ({
       ...entry,
       target: normalizeRegistryPath(path.join(registryChunkPath, entry.target)),
     })),
@@ -301,9 +350,11 @@ function sharedAssetProjectionManifestForDemo({ demo, manifest }) {
 }
 
 function runSharedRegistryAssetsProjection({ demo, manifest, mode, repoRoot }) {
-  const demos = readSharedRegistryAssetDemos({ manifest, repoRoot }).filter(
-    (entry) => !demo || entry.slug === demo
-  );
+  const allDemos = readSharedRegistryAssetDemos({ manifest, repoRoot });
+
+  assertSharedRegistryAssetDemoReferences({ demos: allDemos, manifest });
+
+  const demos = allDemos.filter((entry) => !demo || entry.slug === demo);
 
   if (demos.length === 0) {
     throw new Error(`Shared registry asset target demo not found: ${demo}.`);

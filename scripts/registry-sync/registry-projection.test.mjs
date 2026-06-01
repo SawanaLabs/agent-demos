@@ -114,7 +114,13 @@ async function withSharedAssetFixture(run) {
       path.join(repoRoot, "apps/web/features/shared/ai-gateway/server"),
       { recursive: true }
     );
+    fs.mkdirSync(path.join(repoRoot, "apps/web/components"), {
+      recursive: true,
+    });
     fs.mkdirSync(path.join(repoRoot, "registry/public-demo/lib/ai-gateway"), {
+      recursive: true,
+    });
+    fs.mkdirSync(path.join(repoRoot, "registry/public-demo/components"), {
       recursive: true,
     });
     fs.mkdirSync(path.join(repoRoot, "registry/private-demo/lib/ai-gateway"), {
@@ -138,8 +144,35 @@ async function withSharedAssetFixture(run) {
       path.join(repoRoot, "registry/private-demo/lib/ai-gateway/contract.ts"),
       "stale\n"
     );
+    fs.writeFileSync(
+      path.join(repoRoot, "apps/web/components/demo-workspace-shell.tsx"),
+      "export function DemoWorkspaceShell() { return null; }\n"
+    );
+    fs.writeFileSync(
+      path.join(
+        repoRoot,
+        "registry/public-demo/components/demo-workspace-shell.tsx"
+      ),
+      "export function DemoWorkspaceShell() { return null; }\n"
+    );
 
     for (const slug of ["public-demo", "private-demo"]) {
+      const files = [
+        {
+          path: "lib/ai-gateway/contract.ts",
+          target: "@lib/ai-gateway/contract.ts",
+          type: "registry:lib",
+        },
+      ];
+
+      if (slug === "public-demo") {
+        files.push({
+          path: "components/demo-workspace-shell.tsx",
+          target: "@components/demo-workspace-shell.tsx",
+          type: "registry:component",
+        });
+      }
+
       fs.writeFileSync(
         path.join(repoRoot, "registry", slug, "registry.json"),
         JSON.stringify(
@@ -147,13 +180,7 @@ async function withSharedAssetFixture(run) {
             $schema: "https://ui.shadcn.com/schema/registry.json",
             items: [
               {
-                files: [
-                  {
-                    path: "lib/ai-gateway/contract.ts",
-                    target: "@lib/ai-gateway/contract.ts",
-                    type: "registry:lib",
-                  },
-                ],
+                files,
                 name: slug,
                 type: "registry:block",
               },
@@ -200,6 +227,12 @@ async function withSharedAssetFixture(run) {
               name: "ai-gateway-contract",
               source: "apps/web/features/shared/ai-gateway/server/contract.ts",
               target: "lib/ai-gateway/contract.ts",
+            },
+            {
+              demos: ["public-demo"],
+              name: "demo-workspace-shell",
+              source: "apps/web/components/demo-workspace-shell.tsx",
+              target: "components/demo-workspace-shell.tsx",
             },
           ],
           registryDemos: "registry/registry-demos.json",
@@ -264,7 +297,7 @@ test("writes newly projected targets", async () => {
   });
 });
 
-test("projects shared registry assets into every registry demo source chunk", async () => {
+test("projects shared registry assets into global and selected registry demo source chunks", async () => {
   await withSharedAssetFixture(({ manifestPath, repoRoot }) => {
     const manifest = readSharedRegistryAssetManifest(manifestPath);
 
@@ -272,14 +305,20 @@ test("projects shared registry assets into every registry demo source chunk", as
       checkSharedRegistryAssetProjection({ manifest, repoRoot }),
       {
         changed: ["registry/private-demo/lib/ai-gateway/contract.ts"],
-        unchanged: ["registry/public-demo/lib/ai-gateway/contract.ts"],
+        unchanged: [
+          "registry/public-demo/lib/ai-gateway/contract.ts",
+          "registry/public-demo/components/demo-workspace-shell.tsx",
+        ],
       }
     );
     assert.deepEqual(
       writeSharedRegistryAssetProjection({ manifest, repoRoot }),
       {
         changed: ["registry/private-demo/lib/ai-gateway/contract.ts"],
-        unchanged: ["registry/public-demo/lib/ai-gateway/contract.ts"],
+        unchanged: [
+          "registry/public-demo/lib/ai-gateway/contract.ts",
+          "registry/public-demo/components/demo-workspace-shell.tsx",
+        ],
       }
     );
     assert.equal(

@@ -10,6 +10,49 @@
       "name": "ai-elements-prompt-input",
       "source": "registry/_shared/components/ai-elements/prompt-input.tsx",
       "target": "components/ai-elements/prompt-input.tsx"
+    },
+    {
+      "name": "demo-breadcrumb",
+      "demos": ["foundation-chat"],
+      "source": "apps/web/components/demo-breadcrumb.tsx",
+      "target": "components/demo-breadcrumb.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/breadcrumb\";",
+          "to": "from \"@/components/ui/breadcrumb\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/"]
+    },
+    {
+      "name": "demo-workspace-shell",
+      "demos": ["foundation-chat"],
+      "source": "apps/web/components/demo-workspace-shell.tsx",
+      "target": "components/demo-workspace-shell.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/card\";",
+          "to": "from \"@/components/ui/card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/"]
     }
   ]
 }

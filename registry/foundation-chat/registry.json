@@ -58,6 +58,11 @@
           "target": "@components/foundation-chat/use-foundation-chat.ts"
         },
         {
+          "path": "components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
           "path": "components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"

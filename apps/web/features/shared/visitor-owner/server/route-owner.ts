@@ -77,7 +77,10 @@ export function createVisitorOwner({
     visitor: VisitorOwnerContext
   ) {
     if (visitor.shouldSetCookie) {
-      response.headers.append("set-cookie", buildVisitorCookie(visitor.visitorId));
+      response.headers.append(
+        "set-cookie",
+        buildVisitorCookie(visitor.visitorId)
+      );
     }
 
     return response;

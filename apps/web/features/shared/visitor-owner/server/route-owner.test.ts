@@ -42,7 +42,8 @@ describe("visitor owner route module", () => {
         },
         method: "POST",
       }),
-      async (_request, visitor) => Response.json({ visitorId: visitor.visitorId })
+      async (_request, visitor) =>
+        Response.json({ visitorId: visitor.visitorId })
     );
 
     await expect(response.json()).resolves.toEqual({

@@ -60,8 +60,8 @@ export function FoundationChatWorkspace({
   } = useFoundationChat();
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <Card className="min-h-[70svh] gap-0 bg-background py-0 text-base text-foreground leading-normal lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <>
             <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -80,7 +80,7 @@ export function FoundationChatWorkspace({
           </>
         ) : null}
 
-        <Conversation>
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               messages.map((message) => {
@@ -166,7 +166,7 @@ export function FoundationChatWorkspace({
         </div>
       </Card>
 
-      <Card className="bg-background p-4 text-base text-foreground leading-normal">
+      <Card className="bg-background p-4 text-base text-foreground leading-normal lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-4">
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">

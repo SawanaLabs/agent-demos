@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-05-29
+updateAt: 2026-06-01
 ---
 
 # Agent Demo Structure
@@ -44,6 +44,7 @@ updateAt: 2026-05-29
 - If an official source core is a large single file, split it into cohesive feature-slice modules when that improves maintainability; keep the behavior, core control flow, and key code recognizable so the split remains structural abstraction instead of custom rewriting.
 - Frontend implementation may diverge more from the official example so the demo can use AI Elements and meet the project's interaction quality bar.
 - Shape each demo page primarily as an operable application workspace.
+- Keep the page heading in normal document flow and put the primary **Demo Workspace** in a viewport-height wrapper at the desktop breakpoint, usually `lg:h-svh`; use the breakpoint where the workspace switches from stacked mobile layout into its desktop grid. Inside that wrapper, the workspace root and primary chat panel should use matching `h-full` plus `min-h-0` constraints so new messages scroll inside the workspace instead of extending the page.
 - Put lightweight explanatory content in the empty state before user interaction, then replace it with messages, results, or agent state once interaction begins.
 - Avoid top-heavy explanatory sections on demo pages.
 - Prefer a user-facing default reading path. Answers, results, citations, and other end-user evidence should carry the main conversation, while developer-oriented traces or debug surfaces should stay available as secondary, usually collapsible, layers.

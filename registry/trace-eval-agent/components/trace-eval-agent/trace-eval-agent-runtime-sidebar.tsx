@@ -31,7 +31,7 @@ function SidebarSection({
   title: string;
 }) {
   return (
-    <section className="rounded-lg border border-foreground/10 bg-background p-4">
+    <section className="min-h-0 overflow-y-auto rounded-lg border border-foreground/10 bg-background p-4">
       <h2 className="font-medium text-sm">{title}</h2>
       <div className="mt-3 space-y-3">{children}</div>
     </section>
@@ -46,7 +46,7 @@ export function TraceEvalAgentRuntimeSidebar({
   snapshot,
 }: TraceEvalAgentRuntimeSidebarProps) {
   return (
-    <aside className="space-y-4">
+    <aside className="space-y-4 lg:min-h-0 lg:overflow-y-auto">
       <SidebarSection title="Meta">
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">{runtimeState.statusLabel}</Badge>

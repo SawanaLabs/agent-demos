@@ -27,8 +27,8 @@ export function SandboxAgentWorkspace({
   const workspace = useSandboxAgentWorkspaceViewModel();
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}

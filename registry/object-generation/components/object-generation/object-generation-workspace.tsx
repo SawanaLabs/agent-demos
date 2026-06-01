@@ -96,8 +96,8 @@ export function ObjectGenerationWorkspace({
   );
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isReviewAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}
@@ -116,7 +116,7 @@ export function ObjectGenerationWorkspace({
           </div>
         ) : null}
 
-        <Conversation>
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               entries.map((entry) => {
@@ -285,7 +285,7 @@ export function ObjectGenerationWorkspace({
         </div>
       </section>
 
-      <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4">
+      <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4 lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
             Runtime

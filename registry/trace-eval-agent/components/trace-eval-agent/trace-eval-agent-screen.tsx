@@ -30,7 +30,9 @@ export function TraceEvalAgentScreen() {
           </div>
         </header>
 
-        <TraceEvalAgentWorkspace runtimeState={runtimeState} />
+        <div className="lg:h-svh">
+          <TraceEvalAgentWorkspace runtimeState={runtimeState} />
+        </div>
       </div>
     </main>
   );

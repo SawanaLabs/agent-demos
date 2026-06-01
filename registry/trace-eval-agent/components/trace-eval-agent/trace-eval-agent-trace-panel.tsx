@@ -41,7 +41,7 @@ export function TraceEvalAgentTracePanel({
 }) {
   if (runOutcome.kind === "failed-run") {
     return (
-      <section className="rounded-lg border border-foreground/10 bg-background p-4">
+      <section className="min-h-0 overflow-y-auto rounded-lg border border-foreground/10 bg-background p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <h2 className="font-medium text-sm">Trace</h2>
@@ -75,7 +75,7 @@ export function TraceEvalAgentTracePanel({
   }
 
   return (
-    <section className="rounded-lg border border-foreground/10 bg-background p-4">
+    <section className="min-h-0 overflow-y-auto rounded-lg border border-foreground/10 bg-background p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="font-medium text-sm">Trace</h2>

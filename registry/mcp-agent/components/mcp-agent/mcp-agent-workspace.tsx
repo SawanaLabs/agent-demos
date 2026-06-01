@@ -58,8 +58,8 @@ export function McpAgentWorkspace({
   } = useMcpAgentChat();
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-[minmax(0,1fr)]">
+      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}
@@ -72,7 +72,7 @@ export function McpAgentWorkspace({
           </div>
         ) : null}
 
-        <Conversation className="max-h-[70svh] min-h-0">
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 pt-6 pb-[3lh]">
             {hasMessages ? (
               messages.map((message, index) => (

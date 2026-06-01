@@ -37,14 +37,16 @@ export function CustomerMemoryAgentScreen() {
           </div>
         </header>
 
-        <CustomerMemoryAgentWorkspace
-          chatModel={runtimeState.chatModel}
-          compactionThreshold={runtimeState.compactionThreshold}
-          customers={customerMemoryProfiles}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="xl:h-svh">
+          <CustomerMemoryAgentWorkspace
+            chatModel={runtimeState.chatModel}
+            compactionThreshold={runtimeState.compactionThreshold}
+            customers={customerMemoryProfiles}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

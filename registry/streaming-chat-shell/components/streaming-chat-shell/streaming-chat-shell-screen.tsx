@@ -31,13 +31,15 @@ export function StreamingChatShellScreen() {
           </div>
         </header>
 
-        <StreamingChatShellWorkspace
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-          supportedAudiences={runtimeState.supportedAudiences}
-        />
+        <div className="lg:h-svh">
+          <StreamingChatShellWorkspace
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+            supportedAudiences={runtimeState.supportedAudiences}
+          />
+        </div>
       </div>
     </main>
   );

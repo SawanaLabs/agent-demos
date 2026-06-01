@@ -30,13 +30,15 @@ export async function RagChatbotScreen() {
           </div>
         </header>
 
-        <RagChatbotWorkspace
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          sourceDocument={runtimeState.sourceDocument}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <RagChatbotWorkspace
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            sourceDocument={runtimeState.sourceDocument}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

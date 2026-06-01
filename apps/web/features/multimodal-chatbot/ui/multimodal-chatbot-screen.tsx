@@ -30,13 +30,15 @@ export function MultimodalChatbotScreen() {
           </div>
         </header>
 
-        <MultimodalChatbotWorkspace
-          acceptedMediaTypes={runtimeState.acceptedMediaTypes}
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <MultimodalChatbotWorkspace
+            acceptedMediaTypes={runtimeState.acceptedMediaTypes}
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

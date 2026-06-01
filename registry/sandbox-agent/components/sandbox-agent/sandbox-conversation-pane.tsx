@@ -59,7 +59,7 @@ export function SandboxConversationPane({
   return (
     <TabsContent className="mt-0 min-h-0 flex-1" value="conversation">
       <div className="flex h-full min-h-0 flex-col">
-        <Conversation>
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               messages.map((message, index) => (

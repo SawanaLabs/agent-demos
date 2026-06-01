@@ -19,7 +19,7 @@ export function McpRuntimeSidebar({
   nodeVersion,
 }: McpRuntimeSidebarProps) {
   return (
-    <aside className="border border-foreground/10 bg-background p-4">
+    <aside className="border border-foreground/10 bg-background p-4 lg:h-full lg:min-h-0 lg:overflow-y-auto">
       <div className="space-y-5">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">

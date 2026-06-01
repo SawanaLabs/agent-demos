@@ -31,14 +31,16 @@ export async function SkillsAgentScreen() {
           </div>
         </header>
 
-        <SkillsAgentWorkspace
-          availableSkills={runtimeState.availableSkills}
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          sandboxProvider={runtimeState.sandboxProvider}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <SkillsAgentWorkspace
+            availableSkills={runtimeState.availableSkills}
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            sandboxProvider={runtimeState.sandboxProvider}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

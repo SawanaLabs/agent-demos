@@ -293,7 +293,7 @@ function CustomerMemoryNavigationSidebar({
   onSelectThread,
 }: CustomerMemoryNavigationSidebarProps) {
   return (
-    <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4">
+    <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4 xl:min-h-0 xl:overflow-y-auto">
       <CustomerMemoryCustomerList
         customerId={customerId}
         customers={customers}
@@ -564,7 +564,7 @@ function CustomerMemoryChatPanel({
   onStopChat,
 }: CustomerMemoryChatPanelProps) {
   return (
-    <section className="flex min-h-[74svh] flex-col border border-foreground/10 bg-background">
+    <section className="flex min-h-[74svh] flex-col border border-foreground/10 bg-background xl:h-full xl:min-h-0">
       {isChatAvailable ? null : (
         <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
           {setupMessage}
@@ -625,7 +625,7 @@ function CustomerMemoryConversation({
   session: CustomerMemorySessionData | null;
 }) {
   return (
-    <Conversation>
+    <Conversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
         <CustomerMemoryConversationContent
           compactionThreshold={compactionThreshold}
@@ -901,7 +901,7 @@ function CustomerMemoryInsightsSidebar({
   onRefreshSession,
 }: CustomerMemoryInsightsSidebarProps) {
   return (
-    <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4">
+    <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4 xl:min-h-0 xl:overflow-y-auto">
       <CustomerMemoryRuntimePanel
         compactionThreshold={compactionThreshold}
         isChatAvailable={isChatAvailable}
@@ -1244,7 +1244,7 @@ export function CustomerMemoryAgentWorkspace({
   );
 
   return (
-    <div className="grid min-h-[74svh] gap-4 xl:grid-cols-[16rem_minmax(0,1fr)_22rem]">
+    <div className="grid min-h-[74svh] gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[16rem_minmax(0,1fr)_22rem]">
       <CustomerMemoryNavigationSidebar
         activeThreadId={controller.activeThreadId}
         customerId={controller.customerId}

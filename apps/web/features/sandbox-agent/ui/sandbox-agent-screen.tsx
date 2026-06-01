@@ -31,14 +31,16 @@ export async function SandboxAgentScreen() {
           </div>
         </header>
 
-        <SandboxAgentWorkspace
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          previewPort={runtimeState.previewPort}
-          sandboxProvider={runtimeState.sandboxProvider}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <SandboxAgentWorkspace
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            previewPort={runtimeState.previewPort}
+            sandboxProvider={runtimeState.sandboxProvider}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

@@ -29,13 +29,15 @@ export function ObjectGenerationScreen() {
           </div>
         </header>
 
-        <ObjectGenerationWorkspace
-          acceptedMediaTypes={runtimeState.acceptedMediaTypes}
-          chatModel={runtimeState.chatModel}
-          isReviewAvailable={runtimeState.isReviewAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <ObjectGenerationWorkspace
+            acceptedMediaTypes={runtimeState.acceptedMediaTypes}
+            chatModel={runtimeState.chatModel}
+            isReviewAvailable={runtimeState.isReviewAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

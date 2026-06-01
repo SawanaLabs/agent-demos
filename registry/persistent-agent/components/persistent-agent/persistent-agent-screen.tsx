@@ -43,15 +43,17 @@ export function PersistentAgentScreen({
           </div>
         </header>
 
-        <PersistentAgentWorkspace
-          chatModel={runtimeState.chatModel}
-          draftChatId={draftChatId}
-          initialSession={initialSession}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          recentChats={recentChats}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <PersistentAgentWorkspace
+            chatModel={runtimeState.chatModel}
+            draftChatId={draftChatId}
+            initialSession={initialSession}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            recentChats={recentChats}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

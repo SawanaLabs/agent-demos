@@ -33,13 +33,15 @@ export function LoopAgentScreen() {
           </div>
         </header>
 
-        <LoopAgentWorkspace
-          chatModel={runtimeState.chatModel}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-          triage={triage}
-        />
+        <div className="lg:h-svh">
+          <LoopAgentWorkspace
+            chatModel={runtimeState.chatModel}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+            triage={triage}
+          />
+        </div>
       </div>
     </main>
   );

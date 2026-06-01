@@ -32,7 +32,7 @@ export function TraceEvalAgentEvalPanel({
   if (runOutcome.kind === "empty") {
     return (
       <TestResults
-        className="rounded-lg border-foreground/10"
+        className="min-h-0 overflow-y-auto rounded-lg border-foreground/10"
         summary={{
           duration: undefined,
           failed: 0,
@@ -62,7 +62,7 @@ export function TraceEvalAgentEvalPanel({
   if (runOutcome.kind === "skipped") {
     return (
       <TestResults
-        className="rounded-lg border-foreground/10"
+        className="min-h-0 overflow-y-auto rounded-lg border-foreground/10"
         summary={{
           duration: snapshot.durationMs,
           failed: 0,
@@ -114,7 +114,7 @@ export function TraceEvalAgentEvalPanel({
   if (runOutcome.kind === "failed-run") {
     return (
       <TestResults
-        className="rounded-lg border-foreground/10"
+        className="min-h-0 overflow-y-auto rounded-lg border-foreground/10"
         summary={{
           duration: snapshot.durationMs,
           failed: 1,
@@ -171,7 +171,7 @@ export function TraceEvalAgentEvalPanel({
 
   return (
     <TestResults
-      className="rounded-lg border-foreground/10"
+      className="min-h-0 overflow-y-auto rounded-lg border-foreground/10"
       summary={{
         duration: snapshot.durationMs,
         ...snapshot.summary,

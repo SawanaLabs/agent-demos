@@ -386,8 +386,8 @@ export function LoopAgentWorkspace({
   );
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}
@@ -400,7 +400,7 @@ export function LoopAgentWorkspace({
           </div>
         ) : null}
 
-        <Conversation>
+        <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               messages.map((message, index) => (
@@ -505,7 +505,7 @@ export function LoopAgentWorkspace({
         </div>
       </section>
 
-      <aside className="border border-foreground/10 bg-background p-4">
+      <aside className="border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-5">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">

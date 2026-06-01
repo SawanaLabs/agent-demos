@@ -31,14 +31,16 @@ export function McpAgentScreen() {
           </div>
         </header>
 
-        <McpAgentWorkspace
-          chatModel={runtimeState.chatModel}
-          configuredServers={runtimeState.configuredServers}
-          configuredTools={runtimeState.configuredTools}
-          isChatAvailable={runtimeState.isChatAvailable}
-          nodeVersion={runtimeState.nodeVersion}
-          setupMessage={runtimeState.setupMessage}
-        />
+        <div className="lg:h-svh">
+          <McpAgentWorkspace
+            chatModel={runtimeState.chatModel}
+            configuredServers={runtimeState.configuredServers}
+            configuredTools={runtimeState.configuredTools}
+            isChatAvailable={runtimeState.isChatAvailable}
+            nodeVersion={runtimeState.nodeVersion}
+            setupMessage={runtimeState.setupMessage}
+          />
+        </div>
       </div>
     </main>
   );

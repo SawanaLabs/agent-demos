@@ -33,12 +33,14 @@ export function FoundationChatScreen() {
             </div>
           </Card>
 
-          <FoundationChatWorkspace
-            chatModel={runtimeState.chatModel}
-            isChatAvailable={runtimeState.isChatAvailable}
-            nodeVersion={runtimeState.nodeVersion}
-            setupMessage={runtimeState.setupMessage}
-          />
+          <div className="lg:h-svh">
+            <FoundationChatWorkspace
+              chatModel={runtimeState.chatModel}
+              isChatAvailable={runtimeState.isChatAvailable}
+              nodeVersion={runtimeState.nodeVersion}
+              setupMessage={runtimeState.setupMessage}
+            />
+          </div>
         </div>
       </main>
     </TooltipProvider>

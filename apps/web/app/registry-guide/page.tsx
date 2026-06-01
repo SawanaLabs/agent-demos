@@ -25,6 +25,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
+  recommendedAgentSkills,
+  recommendedAgentSkillsCommand,
   registryGuideAgentTaskBrief,
   registryGuideConfig,
   supportedRegistryDemoNotes,
@@ -140,6 +142,25 @@ function DemoCommandBlock({ command }: { command: string }) {
       </code>
       <RegistryCopyButton value={command} />
     </div>
+  );
+}
+
+function AgentSkillCard({
+  description,
+  name,
+}: {
+  description: string;
+  name: string;
+}) {
+  return (
+    <Card className="h-full border-foreground/10" size="sm">
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground text-xs/relaxed">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -435,6 +456,70 @@ export default function RegistryGuidePage() {
               </p>
             </div>
           </aside>
+        </section>
+
+        <section
+          className="space-y-4 border-foreground/10 border-t pt-8"
+          id="repo-setup"
+        >
+          <div className="space-y-2">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+              Repo setup
+            </p>
+            <h2 className="font-medium text-xl">
+              Add a small skill kit for future agent work
+            </h2>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              Once the new chat project is running, install these optional
+              skills in the same repository. Four come from{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.mattPocockSkills}
+              >
+                Matt Pocock's skills
+              </ExternalLink>
+              , and the docs memory skill comes from{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.agentDocsSystemSkill}
+              >
+                agent-docs-system-skill
+              </ExternalLink>
+              . Together they help an agent align on the plan, keep durable
+              project docs, use focused tests, review architecture, and split
+              larger work into handoff-ready slices.
+            </p>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              Recommendation: treat this as a lightweight engineering setup.{" "}
+              <code className="font-mono text-foreground">grill-with-docs</code>{" "}
+              and{" "}
+              <code className="font-mono text-foreground">
+                project-docs-system
+              </code>{" "}
+              give the agent a DDD-style shared language and project memory;{" "}
+              <code className="font-mono text-foreground">tdd</code> and{" "}
+              <code className="font-mono text-foreground">
+                improve-codebase-architecture
+              </code>{" "}
+              keep behavior changes testable while the code is refactored;{" "}
+              <code className="font-mono text-foreground">to-issues</code> is
+              the workflow helper for splitting larger work into small vertical
+              slices.
+            </p>
+          </div>
+
+          <GuideCommandPanel
+            code={recommendedAgentSkillsCommand}
+            title="recommended agent skills"
+          />
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {recommendedAgentSkills.map((skill) => (
+              <AgentSkillCard
+                description={skill.description}
+                key={skill.name}
+                name={skill.name}
+              />
+            ))}
+          </div>
         </section>
 
         <section

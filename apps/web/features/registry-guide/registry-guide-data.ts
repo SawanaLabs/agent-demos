@@ -31,6 +31,9 @@ export const registryGuideConfig = {
     aiSdkProviderSetup:
       "https://ai-sdk.dev/docs/getting-started/choosing-a-provider",
     githubRepo: "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
+    agentDocsSystemSkill:
+      "https://github.com/multicul-silver-wolf/agent-docs-system-skill",
+    mattPocockSkills: "https://github.com/mattpocock/skills",
     shadcnCreate: "https://ui.shadcn.com/create",
     shadcnInstallDocs: "https://ui.shadcn.com/docs/installation",
     shadcnRegistryDocs: "https://ui.shadcn.com/docs/registry",
@@ -57,6 +60,47 @@ Acceptance criteria:
 export const foundationChatEnvExample = `AI_GATEWAY_API_KEY=...
 AI_GATEWAY_BASE_URL=https://ai-gateway.vercel.sh/v3/ai
 AI_GATEWAY_CHAT_MODEL=openai/gpt-4.1-mini`;
+
+export const recommendedAgentSkills = [
+  {
+    command:
+      "npx skills add https://github.com/mattpocock/skills --skill grill-with-docs",
+    description:
+      "Use before non-trivial changes so the agent challenges the plan against project language and captures durable decisions.",
+    name: "grill-with-docs",
+  },
+  {
+    command:
+      "npx skills add https://github.com/mattpocock/skills --skill improve-codebase-architecture",
+    description:
+      "Run after feature work to find deeper modules, tighter interfaces, and code that is easier for agents to navigate.",
+    name: "improve-codebase-architecture",
+  },
+  {
+    command: "npx skills add https://github.com/mattpocock/skills --skill tdd",
+    description:
+      "Use for risky behavior changes: one failing test, one minimal implementation, then refactor while the contract stays green.",
+    name: "tdd",
+  },
+  {
+    command:
+      "npx skills add https://github.com/mattpocock/skills --skill to-issues",
+    description:
+      "Turn a larger plan into independently shippable vertical slices that a coding agent can pick up cleanly.",
+    name: "to-issues",
+  },
+  {
+    command:
+      "npx skills add https://github.com/multicul-silver-wolf/agent-docs-system-skill --skill project-docs-system",
+    description:
+      "Keep AGENTS.md and docs/ as project memory so future agents start from local conventions instead of rediscovering them.",
+    name: "project-docs-system",
+  },
+] as const;
+
+export const recommendedAgentSkillsCommand = recommendedAgentSkills
+  .map((skill) => skill.command)
+  .join("\n");
 
 export const supportedRegistryDemoNotes = publicRegistryDemos
   .filter((demo) => !demo.mainline)

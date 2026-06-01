@@ -84,6 +84,10 @@ _Avoid_: Starter code, rough inspiration
 An **Agent Demo** that models a production-style AI SDK chatbot application by porting the `vercel/chatbot` application shape into one coherent, copyable demo experience.
 _Avoid_: Ultra Agent, Ultra Vercel Agent, OpenAI Agents SDK demo
 
+**Session Sandbox Capability**:
+A chat-scoped execution capability in the **Ultra Chatbot Agent** that a **Technical Evaluator** can enable for one conversation when the task requires sandbox-backed filesystem or command work.
+_Avoid_: Global sandbox mode, site-wide sandbox access
+
 **Application Shape Port**:
 A port that preserves the product capabilities and architectural intent of a reference application while reorganizing the copy boundary around this repository's **Agent Demo** structure.
 _Avoid_: Fork, clone, line-by-line copy
@@ -126,6 +130,7 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - A **Canonical Source Example** must pass the **Manual Review Gate** before becoming an **Agent Demo**.
 - A **Canonical Source Example** provides the **Source Core** for an official-docs-derived **Agent Demo**.
 - The **Ultra Chatbot Agent** is a distinct **Agent Demo** from the OpenAI Agents SDK demo.
+- A **Session Sandbox Capability** belongs to exactly one **Ultra Chatbot Agent** conversation.
 - The **Ultra Chatbot Agent** should be an **Application Shape Port** of `vercel/chatbot`, not a line-by-line fork.
 - The **Ultra Chatbot Agent** should use a **Completeness-First Port** boundary for `vercel/chatbot`.
 - The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.

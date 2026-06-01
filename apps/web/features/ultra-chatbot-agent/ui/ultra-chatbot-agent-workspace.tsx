@@ -90,6 +90,7 @@ import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimod
 import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
 import { UltraChatbotAgentProjectDocsResultCard } from "./ultra-chatbot-agent-project-docs-result";
 import { UltraChatbotAgentResearchReport } from "./ultra-chatbot-agent-research-report";
+import { applyUltraChatbotAgentSandboxApproval } from "./ultra-chatbot-agent-sandbox-approval";
 import { UltraChatbotAgentSandboxConfirmation } from "./ultra-chatbot-agent-sandbox-confirmation";
 import { UltraChatbotAgentSources } from "./ultra-chatbot-agent-sources";
 import { UltraChatbotAgentSuggestedActions } from "./ultra-chatbot-agent-suggested-actions";
@@ -269,34 +270,6 @@ function shouldApplyRecoveredSession(
     session.messages.length > messagesLength ||
     session.messages.at(-1)?.role !== "user"
   );
-}
-
-function readSandboxCapabilityFromMessages(messages: UIMessage[]) {
-  for (const message of [...messages].reverse()) {
-    for (const part of [...getUltraChatbotAgentToolParts(message)].reverse()) {
-      if (part.type !== "tool-enableSandbox") {
-        continue;
-      }
-
-      if (
-        part.state === "output-available" &&
-        part.output &&
-        typeof part.output === "object" &&
-        "sandboxEnabled" in part.output
-      ) {
-        return part.output.sandboxEnabled === true;
-      }
-
-      if (
-        part.state === "approval-responded" &&
-        typeof part.approval?.approved === "boolean"
-      ) {
-        return part.approval.approved;
-      }
-    }
-  }
-
-  return null;
 }
 
 interface UltraChatbotAgentWorkspaceProps {
@@ -623,26 +596,6 @@ export function UltraChatbotAgentWorkspace({
     }
   }, [messages, refreshArtifact]);
 
-  useEffect(() => {
-    const sandboxEnabled = readSandboxCapabilityFromMessages(messages);
-
-    if (sandboxEnabled == null) {
-      return;
-    }
-
-    setChatMeta((current) =>
-      current.capabilities.sandboxEnabled === sandboxEnabled
-        ? current
-        : {
-            ...current,
-            capabilities: {
-              ...current.capabilities,
-              sandboxEnabled,
-            },
-          }
-    );
-  }, [messages]);
-
   useResumeRecovery({
     chatId,
     initialSession,
@@ -710,46 +663,57 @@ export function UltraChatbotAgentWorkspace({
     }
   }
 
+  async function persistSandboxCapability(sandboxEnabled: boolean) {
+    const capabilities = await saveUltraChatbotAgentCapabilities({
+      chatId: chatMeta.id,
+      sandboxEnabled,
+    });
+
+    setChatMeta((current) => ({
+      ...current,
+      capabilities,
+      updatedAt: new Date().toISOString(),
+    }));
+  }
+
+  function getSandboxCapabilityErrorMessage(error: unknown) {
+    return error instanceof Error
+      ? error.message
+      : "Failed to update sandbox capability.";
+  }
+
   async function handleSandboxCapabilityChange(sandboxEnabled: boolean) {
     setSandboxError(null);
     setIsSandboxUpdating(true);
 
     try {
-      const capabilities = await saveUltraChatbotAgentCapabilities({
-        chatId: chatMeta.id,
-        sandboxEnabled,
-      });
-
-      setChatMeta((current) => ({
-        ...current,
-        capabilities,
-        updatedAt: new Date().toISOString(),
-      }));
+      await persistSandboxCapability(sandboxEnabled);
     } catch (error) {
-      setSandboxError(
-        error instanceof Error
-          ? error.message
-          : "Failed to update sandbox capability."
-      );
+      setSandboxError(getSandboxCapabilityErrorMessage(error));
     } finally {
       setIsSandboxUpdating(false);
     }
   }
 
-  function syncSandboxCapability(sandboxEnabled: boolean) {
+  async function handleSandboxApprovalResponse(input: {
+    approvalId: string;
+    approved: boolean;
+    reason: string;
+  }) {
     setSandboxError(null);
-    setChatMeta((current) =>
-      current.capabilities.sandboxEnabled === sandboxEnabled
-        ? current
-        : {
-            ...current,
-            capabilities: {
-              ...current.capabilities,
-              sandboxEnabled,
-            },
-            updatedAt: new Date().toISOString(),
-          }
-    );
+    setIsSandboxUpdating(true);
+
+    try {
+      await applyUltraChatbotAgentSandboxApproval({
+        ...input,
+        addToolApprovalResponse,
+        persistSandboxCapability,
+      });
+    } catch (error) {
+      setSandboxError(getSandboxCapabilityErrorMessage(error));
+    } finally {
+      setIsSandboxUpdating(false);
+    }
   }
 
   async function handleSaveEdit(message: UIMessage) {
@@ -1120,8 +1084,10 @@ export function UltraChatbotAgentWorkspace({
                             <div className="space-y-3" key={part.toolCallId}>
                               {part.type === "tool-enableSandbox" ? (
                                 <UltraChatbotAgentSandboxConfirmation
-                                  onApprovalResponse={addToolApprovalResponse}
-                                  onCapabilityChange={syncSandboxCapability}
+                                  isPending={isSandboxUpdating}
+                                  onApprovalResponse={
+                                    handleSandboxApprovalResponse
+                                  }
                                   part={part}
                                 />
                               ) : null}

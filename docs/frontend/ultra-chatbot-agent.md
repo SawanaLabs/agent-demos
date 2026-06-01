@@ -38,6 +38,8 @@ updateAt: 2026-05-28
 - Treat PDF support as two separate capabilities: multimodal PDF input for the active chat turn, and pre-provided RAG knowledge sources for retrieval. Do not fold user-uploaded PDFs directly into the RAG indexing path in the first Ultra release.
 - Treat pre-provided RAG sources as lightly explicit product state. The capability may be available by default, but the workspace should make the active knowledge source visible so users can distinguish knowledge-base retrieval from web search and MCP-backed project-doc answers.
 - Treat capability controls as mixed visibility. Lightweight low-risk state such as the active RAG source or MCP connection may stay visible in the workspace, while higher-risk capabilities such as sandbox execution stay hidden until the agent requests enablement or the operator explicitly turns them on.
+- Store sandbox enablement as chat-scoped capability state on the Ultra chat row. This state records the visitor's current choice for that conversation; manual enable, manual disable, and HITL approval must all update the same persisted `sandboxEnabled` value instead of maintaining parallel UI-only state.
+- Treat manual sandbox disablement as revoking the execution capability for the current chat. If a later request in the same chat needs sandbox-backed work, the agent should request `enableSandbox` again and the visitor can approve it through the same HITL path.
 
 ## Product Capability Boundary
 

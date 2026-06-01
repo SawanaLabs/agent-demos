@@ -1,3 +1,14 @@
+import {
+  OpenIn,
+  OpenInChatGPT,
+  OpenInClaude,
+  OpenInContent,
+  OpenInCursor,
+  OpenInScira,
+  OpenInT3,
+  OpenInTrigger,
+  OpenInv0,
+} from "@workspace/ui/components/ai-elements/open-in-chat";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
 import {
@@ -8,7 +19,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
-import { ArrowLeft, ArrowUpRight, Terminal } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronDown, Terminal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -63,7 +74,40 @@ function ExternalLink({
   );
 }
 
-function GuideCommandPanel({ code, title }: { code: string; title: string }) {
+function OpenAgentBriefInChatButton({ query }: { query: string }) {
+  return (
+    <OpenIn query={query}>
+      <OpenInTrigger
+        className={cn(
+          buttonVariants({ size: "xs", variant: "outline" }),
+          "bg-background"
+        )}
+        type="button"
+      >
+        Open in chat
+        <ChevronDown className="size-3" />
+      </OpenInTrigger>
+      <OpenInContent align="end">
+        <OpenInChatGPT />
+        <OpenInClaude />
+        <OpenInT3 />
+        <OpenInScira />
+        <OpenInv0 />
+        <OpenInCursor />
+      </OpenInContent>
+    </OpenIn>
+  );
+}
+
+function GuideCommandPanel({
+  actions,
+  code,
+  title,
+}: {
+  actions?: ReactNode;
+  code: string;
+  title: string;
+}) {
   return (
     <div className="overflow-hidden border border-foreground/10 bg-background">
       <div className="flex items-center justify-between gap-3 border-b bg-muted/80 px-3 py-2 text-muted-foreground text-xs">
@@ -71,7 +115,10 @@ function GuideCommandPanel({ code, title }: { code: string; title: string }) {
           <Terminal className="size-3.5 shrink-0" />
           <span className="truncate font-mono">{title}</span>
         </div>
-        <RegistryCopyButton value={code} />
+        <div className="flex shrink-0 items-center gap-1">
+          {actions}
+          <RegistryCopyButton value={code} />
+        </div>
       </div>
       <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-words p-3 font-mono text-foreground text-xs leading-relaxed">
         <code>{code}</code>
@@ -257,7 +304,11 @@ export default function RegistryGuidePage() {
               criteria instead of asking it to rediscover the setup path.
             </p>
           </div>
-          <GuideCommandPanel code={agentTaskBrief} title="agent task brief" />
+          <GuideCommandPanel
+            actions={<OpenAgentBriefInChatButton query={agentTaskBrief} />}
+            code={agentTaskBrief}
+            title="agent task brief"
+          />
         </section>
 
         <section

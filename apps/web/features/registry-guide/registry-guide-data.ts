@@ -1,25 +1,15 @@
+import { demoCatalogEntries } from "@/features/demo-catalog/registry";
+import { buildRegistryAvailability } from "@/features/demo-catalog/registry-availability";
 import registryManifest from "../../../../registry/registry-demos.json" with {
   type: "json",
 };
 
-interface RegistryDemoManifestEntry {
-  mainline?: boolean;
-  publicRegistry: boolean;
-  registryPath: string;
-  setup: string;
-  slug: string;
-  title: string;
-}
-
-const publicRegistryDemos = registryManifest.demos.filter(
-  (demo): demo is RegistryDemoManifestEntry => demo.publicRegistry
-);
-
-const mainlineRegistryDemo = publicRegistryDemos.find((demo) => demo.mainline);
-
-if (!mainlineRegistryDemo) {
-  throw new Error("Missing mainline public registry demo.");
-}
+const registryAvailability = buildRegistryAvailability({
+  demoCatalogEntries,
+  registryManifest,
+});
+const publicRegistryDemos = registryAvailability.publicRegistryDemos;
+const mainlineRegistryDemo = registryAvailability.mainlineRegistryDemo;
 
 function buildRegistryInstallCommand(slug: string) {
   return `pnpm dlx shadcn@latest add ${registryManifest.namespace}/${slug}`;

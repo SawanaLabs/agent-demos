@@ -3,6 +3,20 @@
   "homepage": "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
   "namespace": "@ai-sdk-6-demos",
   "productionDomain": "agent-demos.hsawana9.com",
+  "omittedReadyDemos": [
+    {
+      "slug": "langgraph-agent",
+      "reason": "Requires a separate LangGraph Agent Server service and fresh-consumer packaging before it can be exported as a self-contained shadcn registry demo."
+    },
+    {
+      "slug": "openai-agents-sdk-demo",
+      "reason": "Uses an OpenAI Agents SDK backend bridge that still needs a portable registry copy and fresh-consumer acceptance."
+    },
+    {
+      "slug": "ultra-chatbot-agent",
+      "reason": "Application-shape port is larger than the ordinary demo chunk and needs a narrower registry packaging contract first."
+    }
+  ],
   "demos": [
     {
       "slug": "foundation-chat",

@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent
 description: Product and architecture boundary for the vercel/chatbot application-shape port.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # Ultra Chatbot Agent
@@ -130,6 +130,8 @@ updateAt: 2026-06-01
 - Shared database and root-metadata boundaries are now largely disposed. `packages/database/drizzle.config.ts`, the shared migration scripts and journal, and the feature-local Ultra stores cover the upstream root DB config plus broad query/util layers, while entitlements, proxy middleware, rate limiting, and preview assets are all now explicit boundary decisions recorded in the checklist instead of silent omissions.
 - The remaining hook surface is also narrower now. The workspace itself already serves as Ultra's active-chat coordinator, and the shared `Conversation` stack already owns scroll-to-latest behavior, so the open hook cluster is now effectively down to artifact-specific state that still depends on the richer document/artifact port.
 - The current UI is intentionally still lighter than the final `vercel/chatbot` surface. Artifact/document panels now cover create, exact edit, full rewrite, suggestion review, version navigation, restore, and lightweight diff preview for text documents, the weather tool path is live, structured research reports, RAG retrieval results, and Project Docs MCP search results can render as in-message object components, and the first Blob-backed image attachment flow now works inside the composer and persisted message stream. Richer artifact canvases, richer history grouping, and full message-action parity remain active port work.
+- Keep the message stream behind the feature-local Ultra Message Rendering Module. `ui/ultra-chatbot-agent-workspace.tsx` should own workspace layout, chat transport, route promotion, session metadata, composer state, and top-level edit or vote handlers, while `ui/ultra-chatbot-agent-messages.tsx` and `ui/ultra-chatbot-agent-message-rendering-model.ts` own UIMessage part classification, tool result rendering, reasoning, sources, feedback buttons, attachment previews, and edit-form rendering.
+- Treat `buildUltraChatbotAgentMessageRenderPlan` as the core contract for message rendering decisions. Add focused tests there when a new message part, tool output, or feedback visibility rule changes; do not push those branches back into the workspace shell.
 
 ## Data Model Direction
 

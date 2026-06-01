@@ -219,6 +219,13 @@ export function getUltraChatbotAgentReasoningText(message: UIMessage) {
     .join("\n\n");
 }
 
+export function getUltraChatbotAgentTextContent(message: UIMessage) {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("\n");
+}
+
 export function getUltraChatbotAgentFileParts(message: UIMessage) {
   return message.parts.filter(
     (part): part is FileUIPart =>

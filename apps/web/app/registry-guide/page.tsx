@@ -192,7 +192,7 @@ export default function RegistryGuidePage() {
           <GuideCommandPanel code={quickInstallCommand} title="quick install" />
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3" id="next-steps">
+        <section className="grid gap-4 md:grid-cols-3">
           <RequirementCard title="Create a shadcn project">
             Use{" "}
             <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
@@ -246,6 +246,144 @@ export default function RegistryGuidePage() {
             code="Use the shadcn Create command I selected to create a Next.js app, then install @ai-sdk-6-demos/foundation-chat, set the documented AI Gateway env placeholders, verify local chat works, and prepare the Vercel environment variables before summarizing the diff."
             title="agent prompt"
           />
+        </section>
+
+        <section
+          className="grid gap-6 border-foreground/10 border-t pt-8 lg:grid-cols-[minmax(0,1fr)_20rem]"
+          id="next-steps"
+        >
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                Full path
+              </p>
+              <h2 className="font-medium text-xl">
+                From a fresh app to deployed chat
+              </h2>
+              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+                This is the human path: create a themed app with{" "}
+                <ExternalLink
+                  href={registryGuideConfig.sourceLinks.shadcnCreate}
+                >
+                  shadcn Create
+                </ExternalLink>{" "}
+                first, install the Foundation Chat slice, confirm one local chat
+                turn, then publish the same project to Vercel.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  1. Create a themed Next.js app
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Open shadcn Create, choose Next.js, pick the style, color, and
+                  radius you want, then run the generated command in a new
+                  folder. When it finishes, move into that project and start
+                  from the app it generated. The important part is that the
+                  project already has shadcn/ui configured before the registry
+                  slice is added.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  2. Install Foundation Chat and test it locally
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Run the registry commands from the root of the new app. The
+                  first command registers this demo namespace; the second copies
+                  the Foundation Chat page, route, UI, and runtime files into
+                  your project.
+                </p>
+                <GuideCommandPanel
+                  code={quickInstallCommand}
+                  title="install foundation-chat"
+                />
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Create a key from the{" "}
+                  <ExternalLink
+                    href={
+                      registryGuideConfig.sourceLinks
+                        .aiGatewayAuthenticationDocs
+                    }
+                  >
+                    AI Gateway authentication docs
+                  </ExternalLink>
+                  , add it to{" "}
+                  <code className="font-mono text-foreground">.env.local</code>,
+                  then run the app and send one message.
+                </p>
+                <GuideCommandPanel
+                  code="AI_GATEWAY_API_KEY=..."
+                  title=".env.local"
+                />
+                <GuideCommandPanel
+                  code={`pnpm dev
+# open http://localhost:3000${registryGuideConfig.foundationChatRoute}`}
+                  title="run and open"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  3. Deploy the same project to Vercel
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Commit the app and push it to a Git repository, then import
+                  that repository through{" "}
+                  <ExternalLink
+                    href={
+                      registryGuideConfig.sourceLinks.vercelGitDeploymentsDocs
+                    }
+                  >
+                    Vercel from Git
+                  </ExternalLink>
+                  . Before the production check, add the same{" "}
+                  <code className="font-mono text-foreground">
+                    AI_GATEWAY_API_KEY
+                  </code>{" "}
+                  in the project's Environment Variables. Deploy, open{" "}
+                  <code className="font-mono text-foreground">
+                    {registryGuideConfig.foundationChatRoute}
+                  </code>
+                  , and send the same small test message you used locally.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <aside className="h-fit space-y-4 border border-foreground/10 p-4">
+            <div className="space-y-2">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                What gets installed
+              </p>
+              <ul className="space-y-2 text-muted-foreground text-xs/relaxed">
+                <li>
+                  <code className="font-mono text-foreground">
+                    app/demos/foundation-chat
+                  </code>{" "}
+                  page route.
+                </li>
+                <li>
+                  <code className="font-mono text-foreground">
+                    app/api/demos/foundation-chat
+                  </code>{" "}
+                  chat route.
+                </li>
+                <li>AI Elements conversation, message, and prompt input UI.</li>
+                <li>AI SDK runtime helper and AI Gateway env defaults.</li>
+              </ul>
+            </div>
+            <div className="border-foreground/10 border-t pt-4">
+              <p className="text-muted-foreground text-xs/relaxed">
+                After install, this is normal source code in your app. Keep it,
+                edit it, or move it under your own feature structure once the
+                local chat check passes.
+              </p>
+            </div>
+          </aside>
         </section>
 
         <section

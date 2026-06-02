@@ -33,6 +33,17 @@ interface SkillToolkit {
   skills: OfficialSkill[];
 }
 
+interface SkillToolSuccessResult {
+  files: string[];
+  instructions: string;
+  skill: {
+    description: string;
+    name: string;
+    path: string;
+  };
+  success: true;
+}
+
 function stripLeadingDotSlash(targetPath: string) {
   return targetPath.replace(LEADING_DOT_SLASH_PATTERN, "");
 }
@@ -74,6 +85,65 @@ function toSessionSkills(skills: OfficialSkill[]): SkillMetadata[] {
     name: skill.name,
     path: skill.localPath,
   }));
+}
+
+function isSameSkillPath(leftPath: string, rightPath: string) {
+  return leftPath === rightPath;
+}
+
+function findSkillByName(skills: SkillMetadata[], name: string) {
+  return skills.find(
+    (skill) => skill.name.toLowerCase() === name.toLowerCase()
+  );
+}
+
+function isInitialSkill(
+  skill: SkillMetadata | undefined,
+  initialSkills: SkillMetadata[]
+) {
+  if (!skill) {
+    return false;
+  }
+
+  return initialSkills.some(
+    (initialSkill) =>
+      initialSkill.name.toLowerCase() === skill.name.toLowerCase() &&
+      isSameSkillPath(initialSkill.path, skill.path)
+  );
+}
+
+function createSkillToolError(error: unknown) {
+  return {
+    error: error instanceof Error ? error.message : String(error),
+    success: false,
+  };
+}
+
+async function createLoadedSkillToolResult({
+  availableSkills,
+  loadedSkill,
+  session,
+}: {
+  availableSkills: SkillMetadata[];
+  loadedSkill: Awaited<ReturnType<SkillsAgentSession["loadSkill"]>>;
+  session: SkillsAgentSession;
+}): Promise<SkillToolSuccessResult> {
+  const metadata = findSkillByName(availableSkills, loadedSkill.name);
+
+  if (!metadata) {
+    throw new Error(`Loaded skill "${loadedSkill.name}" is missing metadata.`);
+  }
+
+  return {
+    files: await session.listSkillFiles(loadedSkill.skillDirectory),
+    instructions: loadedSkill.content,
+    skill: {
+      description: metadata.description,
+      name: loadedSkill.name,
+      path: loadedSkill.skillDirectory,
+    },
+    success: true,
+  };
 }
 
 function buildPrimedFiles({
@@ -157,14 +227,40 @@ export async function createSkillsAgentOfficialTools({
 
   const skillTool = {
     ...officialSkillTool,
+    description: [
+      officialSkillTool.description,
+      `This tool also scans ${DEFAULT_SKILLS_DESTINATION} inside the active sandbox before each load, so skills installed during the current chat can be loaded by name.`,
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
     execute: async ({ skillName }: { skillName: string }) => {
-      const canonicalSkillName = resolveSkillNameAlias(
-        sessionSkills,
-        skillName
-      );
+      try {
+        const availableSkills = await session.discoverSkills(sessionSkills);
+        const canonicalSkillName = resolveSkillNameAlias(
+          availableSkills,
+          skillName
+        );
+        const selectedSkill = findSkillByName(
+          availableSkills,
+          canonicalSkillName
+        );
+        const loadedSkill = await session.loadSkill(
+          availableSkills,
+          canonicalSkillName
+        );
 
-      await session.loadSkill(sessionSkills, canonicalSkillName);
-      return officialSkillTool.execute({ skillName: canonicalSkillName });
+        if (isInitialSkill(selectedSkill, sessionSkills)) {
+          return officialSkillTool.execute({ skillName: canonicalSkillName });
+        }
+
+        return createLoadedSkillToolResult({
+          availableSkills,
+          loadedSkill,
+          session,
+        });
+      } catch (error) {
+        return createSkillToolError(error);
+      }
     },
   };
 

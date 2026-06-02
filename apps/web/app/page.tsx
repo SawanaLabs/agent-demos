@@ -1,5 +1,6 @@
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@workspace/ui/components/badge";
+import { buttonVariants } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -18,7 +19,11 @@ import {
   roadmapDemoCatalogEntries,
 } from "@/features/demo-catalog/registry";
 import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
-import { registryGuideConfig } from "@/features/registry-guide/registry-guide-data";
+import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
+import {
+  registryGuideAgentTaskBrief,
+  registryGuideUrl,
+} from "@/features/registry-guide/registry-guide-data";
 
 const recommendedDemoRanks = [
   {
@@ -49,6 +54,8 @@ const recommendedDemoEntries = recommendedDemoRanks.map((recommendation) => {
     rankLabel: recommendation.rankLabel,
   };
 });
+
+const registryGuidePromptPreview = `Read ${registryGuideUrl} first. Then create a new shadcn Next.js app, install @ai-sdk-6-demos/foundation-chat, configure AI_GATEWAY_API_KEY, verify one local chat message, and prepare the Vercel deployment env.`;
 
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
@@ -141,6 +148,47 @@ function DemoGalleryCard({
   return <div>{card}</div>;
 }
 
+function RegistryGuideCallout() {
+  return (
+    <section className="grid gap-5 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
+      <div className="space-y-3">
+        <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+          shadcn registry guide
+        </p>
+        <h2 className="max-w-3xl font-medium text-2xl tracking-tight">
+          Start a new AI agent project from this registry
+        </h2>
+        <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+          The guide gives humans and coding agents one path: create a styled
+          shadcn Next.js app, add Foundation Chat from the registry, run a real
+          AI Gateway chat check, and prepare the same env for Vercel.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
+            href="/registry-guide"
+          >
+            Open registry guide
+            <ArrowSquareOutIcon className="size-3.5" />
+          </Link>
+        </div>
+      </div>
+
+      <div className="overflow-hidden border border-foreground/10 bg-background">
+        <div className="flex items-center justify-between gap-3 border-b bg-muted/70 px-3 py-2">
+          <p className="truncate font-mono text-muted-foreground text-xs">
+            agent task brief
+          </p>
+          <RegistryCopyButton value={registryGuideAgentTaskBrief} />
+        </div>
+        <pre className="m-0 whitespace-pre-wrap break-words p-3 font-mono text-foreground text-xs leading-relaxed">
+          <code>{registryGuidePromptPreview}</code>
+        </pre>
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
   return (
     <main className="min-h-svh bg-background text-foreground">
@@ -184,25 +232,10 @@ export default function Page() {
                 roadmap cards stay separate.
               </p>
             </div>
-            <div className="space-y-3 border-foreground/10 border-t pt-3">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                  shadcn registry
-                </p>
-                <Link
-                  className="inline-flex items-center gap-1 text-xs hover:underline"
-                  href="/registry-guide"
-                >
-                  Guide
-                  <ArrowSquareOutIcon className="size-3.5" />
-                </Link>
-              </div>
-              <code className="block break-all border border-foreground/10 bg-muted/40 p-2 font-mono text-[11px] leading-relaxed">
-                {registryGuideConfig.foundationChatCommand}
-              </code>
-            </div>
           </div>
         </section>
+
+        <RegistryGuideCallout />
 
         <section className="space-y-8">
           <div className="space-y-4">

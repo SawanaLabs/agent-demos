@@ -1,8 +1,6 @@
+import { createVisitorOwnedMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 import { handleUltraChatbotAgentMessageEditRequest } from "@/features/ultra-chatbot-agent/server/message-edit";
-import {
-  buildUltraChatbotAgentVisitorCookie,
-  getOrCreateUltraChatbotAgentVisitorId,
-} from "@/features/ultra-chatbot-agent/server/viewer-context";
+import { handleUltraChatbotAgentVisitorRequest } from "@/features/ultra-chatbot-agent/server/viewer-context";
 
 interface RouteContext {
   params: Promise<{
@@ -10,20 +8,15 @@ interface RouteContext {
   }>;
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
-  const { id } = await context.params;
-  const visitor = getOrCreateUltraChatbotAgentVisitorId(request);
-  const response = await handleUltraChatbotAgentMessageEditRequest(request, {
-    chatId: id,
-    visitorId: visitor.visitorId,
-  });
-
-  if (visitor.shouldSetCookie) {
-    response.headers.append(
-      "set-cookie",
-      buildUltraChatbotAgentVisitorCookie(visitor.visitorId)
-    );
-  }
-
-  return response;
-}
+export const PATCH = createVisitorOwnedMeteredDemoRoute<RouteContext>({
+  action: "edit_message",
+  demoSlug: "ultra-chatbot-agent",
+  handleVisitorRequest: handleUltraChatbotAgentVisitorRequest,
+  handler: async ({ context, request, visitor }) => {
+    const { id } = await context.params;
+    return handleUltraChatbotAgentMessageEditRequest(request, {
+      chatId: id,
+      visitorId: visitor.visitorId,
+    });
+  },
+});

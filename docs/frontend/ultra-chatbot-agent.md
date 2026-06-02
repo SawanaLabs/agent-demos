@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent
 description: Product and architecture boundary for the vercel/chatbot application-shape port.
-updateAt: 2026-05-28
+updateAt: 2026-06-02
 ---
 
 # Ultra Chatbot Agent
@@ -19,6 +19,7 @@ updateAt: 2026-05-28
 - Keep the copy boundary centered on `apps/web/features/ultra-chatbot-agent` plus thin Next.js page and API route entries.
 - Use a Visitor Owner for the first release while keeping the Owner concept explicit enough to support authenticated ownership later.
 - Treat the entire auth tree from the reference app as an explicit first-release defer bucket. Ultra uses an HTTP-only visitor cookie in `apps/web/features/ultra-chatbot-agent/server/viewer-context.ts` and therefore does not port login, register, sign-out, guest-session bootstrap, or account navigation yet.
+- Keep Ultra visitor-cookie parsing, creation, serialization, and route response mutation behind the shared Visitor Owner Route Module. Route entries should use the feature-local `handleUltraChatbotAgentVisitorRequest` adapter and only pass `visitorId` into Ultra runtime handlers.
 - Prefer this repository's feature-slice structure, AI Elements UI primitives, env-contract modules, and focused core-contract tests.
 - Treat `persistent-agent` as the infrastructure reference for URL-backed persistence and resume streams, not as the place to keep growing chatbot-product features.
 - When Ultra changes agent runtime strategy, treat the change as a server orchestration seam inside `apps/web/features/ultra-chatbot-agent/server/runtime.ts`. Keep the existing application shape intact: route-backed chat, Visitor Owner ownership, Postgres persistence, Redis resume streams, history, voting, visibility, and artifact or document surfaces remain part of the stable workspace shell.
@@ -38,6 +39,8 @@ updateAt: 2026-05-28
 - Treat PDF support as two separate capabilities: multimodal PDF input for the active chat turn, and pre-provided RAG knowledge sources for retrieval. Do not fold user-uploaded PDFs directly into the RAG indexing path in the first Ultra release.
 - Treat pre-provided RAG sources as lightly explicit product state. The capability may be available by default, but the workspace should make the active knowledge source visible so users can distinguish knowledge-base retrieval from web search and MCP-backed project-doc answers.
 - Treat capability controls as mixed visibility. Lightweight low-risk state such as the active RAG source or MCP connection may stay visible in the workspace, while higher-risk capabilities such as sandbox execution stay hidden until the agent requests enablement or the operator explicitly turns them on.
+- Store sandbox enablement as chat-scoped capability state on the Ultra chat row. This state records the visitor's current choice for that conversation; manual enable, manual disable, and HITL approval must all update the same persisted `sandboxEnabled` value instead of maintaining parallel UI-only state.
+- Treat manual sandbox disablement as revoking the execution capability for the current chat. If a later request in the same chat needs sandbox-backed work, the agent should request `enableSandbox` again and the visitor can approve it through the same HITL path.
 
 ## Product Capability Boundary
 
@@ -127,6 +130,8 @@ updateAt: 2026-05-28
 - Shared database and root-metadata boundaries are now largely disposed. `packages/database/drizzle.config.ts`, the shared migration scripts and journal, and the feature-local Ultra stores cover the upstream root DB config plus broad query/util layers, while entitlements, proxy middleware, rate limiting, and preview assets are all now explicit boundary decisions recorded in the checklist instead of silent omissions.
 - The remaining hook surface is also narrower now. The workspace itself already serves as Ultra's active-chat coordinator, and the shared `Conversation` stack already owns scroll-to-latest behavior, so the open hook cluster is now effectively down to artifact-specific state that still depends on the richer document/artifact port.
 - The current UI is intentionally still lighter than the final `vercel/chatbot` surface. Artifact/document panels now cover create, exact edit, full rewrite, suggestion review, version navigation, restore, and lightweight diff preview for text documents, the weather tool path is live, structured research reports, RAG retrieval results, and Project Docs MCP search results can render as in-message object components, and the first Blob-backed image attachment flow now works inside the composer and persisted message stream. Richer artifact canvases, richer history grouping, and full message-action parity remain active port work.
+- Keep the message stream behind the feature-local Ultra Message Rendering Module. `ui/ultra-chatbot-agent-workspace.tsx` should own workspace layout, chat transport, route promotion, session metadata, composer state, and top-level edit or vote handlers, while `ui/ultra-chatbot-agent-messages.tsx` and `ui/ultra-chatbot-agent-message-rendering-model.ts` own UIMessage part classification, tool result rendering, reasoning, sources, feedback buttons, attachment previews, and edit-form rendering.
+- Treat `buildUltraChatbotAgentMessageRenderPlan` as the core contract for message rendering decisions. Add focused tests there when a new message part, tool output, or feedback visibility rule changes; do not push those branches back into the workspace shell.
 
 ## Data Model Direction
 

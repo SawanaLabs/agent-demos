@@ -56,6 +56,14 @@ _Avoid_: Internal registry docs, author maintenance guide, blog-only announcemen
 A compact install prompt that links to the **Registry Guide Page** and shows a demo-specific registry command when the **Agent Demo** is registry-backed.
 _Avoid_: Full tutorial, duplicated registry guide, author setup notes
 
+**Registry Export**:
+The public shadcn registry surface that exposes only **Agent Demos** whose **Copy Boundary** is ready for **Registry Consumers**.
+_Avoid_: Every registry source file, generated JSON dump
+
+**Registry Availability**:
+The joined classification that says whether a ready **Agent Demo** is in the **Registry Export**, kept as private registry source, or explicitly omitted with a reason.
+_Avoid_: Implicit omission, catalog drift, install badge guess
+
 **Demo Quality Bar**:
 The internal standard that an **Agent Demo** must meet by making its pattern clear, its full-stack behavior complete, and its reuse potential credible through use and code structure.
 _Avoid_: Marketing checklist, feature list
@@ -83,6 +91,10 @@ _Avoid_: Starter code, rough inspiration
 **Ultra Chatbot Agent**:
 An **Agent Demo** that models a production-style AI SDK chatbot application by porting the `vercel/chatbot` application shape into one coherent, copyable demo experience.
 _Avoid_: Ultra Agent, Ultra Vercel Agent, OpenAI Agents SDK demo
+
+**Session Sandbox Capability**:
+A chat-scoped execution capability in the **Ultra Chatbot Agent** that a **Technical Evaluator** can enable for one conversation when the task requires sandbox-backed filesystem or command work.
+_Avoid_: Global sandbox mode, site-wide sandbox access
 
 **Application Shape Port**:
 A port that preserves the product capabilities and architectural intent of a reference application while reorganizing the copy boundary around this repository's **Agent Demo** structure.
@@ -119,6 +131,8 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.
 - A **Registry Guide Page** is written for **Registry Consumers** and should refer author maintenance details back to durable internal docs instead of duplicating them.
 - A **Registry Install Hint** may appear in the **Demo Gallery** or near an **Agent Demo**'s operational sidebar, and should stay shorter than the **Registry Guide Page**.
+- A **Registry Export** contains zero or more **Agent Demos** and may exclude registry source work that has not yet met the **Demo Quality Bar**.
+- **Registry Availability** must classify every ready **Agent Demo** so the **Demo Catalog Entry** and **Registry Export** cannot drift silently.
 - An **Agent Demo** is evaluated against the **Demo Quality Bar**.
 - An **Agent Demo** is expected to become a **Production-Ready Demo** before it is treated as ready.
 - The **Roadmap** may include planned **Agent Demos** before they become interactive.
@@ -126,6 +140,7 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - A **Canonical Source Example** must pass the **Manual Review Gate** before becoming an **Agent Demo**.
 - A **Canonical Source Example** provides the **Source Core** for an official-docs-derived **Agent Demo**.
 - The **Ultra Chatbot Agent** is a distinct **Agent Demo** from the OpenAI Agents SDK demo.
+- A **Session Sandbox Capability** belongs to exactly one **Ultra Chatbot Agent** conversation.
 - The **Ultra Chatbot Agent** should be an **Application Shape Port** of `vercel/chatbot`, not a line-by-line fork.
 - The **Ultra Chatbot Agent** should use a **Completeness-First Port** boundary for `vercel/chatbot`.
 - The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.

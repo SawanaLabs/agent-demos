@@ -21,6 +21,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "tabs",
         "textarea",
@@ -120,6 +121,16 @@
           "path": "lib/sandbox-agent/server/chat.ts",
           "type": "registry:lib",
           "target": "@lib/sandbox-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/sandbox-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/env-source.ts"
         },
         {
           "path": "lib/sandbox-agent/server/env.ts",

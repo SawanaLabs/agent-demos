@@ -16,6 +16,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "button-group",
         "card",
@@ -57,9 +58,34 @@
           "target": "@components/foundation-chat/use-foundation-chat.ts"
         },
         {
+          "path": "components/demo-chat/use-demo-chat.ts",
+          "type": "registry:component",
+          "target": "@components/demo-chat/use-demo-chat.ts"
+        },
+        {
+          "path": "components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/foundation-chat/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/foundation-chat/env-source.ts"
         },
         {
           "path": "lib/foundation-chat/env.ts",

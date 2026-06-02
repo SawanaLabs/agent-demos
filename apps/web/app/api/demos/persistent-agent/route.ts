@@ -1,21 +1,13 @@
 import { handlePersistentAgentChatRequest } from "@/features/persistent-agent/server/runtime";
-import {
-  buildPersistentAgentVisitorCookie,
-  getOrCreatePersistentAgentVisitorId,
-} from "@/features/persistent-agent/server/viewer-context";
+import { handlePersistentAgentVisitorRequest } from "@/features/persistent-agent/server/viewer-context";
+import { createVisitorOwnedMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
-export async function POST(request: Request) {
-  const visitor = getOrCreatePersistentAgentVisitorId(request);
-  const response = await handlePersistentAgentChatRequest(request, {
-    visitorId: visitor.visitorId,
-  });
-
-  if (visitor.shouldSetCookie) {
-    response.headers.append(
-      "set-cookie",
-      buildPersistentAgentVisitorCookie(visitor.visitorId)
-    );
-  }
-
-  return response;
-}
+export const POST = createVisitorOwnedMeteredDemoRoute({
+  action: "send_message",
+  demoSlug: "persistent-agent",
+  handleVisitorRequest: handlePersistentAgentVisitorRequest,
+  handler: ({ request, visitor }) =>
+    handlePersistentAgentChatRequest(request, {
+      visitorId: visitor.visitorId,
+    }),
+});

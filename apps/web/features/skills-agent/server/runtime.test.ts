@@ -34,6 +34,7 @@ describe("skills agent runtime", () => {
     );
 
     expect(runtimeState.chatModel).toBe("openai/gpt-5-mini");
+    expect(runtimeState.environmentLabel).toBe("Node 24 + uv Python 3.13");
     expect(runtimeState.availableSkills).toEqual([
       {
         description:

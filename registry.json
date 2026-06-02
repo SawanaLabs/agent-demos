@@ -13,7 +13,6 @@
     "registry/trace-eval-agent/registry.json",
     "registry/persistent-agent/registry.json",
     "registry/sandbox-agent/registry.json",
-    "registry/skills-agent/registry.json",
     "registry/mcp-agent/registry.json"
   ]
 }

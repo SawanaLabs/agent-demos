@@ -20,7 +20,9 @@ This roadmap captures recoverable work intent for the user, agents, or any perso
 
 The top 1-5 recoverable work topics to resume first, expected to be resolved within the next few days. If this section grows beyond five items, reorganize or remove stale items before adding more.
 
-No planning items yet.
+- X4 LangGraph backend deployment to LangSmith Cloud
+  - Intended State: The Python LangGraph backend from `apps/langgraph-agent-api` is deployed on LangSmith Cloud, the already-deployed Vercel web app points `LANGGRAPH_AGENT_API_URL` at that deployment, `LANGGRAPH_AGENT_ASSISTANT_ID` remains aligned with the `agent` graph id, and `/demos/langgraph-agent` streams successfully against the production Agent Server.
+  - Discussion: The deployment decision is made: keep the web app on Vercel and deploy the LangGraph backend to LangSmith Cloud. Target actual launch within one week of 2026-05-29, by 2026-06-05.
 
 ## Near-Term
 

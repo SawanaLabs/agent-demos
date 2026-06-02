@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -91,13 +92,64 @@ type FakeSandboxApiError = Error & {
 
 class FakeSandbox {
   readonly fs = new FakeSandboxFileSystem();
-  readonly commands: Array<{ command: string; cwd: string }> = [];
+  readonly commands: Array<{ command: string; cwd: string; sudo?: boolean }> =
+    [];
   failRunCommandCount = 0;
   failRunCommandError: FakeSandboxApiError | null = null;
   failStopCount = 0;
   stopCount = 0;
 
-  runCommand(options: { args: string[]; cmd: string; cwd: string }) {
+  getSandboxSkillFiles() {
+    return Array.from(this.fs.files.keys())
+      .filter((filePath) => {
+        if (!filePath.startsWith(`${SANDBOX_SKILLS_ROOT}/`)) {
+          return false;
+        }
+
+        const relativePath = path.posix.relative(SANDBOX_SKILLS_ROOT, filePath);
+        const pathParts = relativePath.split("/");
+
+        return pathParts.length === 2 && pathParts[1] === "SKILL.md";
+      })
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  getSkillDirectoryFiles(skillDirectory: string) {
+    return Array.from(this.fs.files.keys())
+      .filter((filePath) => {
+        if (!filePath.startsWith(`${skillDirectory}/`)) {
+          return false;
+        }
+
+        return path.posix.basename(filePath) !== "SKILL.md";
+      })
+      .map((filePath) => path.posix.relative(skillDirectory, filePath))
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  runFindCommand(script: string): string | null {
+    if (
+      script.includes(`find '${SANDBOX_SKILLS_ROOT}'`) &&
+      script.includes("-name 'SKILL.md'")
+    ) {
+      return this.getSandboxSkillFiles().join("\n");
+    }
+
+    const listFilesMatch = script.match(/cd '([^']+)' && find \./);
+
+    if (listFilesMatch?.[1]) {
+      return this.getSkillDirectoryFiles(listFilesMatch[1]).join("\n");
+    }
+
+    return null;
+  }
+
+  runCommand(options: {
+    args: string[];
+    cmd: string;
+    cwd: string;
+    sudo?: boolean;
+  }) {
     if (this.failRunCommandCount > 0) {
       this.failRunCommandCount -= 1;
       return Promise.reject(
@@ -105,13 +157,32 @@ class FakeSandbox {
       );
     }
 
-    this.commands.push({
+    const commandRecord: { command: string; cwd: string; sudo?: boolean } = {
       command: `${options.cmd} ${options.args.join(" ")}`,
       cwd: options.cwd,
-    });
+    };
+
+    if (options.sudo) {
+      commandRecord.sudo = true;
+    }
+
+    this.commands.push(commandRecord);
 
     if (options.cmd === "bash" && options.args[0] === "-lc") {
       const script = options.args[1] ?? "";
+      const syntaxCheck = spawnSync("bash", ["-n"], {
+        encoding: "utf-8",
+        input: script,
+      });
+
+      if (syntaxCheck.status !== 0) {
+        return Promise.resolve({
+          exitCode: syntaxCheck.status ?? 2,
+          stderr: async () => syntaxCheck.stderr,
+          stdout: async () => syntaxCheck.stdout,
+        });
+      }
+
       const match = script.match(shellFallbackWritePattern);
 
       if (match) {
@@ -123,6 +194,16 @@ class FakeSandbox {
             Buffer.from(base64Content ?? "", "base64").toString("utf-8")
           );
         }
+      }
+
+      const findStdout = this.runFindCommand(script);
+
+      if (findStdout !== null) {
+        return Promise.resolve({
+          exitCode: 0,
+          stderr: async () => "",
+          stdout: async () => findStdout,
+        });
       }
     }
 
@@ -324,6 +405,90 @@ describe("skills agent sandbox session registry", () => {
 
     expect(requestedSessionIds).toEqual(["chat-1"]);
     expect(sandboxes).toHaveLength(1);
+  });
+
+  it("bootstraps uv and a Python project in the sandbox root", async () => {
+    const workspaceRoot = await createWorkspaceFixture();
+    const sandboxes: FakeSandbox[] = [];
+    const registry = createSkillsAgentSessionRegistry({
+      createSandbox: () => {
+        const sandbox = new FakeSandbox();
+        sandboxes.push(sandbox);
+        return Promise.resolve(sandbox as never);
+      },
+      workspaceRoot,
+    });
+
+    await registry.getSession("chat-1").readFile("AGENTS.md");
+
+    const uvInstallCommand = sandboxes[0]?.commands.find(({ command }) =>
+      command.includes("UV_UNMANAGED_INSTALL=/usr/local/bin")
+    );
+    const pythonBootstrapCommand = sandboxes[0]?.commands.find(({ command }) =>
+      command.includes(
+        "uv init --bare --name skills-agent-sandbox --python 3.13"
+      )
+    );
+
+    expect(uvInstallCommand).toMatchObject({
+      cwd: SANDBOX_PROJECT_ROOT,
+      sudo: true,
+    });
+    expect(uvInstallCommand?.command).toContain("dnf install -y curl");
+    expect(pythonBootstrapCommand).toMatchObject({
+      cwd: SANDBOX_PROJECT_ROOT,
+    });
+    expect(pythonBootstrapCommand?.sudo).toBeUndefined();
+    expect(pythonBootstrapCommand?.command).toContain("uv python install 3.13");
+    expect(pythonBootstrapCommand?.command).toContain("uv python pin 3.13");
+    expect(pythonBootstrapCommand?.command).toContain(
+      "uv venv .venv --python 3.13 --allow-existing"
+    );
+    expect(pythonBootstrapCommand?.command).not.toContain("VIRTUAL_ENV");
+    expect(pythonBootstrapCommand?.command).not.toContain("UV_CACHE_DIR");
+  });
+
+  it("loads a skill that was installed into the sandbox after session creation", async () => {
+    const workspaceRoot = await createWorkspaceFixture();
+    const sandboxes: FakeSandbox[] = [];
+    const registry = createSkillsAgentSessionRegistry({
+      createSandbox: () => {
+        const sandbox = new FakeSandbox();
+        sandboxes.push(sandbox);
+        return Promise.resolve(sandbox as never);
+      },
+      workspaceRoot,
+    });
+    const session = registry.getSession("chat-1");
+
+    await session.writeFile(
+      ".agents/skills/word-skill/SKILL.md",
+      `---
+name: word-skill
+description: Work with Word documents.
+---
+
+# Word Skill
+
+Use this workflow for Word documents.
+`
+    );
+    await session.writeFile(
+      ".agents/skills/word-skill/references/word.md",
+      "# Word Reference\n"
+    );
+
+    await expect(session.loadSkill([], "word-skill")).resolves.toEqual({
+      content: "# Word Skill\n\nUse this workflow for Word documents.",
+      name: "word-skill",
+      skillDirectory: `${SANDBOX_SKILLS_ROOT}/word-skill`,
+    });
+    await expect(session.readFile("./references/word.md")).resolves.toBe(
+      "# Word Reference\n"
+    );
+    await expect(
+      session.listSkillFiles(`${SANDBOX_SKILLS_ROOT}/word-skill`)
+    ).resolves.toEqual(["references/word.md"]);
   });
 
   it("falls back to a shell write when the sandbox file API rejects a write", async () => {

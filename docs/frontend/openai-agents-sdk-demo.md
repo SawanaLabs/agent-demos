@@ -1,7 +1,7 @@
 ---
 title: OpenAI Agents SDK Demo
 description: Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway.
-updateAt: 2026-05-28
+updateAt: 2026-06-02
 ---
 
 # OpenAI Agents SDK Demo
@@ -32,6 +32,7 @@ updateAt: 2026-05-28
 - **General OpenAI Agent**: The product shape for the ultra demo: a ChatGPT-like conversational agent built from OpenAI Agents SDK primitives, with official SDK capabilities exposed through one coherent chat workspace.
 - **Official Guide Coverage Panel**: The right-side inspector surface that maps the current run and implemented capabilities back to the OpenAI Agents SDK guide families.
 - **Runtime Inspector Panel**: The right-side operational surface that shows run state, active agent, tool calls, handoffs, approvals, sessions, traces, and which official guide capabilities were exercised.
+- **Runtime Inspector Module**: The feature-local UI module that derives the current **Runtime Inspector Panel** state from AI SDK UI messages, guide coverage, and setup profiles before rendering.
 - **Developer-verifiable coverage evidence**: The per-capability proof shown in the inspector: source guide, SDK primitive, run item or stream event, implementation status, and whether the current run exercised it.
 - **Investment Research Task**: The default suggested task for the general agent: an investment-company analyst running deep research on a public company.
 - **Company Research Target**: The public company being analyzed in the workspace. Tesla should be the default target because the user can judge whether the analysis quality is credible.
@@ -118,6 +119,7 @@ updateAt: 2026-05-28
 - The `Extensions / AI SDK Integration` first slice now lives in `server/extensions.ts`. The route keeps the official `@openai/agents-extensions/ai-sdk-ui` bridge on `createAiSdkUiMessageStream(...)`, writes bridge usage metadata after each settled run, and exposes the beta `aisdk(model)` adapter as an explicit `not-used` boundary because this demo's main run still needs deferred Responses tool loading.
 - The `Voice Agents` slice now spans `server/voice.ts`, `server/voice-realtime.ts`, `server/voice-websocket.ts`, `server/voice-server-audio.ts`, `server/voice-sip.ts`, `server/voice-sip-route.ts`, `server/voice-cloudflare-worker.ts`, `server/voice-cloudflare-app.ts`, `server/voice-cloudflare-worker-module.ts`, `server/voice-twilio-route.ts`, `server/voice-twilio-bridge.ts`, `server/voice-twilio-app.ts`, `server/voice-extensions.ts`, and `ui/openai-agents-sdk-demo-voice-panel.tsx`. It exposes the official `RealtimeAgent` / `RealtimeSession` primitives, wires a real `/api/demos/openai-agents-sdk-demo/realtime/client-secrets` route through `client.realtime.clientSecrets.create()`, starts a browser `OpenAIRealtimeWebRTC` session through `session.connect({ apiKey })` on the page itself, includes dedicated server-side factories for `OpenAIRealtimeWebSocket`, a raw server audio loop on `RealtimeSession.sendAudio()` plus `session.on("audio")`, `OpenAIRealtimeSIP`, `CloudflareRealtimeTransportLayer`, and `TwilioRealtimeTransportLayer`, and now exposes a Cloudflare worker runtime wrapper, a deployed-shape Cloudflare fetch app, a deployable Cloudflare worker module, and a deployed-shape Twilio media-stream app factory. The workspace layout keeps `Conversation + Screen` as the only persistent regions inside the `100svh` demo surface; the right-side screen rail owns the compact voice entry strip, and the full realtime controls live in a dialog so the voice lane does not keep compressing the chat column.
 - The first guide-family coverage registry lives in `apps/web/features/openai-agents-sdk-demo/server/guide-coverage.ts`. It tracks source guide URL, SDK primitive, observable runtime evidence, implementation status, provider capability status, and current-run readiness for each planned guide family.
+- The current-run inspector derivation lives in `apps/web/features/openai-agents-sdk-demo/ui/openai-agents-sdk-demo-runtime-inspector.ts`. The **Demo Workspace** passes messages, guide coverage, and setup profiles into this **Runtime Inspector Module** instead of scanning assistant metadata inline.
 - The chat route now writes tool-usage and guardrail-evaluation metadata after the streamed run settles, so the workspace can mark `Tools`, `Guardrails`, and individual catalog rows from real SDK results instead of inferring usage from visible text alone.
 - The chat route now also writes stream-summary metadata after the streamed run settles. The current summary captures agent names plus counts and unique names for `raw_model_stream_event` and `run_item_stream_event`.
 - The chat route now also writes handoff-summary metadata after the streamed run settles. The current summary captures `lastAgent`, handoff target names, and handoff transitions from real `handoff_call_item` / `handoff_output_item` values.

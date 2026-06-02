@@ -6,20 +6,13 @@ import {
   CaretDownIcon,
   CheckCircleIcon,
   RobotIcon,
-  ThumbsDownIcon,
-  ThumbsUpIcon,
 } from "@phosphor-icons/react";
-import { Attachments } from "@workspace/ui/components/ai-elements/attachments";
 import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@workspace/ui/components/ai-elements/conversation";
-import {
-  Message,
-  MessageContent,
-} from "@workspace/ui/components/ai-elements/message";
 import {
   ModelSelector,
   ModelSelectorContent,
@@ -32,19 +25,9 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "@workspace/ui/components/ai-elements/model-selector";
-import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@workspace/ui/components/ai-elements/tool";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { Textarea } from "@workspace/ui/components/textarea";
-import { cn } from "@workspace/ui/lib/utils";
 import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithApprovalResponses,
@@ -56,6 +39,7 @@ import {
   type ReactNode,
   type SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -70,63 +54,25 @@ import type {
 import type { UltraChatbotAgentModel } from "../server/models";
 import { shouldShowUltraChatbotAgentResumeThinking } from "./resume-pending-state";
 import { UltraChatbotAgentArtifact } from "./ultra-chatbot-agent-artifact";
-import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentHistorySidebar } from "./ultra-chatbot-agent-history-sidebar";
-import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
 import {
-  getUltraChatbotAgentFileParts,
-  getUltraChatbotAgentProjectDocsMcpResult,
-  getUltraChatbotAgentReasoningText,
-  getUltraChatbotAgentSourceParts,
+  getUltraChatbotAgentTextContent,
   getUltraChatbotAgentToolParts,
   hasUltraChatbotAgentVisibleMessageContent,
   isUltraChatbotAgentDocumentResult,
-  isUltraChatbotAgentKnowledgeBaseResult,
-  isUltraChatbotAgentResearchReportResult,
 } from "./ultra-chatbot-agent-message-parts";
-import { UltraChatbotAgentMessageReasoning } from "./ultra-chatbot-agent-message-reasoning";
-import { UltraChatbotAgentMessageResponse } from "./ultra-chatbot-agent-message-response";
+import { UltraChatbotAgentMessages } from "./ultra-chatbot-agent-messages";
 import { UltraChatbotAgentMultimodalInput } from "./ultra-chatbot-agent-multimodal-input";
-import { UltraChatbotAgentPreviewAttachment } from "./ultra-chatbot-agent-preview-attachment";
-import { UltraChatbotAgentProjectDocsResultCard } from "./ultra-chatbot-agent-project-docs-result";
-import { UltraChatbotAgentResearchReport } from "./ultra-chatbot-agent-research-report";
-import { UltraChatbotAgentSandboxConfirmation } from "./ultra-chatbot-agent-sandbox-confirmation";
-import { UltraChatbotAgentSources } from "./ultra-chatbot-agent-sources";
+import { applyUltraChatbotAgentSandboxApproval } from "./ultra-chatbot-agent-sandbox-approval";
 import { UltraChatbotAgentSuggestedActions } from "./ultra-chatbot-agent-suggested-actions";
 import { UltraChatbotAgentVisibilitySelector } from "./ultra-chatbot-agent-visibility-selector";
-import { UltraChatbotAgentWeather } from "./ultra-chatbot-agent-weather";
 import { useUltraChatbotAgentArtifact } from "./use-ultra-chatbot-agent-artifact";
-
-function getTextContent(message: UIMessage) {
-  return message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("\n");
-}
-
-function isUltraChatbotAgentWeatherResult(
-  output: ReturnType<typeof getUltraChatbotAgentToolParts>[number]["output"]
-): output is Parameters<typeof UltraChatbotAgentWeather>[0]["weather"] {
-  if (!output || typeof output !== "object") {
-    return false;
-  }
-
-  return (
-    "current" in output &&
-    typeof output.current === "object" &&
-    output.current !== null &&
-    "daily" in output &&
-    typeof output.daily === "object" &&
-    output.daily !== null &&
-    "current_units" in output &&
-    typeof output.current_units === "object" &&
-    output.current_units !== null
-  );
-}
 
 function buildHistoryTitleFromMessages(messages: UIMessage[]) {
   const firstUserMessage = messages.find((message) => message.role === "user");
-  const text = firstUserMessage ? getTextContent(firstUserMessage).trim() : "";
+  const text = firstUserMessage
+    ? getUltraChatbotAgentTextContent(firstUserMessage).trim()
+    : "";
 
   return text.slice(0, 72) || "New chat";
 }
@@ -269,34 +215,6 @@ function shouldApplyRecoveredSession(
     session.messages.length > messagesLength ||
     session.messages.at(-1)?.role !== "user"
   );
-}
-
-function readSandboxCapabilityFromMessages(messages: UIMessage[]) {
-  for (const message of [...messages].reverse()) {
-    for (const part of [...getUltraChatbotAgentToolParts(message)].reverse()) {
-      if (part.type !== "tool-enableSandbox") {
-        continue;
-      }
-
-      if (
-        part.state === "output-available" &&
-        part.output &&
-        typeof part.output === "object" &&
-        "sandboxEnabled" in part.output
-      ) {
-        return part.output.sandboxEnabled === true;
-      }
-
-      if (
-        part.state === "approval-responded" &&
-        typeof part.approval?.approved === "boolean"
-      ) {
-        return part.approval.approved;
-      }
-    }
-  }
-
-  return null;
 }
 
 interface UltraChatbotAgentWorkspaceProps {
@@ -534,20 +452,45 @@ export function UltraChatbotAgentWorkspace({
     showResumeThinking && status === "streaming" ? "submitted" : status;
   const selectedModel =
     findModel(models, chatMeta.selectedChatModel) ?? models.at(0);
-  const currentChatRecordHint =
-    messages.length > 0
-      ? ({
-          activeStreamId: null,
-          capabilities: chatMeta.capabilities,
-          createdAt: chatMeta.createdAt ?? new Date().toISOString(),
-          id: chatMeta.id,
-          selectedChatModel: chatMeta.selectedChatModel,
-          title: buildHistoryTitleFromMessages(messages),
-          updatedAt: chatMeta.updatedAt ?? new Date().toISOString(),
-          visibility: chatMeta.visibility,
-          visitorId: initialSession?.chat.visitorId ?? "visitor",
-        } satisfies UltraChatbotAgentChatRecord)
-      : null;
+  const currentChatTitle = hasMessages
+    ? buildHistoryTitleFromMessages(messages)
+    : "New chat";
+  const hasPersistedChatMeta =
+    hasMessages && Boolean(chatMeta.createdAt) && Boolean(chatMeta.updatedAt);
+  const currentChatRecordHint = useMemo(() => {
+    const createdAt = chatMeta.createdAt;
+    const updatedAt = chatMeta.updatedAt;
+
+    if (!hasPersistedChatMeta) {
+      return null;
+    }
+
+    if (!(createdAt && updatedAt)) {
+      return null;
+    }
+
+    return {
+      activeStreamId: null,
+      capabilities: chatMeta.capabilities,
+      createdAt,
+      id: chatMeta.id,
+      selectedChatModel: chatMeta.selectedChatModel,
+      title: currentChatTitle,
+      updatedAt,
+      visibility: chatMeta.visibility,
+      visitorId: initialSession?.chat.visitorId ?? "visitor",
+    } satisfies UltraChatbotAgentChatRecord;
+  }, [
+    chatMeta.capabilities,
+    chatMeta.createdAt,
+    chatMeta.id,
+    chatMeta.selectedChatModel,
+    chatMeta.updatedAt,
+    chatMeta.visibility,
+    currentChatTitle,
+    hasPersistedChatMeta,
+    initialSession?.chat.visitorId,
+  ]);
   let sandboxButtonContent: ReactNode = chatMeta.capabilities.sandboxEnabled
     ? "Lock sandbox"
     : "Enable sandbox";
@@ -623,26 +566,6 @@ export function UltraChatbotAgentWorkspace({
     }
   }, [messages, refreshArtifact]);
 
-  useEffect(() => {
-    const sandboxEnabled = readSandboxCapabilityFromMessages(messages);
-
-    if (sandboxEnabled == null) {
-      return;
-    }
-
-    setChatMeta((current) =>
-      current.capabilities.sandboxEnabled === sandboxEnabled
-        ? current
-        : {
-            ...current,
-            capabilities: {
-              ...current.capabilities,
-              sandboxEnabled,
-            },
-          }
-    );
-  }, [messages]);
-
   useResumeRecovery({
     chatId,
     initialSession,
@@ -710,46 +633,57 @@ export function UltraChatbotAgentWorkspace({
     }
   }
 
+  async function persistSandboxCapability(sandboxEnabled: boolean) {
+    const capabilities = await saveUltraChatbotAgentCapabilities({
+      chatId: chatMeta.id,
+      sandboxEnabled,
+    });
+
+    setChatMeta((current) => ({
+      ...current,
+      capabilities,
+      updatedAt: new Date().toISOString(),
+    }));
+  }
+
+  function getSandboxCapabilityErrorMessage(error: unknown) {
+    return error instanceof Error
+      ? error.message
+      : "Failed to update sandbox capability.";
+  }
+
   async function handleSandboxCapabilityChange(sandboxEnabled: boolean) {
     setSandboxError(null);
     setIsSandboxUpdating(true);
 
     try {
-      const capabilities = await saveUltraChatbotAgentCapabilities({
-        chatId: chatMeta.id,
-        sandboxEnabled,
-      });
-
-      setChatMeta((current) => ({
-        ...current,
-        capabilities,
-        updatedAt: new Date().toISOString(),
-      }));
+      await persistSandboxCapability(sandboxEnabled);
     } catch (error) {
-      setSandboxError(
-        error instanceof Error
-          ? error.message
-          : "Failed to update sandbox capability."
-      );
+      setSandboxError(getSandboxCapabilityErrorMessage(error));
     } finally {
       setIsSandboxUpdating(false);
     }
   }
 
-  function syncSandboxCapability(sandboxEnabled: boolean) {
+  async function handleSandboxApprovalResponse(input: {
+    approvalId: string;
+    approved: boolean;
+    reason: string;
+  }) {
     setSandboxError(null);
-    setChatMeta((current) =>
-      current.capabilities.sandboxEnabled === sandboxEnabled
-        ? current
-        : {
-            ...current,
-            capabilities: {
-              ...current.capabilities,
-              sandboxEnabled,
-            },
-            updatedAt: new Date().toISOString(),
-          }
-    );
+    setIsSandboxUpdating(true);
+
+    try {
+      await applyUltraChatbotAgentSandboxApproval({
+        ...input,
+        addToolApprovalResponse,
+        persistSandboxCapability,
+      });
+    } catch (error) {
+      setSandboxError(getSandboxCapabilityErrorMessage(error));
+    } finally {
+      setIsSandboxUpdating(false);
+    }
   }
 
   async function handleSaveEdit(message: UIMessage) {
@@ -816,83 +750,6 @@ export function UltraChatbotAgentWorkspace({
     }
   }
 
-  function renderMessageBody(message: UIMessage, isLastMessage: boolean) {
-    const text = getTextContent(message);
-    const fileParts = getUltraChatbotAgentFileParts(message);
-    const sourceParts = getUltraChatbotAgentSourceParts(message);
-    const toolParts = getUltraChatbotAgentToolParts(message);
-
-    if (text) {
-      return (
-        <div className="space-y-4">
-          {fileParts.length > 0 ? (
-            <Attachments variant="list">
-              {fileParts.map((part) => {
-                const attachmentId = `${message.id}-${part.filename ?? "attachment"}-${part.url}`;
-
-                return (
-                  <UltraChatbotAgentPreviewAttachment
-                    attachment={{
-                      ...part,
-                      id: attachmentId,
-                    }}
-                    key={attachmentId}
-                  />
-                );
-              })}
-            </Attachments>
-          ) : null}
-          <UltraChatbotAgentMessageResponse>
-            {text}
-          </UltraChatbotAgentMessageResponse>
-        </div>
-      );
-    }
-
-    if (fileParts.length > 0) {
-      return (
-        <Attachments variant="list">
-          {fileParts.map((part) => {
-            const attachmentId = `${message.id}-${part.filename ?? "attachment"}-${part.url}`;
-
-            return (
-              <UltraChatbotAgentPreviewAttachment
-                attachment={{
-                  ...part,
-                  id: attachmentId,
-                }}
-                key={attachmentId}
-              />
-            );
-          })}
-        </Attachments>
-      );
-    }
-
-    if (
-      message.role === "assistant" &&
-      isLastMessage &&
-      toolParts.length === 0 &&
-      showThinking
-    ) {
-      return <Shimmer className="text-sm">Thinking...</Shimmer>;
-    }
-
-    if (toolParts.length > 0) {
-      return null;
-    }
-
-    if (sourceParts.length > 0) {
-      return null;
-    }
-
-    return (
-      <p className="text-muted-foreground text-sm">
-        Waiting for visible output.
-      </p>
-    );
-  }
-
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[18rem_minmax(0,1fr)_20rem]">
       <UltraChatbotAgentHistorySidebar
@@ -957,348 +814,42 @@ export function UltraChatbotAgentWorkspace({
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
-              <>
-                {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: message rendering mirrors AI SDK UIMessage parts, tool output cards, and local edit/vote controls in one pass. */}
-                {/* biome-ignore lint/complexity/noExcessiveLinesPerFunction: extracting this during QA would make the ongoing bug fix harder to audit. */}
-                {messages.map((message) => {
-                  const reasoningText =
-                    message.role === "assistant"
-                      ? getUltraChatbotAgentReasoningText(message)
-                      : "";
-                  const sources =
-                    message.role === "assistant"
-                      ? getUltraChatbotAgentSourceParts(message)
-                      : [];
-                  const messageFileParts =
-                    getUltraChatbotAgentFileParts(message);
-                  const lastPart = message.parts.at(-1);
-                  const isLastMessage = messages.at(-1)?.id === message.id;
-                  const isReasoningStreaming =
-                    message.role === "assistant" &&
-                    isLastMessage &&
-                    status === "streaming" &&
-                    lastPart?.type === "reasoning";
-
-                  const currentVote = votesByMessageId[message.id];
-                  const isVotePending = pendingVote?.messageId === message.id;
-                  const isHelpfulPending =
-                    isVotePending && pendingVote.target === "up";
-                  const isNeedsWorkPending =
-                    isVotePending && pendingVote.target === "down";
-                  const hasFeedbackTarget =
-                    getTextContent(message).trim().length > 0 ||
-                    messageFileParts.length > 0 ||
-                    getUltraChatbotAgentSourceParts(message).length > 0;
-                  const showFeedbackButtons =
-                    message.role === "assistant" &&
-                    !(isLastMessage && status === "streaming") &&
-                    !(isLastMessage && status === "submitted") &&
-                    hasFeedbackTarget;
-                  let helpfulButtonIcon: ReactNode = (
-                    <ThumbsUpIcon className="size-3.5" />
-                  );
-                  let needsWorkButtonIcon: ReactNode = (
-                    <ThumbsDownIcon className="size-3.5" />
-                  );
-
-                  if (currentVote === true) {
-                    helpfulButtonIcon = (
-                      <ThumbsUpIcon className="size-3.5 text-emerald-500" />
-                    );
-                  }
-
-                  if (currentVote === false) {
-                    needsWorkButtonIcon = (
-                      <ThumbsDownIcon className="size-3.5 text-rose-500" />
-                    );
-                  }
-
-                  if (isHelpfulPending) {
-                    helpfulButtonIcon = <Spinner className="size-3.5" />;
-                  }
-
-                  if (isNeedsWorkPending) {
-                    needsWorkButtonIcon = <Spinner className="size-3.5" />;
-                  }
-
-                  return (
-                    <Message from={message.role} key={message.id}>
-                      <MessageContent
-                        className={cn(
-                          message.role === "assistant"
-                            ? "w-full min-w-0 max-w-[min(100%,48rem)]"
-                            : "min-w-0 max-w-[min(100%,42rem)]"
-                        )}
-                      >
-                        {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: tool rendering stays adjacent to UIMessage part handling until the QA fixes are complete. */}
-                        {getUltraChatbotAgentToolParts(message).map((part) => {
-                          const documentResult =
-                            part.state === "output-available" &&
-                            isUltraChatbotAgentDocumentResult(part.output)
-                              ? part.output
-                              : null;
-                          const weatherResult =
-                            part.state === "output-available" &&
-                            isUltraChatbotAgentWeatherResult(part.output)
-                              ? part.output
-                              : null;
-                          const isDocumentTool =
-                            part.type === "tool-createDocument" ||
-                            part.type === "tool-editDocument" ||
-                            part.type === "tool-updateDocument";
-                          const researchReportResult =
-                            part.state === "output-available" &&
-                            part.type === "tool-createResearchReport" &&
-                            isUltraChatbotAgentResearchReportResult(part.output)
-                              ? part.output
-                              : null;
-                          const knowledgeBaseResult =
-                            part.state === "output-available" &&
-                            part.type === "tool-searchKnowledgeBase" &&
-                            isUltraChatbotAgentKnowledgeBaseResult(part.output)
-                              ? part.output
-                              : null;
-                          const projectDocsResult =
-                            getUltraChatbotAgentProjectDocsMcpResult(part);
-
-                          if (
-                            isDocumentTool &&
-                            part.state === "output-available" &&
-                            part.output &&
-                            typeof part.output === "object" &&
-                            "error" in part.output
-                          ) {
-                            return (
-                              <div
-                                className="w-full rounded-xl border border-destructive/30 px-4 py-3 text-destructive text-sm"
-                                key={part.toolCallId}
-                              >
-                                {String(part.output.error)}
-                              </div>
-                            );
-                          }
-
-                          if (documentResult && isDocumentTool) {
-                            return (
-                              <UltraChatbotAgentDocumentPreview
-                                chatId={chatMeta.id}
-                                key={part.toolCallId}
-                                onOpen={openArtifact}
-                                result={documentResult}
-                              />
-                            );
-                          }
-
-                          if (researchReportResult) {
-                            return (
-                              <UltraChatbotAgentResearchReport
-                                key={part.toolCallId}
-                                report={researchReportResult}
-                              />
-                            );
-                          }
-
-                          if (knowledgeBaseResult) {
-                            return (
-                              <UltraChatbotAgentKnowledgeBaseResultCard
-                                key={part.toolCallId}
-                                result={knowledgeBaseResult}
-                              />
-                            );
-                          }
-
-                          if (projectDocsResult) {
-                            return (
-                              <UltraChatbotAgentProjectDocsResultCard
-                                key={part.toolCallId}
-                                result={projectDocsResult}
-                              />
-                            );
-                          }
-
-                          return (
-                            <div className="space-y-3" key={part.toolCallId}>
-                              {part.type === "tool-enableSandbox" ? (
-                                <UltraChatbotAgentSandboxConfirmation
-                                  onApprovalResponse={addToolApprovalResponse}
-                                  onCapabilityChange={syncSandboxCapability}
-                                  part={part}
-                                />
-                              ) : null}
-                              <Tool defaultOpen={false}>
-                                {part.type === "dynamic-tool" ? (
-                                  <ToolHeader
-                                    state={part.state}
-                                    toolName={part.toolName}
-                                    type={part.type}
-                                  />
-                                ) : (
-                                  <ToolHeader
-                                    state={part.state}
-                                    type={part.type}
-                                  />
-                                )}
-                                <ToolContent>
-                                  {part.input ? (
-                                    <ToolInput input={part.input} />
-                                  ) : null}
-                                  {weatherResult ? null : (
-                                    <ToolOutput
-                                      errorText={part.errorText}
-                                      output={part.output}
-                                    />
-                                  )}
-                                  {weatherResult ? (
-                                    <UltraChatbotAgentWeather
-                                      weather={weatherResult}
-                                    />
-                                  ) : null}
-                                </ToolContent>
-                              </Tool>
-                            </div>
-                          );
-                        })}
-                        {reasoningText ? (
-                          <UltraChatbotAgentMessageReasoning
-                            isLoading={isReasoningStreaming}
-                            reasoning={reasoningText}
-                          />
-                        ) : null}
-                        <UltraChatbotAgentSources sources={sources} />
-                        {editingMessageId === message.id ? (
-                          <div className="space-y-3">
-                            {messageFileParts.length > 0 ? (
-                              <Attachments variant="list">
-                                {messageFileParts
-                                  .filter((part) =>
-                                    editingRetainedFileUrls.includes(part.url)
-                                  )
-                                  .map((part) => {
-                                    const attachmentId = `${message.id}-${part.filename ?? "attachment"}-${part.url}`;
-
-                                    return (
-                                      <UltraChatbotAgentPreviewAttachment
-                                        attachment={{
-                                          ...part,
-                                          id: attachmentId,
-                                        }}
-                                        key={attachmentId}
-                                        onRemove={() =>
-                                          setEditingRetainedFileUrls(
-                                            (current) =>
-                                              current.filter(
-                                                (url) => url !== part.url
-                                              )
-                                          )
-                                        }
-                                      />
-                                    );
-                                  })}
-                              </Attachments>
-                            ) : null}
-                            <Textarea
-                              onChange={(event) =>
-                                setEditingText(event.target.value)
-                              }
-                              value={editingText}
-                            />
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                disabled={isBusy}
-                                onClick={() => handleSaveEdit(message)}
-                                size="sm"
-                                type="button"
-                                variant="outline"
-                              >
-                                Save and replay
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  setEditingMessageId(null);
-                                  setEditingRetainedFileUrls([]);
-                                  setEditingText("");
-                                  setEditError(null);
-                                }}
-                                size="sm"
-                                type="button"
-                                variant="ghost"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          renderMessageBody(message, isLastMessage)
-                        )}
-                        {showFeedbackButtons ? (
-                          <div className="mt-3 flex items-center gap-2">
-                            <Button
-                              aria-label="Helpful"
-                              disabled={isVotePending}
-                              onClick={() => handleVote(message.id, "up")}
-                              size="sm"
-                              title="Helpful"
-                              type="button"
-                              variant={
-                                currentVote === true ? "secondary" : "outline"
-                              }
-                            >
-                              {helpfulButtonIcon}
-                              {currentVote === true && !isHelpfulPending ? (
-                                <span>Helpful</span>
-                              ) : null}
-                            </Button>
-                            <Button
-                              aria-label="Needs work"
-                              disabled={isVotePending}
-                              onClick={() => handleVote(message.id, "down")}
-                              size="sm"
-                              title="Needs work"
-                              type="button"
-                              variant={
-                                currentVote === false ? "secondary" : "outline"
-                              }
-                            >
-                              {needsWorkButtonIcon}
-                              {currentVote === false && !isNeedsWorkPending ? (
-                                <span>Needs work</span>
-                              ) : null}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </MessageContent>
-                      {message.role === "user" &&
-                      editingMessageId !== message.id ? (
-                        <div className="mt-3 flex w-full justify-end">
-                          <Button
-                            disabled={isBusy}
-                            onClick={() => {
-                              setEditingMessageId(message.id);
-                              setEditingRetainedFileUrls(
-                                messageFileParts.map((part) => part.url)
-                              );
-                              setEditingText(getTextContent(message));
-                              setEditError(null);
-                            }}
-                            size="sm"
-                            type="button"
-                            variant="outline"
-                          >
-                            Edit
-                          </Button>
-                        </div>
-                      ) : null}
-                    </Message>
-                  );
-                })}
-                {showResumeThinking ? (
-                  <Message from="assistant">
-                    <MessageContent className="w-full min-w-0 max-w-3xl">
-                      <Shimmer className="text-sm">Thinking...</Shimmer>
-                    </MessageContent>
-                  </Message>
-                ) : null}
-              </>
+              <UltraChatbotAgentMessages
+                chatId={chatMeta.id}
+                editingMessageId={editingMessageId}
+                editingRetainedFileUrls={editingRetainedFileUrls}
+                editingText={editingText}
+                isBusy={isBusy}
+                isSandboxUpdating={isSandboxUpdating}
+                messages={messages}
+                onArtifactOpen={openArtifact}
+                onCancelEdit={() => {
+                  setEditingMessageId(null);
+                  setEditingRetainedFileUrls([]);
+                  setEditingText("");
+                  setEditError(null);
+                }}
+                onEditTextChange={setEditingText}
+                onRemoveEditingFile={(url) =>
+                  setEditingRetainedFileUrls((current) =>
+                    current.filter((currentUrl) => currentUrl !== url)
+                  )
+                }
+                onSandboxApprovalResponse={handleSandboxApprovalResponse}
+                onSaveEdit={handleSaveEdit}
+                onStartEdit={({ messageId, retainedFileUrls, text }) => {
+                  setEditingMessageId(messageId);
+                  setEditingRetainedFileUrls(retainedFileUrls);
+                  setEditingText(text);
+                  setEditError(null);
+                }}
+                onVote={handleVote}
+                pendingVote={pendingVote}
+                showResumeThinking={showResumeThinking}
+                showThinking={showThinking}
+                status={status}
+                votesByMessageId={votesByMessageId}
+              />
             ) : (
               <div className="flex size-full flex-col items-center justify-center gap-6 py-12">
                 <ConversationEmptyState

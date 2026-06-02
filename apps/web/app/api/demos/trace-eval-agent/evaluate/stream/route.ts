@@ -1,7 +1,11 @@
+import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 import { handleTraceEvalAgentEvaluationStreamRequest } from "@/features/trace-eval-agent/server/evaluation";
 
 export const runtime = "nodejs";
 
-export function POST(request: Request) {
-  return handleTraceEvalAgentEvaluationStreamRequest(request);
-}
+export const POST = createMeteredDemoRoute({
+  action: "evaluate",
+  demoSlug: "trace-eval-agent",
+  handler: ({ request }) =>
+    handleTraceEvalAgentEvaluationStreamRequest(request),
+});

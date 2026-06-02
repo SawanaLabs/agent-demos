@@ -10,7 +10,8 @@ import {
   ConfirmationRequest,
   ConfirmationTitle,
 } from "@workspace/ui/components/ai-elements/confirmation";
-import type { ChatAddToolApproveResponseFunction, ToolUIPart } from "ai";
+import type { ToolUIPart } from "ai";
+import type { UltraChatbotAgentSandboxApprovalResponseHandler } from "./ultra-chatbot-agent-sandbox-approval";
 
 interface SandboxApprovalToolInput {
   reason?: string;
@@ -32,13 +33,13 @@ function getSandboxApprovalToolInput(
 }
 
 export interface UltraChatbotAgentSandboxConfirmationProps {
-  onApprovalResponse: ChatAddToolApproveResponseFunction;
-  onCapabilityChange?: (sandboxEnabled: boolean) => void;
+  isPending?: boolean;
+  onApprovalResponse: UltraChatbotAgentSandboxApprovalResponseHandler;
   part: ToolUIPart;
 }
 
 export function UltraChatbotAgentSandboxConfirmation({
-  onCapabilityChange,
+  isPending = false,
   onApprovalResponse,
   part,
 }: UltraChatbotAgentSandboxConfirmationProps) {
@@ -93,13 +94,13 @@ export function UltraChatbotAgentSandboxConfirmation({
       </ConfirmationRejected>
       <ConfirmationActions>
         <ConfirmationAction
+          disabled={isPending}
           onClick={() => {
-            onApprovalResponse({
+            void onApprovalResponse({
+              approvalId: approval.id,
               approved: false,
-              id: approval.id,
               reason: "The reviewer kept sandbox disabled for this chat.",
             });
-            onCapabilityChange?.(false);
           }}
           variant="outline"
         >
@@ -107,13 +108,13 @@ export function UltraChatbotAgentSandboxConfirmation({
           Keep disabled
         </ConfirmationAction>
         <ConfirmationAction
+          disabled={isPending}
           onClick={() => {
-            onApprovalResponse({
+            void onApprovalResponse({
+              approvalId: approval.id,
               approved: true,
-              id: approval.id,
               reason: "The reviewer approved sandbox for this chat.",
             });
-            onCapabilityChange?.(true);
           }}
         >
           <CheckCircleIcon className="size-3.5" />

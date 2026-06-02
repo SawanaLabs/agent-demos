@@ -13,6 +13,7 @@ import type {
   UltraChatbotAgentHistoryPage,
 } from "../server/chat-store";
 import { UltraChatbotAgentHistoryItem } from "./ultra-chatbot-agent-history-item";
+import { mergeUltraChatbotAgentChatIntoHistory } from "./ultra-chatbot-agent-history-state";
 
 function toRootPath() {
   return "/demos/ultra-chatbot-agent";
@@ -68,14 +69,6 @@ async function deleteHistoryChat(chatId: string) {
   }
 }
 
-function mergeChatIntoHistory(
-  chats: UltraChatbotAgentChatRecord[],
-  incoming: UltraChatbotAgentChatRecord
-) {
-  const next = chats.filter((chat) => chat.id !== incoming.id);
-  return [incoming, ...next];
-}
-
 interface UltraChatbotAgentHistorySidebarProps {
   currentChatId: string;
   currentChatRecordHint: UltraChatbotAgentChatRecord | null;
@@ -99,10 +92,19 @@ export function UltraChatbotAgentHistorySidebar({
       return;
     }
 
-    setHistoryPage((current) => ({
-      ...current,
-      chats: mergeChatIntoHistory(current.chats, currentChatRecordHint),
-    }));
+    setHistoryPage((current) => {
+      const chats = mergeUltraChatbotAgentChatIntoHistory(
+        current.chats,
+        currentChatRecordHint
+      );
+
+      return chats === current.chats
+        ? current
+        : {
+            ...current,
+            chats,
+          };
+    });
   }, [currentChatRecordHint]);
 
   async function handleLoadMore() {

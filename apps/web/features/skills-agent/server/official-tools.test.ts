@@ -110,6 +110,14 @@ describe("createSkillsAgentOfficialTools", () => {
       success: true,
     });
     const session = {
+      discoverSkills: vi.fn().mockResolvedValue([
+        {
+          description: "Create reusable skills.",
+          name: "skill-creator",
+          path: "/repo/.agents/skills/skill-creator",
+        },
+      ]),
+      listSkillFiles: vi.fn(),
       loadSkill: vi.fn(),
       readFile: vi.fn(),
       runCommand: vi.fn(),
@@ -169,5 +177,104 @@ describe("createSkillsAgentOfficialTools", () => {
     expect(officialExecute).toHaveBeenCalledWith({
       skillName: "skill-creator",
     });
+  });
+
+  it("loads a skill created inside the sandbox after the official skill snapshot", async () => {
+    const officialExecute = vi.fn().mockResolvedValue({
+      error: 'Skill "word-skill" not found. Available skills: skill-creator',
+      success: false,
+    });
+    const session = {
+      discoverSkills: vi.fn().mockResolvedValue([
+        {
+          description: "Create reusable skills.",
+          name: "skill-creator",
+          path: "/repo/.agents/skills/skill-creator",
+        },
+        {
+          description: "Work with Word documents.",
+          name: "word-skill",
+          path: "/vercel/sandbox/project/.agents/skills/word-skill",
+        },
+      ]),
+      listSkillFiles: vi.fn().mockResolvedValue(["references/word.md"]),
+      loadSkill: vi.fn().mockResolvedValue({
+        content: "# Word Skill\n\nUse this workflow for Word documents.",
+        name: "word-skill",
+        skillDirectory: "/vercel/sandbox/project/.agents/skills/word-skill",
+      }),
+      readFile: vi.fn(),
+      runCommand: vi.fn(),
+      writeFile: vi.fn(),
+    };
+
+    createSkillToolMock.mockResolvedValue({
+      files: {},
+      instructions: "Skill directories are preloaded.",
+      skill: { execute: officialExecute },
+      skills: [
+        {
+          description: "Create reusable skills.",
+          files: ["SKILL.md"],
+          localPath: "/repo/.agents/skills/skill-creator",
+          name: "skill-creator",
+          sandboxPath: "./.agents/skills/skill-creator",
+        },
+      ],
+    });
+    createBashToolMock.mockResolvedValue({
+      sandbox: {
+        executeCommand: vi.fn(),
+        readFile: vi.fn(),
+        writeFiles: vi.fn(),
+      },
+      tools: {
+        bash: { execute: vi.fn() },
+        readFile: { execute: vi.fn() },
+        writeFile: { execute: vi.fn() },
+      },
+    });
+
+    const { createSkillsAgentOfficialTools } = await import("./official-tools");
+
+    const toolkit = await createSkillsAgentOfficialTools({
+      agentsContent: "# Agents\n",
+      projectRoot: "/vercel/sandbox/project",
+      session: session as never,
+      skillsDirectory: "/repo/.agents/skills",
+    });
+
+    const skillTool = toolkit.tools.skill as {
+      execute: (input: { skillName: string }) => Promise<unknown>;
+    };
+
+    await expect(
+      skillTool.execute({ skillName: "Word Skill" })
+    ).resolves.toEqual({
+      files: ["references/word.md"],
+      instructions: "# Word Skill\n\nUse this workflow for Word documents.",
+      skill: {
+        description: "Work with Word documents.",
+        name: "word-skill",
+        path: "/vercel/sandbox/project/.agents/skills/word-skill",
+      },
+      success: true,
+    });
+    expect(session.discoverSkills).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "skill-creator",
+        }),
+      ])
+    );
+    expect(session.loadSkill).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "word-skill",
+        }),
+      ]),
+      "word-skill"
+    );
+    expect(officialExecute).not.toHaveBeenCalled();
   });
 });

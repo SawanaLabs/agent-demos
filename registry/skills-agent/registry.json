@@ -21,6 +21,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/conversation.json",
@@ -73,6 +74,16 @@
           "path": "lib/skills-agent/server/chat.ts",
           "type": "registry:lib",
           "target": "@lib/skills-agent/server/chat.ts"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/skills-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/skills-agent/server/env-source.ts"
         },
         {
           "path": "lib/skills-agent/server/env.ts",

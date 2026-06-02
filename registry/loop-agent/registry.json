@@ -18,6 +18,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "textarea",
         "https://elements.ai-sdk.dev/api/registry/chain-of-thought.json",
@@ -68,6 +69,16 @@
           "path": "lib/loop-agent/chat.ts",
           "type": "registry:lib",
           "target": "@lib/loop-agent/chat.ts"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/loop-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/loop-agent/env-source.ts"
         },
         {
           "path": "lib/loop-agent/env.ts",

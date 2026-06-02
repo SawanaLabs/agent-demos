@@ -1,4 +1,8 @@
-import { getSkillsAgentEnv, getSkillsAgentSetupState } from "./env";
+import {
+  getSkillsAgentEnv,
+  getSkillsAgentSetupState,
+  SKILLS_AGENT_SANDBOX_ENVIRONMENT_LABEL,
+} from "./env";
 import { discoverWorkspaceSkills } from "./local-skill-catalog";
 import type { SkillMetadata } from "./skill-catalog";
 
@@ -7,6 +11,7 @@ type DemoEnv = Record<string, string | undefined>;
 export interface SkillsAgentRuntimeState {
   availableSkills: Pick<SkillMetadata, "description" | "name">[];
   chatModel: string;
+  environmentLabel: string;
   isChatAvailable: boolean;
   nodeVersion: string;
   sandboxProvider: string;
@@ -38,6 +43,7 @@ export async function getSkillsAgentRuntimeState(
       name,
     })),
     chatModel: setup.config.chatModel,
+    environmentLabel: SKILLS_AGENT_SANDBOX_ENVIRONMENT_LABEL,
     isChatAvailable: issues.length === 0,
     nodeVersion: setup.nodeVersion,
     sandboxProvider: setup.sandboxProvider,

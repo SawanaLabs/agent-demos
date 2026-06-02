@@ -95,6 +95,7 @@ import type { OpenAiAgentsSdkDemoSessionProfile } from "../server/sessions";
 import type { OpenAiAgentsSdkDemoToolCatalogEntry } from "../server/tools";
 import type { OpenAiAgentsSdkDemoTraceProfile } from "../server/tracing";
 import type { OpenAiAgentsSdkDemoVoiceProfile } from "../server/voice";
+import { buildOpenAiAgentsSdkDemoRuntimeInspector } from "./openai-agents-sdk-demo-runtime-inspector";
 import {
   getOpenAiAgentsSdkDemoApprovalInputFields,
   getOpenAiAgentsSdkDemoFailedTurnRetryText,
@@ -106,7 +107,6 @@ import {
   getOpenAiAgentsSdkDemoToolDisplayState,
   getOpenAiAgentsSdkDemoToolName,
   getOpenAiAgentsSdkDemoToolParts,
-  hasOpenAiAgentsSdkDemoVisibleContent,
   shouldRenderOpenAiAgentsSdkDemoReasoning,
 } from "./openai-agents-sdk-demo-session";
 import { OpenAiAgentsSdkDemoVoicePanel } from "./openai-agents-sdk-demo-voice-panel";
@@ -530,107 +530,32 @@ export function OpenAiAgentsSdkDemoWorkspace({
   const [hasUsedVoiceGuide, setHasUsedVoiceGuide] = useState(false);
   const [chatErrorMessage, setChatErrorMessage] =
     useState<OpenAiAgentsSdkDemoChatError | null>(null);
-  const hasAssistantOutput = messages.some(
-    (message) =>
-      message.role === "assistant" &&
-      hasOpenAiAgentsSdkDemoVisibleContent(message)
-  );
-  const usedGuideIds = new Set(
-    messages.flatMap((message) => message.metadata?.usedGuideIds ?? [])
-  );
-  const usedToolNames = new Set(
-    messages.flatMap((message) => message.metadata?.usedToolNames ?? [])
-  );
-  const usedGuardrailNames = new Set(
-    messages.flatMap((message) => message.metadata?.usedGuardrailNames ?? [])
-  );
-  const lastStreamSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.streamSummary
-    )?.metadata?.streamSummary;
-  const lastAiSdkExtensionSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.aiSdkExtensionSummary
-    )?.metadata?.aiSdkExtensionSummary;
-  const lastResponseId = [...messages]
-    .reverse()
-    .find((message) => message.role === "assistant")?.metadata?.lastResponseId;
-  const lastHandoffSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.handoffSummary
-    )?.metadata?.handoffSummary;
-  const lastResultSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.resultSummary
-    )?.metadata?.resultSummary;
-  const lastApprovalSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.approvalSummary
-    )?.metadata?.approvalSummary;
-  const lastSessionSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.sessionSummary
-    )?.metadata?.sessionSummary;
-  const lastContextSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.contextSummary
-    )?.metadata?.contextSummary;
-  const lastMcpSummary = [...messages]
-    .reverse()
-    .find(
-      (message) => message.role === "assistant" && message.metadata?.mcpSummary
-    )?.metadata?.mcpSummary;
-  const lastSandboxSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.sandboxSummary
-    )?.metadata?.sandboxSummary;
-  const lastTraceSummary = [...messages]
-    .reverse()
-    .find(
-      (message) =>
-        message.role === "assistant" && message.metadata?.traceSummary
-    )?.metadata?.traceSummary;
-  const traceIncludesSensitiveData =
-    lastTraceSummary?.traceIncludeSensitiveData ??
-    traceProfile.traceIncludeSensitiveData;
-  const aiSdkUiBridgeStatus =
-    lastAiSdkExtensionSummary?.uiBridgeStatus ??
-    aiSdkExtensionProfile.uiBridge.status;
-  const aiSdkModelAdapterStatus =
-    lastAiSdkExtensionSummary?.modelAdapterStatus ??
-    aiSdkExtensionProfile.modelAdapter.status;
-  const hasPendingApproval = Boolean(lastApprovalSummary?.hasPendingApprovals);
-  const guideCoverageWithCurrentRun = guideCoverage.map((item) => {
-    const wasUsedThisRun =
-      ((item.id === "agents" || item.id === "models") && hasAssistantOutput) ||
-      usedGuideIds.has(item.id) ||
-      (item.id === "voice-agents" && hasUsedVoiceGuide);
-
-    if (!wasUsedThisRun) {
-      return item;
-    }
-
-    return {
-      ...item,
-      currentRunStatus: "used-this-run" as const,
-    };
+  const runtimeInspector = buildOpenAiAgentsSdkDemoRuntimeInspector({
+    aiSdkExtensionProfile,
+    guideCoverage,
+    hasUsedVoiceGuide,
+    messages,
+    traceProfile,
   });
+  const {
+    aiSdkModelAdapterStatus,
+    aiSdkUiBridgeStatus,
+    guideCoverageWithCurrentRun,
+    hasPendingApproval,
+    lastApprovalSummary,
+    lastContextSummary,
+    lastHandoffSummary,
+    lastMcpSummary,
+    lastResponseId,
+    lastResultSummary,
+    lastSandboxSummary,
+    lastSessionSummary,
+    lastStreamSummary,
+    lastTraceSummary,
+    traceIncludesSensitiveData,
+    usedGuardrailNames,
+    usedToolNames,
+  } = runtimeInspector;
 
   useEffect(() => {
     if (!error) {

@@ -15,6 +15,12 @@ import {
   ragChatbotResources,
 } from "./schemas/rag-chatbot";
 import {
+  siteUsageAccessCodes,
+  siteUsageEvents,
+  siteUsageVisitors,
+  siteUsageWaitlistEntries,
+} from "./schemas/site-usage";
+import {
   ultraChatbotAgentChats,
   ultraChatbotAgentDocuments,
   ultraChatbotAgentMessages,
@@ -34,6 +40,10 @@ export const databaseSchema = {
   persistentAgentMessages,
   ragChatbotEmbeddings,
   ragChatbotResources,
+  siteUsageAccessCodes,
+  siteUsageEvents,
+  siteUsageVisitors,
+  siteUsageWaitlistEntries,
   ultraChatbotAgentChats,
   ultraChatbotAgentDocuments,
   ultraChatbotAgentMessages,

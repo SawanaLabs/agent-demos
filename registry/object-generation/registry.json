@@ -18,6 +18,7 @@
       "registryDependencies": [
         "utils",
         "badge",
+        "breadcrumb",
         "button",
         "progress",
         "textarea",
@@ -80,6 +81,16 @@
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/object-generation/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/object-generation/env-source.ts"
         },
         {
           "path": "lib/object-generation/env.ts",

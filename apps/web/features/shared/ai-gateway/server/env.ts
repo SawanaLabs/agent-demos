@@ -1,100 +1,44 @@
-import { createGateway } from "ai";
-
 import { env as appEnv } from "@/env";
 
-import { DEFAULT_CHAT_MODEL, DEFAULT_GATEWAY_BASE_URL } from "./keys";
-import { assertSupportedNodeRuntime } from "./runtime";
+import {
+  type AiGatewayContractConfig,
+  type AiGatewayContractSetupState,
+  type AiGatewayEnvRecord,
+  buildAiGatewayContractSetupState,
+  createAiGatewayFromContract,
+  readAiGatewayContractConfig,
+} from "./contract";
+import { DEFAULT_CHAT_MODEL } from "./keys";
 
-interface AiGatewayEnv {
-  AI_GATEWAY_API_KEY?: string;
-  AI_GATEWAY_BASE_URL?: string;
-  AI_GATEWAY_CHAT_MODEL?: string;
-}
+export type AiGatewayEnv = AiGatewayEnvRecord;
 
-export interface AiGatewayConfig {
-  apiKey: string;
-  baseURL: string;
-  chatModel: string;
-}
+export interface AiGatewayConfig extends AiGatewayContractConfig {}
 
-export interface AiGatewaySetupState {
-  config: Omit<AiGatewayConfig, "apiKey">;
-  isReady: boolean;
-  issues: string[];
-  nodeVersion: string;
-}
+export interface AiGatewaySetupState
+  extends AiGatewayContractSetupState<Omit<AiGatewayConfig, "apiKey">> {}
 
-function readRequiredEnv(env: AiGatewayEnv, name: keyof AiGatewayEnv): string {
-  const value = env[name];
+export type AiGatewayProvider = ReturnType<typeof createAiGatewayFromContract>;
 
-  if (!value) {
-    throw new Error(
-      `Missing ${name}. Add it to apps/web/.env.local using the contract in apps/web/.env.example.`
-    );
-  }
-
-  return value;
-}
-
-function resolveAiGatewayEnv(env: AiGatewayEnv = appEnv) {
-  return {
-    apiKey: env.AI_GATEWAY_API_KEY,
-    baseURL: env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL,
-  };
-}
+const aiGatewayContract = {
+  defaultChatModel: DEFAULT_CHAT_MODEL,
+  missingApiKeyError:
+    "Missing AI_GATEWAY_API_KEY. Add it to apps/web/.env.local using the contract in apps/web/.env.example.",
+  missingApiKeyIssue:
+    "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured.",
+} as const;
 
 export function getAiGatewayConfig(
   env: AiGatewayEnv = appEnv
 ): AiGatewayConfig {
-  assertSupportedNodeRuntime();
-  const resolvedEnv = resolveAiGatewayEnv(env);
-
-  return {
-    apiKey: readRequiredEnv(env, "AI_GATEWAY_API_KEY"),
-    baseURL: resolvedEnv.baseURL,
-    chatModel: resolvedEnv.chatModel,
-  };
+  return readAiGatewayContractConfig(env, aiGatewayContract);
 }
 
 export function getAiGatewaySetupState(
   env: AiGatewayEnv = appEnv
 ): AiGatewaySetupState {
-  const issues: string[] = [];
-  const resolvedEnv = resolveAiGatewayEnv(env);
-
-  try {
-    assertSupportedNodeRuntime();
-  } catch (error) {
-    issues.push(
-      error instanceof Error ? error.message : "Unsupported Node.js runtime."
-    );
-  }
-
-  if (!resolvedEnv.apiKey) {
-    issues.push(
-      "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured."
-    );
-  }
-
-  return {
-    config: {
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolvedEnv.chatModel,
-    },
-    issues,
-    isReady: issues.length === 0,
-    nodeVersion: process.version,
-  };
+  return buildAiGatewayContractSetupState(env, aiGatewayContract);
 }
 
-export function createAiGateway(
-  env: AiGatewayEnv = appEnv
-): ReturnType<typeof createGateway> {
-  const { apiKey, baseURL } = getAiGatewayConfig(env);
-
-  return createGateway({
-    apiKey,
-    baseURL,
-  });
+export function createAiGateway(env: AiGatewayEnv = appEnv): AiGatewayProvider {
+  return createAiGatewayFromContract(env, aiGatewayContract);
 }

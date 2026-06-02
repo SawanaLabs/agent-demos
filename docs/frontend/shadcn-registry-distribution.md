@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-05-29
+updateAt: 2026-06-02
 ---
 
 # shadcn Registry Distribution
@@ -10,6 +10,7 @@ updateAt: 2026-05-29
 
 - Covers source registry files under `registry/`.
 - Covers generated static registry JSON under `apps/web/public/r/`.
+- Covers the public **Registry Export** manifest that decides which registry source chunks ship to consumers.
 - Covers how an **Agent Demo** becomes installable into a fresh Next.js App Router project initialized with shadcn/ui.
 - Covers the boundary between the public consumer guide at `/registry-guide` and these internal author-side rules.
 
@@ -27,18 +28,33 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Public copy should link inline to source material such as the GitHub repo, shadcn registry docs, AI SDK docs, and AI Elements docs.
 - Keep author maintenance, publishing, sync tooling, and fresh-consumer acceptance details in this internal document instead of duplicating them on `/registry-guide`.
 - Homepage registry entry points should stay compact. The current public entry appears on the homepage and points to `/registry-guide`; demo screen-level install hints are planned separately.
+- The public page's coding-agent handoff should optimize for a new-project mainline. Trust a capable user-directed agent to recognize when the user is already inside an existing project, but do not expand the public handoff copy around that side path.
+- The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@ai-sdk-6-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
+- Use a visible handoff title like "Hand this guide to your agent" so the page frames the prompt as a guide-backed task brief instead of a standalone path summary.
+- Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
 
 ## Current Rules
 
-- Keep `registry.json` as the root source registry and compose demo-owned registries with `include`.
+- Keep `registry/registry-demos.json` as the public registry manifest. It is the source of truth for registry namespace, production domain, public demo order, mainline guide demo, setup notes, and whether a demo enters the public **Registry Export**.
+- Keep `registry/registry-demos.json` as the source of truth for **Registry Availability** too. Every ready **Demo Catalog Entry** must either appear in `demos` or appear in `omittedReadyDemos` with a reason.
+- Use `apps/web/features/demo-catalog/registry-availability.ts` as the join module between **Demo Catalog Entry** data and the **Registry Export** manifest. The join fails when a registry demo is missing from the catalog, when a registry demo points at a roadmap entry, or when a ready demo has no registry availability classification.
+- Generate the root `registry.json` from `registry/registry-demos.json` with `pnpm registry:generate`; do not hand-edit the root `include` list.
+- Keep `registry.json` as the generated root source registry that composes public demo-owned registries with `include`.
 - Put one demo's portable registry source under `registry/<demo-slug>/`.
 - Build static registry output with `pnpm registry:build`; the output is served by the web app from `/r/<name>.json`.
 - Treat `pnpm registry:build` as a packaging step only. It turns source `registry.json` files into distributable JSON. It does not derive registry source files from `apps/web/features/*`.
+- `pnpm registry:build` regenerates the root `registry.json`, removes stale generated public JSON files that are no longer in the manifest's public set, then runs `shadcn build`.
+- `pnpm registry:catalog:check` runs the **Registry Availability** contract test against current demo catalog data and the registry manifest. `registry:check`, `registry:validate`, and `registry:build` all run this before generating or validating registry output.
+- Keep demo source chunks such as `registry/skills-agent/` even when `publicRegistry` is `false`; unpublished chunks are local author work until their fresh-consumer acceptance checks pass.
 - Treat the registry source as a portable copy boundary, not a direct mirror of `apps/web/features/<demo-slug>`.
 - Keep every file referenced by a demo-owned `registry/<demo-slug>/registry.json` inside that registry chunk directory. Current shadcn CLI validation rejects parent-directory traversal such as `../feature.tsx`, so a registry item cannot point straight at app feature files outside its owned tree.
+- For synced app-first demos, every manifest target under `registry/<demo-slug>/` is treated as a shipped file unless the manifest explicitly sets `registryItemFile: false`. The sync check asserts that each shipped target is present in `registry/<demo-slug>/registry.json` `files[].path`.
+- Shared registry assets are projected by `scripts/registry-sync/shared-registry-assets.json` into every source chunk listed by `registry/registry-demos.json`, or into an explicit source-chunk subset when an entry declares `demos`. This keeps each installed demo self-contained while giving shared portable files one author-side owner.
+- Keep registry-only shared vendored assets under `registry/_shared/`, then project them into demo chunks. Do not reference `registry/_shared/` directly from a demo-owned `registry.json`.
 - Registry source must not import `@workspace/*` packages or `apps/web/features/shared/*` modules.
 - Registry source must not import published-site host augmentations such as the [Site Usage Gate](./site-usage-gate.md), and must not include usage-limit dialogs, access-code redemption, or website-only visitor metering.
 - If this published website wraps an app API route with the **Site Usage Gate**, the matching registry route entry should still call the portable demo runtime handler directly.
+- If an app-first screen uses the **Demo Workspace Shell**, the registry item should install the projected `components/demo-workspace-shell.tsx` plus its projected `components/demo-breadcrumb.tsx` dependency through the shared registry asset manifest. Keep screen files thin and avoid re-copying page chrome in each synced demo.
 - Registry source should import shadcn and AI Elements code through consumer-project aliases such as `@/components/ui/*`, `@/components/ai-elements/*`, and `@/lib/*`.
 - Use `files[].target` placeholders such as `@components/` and `@lib/` for files that can follow the consumer project's `components.json`.
 - Next.js route targets still need explicit `app/...` paths because shadcn registry target aliases do not provide an App Router placeholder.
@@ -54,6 +70,10 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - For demos that use `bash-tool`, `just-bash`, or other heavy route-only packages, prefer a split between page-facing runtime state and request handling, and prefer delayed imports for the heavy server path so a fresh consumer `pnpm build` does not fail under Next.js 16 Turbopack.
 - Registry copies must be valid from the consumer target path, not just from the source feature path. Relative imports that work under `apps/web/features/<demo-slug>/...` may break after files move into `components/<demo-slug>/` or `lib/<demo-slug>/`.
 - Use `envVars` only for local development examples such as `AI_GATEWAY_API_KEY`; do not encode production secrets or production-only values.
+- Registry env adapters may read `process.env` directly from `env.ts` or `env-source.ts` files because installed registry source belongs to the consumer app and does not have this repo's `@/env` wrapper.
+- Do not add `@t3-oss/env-nextjs` to ordinary demo registry items just to mirror the app preview's env stack. Registry `dependencies` can install npm packages, but an env management library changes the consumer host contract. Ship it only from an explicit base or template registry item whose purpose is to install that env architecture.
+- When app-first code uses `apps/web/env.ts`, `keys.ts`, or a shared env adapter, split the portable runtime contract from the app adapter before registry projection. The registry copy should install a registry env adapter that feeds `process.env` into the same contract.
+- Shared AI Gateway demos should install the portable contract at `@/lib/ai-gateway/contract`. Demo-owned `env.ts` files should import that contract, while demo-owned `env-source.ts` files should read the consumer app's `process.env`. Keep app-only `@/env`, `keys.ts`, and `@t3-oss/env-nextjs` out of ordinary demo registry items.
 - Do not hand-edit generated files under `apps/web/public/r/`. Rebuild them from source registry files with `pnpm registry:build`.
 
 ## Source Ownership
@@ -64,7 +84,9 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Keep per-demo sync tooling under `scripts/registry-sync/`.
 - Keep registry-only wiring files under registry ownership even in an app-first model. That includes `registry/<demo-slug>/registry.json`, route-entry files, vendored exception files, and generated output under `apps/web/public/r/`.
 - If a demo is not copy-ready yet, fix the slice before introducing sync tooling. Do not use sync as a workaround for a tangled boundary.
+- Once a sync manifest exists, treat `files[]` as the distribution contract and the manifest as the projection contract. Keep both updated in the same change when a synced file is added or removed.
 - Until a sync step exists for a given demo, update the app preview files and the registry source files in the same change and verify both paths.
+- For portable assets shared by many demo chunks, or shared by a selected subset of chunks, prefer the shared registry asset manifest over repeating the file in each demo-specific sync manifest.
 
 ## Foundation Chat Item
 
@@ -120,6 +142,8 @@ When publishing the next demo, start from the `foundation-chat` registry shape a
 - Keep every directly imported npm package in `dependencies`.
 - Keep env examples in `envVars`.
 - Keep monorepo-only imports out of registry source files.
+- Include any shared portable contract files explicitly, such as `lib/ai-gateway/contract.ts` with target `@lib/ai-gateway/contract.ts`, before the demo env adapter that imports them.
+- If the file is shared across registry chunks or a named subset of chunks, add it to `scripts/registry-sync/shared-registry-assets.json` and keep the per-demo `registry.json` `files[]` entries aligned through `pnpm registry:sync:check`.
 
 The first move for a new demo should be structural copy from `registry/foundation-chat/`, followed by narrowing, not inventing a new registry layout from scratch.
 
@@ -170,8 +194,15 @@ Validated again on May 27, 2026 against a clean local consumer app for the curre
 - `trace-eval-agent`
 - `persistent-agent`
 - `sandbox-agent`
-- `skills-agent`
 - `mcp-agent`
+
+`skills-agent` currently remains in source registry form but is excluded from the public **Registry Export** while its skill packaging is still under construction.
+
+The current ready demos explicitly omitted from registry source are:
+
+- `langgraph-agent`: needs the separate LangGraph Agent Server service to be packaged into a self-contained registry story.
+- `openai-agents-sdk-demo`: needs the OpenAI Agents SDK backend bridge converted into a portable registry copy.
+- `ultra-chatbot-agent`: is an application-shape port and needs a narrower packaging contract before it becomes a normal registry demo.
 
 The current acceptance bar for a queue-complete registry batch is:
 
@@ -193,7 +224,9 @@ Recent consumer acceptance exposed these concrete failure classes:
 Author-side workflow for every new registry item:
 
 ```bash
-pnpm --dir packages/ui exec shadcn registry validate registry.json -c ../..
+pnpm registry:sync:check
+pnpm registry:catalog:check
+pnpm registry:validate
 pnpm registry:build
 ```
 

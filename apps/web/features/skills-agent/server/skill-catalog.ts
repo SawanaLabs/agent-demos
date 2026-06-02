@@ -33,7 +33,7 @@ function joinPath(directory: string, name: string) {
   return `${directory.replace(trailingSlashPattern, "")}/${name}`;
 }
 
-function parseSkillMetadata(
+export function parseSkillMetadata(
   content: string
 ): Omit<SkillMetadata, "path"> | null {
   const match = content.match(frontmatterPattern);

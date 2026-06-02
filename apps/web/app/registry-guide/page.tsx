@@ -1,3 +1,14 @@
+import {
+  OpenIn,
+  OpenInChatGPT,
+  OpenInClaude,
+  OpenInContent,
+  OpenInCursor,
+  OpenInScira,
+  OpenInT3,
+  OpenInTrigger,
+  OpenInv0,
+} from "@workspace/ui/components/ai-elements/open-in-chat";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
 import {
@@ -8,12 +19,15 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
-import { ArrowLeft, ArrowUpRight, Terminal } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronDown, Terminal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
+  recommendedAgentSkills,
+  recommendedAgentSkillsCommand,
+  registryGuideAgentTaskBrief,
   registryGuideConfig,
   supportedRegistryDemoNotes,
 } from "@/features/registry-guide/registry-guide-data";
@@ -48,7 +62,40 @@ function ExternalLink({
   );
 }
 
-function GuideCommandPanel({ code, title }: { code: string; title: string }) {
+function OpenAgentBriefInChatButton({ query }: { query: string }) {
+  return (
+    <OpenIn query={query}>
+      <OpenInTrigger
+        className={cn(
+          buttonVariants({ size: "xs", variant: "outline" }),
+          "bg-background"
+        )}
+        type="button"
+      >
+        Open in chat
+        <ChevronDown className="size-3" />
+      </OpenInTrigger>
+      <OpenInContent align="end">
+        <OpenInChatGPT />
+        <OpenInClaude />
+        <OpenInT3 />
+        <OpenInScira />
+        <OpenInv0 />
+        <OpenInCursor />
+      </OpenInContent>
+    </OpenIn>
+  );
+}
+
+function GuideCommandPanel({
+  actions,
+  code,
+  title,
+}: {
+  actions?: ReactNode;
+  code: string;
+  title: string;
+}) {
   return (
     <div className="overflow-hidden border border-foreground/10 bg-background">
       <div className="flex items-center justify-between gap-3 border-b bg-muted/80 px-3 py-2 text-muted-foreground text-xs">
@@ -56,7 +103,10 @@ function GuideCommandPanel({ code, title }: { code: string; title: string }) {
           <Terminal className="size-3.5 shrink-0" />
           <span className="truncate font-mono">{title}</span>
         </div>
-        <RegistryCopyButton value={code} />
+        <div className="flex shrink-0 items-center gap-1">
+          {actions}
+          <RegistryCopyButton value={code} />
+        </div>
       </div>
       <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-words p-3 font-mono text-foreground text-xs leading-relaxed">
         <code>{code}</code>
@@ -92,6 +142,25 @@ function DemoCommandBlock({ command }: { command: string }) {
       </code>
       <RegistryCopyButton value={command} />
     </div>
+  );
+}
+
+function AgentSkillCard({
+  description,
+  name,
+}: {
+  description: string;
+  name: string;
+}) {
+  return (
+    <Card className="h-full border-foreground/10" size="sm">
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground text-xs/relaxed">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -192,7 +261,7 @@ export default function RegistryGuidePage() {
           <GuideCommandPanel code={quickInstallCommand} title="quick install" />
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3" id="next-steps">
+        <section className="grid gap-4 md:grid-cols-3">
           <RequirementCard title="Create a shadcn project">
             Use{" "}
             <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
@@ -232,20 +301,225 @@ export default function RegistryGuidePage() {
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
               Coding agents
             </p>
-            <h2 className="font-medium text-xl">Give the agent this path</h2>
+            <h2 className="font-medium text-xl">
+              Hand this guide to your agent
+            </h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              If you paste this page into a coding agent, ask it to follow the
-              same path: create the shadcn Next.js app from the selected Create
-              command, install Foundation Chat, add env placeholders, run a
-              local chat check, then prepare the Vercel env. For the database
-              and sandbox demos below, the agent should stop and ask for the
-              missing service credentials instead of inventing them.
+              Give this task brief to a coding agent when you want it to
+              initialize the project for you. The brief points the agent back to
+              this guide as the source of truth, then gives it clear acceptance
+              criteria instead of asking it to rediscover the setup path.
             </p>
           </div>
           <GuideCommandPanel
-            code="Use the shadcn Create command I selected to create a Next.js app, then install @ai-sdk-6-demos/foundation-chat, set the documented AI Gateway env placeholders, verify local chat works, and prepare the Vercel environment variables before summarizing the diff."
-            title="agent prompt"
+            actions={
+              <OpenAgentBriefInChatButton query={registryGuideAgentTaskBrief} />
+            }
+            code={registryGuideAgentTaskBrief}
+            title="agent task brief"
           />
+        </section>
+
+        <section
+          className="grid gap-6 border-foreground/10 border-t pt-8 lg:grid-cols-[minmax(0,1fr)_20rem]"
+          id="next-steps"
+        >
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                Full path
+              </p>
+              <h2 className="font-medium text-xl">
+                From a fresh app to deployed chat
+              </h2>
+              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+                This is the human path: create a themed app with{" "}
+                <ExternalLink
+                  href={registryGuideConfig.sourceLinks.shadcnCreate}
+                >
+                  shadcn Create
+                </ExternalLink>{" "}
+                first, install the Foundation Chat slice, confirm one local chat
+                turn, then publish the same project to Vercel.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  1. Create a themed Next.js app
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Open shadcn Create, choose Next.js, pick the style, color, and
+                  radius you want, then run the generated command in a new
+                  folder. When it finishes, move into that project and start
+                  from the app it generated. The important part is that the
+                  project already has shadcn/ui configured before the registry
+                  slice is added.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  2. Install Foundation Chat and test it locally
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Run the registry commands from the root of the new app. The
+                  first command registers this demo namespace; the second copies
+                  the Foundation Chat page, route, UI, and runtime files into
+                  your project.
+                </p>
+                <GuideCommandPanel
+                  code={quickInstallCommand}
+                  title="install foundation-chat"
+                />
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Create a key from the{" "}
+                  <ExternalLink
+                    href={
+                      registryGuideConfig.sourceLinks
+                        .aiGatewayAuthenticationDocs
+                    }
+                  >
+                    AI Gateway authentication docs
+                  </ExternalLink>
+                  , add it to{" "}
+                  <code className="font-mono text-foreground">.env.local</code>,
+                  then run the app and send one message.
+                </p>
+                <GuideCommandPanel
+                  code="AI_GATEWAY_API_KEY=..."
+                  title=".env.local"
+                />
+                <GuideCommandPanel
+                  code={`pnpm dev
+# open http://localhost:3000${registryGuideConfig.foundationChatRoute}`}
+                  title="run and open"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">
+                  3. Deploy the same project to Vercel
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Commit the app and push it to a Git repository, then import
+                  that repository through{" "}
+                  <ExternalLink
+                    href={
+                      registryGuideConfig.sourceLinks.vercelGitDeploymentsDocs
+                    }
+                  >
+                    Vercel from Git
+                  </ExternalLink>
+                  . Before the production check, add the same{" "}
+                  <code className="font-mono text-foreground">
+                    AI_GATEWAY_API_KEY
+                  </code>{" "}
+                  in the project's Environment Variables. Deploy, open{" "}
+                  <code className="font-mono text-foreground">
+                    {registryGuideConfig.foundationChatRoute}
+                  </code>
+                  , and send the same small test message you used locally.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <aside className="h-fit space-y-4 border border-foreground/10 p-4">
+            <div className="space-y-2">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                What gets installed
+              </p>
+              <ul className="space-y-2 text-muted-foreground text-xs/relaxed">
+                <li>
+                  <code className="font-mono text-foreground">
+                    app/demos/foundation-chat
+                  </code>{" "}
+                  page route.
+                </li>
+                <li>
+                  <code className="font-mono text-foreground">
+                    app/api/demos/foundation-chat
+                  </code>{" "}
+                  chat route.
+                </li>
+                <li>AI Elements conversation, message, and prompt input UI.</li>
+                <li>AI SDK runtime helper and AI Gateway env defaults.</li>
+              </ul>
+            </div>
+            <div className="border-foreground/10 border-t pt-4">
+              <p className="text-muted-foreground text-xs/relaxed">
+                After install, this is normal source code in your app. Keep it,
+                edit it, or move it under your own feature structure once the
+                local chat check passes.
+              </p>
+            </div>
+          </aside>
+        </section>
+
+        <section
+          className="space-y-4 border-foreground/10 border-t pt-8"
+          id="repo-setup"
+        >
+          <div className="space-y-2">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+              Repo setup
+            </p>
+            <h2 className="font-medium text-xl">
+              Add a small skill kit for future agent work
+            </h2>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              Once the new chat project is running, install these optional
+              skills in the same repository. Four come from{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.mattPocockSkills}
+              >
+                Matt Pocock's skills
+              </ExternalLink>
+              , and the docs memory skill comes from{" "}
+              <ExternalLink
+                href={registryGuideConfig.sourceLinks.agentDocsSystemSkill}
+              >
+                agent-docs-system-skill
+              </ExternalLink>
+              . Together they help an agent align on the plan, keep durable
+              project docs, use focused tests, review architecture, and split
+              larger work into handoff-ready slices.
+            </p>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              Recommendation: treat this as a lightweight engineering setup.{" "}
+              <code className="font-mono text-foreground">grill-with-docs</code>{" "}
+              and{" "}
+              <code className="font-mono text-foreground">
+                project-docs-system
+              </code>{" "}
+              give the agent a DDD-style shared language and project memory;{" "}
+              <code className="font-mono text-foreground">tdd</code> and{" "}
+              <code className="font-mono text-foreground">
+                improve-codebase-architecture
+              </code>{" "}
+              keep behavior changes testable while the code is refactored;{" "}
+              <code className="font-mono text-foreground">to-issues</code> is
+              the workflow helper for splitting larger work into small vertical
+              slices.
+            </p>
+          </div>
+
+          <GuideCommandPanel
+            code={recommendedAgentSkillsCommand}
+            title="recommended agent skills"
+          />
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {recommendedAgentSkills.map((skill) => (
+              <AgentSkillCard
+                description={skill.description}
+                key={skill.name}
+                name={skill.name}
+              />
+            ))}
+          </div>
         </section>
 
         <section

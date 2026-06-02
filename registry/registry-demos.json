@@ -1,0 +1,107 @@
+{
+  "name": "ai-sdk-6-ai-elements-demos",
+  "homepage": "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
+  "namespace": "@ai-sdk-6-demos",
+  "productionDomain": "agent-demos.hsawana9.com",
+  "omittedReadyDemos": [
+    {
+      "slug": "langgraph-agent",
+      "reason": "Requires a separate LangGraph Agent Server service and fresh-consumer packaging before it can be exported as a self-contained shadcn registry demo."
+    },
+    {
+      "slug": "openai-agents-sdk-demo",
+      "reason": "Uses an OpenAI Agents SDK backend bridge that still needs a portable registry copy and fresh-consumer acceptance."
+    },
+    {
+      "slug": "ultra-chatbot-agent",
+      "reason": "Application-shape port is larger than the ordinary demo chunk and needs a narrower registry packaging contract first."
+    }
+  ],
+  "demos": [
+    {
+      "slug": "foundation-chat",
+      "title": "Foundation Chat",
+      "registryPath": "registry/foundation-chat/registry.json",
+      "publicRegistry": true,
+      "mainline": true,
+      "setup": "AI Gateway only. This is the smallest production-ready chat slice and the recommended first install."
+    },
+    {
+      "slug": "rag-chatbot",
+      "title": "RAG Chatbot",
+      "registryPath": "registry/rag-chatbot/registry.json",
+      "publicRegistry": true,
+      "setup": "Needs DATABASE_URL, an embedding model, and a Postgres database with vector search for document indexing."
+    },
+    {
+      "slug": "multimodal-chatbot",
+      "title": "Multimodal Chatbot",
+      "registryPath": "registry/multimodal-chatbot/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Use a model that can process the image or PDF parts you send."
+    },
+    {
+      "slug": "object-generation",
+      "title": "Object Generation",
+      "registryPath": "registry/object-generation/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Keep the route model aligned with the structured output schema."
+    },
+    {
+      "slug": "customer-memory-agent",
+      "title": "Memory & Persistence Agent",
+      "registryPath": "registry/customer-memory-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "Needs DATABASE_URL for persistent threads, saved memories, and compaction checkpoints."
+    },
+    {
+      "slug": "streaming-chat-shell",
+      "title": "Streaming Chat Shell",
+      "registryPath": "registry/streaming-chat-shell/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Useful as the smallest replayable streaming shell after Foundation Chat."
+    },
+    {
+      "slug": "loop-agent",
+      "title": "Loop Agent",
+      "registryPath": "registry/loop-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Use a model with reliable tool-calling behavior for the approval loop."
+    },
+    {
+      "slug": "trace-eval-agent",
+      "title": "Trace Eval Agent",
+      "registryPath": "registry/trace-eval-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. It adds trace, deterministic checks, and judge output around one research run."
+    },
+    {
+      "slug": "persistent-agent",
+      "title": "Persistent Agent",
+      "registryPath": "registry/persistent-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "Needs DATABASE_URL and REDIS_URL for addressable chats and resumable streams."
+    },
+    {
+      "slug": "sandbox-agent",
+      "title": "Sandbox Agent",
+      "registryPath": "registry/sandbox-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "Needs Vercel Sandbox credentials plus AI Gateway credentials for persistent preview sessions."
+    },
+    {
+      "slug": "skills-agent",
+      "title": "Skills Agent",
+      "registryPath": "registry/skills-agent/registry.json",
+      "publicRegistry": false,
+      "setup": "Under construction. Keep the source registry chunk local until its skill packaging and fresh-consumer checks are complete."
+    },
+    {
+      "slug": "mcp-agent",
+      "title": "MCP Agent",
+      "registryPath": "registry/mcp-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only for the base chat. Local Next.js runtime inspection depends on the installed MCP tooling."
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 ---
 title: Persistent & Resume Agent
 description: Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams.
-updateAt: 2026-05-25
+updateAt: 2026-06-01
 ---
 
 # Persistent & Resume Agent
@@ -16,6 +16,7 @@ updateAt: 2026-05-25
 - Keep this demo separate from `customer-memory-agent`. Batch 6.5 is foundational chat persistence, not memory orchestration.
 - Use the AI SDK UI message persistence and resume-stream docs as the server/client contract source.
 - Keep visitor isolation cookie-scoped. This demo uses `pa_visitor_id` as an HTTP-only cookie and does not introduce a user table.
+- Keep visitor-cookie parsing, creation, serialization, and route response mutation behind the shared Visitor Owner Route Module. Route entries should use the feature-local `handlePersistentAgentVisitorRequest` adapter and only pass `visitorId` into the runtime.
 - Store messages row-by-row in Postgres, following the `vercel/chatbot` shape closely enough to keep each `UIMessage` independently addressable.
 - Track the current resumable stream on the chat record through `activeStreamId`. Do not add a heavier stream-table abstraction unless the simpler contract stops working.
 - Keep cleanup out of the request path. Expired visitor chats are deleted only by Vercel Cron.

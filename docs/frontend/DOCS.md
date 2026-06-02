@@ -1,7 +1,7 @@
 ---
 title: Frontend Knowledge Protocol
 description: Domain-level language, reading path, and boundary principles for frontend work.
-updateAt: 2026-05-26
+updateAt: 2026-06-01
 ---
 
 # Frontend Knowledge Protocol
@@ -27,6 +27,10 @@ updateAt: 2026-05-26
 - Avoid feature-local styling that fights the active shadcn preset, especially layout chrome such as `rounded-none`, bespoke border colors, and bare `div` panels that duplicate `card`, `button`, `badge`, `textarea`, or related primitives without using their tokens.
 - Treat shadcn, AI Elements, Tailwind, hook, and utility primitives as periodically refreshable from upstream or repo-wide sources; feature behavior that would make those refreshes risky belongs outside `packages/ui`.
 - Move a component or helper into `packages/ui` only after reuse is real and the API is generic enough to survive unrelated feature work.
+
+## Form Copy
+
+- Mark optional form fields in the visible label with a subdued `(optional)` suffix, for example `Message (optional)`, instead of relying only on placeholder copy.
 
 ## Update Triggers
 

@@ -2,9 +2,9 @@ import { convertToModelMessages, streamText, type UIMessage } from "ai";
 
 import {
   createFoundationChatGateway,
+  type FoundationChatEnv,
   getFoundationChatConfig,
   getFoundationChatSetupState,
-  type FoundationChatEnv,
 } from "./env";
 
 const systemPrompt = [

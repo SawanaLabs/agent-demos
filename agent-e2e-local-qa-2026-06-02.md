@@ -89,29 +89,6 @@ Third in-app Browser retry:
 
 ## Issues
 
-### QA-LOCAL-003 - P2 - LangGraph Agent needs paired API server for local use
-
-Repro:
-
-1. Start only the ordinary Web dev server.
-2. POST to `/api/demos/langgraph-agent` with a normal user message.
-
-Expected:
-
-- The demo should either run with the paired Agent Server or clearly show setup-required state.
-
-Actual:
-
-- With only Web dev, API returned `500` in about `1.9s`.
-- Error body:
-  - `LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo.`
-  - `LANGGRAPH_AGENT_ASSISTANT_ID is missing. Set it to the graph id exposed by langgraph.json or your LangGraph deployment.`
-- With the correct paired command, `pnpm dev:langgraph-agent`, the demo passed API retest.
-
-Repro value:
-
-- This is now classified as a setup prerequisite, not a functional failure.
-
 ### QA-LOCAL-004 - P2 - Full UI approval path for Ultra sandbox was not completed in this run
 
 Repro attempted:
@@ -230,7 +207,7 @@ Repro value:
 | Multimodal Chatbot | HTTP page plus API | Pass | Cold Next.js dev cache rebuild restored the page; page GET returned `200` and text API answered. See `docs/frontend/multimodal-chatbot.md`. |
 | Customer Memory Agent | API | Pass | Thread creation returned `201`; message call used `manageCustomerMemory` for `Brightfield wants launch updates every Friday.` |
 | OpenAI Agents SDK Demo | API | Pass | Route streamed and used MCP tool `mcp_openai_agents_demo_docs__read_demo_doc`; response completed. |
-| LangGraph Agent | UI | Pass with content note | Third Browser retry passed suggestion plus follow-up in one thread after `pnpm dev:langgraph-agent`; answer grounding needs work. See QA-LOCAL-003 and QA-LOCAL-007. |
+| LangGraph Agent | UI | Pass with content note | Third Browser retry passed suggestion plus follow-up in one thread after `pnpm dev:langgraph-agent`; answer grounding needs work. See QA-LOCAL-007. |
 | Skills Agent | API | Pass | `grill-with-docs` skill tool selected and streamed successfully. |
 | Sandbox Agent | API plus preview GET | Pass | Wrote `index.html`, started preview, returned `https://sb-5uqy6wbewrlq.vercel.run/index.html`; GET returned `sandbox preview ok`. |
 | Ultra Chatbot Agent | API | Partial UI gap, API pass | Approval request generated; manual capability patch enabled sandbox; `bash` returned `/vercel/sandbox/project` and `local sandbox ok`. |

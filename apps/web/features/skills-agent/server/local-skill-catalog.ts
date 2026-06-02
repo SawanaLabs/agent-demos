@@ -26,17 +26,33 @@ class LocalSkillCatalogSource implements SkillsSandbox {
     });
   }
 
-  readdir(directory: string, opts?: { withFileTypes?: boolean }) {
-    if (opts?.withFileTypes) {
-      return readdir(directory, { withFileTypes: true });
-    }
+  async readdir(directory: string, opts?: { withFileTypes?: boolean }) {
+    try {
+      if (opts?.withFileTypes) {
+        return await readdir(directory, { withFileTypes: true });
+      }
 
-    return readdir(directory);
+      return await readdir(directory);
+    } catch (error) {
+      if (isMissingDirectoryError(error)) {
+        return [];
+      }
+
+      throw error;
+    }
   }
 
   readFile(filePath: string, encoding: BufferEncoding | "utf-8") {
     return readFile(filePath, encoding);
   }
+}
+
+function isMissingDirectoryError(error: unknown) {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === "ENOENT"
+  );
 }
 
 export async function discoverWorkspaceSkills(

@@ -24,6 +24,7 @@ updateAt: 2026-06-02
 - Root scripts coordinate shared workflows:
   - `pnpm dev` runs Turbo dev tasks.
   - `pnpm dev:langgraph-agent` runs the local LangGraph Python backend and the paired Next.js frontend together.
+  - `pnpm dev:langgraph-agent-fastapi` runs the Vercel-compatible FastAPI LangGraph backend and the paired Next.js frontend together.
   - `pnpm dev:langchain-agent` is a compatibility alias for `pnpm dev:langgraph-agent`.
   - `pnpm build` runs Turbo build tasks.
   - `pnpm typecheck` runs Turbo typecheck tasks.

@@ -17,10 +17,22 @@ pnpm dev:langgraph-agent
 
 `pnpm dev:langchain-agent` is also available as a compatibility alias.
 
-To run only the Python backend:
+To run only the LangGraph CLI Python backend:
 
 ```bash
 pnpm dev:langgraph-agent-api
+```
+
+To run the Vercel-compatible FastAPI backend and paired web app:
+
+```bash
+pnpm dev:langgraph-agent-fastapi
+```
+
+To run only the FastAPI backend:
+
+```bash
+pnpm dev:langgraph-agent-fastapi-api
 ```
 
 When running the frontend outside the paired script, set these variables in
@@ -49,11 +61,11 @@ OpenAI-compatible model through Vercel AI Gateway.
 Run the lightweight FastAPI wrapper locally:
 
 ```bash
-cd apps/langgraph-agent-api
-uv run uvicorn app:app --host 127.0.0.1 --port 2024
+pnpm dev:langgraph-agent-fastapi
 ```
 
-Then point the frontend at `http://127.0.0.1:2024` with
+The paired script starts the FastAPI backend on `127.0.0.1:2024` and the web
+app with `LANGGRAPH_AGENT_API_URL=http://localhost:2024` plus
 `LANGGRAPH_AGENT_ASSISTANT_ID=agent`.
 
 For a Vercel project, use `apps/langgraph-agent-api` as the project root. The

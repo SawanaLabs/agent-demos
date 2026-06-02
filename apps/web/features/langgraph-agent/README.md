@@ -5,13 +5,27 @@ LangGraph Agent Server through the official thread-scoped streaming endpoint.
 
 ## Local Run
 
-Start the Python Agent Server:
+Start the paired Python Agent Server and Next.js app from the repository root:
+
+```bash
+pnpm dev:langgraph-agent
+```
+
+That command starts the Python backend on port 2024 and runs the frontend with:
+
+```bash
+LANGGRAPH_AGENT_API_URL=http://localhost:2024
+LANGGRAPH_AGENT_ASSISTANT_ID=agent
+```
+
+To run only the Python Agent Server:
 
 ```bash
 pnpm dev:langgraph-agent-api
 ```
 
-Add the frontend env keys in `apps/web/.env.local`:
+When running the frontend outside the paired script, add the frontend env keys
+in `apps/web/.env.local`:
 
 ```bash
 LANGGRAPH_AGENT_API_URL=http://localhost:2024

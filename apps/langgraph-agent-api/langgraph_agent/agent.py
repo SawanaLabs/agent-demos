@@ -32,6 +32,17 @@ INTEGRATION_REQUEST_MARKERS = (
     "线程",
     "持久化",
 )
+CONTEXTUAL_FOLLOW_UP_MARKERS = (
+    "continue",
+    "follow up",
+    "follow-up",
+    "gotcha",
+    "implementation",
+    "next",
+    "one more",
+    "接着",
+    "继续",
+)
 
 
 class AgentState(TypedDict, total=False):
@@ -60,14 +71,23 @@ def _stringify_content(content: Any) -> str:
 
 
 def _latest_human_text(state: AgentState) -> str:
-    for message in reversed(state.get("messages", [])):
+    for text in reversed(_human_texts(state)):
+        return text
+
+    raise ValueError("LangGraph agent requires at least one human message.")
+
+
+def _human_texts(state: AgentState) -> list[str]:
+    texts: list[str] = []
+
+    for message in state.get("messages", []):
         if isinstance(message, HumanMessage):
             text = _stringify_content(message.content).strip()
 
             if text:
-                return text
+                texts.append(text)
 
-    raise ValueError("LangGraph agent requires at least one human message.")
+    return texts
 
 
 def _read_gateway_api_key() -> str:
@@ -85,6 +105,22 @@ def _is_integration_request(text: str) -> bool:
     normalized_text = text.lower()
 
     return any(marker in normalized_text for marker in INTEGRATION_REQUEST_MARKERS)
+
+
+def _is_contextual_follow_up(text: str) -> bool:
+    normalized_text = text.lower()
+
+    return any(marker in normalized_text for marker in CONTEXTUAL_FOLLOW_UP_MARKERS)
+
+
+def _previous_integration_request_text(state: AgentState) -> str | None:
+    human_texts = _human_texts(state)
+
+    for text in reversed(human_texts[:-1]):
+        if _is_integration_request(text):
+            return text
+
+    return None
 
 
 def _resolve_model_name() -> str:
@@ -124,27 +160,45 @@ def inspect_frontend_contract(topic: str) -> str:
         "the Python backend. Do not expose them as NEXT_PUBLIC variables. Do "
         "not send the AI_GATEWAY_API_KEY from the frontend; it stays "
         "server-side in the Python backend. The local FastAPI wrapper runs on "
-        "port 2024 with uv run uvicorn app:app --host 127.0.0.1 --port 2024."
+        "port 2024 with uv run uvicorn app:app --host 127.0.0.1 --port 2024. "
+        "For this repository's local paired setup, use pnpm dev:langgraph-agent; "
+        "it starts the LangGraph Python backend on port 2024 and the Next.js "
+        "web app with LANGGRAPH_AGENT_API_URL=http://localhost:2024 and "
+        "LANGGRAPH_AGENT_ASSISTANT_ID=agent. The graph deployment anchor is "
+        "apps/langgraph-agent-api/langgraph.json, where graph id agent points "
+        "at ./langgraph_agent/agent.py:graph."
     )
 
 
 def route_node(state: AgentState) -> dict[str, str]:
     user_text = _latest_human_text(state)
+    previous_integration_request = _previous_integration_request_text(state)
+    is_contextual_integration_follow_up = (
+        previous_integration_request is not None and _is_contextual_follow_up(user_text)
+    )
 
     return {
-        "route": "integration" if _is_integration_request(user_text) else "general",
+        "route": "integration"
+        if _is_integration_request(user_text) or is_contextual_integration_follow_up
+        else "general",
     }
 
 
 def plan_node(state: AgentState) -> dict[str, str]:
     user_text = _latest_human_text(state)
     route = state.get("route", "general")
+    previous_integration_request = _previous_integration_request_text(state)
 
     if route == "integration":
+        request_context = (
+            f"Previous LangGraph integration context: {previous_integration_request}\n"
+            if previous_integration_request
+            else ""
+        )
         plan = (
             "Answer the latest user request with concise LangGraph integration "
             "guidance, grounded in the official LangGraph Agent Server contract. "
-            f"Request: {user_text}"
+            f"{request_context}Request: {user_text}"
         )
     else:
         plan = (
@@ -197,7 +251,10 @@ def answer_node(state: AgentState) -> dict[str, list[AIMessage]]:
                     "or small talk, keep the response brief and natural. Use "
                     "LangGraph integration details only when the user asks for them. "
                     "When integration observations are provided, ground the answer "
-                    "in them."
+                    "in them. When observations include repository-local commands "
+                    "or environment variables, use those exact names instead of "
+                    "generic placeholders such as AGENT_SERVER_URL, ASSISTANT_ID, "
+                    "THREAD_ID, npm install, or npm run dev."
                 )
             ),
             HumanMessage(

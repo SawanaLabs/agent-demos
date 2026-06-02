@@ -82,3 +82,82 @@ def test_integration_request_returns_frontend_contract_observations() -> None:
     assert "x-api-key" in result["observations"][0]
     assert "Next.js server route" in result["observations"][0]
     assert "Do not expose them as NEXT_PUBLIC" in result["observations"][0]
+
+
+def test_local_setup_request_returns_repo_contract_observations() -> None:
+    routed = route_node(
+        {
+            "messages": [
+                HumanMessage(
+                    content=(
+                        "Validate the minimum environment setup for running "
+                        "this LangGraph demo locally."
+                    )
+                )
+            ]
+        }
+    )
+    result = tool_node(
+        {
+            "messages": [
+                HumanMessage(
+                    content=(
+                        "Validate the minimum environment setup for running "
+                        "this LangGraph demo locally."
+                    )
+                )
+            ],
+            "plan": "Use the repository-local setup contract.",
+            "route": routed["route"],
+        }
+    )
+
+    assert routed["route"] == "integration"
+    assert result["observations"]
+    assert "pnpm dev:langgraph-agent" in result["observations"][0]
+    assert "LANGGRAPH_AGENT_API_URL=http://localhost:2024" in result[
+        "observations"
+    ][0]
+    assert "LANGGRAPH_AGENT_ASSISTANT_ID=agent" in result["observations"][0]
+    assert "apps/langgraph-agent-api/langgraph.json" in result["observations"][0]
+
+
+def test_contextual_follow_up_keeps_langgraph_integration_route() -> None:
+    routed = route_node(
+        {
+            "messages": [
+                HumanMessage(
+                    content=(
+                        "Validate the minimum environment setup for running "
+                        "this LangGraph demo locally."
+                    )
+                ),
+                HumanMessage(content="continue with one implementation gotcha"),
+            ]
+        }
+    )
+
+    assert routed["route"] == "integration"
+
+
+def test_contextual_follow_up_plan_carries_prior_langgraph_context() -> None:
+    messages = [
+        HumanMessage(
+            content=(
+                "Validate the minimum environment setup for running "
+                "this LangGraph demo locally."
+            )
+        ),
+        HumanMessage(content="continue with one implementation gotcha"),
+    ]
+    routed = route_node({"messages": messages})
+    result = plan_node(
+        {
+            "messages": messages,
+            "route": routed["route"],
+        }
+    )
+
+    assert result["route"] == "integration"
+    assert "continue with one implementation gotcha" in result["plan"]
+    assert "Validate the minimum environment setup" in result["plan"]

@@ -89,34 +89,6 @@ Third in-app Browser retry:
 
 ## Issues
 
-### QA-LOCAL-007 - P2 - LangGraph answers are functional but under-grounded in this repo's local setup
-
-Repro:
-
-1. Start paired services: `pnpm dev:langgraph-agent`.
-2. Open `http://localhost:3000/demos/langgraph-agent`.
-3. Click suggestion: `Validate the minimum environment setup for running this LangGraph demo locally.`
-4. Send follow-up: `continue with one implementation gotcha`.
-
-Expected:
-
-- The setup answer should name this repo's actual local command and env contract:
-  - `pnpm dev:langgraph-agent`
-  - `LANGGRAPH_AGENT_API_URL=http://localhost:2024`
-  - `LANGGRAPH_AGENT_ASSISTANT_ID=agent`
-  - `apps/langgraph-agent-api/langgraph.json`
-- Follow-up should stay grounded in the LangGraph Agent Server / Next.js adapter context unless the user clearly asks for a generic software gotcha.
-
-Actual:
-
-- First answer streamed successfully but used generic names such as `AGENT_SERVER_URL`, `AGENT_SERVER_API_KEY`, `ASSISTANT_ID`, and `THREAD_ID`.
-- It suggested generic `npm install` / `npm run dev` style setup rather than this repo's paired `pnpm dev:langgraph-agent`.
-- Follow-up streamed successfully but answered with a generic mutable-state race-condition gotcha. The graph routed the second turn as `general`.
-
-Repro value:
-
-- Functional UI pass, content-quality fail. The agent graph works, but the prompt/knowledge grounding should better anchor local setup answers to the repo's actual command and env names.
-
 ### QA-LOCAL-008 - P3 - LangGraph API dependency is one minor version behind
 
 Repro:
@@ -149,11 +121,7 @@ Repro value:
 | Multimodal Chatbot | HTTP page plus API | Pass | Cold Next.js dev cache rebuild restored the page; page GET returned `200` and text API answered. See `docs/frontend/multimodal-chatbot.md`. |
 | Customer Memory Agent | API | Pass | Thread creation returned `201`; message call used `manageCustomerMemory` for `Brightfield wants launch updates every Friday.` |
 | OpenAI Agents SDK Demo | API | Pass | Route streamed and used MCP tool `mcp_openai_agents_demo_docs__read_demo_doc`; response completed. |
-| LangGraph Agent | UI | Pass with content note | Third Browser retry passed suggestion plus follow-up in one thread after `pnpm dev:langgraph-agent`; answer grounding needs work. See QA-LOCAL-007. |
+| LangGraph Agent | UI | Pass | Setup answer now names `pnpm dev:langgraph-agent`, the real env keys, and `apps/langgraph-agent-api/langgraph.json`; follow-up stayed on the integration route in the same thread. |
 | Skills Agent | API | Pass | `grill-with-docs` skill tool selected and streamed successfully. |
 | Sandbox Agent | API plus preview GET | Pass | Wrote `index.html`, started preview, returned `https://sb-5uqy6wbewrlq.vercel.run/index.html`; GET returned `sandbox preview ok`. |
 | Ultra Chatbot Agent | UI approval plus API stream | Pass | Normal Chrome retest clicked inline `enableSandbox` approval, page showed `Sandbox enabled`, and the next same-chat turn used `bash` with `/vercel/sandbox/project ultra-ui-approval-ok`. |
-
-## Notes For Next Fix Pass
-
-- LangGraph UI is locally usable through `pnpm dev:langgraph-agent`; improve prompt grounding so setup answers use this repo's real env names and paired command.

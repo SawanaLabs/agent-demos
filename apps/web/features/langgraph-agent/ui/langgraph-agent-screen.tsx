@@ -20,7 +20,6 @@ export function LangGraphAgentScreen() {
         headerFrame="card"
         summary="This demo validates the copyable frontend slice for teams that already run Python LangGraph agents and want a full-stack product surface."
         title="Official LangGraph thread streaming in a Next.js AI Elements workspace"
-        workspaceClassName={null}
       >
         <LangGraphAgentWorkspace
           assistantId={runtimeState.assistantId}

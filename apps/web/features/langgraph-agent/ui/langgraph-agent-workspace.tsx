@@ -26,7 +26,6 @@ import {
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
-import { Card } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
 import { cn } from "@workspace/ui/lib/utils";
 import {
@@ -145,66 +144,64 @@ function GraphProgressPanel({
   const threadLabel = threadId ?? "Preparing thread...";
 
   return (
-    <Card className="bg-background p-4 text-base text-foreground leading-normal">
-      <div className="space-y-4">
-        <div>
-          <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            LangGraph thread
-          </p>
-          <p className="mt-1 break-all font-mono text-sm">{threadLabel}</p>
-        </div>
+    <div className="space-y-4">
+      <div>
+        <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+          LangGraph thread
+        </p>
+        <p className="mt-1 break-all font-mono text-sm">{threadLabel}</p>
+      </div>
 
-        <div>
-          <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            Graph progress
-          </p>
-          <div className="mt-2 space-y-2">
-            {nodeSummary.length > 0 ? (
-              nodeSummary.map((event) => {
-                const isStreaming = event.status === "streaming";
+      <div>
+        <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
+          Graph progress
+        </p>
+        <div className="mt-2 space-y-2">
+          {nodeSummary.length > 0 ? (
+            nodeSummary.map((event) => {
+              const isStreaming = event.status === "streaming";
 
-                return (
-                  <div
-                    className="rounded-md border bg-muted/20 px-3 py-2"
-                    key={`${event.kind}-${event.node}`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-2">
-                        {isStreaming ? (
-                          <CircleDotDashedIcon className="size-4 shrink-0 text-emerald-600" />
-                        ) : (
-                          <CircleCheckIcon className="size-4 shrink-0 text-emerald-600" />
-                        )}
-                        <span className="truncate font-medium text-sm">
-                          {event.node}
-                        </span>
-                      </div>
-                      <Badge className="shrink-0" variant="outline">
-                        {event.source}
-                      </Badge>
+              return (
+                <div
+                  className="rounded-md border bg-muted/20 px-3 py-2"
+                  key={`${event.kind}-${event.node}`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      {isStreaming ? (
+                        <CircleDotDashedIcon className="size-4 shrink-0 text-emerald-600" />
+                      ) : (
+                        <CircleCheckIcon className="size-4 shrink-0 text-emerald-600" />
+                      )}
+                      <span className="truncate font-medium text-sm">
+                        {event.node}
+                      </span>
                     </div>
-                    {event.kind === "node-update" ? (
-                      <p className="mt-2 line-clamp-2 break-words text-muted-foreground text-xs">
-                        {formatStateSummary(event.state)}
-                      </p>
-                    ) : (
-                      <p className="mt-2 text-muted-foreground text-xs">
-                        Streaming tokens from run {event.runId ?? "unknown"}
-                      </p>
-                    )}
+                    <Badge className="shrink-0" variant="outline">
+                      {event.source}
+                    </Badge>
                   </div>
-                );
-              })
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                Submit a message to watch LangGraph updates and streamed answer
-                tokens land as AI SDK data parts.
-              </p>
-            )}
-          </div>
+                  {event.kind === "node-update" ? (
+                    <p className="mt-2 line-clamp-2 break-words text-muted-foreground text-xs">
+                      {formatStateSummary(event.state)}
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-muted-foreground text-xs">
+                      Streaming tokens from run {event.runId ?? "unknown"}
+                    </p>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              Submit a message to watch LangGraph updates and streamed answer
+              tokens land as AI SDK data parts.
+            </p>
+          )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -238,8 +235,8 @@ export function LangGraphAgentWorkspace({
   } = useLangGraphAgent();
 
   return (
-    <div className="grid h-[100svh] min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <Card className="h-full min-h-0 gap-0 overflow-hidden bg-background py-0 text-base text-foreground leading-normal">
+    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="flex min-h-[70svh] flex-col overflow-hidden border border-foreground/10 bg-background text-base text-foreground leading-normal lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <>
             <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -382,10 +379,10 @@ export function LangGraphAgentWorkspace({
             )}
           </div>
         </div>
-      </Card>
+      </section>
 
-      <div className="min-h-0 space-y-4 overflow-y-auto">
-        <Card className="bg-background p-4 text-base text-foreground leading-normal">
+      <aside className="min-h-0 overflow-y-auto border border-foreground/10 bg-background p-4 text-base text-foreground leading-normal">
+        <div className="space-y-5">
           <div className="space-y-4">
             <div>
               <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
@@ -410,10 +407,12 @@ export function LangGraphAgentWorkspace({
               </p>
             </div>
           </div>
-        </Card>
 
-        <GraphProgressPanel events={graphEvents} threadId={threadId} />
-      </div>
+          <Separator />
+
+          <GraphProgressPanel events={graphEvents} threadId={threadId} />
+        </div>
+      </aside>
     </div>
   );
 }

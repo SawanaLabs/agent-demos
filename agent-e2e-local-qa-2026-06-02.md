@@ -36,7 +36,7 @@ Observed startup:
 - Next.js web: `http://localhost:3000`
 - Web script injected `LANGGRAPH_AGENT_API_URL=http://localhost:2024` and `LANGGRAPH_AGENT_ASSISTANT_ID=agent`.
 - `langgraph.json` graph id: `agent`.
-- Startup warning: `langgraph-api 0.8.7` is in Critical support and `0.9.0` is available. This QA run did not upgrade dependencies.
+- Dependency follow-up: `langgraph-api` was upgraded to `0.9.0`; latest startup logs report `langgraph_api_version=0.9.0` and no longer show the Critical support warning.
 
 Retest evidence:
 
@@ -86,24 +86,6 @@ Third in-app Browser retry:
   - Composer and Submit returned to enabled state.
 - Screenshot: `/tmp/langgraph-ui-retest-2026-06-02.png`.
 - Revised browser note: LangGraph UI E2E now passes locally. The earlier attach failures are still useful as browser-harness instability evidence, but they did not reproduce on the third attempt.
-
-## Issues
-
-### QA-LOCAL-008 - P3 - LangGraph API dependency is one minor version behind
-
-Repro:
-
-1. Run `pnpm dev:langgraph-agent`.
-2. Watch the `api` process startup logs.
-
-Actual:
-
-- Startup log warned that `langgraph-api 0.8.7` is in Critical support.
-- Startup log also reported a newer `0.9.0` version is available.
-
-Repro value:
-
-- Not a functional blocker in this QA run. Keep as a maintenance item before production hardening or if Agent Server behavior changes during deploy.
 
 ## Demo Coverage Matrix
 

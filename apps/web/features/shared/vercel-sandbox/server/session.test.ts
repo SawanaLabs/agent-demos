@@ -215,4 +215,15 @@ describe("vercel sandbox integration env", () => {
       })
     ).toThrow("Vercel Sandbox credentials are missing.");
   });
+
+  it("requires OIDC credentials for provider-backed integration tests", () => {
+    expect(() =>
+      assertVercelSandboxIntegrationReady({
+        VERCEL_PROJECT_ID: "project-id",
+        VERCEL_SANDBOX_INTEGRATION: "1",
+        VERCEL_TEAM_ID: "team-id",
+        VERCEL_TOKEN: "vercel-token",
+      })
+    ).toThrow("Vercel Sandbox integration tests require VERCEL_OIDC_TOKEN");
+  });
 });

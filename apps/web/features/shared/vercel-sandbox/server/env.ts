@@ -89,5 +89,11 @@ export function assertVercelSandboxIntegrationReady(
     throw new Error(setupState.issues.join(" "));
   }
 
+  if (setupState.authMode !== "oidc") {
+    throw new Error(
+      "Vercel Sandbox integration tests require VERCEL_OIDC_TOKEN so they verify the OIDC authentication path. Run `vercel link` and `vercel env pull` to refresh local credentials. Use access-token credentials only for external CI/CD or non-Vercel hosting."
+    );
+  }
+
   return setupState;
 }

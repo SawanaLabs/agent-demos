@@ -10,22 +10,28 @@ updateAt: 2026-06-02
 
 - Covers repository-wide integration-test conventions.
 - Covers tests that cross module boundaries, runtime providers, external services, or sandbox-backed execution.
-- Covers the initial Vercel Sandbox integration-test direction for the `skills-agent` demo.
-- Main current surfaces: `apps/web/vitest.config.ts`, `apps/web/vitest.integration.config.ts`, `apps/web/features/shared/vercel-sandbox/server/integration-test.ts`, `apps/web/features/shared/vercel-sandbox/server/session.ts`, `apps/web/features/skills-agent/server/*`, and `.agents/skills/skill-creator`.
+- Covers the initial Vercel Sandbox integration-test direction for the `skills-agent` and Ultra Chatbot Agent demos.
+- Main current surfaces: `apps/web/vitest.config.ts`, `apps/web/vitest.integration.config.ts`, `apps/web/features/shared/vercel-sandbox/server/integration-test.ts`, `apps/web/features/shared/vercel-sandbox/server/session.ts`, `apps/web/features/skills-agent/server/*`, `apps/web/features/ultra-chatbot-agent/server/sandbox-tools.integration.test.ts`, and `.agents/skills/skill-creator`.
 
 ## Domain Language
 
+- **Unit test**: A fast local test for a small interface, module contract, parser, gate, or state transition with no real external provider usage.
 - **Integration test harness**: The opt-in test configuration and helper layer used for tests that need real runtime providers or cross-module behavior.
 - **Sandbox integration test**: An integration test that creates a real Vercel Sandbox and verifies sandbox-backed behavior through the application server modules.
 - **Deterministic integration scenario**: A scenario that avoids LLM sampling, browser timing, and UI rendering so the test verifies one runtime contract with low flake risk.
 - **Release-gate integration test**: A higher-cost integration test that should run before declaring a sandbox-backed Agent Demo ready for release, and when code changes touch its runtime contract.
+- **Toolbox-level integration test**: A server-side integration test that assembles an app feature's toolset and calls those tools directly, without entering through the LLM chat route.
+- **Vercel Sandbox OIDC auth**: The default authentication mode for sandbox-backed tests and Vercel-hosted production; local runs use `vercel env pull`, while Vercel production receives platform-managed OIDC credentials automatically.
+- **E2E test**: A Codex/Computer Use-driven user-flow verification that operates the app through the browser or desktop surface.
 
 ## Current Subdomain Docs
 
 - Keep unit tests and integration tests separate. Normal quality gates should keep running fast tests by default; provider-backed tests should require explicit opt-in.
+- Treat integration tests as complements to unit tests. If behavior can be fully verified with a unit or narrow module contract test, keep it there; integration tests should add evidence that unit tests cannot provide, such as real provider auth, sandbox lifecycle, file I/O, command execution, or cross-process behavior.
 - Use Vitest for server-side integration tests unless the test must verify browser behavior. The current integration config is `apps/web/vitest.integration.config.ts`, and it includes only `features/**/*.integration.test.ts`.
 - Integration tests should fail early with explicit setup errors. Do not silently skip a provider-backed test after the integration command has been explicitly requested.
 - Require the explicit `VERCEL_SANDBOX_INTEGRATION=1` environment gate for real provider usage so local agents and CI do not create paid resources by accident.
+- Authenticate Vercel Sandbox integration tests with `VERCEL_OIDC_TOKEN`; the integration readiness helper should reject token-only setup so this suite proves the OIDC path. Local runs should refresh the token with `vercel link` plus `vercel env pull`; Vercel-hosted production uses automatic OIDC. Use the `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and `VERCEL_PROJECT_ID` access-token trio only for external CI/CD or non-Vercel hosting where `VERCEL_OIDC_TOKEN` is unavailable. See [Vercel Sandbox authentication](https://vercel.com/docs/vercel-sandbox/concepts/authentication) and [Vercel OIDC federation](https://vercel.com/docs/oidc).
 - Keep Vercel Sandbox test sessions distinct from production demo sessions. Production `skills-agent` chat sandboxes stay persistent and chat-id named; test sandboxes should use unique names and `persistent: false`.
 - Right-size sandbox test resources. Start Vercel Sandbox integration tests with `resources: { vcpus: 1 }`, no exposed ports unless the scenario needs one, and the shortest timeout that still allows bootstrap and cleanup.
 - Always stop sandbox sessions in `finally`. If the SDK exposes deletion for the created resource, cleanup helpers may delete non-persistent test sandboxes after stopping them.
@@ -37,8 +43,10 @@ updateAt: 2026-06-02
 
 - **Default tests**: Run during ordinary development and normal quality checks. These are unit or narrow module tests with no external provider usage.
 - **Sandbox smoke integration**: Creates a Vercel Sandbox, runs a trivial command, verifies file write/read, and stops the sandbox. This validates provider credentials, SDK wiring, lifecycle, and cleanup at the lowest cost.
+- **Toolbox-level integration**: Assembles a feature's server-side toolset and calls the tools directly. Use this when the route, approval gate, or model orchestration is already covered by unit tests, and the missing evidence is whether the real provider-backed tools can execute.
+- **Ultra Agent sandbox bash readiness**: Assembles `createUltraChatbotAgentSandboxToolbox`, calls the exposed `bash` tool directly, and runs `uv run python -c ...` to prove Ultra's real sandbox bash path can execute uv-backed Python without entering the LLM route.
 - **Skills Agent deterministic integration**: Creates a Vercel Sandbox, activates `skill-creator`, runs its script through `uv`, reads the generated skill artifact, validates it, and cleans up. The first implementation lives at `apps/web/features/skills-agent/server/skill-builder.integration.test.ts`.
-- **LLM or browser integration**: Runs only when specifically needed to verify user-facing streaming, UI behavior, or model-tool coordination. This layer should not be the first release gate for sandbox runtime correctness.
+- **Codex/Computer Use E2E**: Runs only when specifically needed to verify user-facing streaming, UI behavior, desktop/browser interaction, or model-tool coordination. This layer should not be the first release gate for sandbox runtime correctness.
 
 ## Skills Agent First Scenario
 
@@ -49,6 +57,15 @@ updateAt: 2026-06-02
 - Read the generated `artifacts/<skill-name>/SKILL.md` from the sandbox and assert that the expected skill name and frontmatter exist.
 - Run `.agents/skills/skill-creator/scripts/quick_validate.py` with `uv run --with pyyaml python` so the validation dependency is explicit.
 - Keep the scenario deterministic: no chat route, no model call, no browser automation, and no dev-server port exposure for the first version.
+
+## Ultra Agent Sandbox Bash Scenario
+
+- The first Ultra Chatbot Agent sandbox integration scenario should verify the toolbox-level `bash` tool, not the LLM route or HITL approval flow.
+- Use `createUltraChatbotAgentSandboxToolbox` as the public server interface for this layer.
+- Inject a test-scoped sandbox session registry so the integration does not use the production shared registry singleton.
+- Create a real Vercel Sandbox through the same `skills-agent` sandbox bootstrap that Ultra reuses, then call `toolbox.tools.bash.execute(...)`.
+- Run `uv run python -c 'print(...)'` inside the sandbox and assert stdout includes a readiness marker, `python=3.13`, and `venv=.venv`.
+- Keep this scenario deterministic: no chat route, no model call, no browser automation, no HITL approval, and no dev-server port exposure.
 
 ## Current Commands
 
@@ -62,7 +79,8 @@ updateAt: 2026-06-02
 - Do not run real Vercel Sandbox integration tests on every code edit by default.
 - Run the sandbox smoke integration after introducing or changing the integration harness, Vercel Sandbox credentials, sandbox factory options, or cleanup logic.
 - Run the Skills Agent deterministic integration when changing `apps/web/features/shared/vercel-sandbox`, `apps/web/features/skills-agent/server`, `.agents/skills/skill-creator`, or the Skill Builder artifact contract.
-- Run the sandbox-backed integration suite before marking the `skills-agent` demo release-ready, and before merging changes that materially alter sandbox lifecycle, toolchain bootstrap, skill activation, or generated artifact handling.
+- Run the Ultra Agent sandbox bash readiness scenario when changing `apps/web/features/ultra-chatbot-agent/server/sandbox-tools.ts`, the shared Vercel Sandbox session layer, or the skills-agent sandbox bootstrap that Ultra reuses.
+- Run the sandbox-backed integration suite before marking the `skills-agent` or Ultra Chatbot Agent sandbox demos release-ready, and before merging changes that materially alter sandbox lifecycle, toolchain bootstrap, skill activation, generated artifact handling, or Ultra sandbox tool exposure.
 - If the sandbox suite becomes stable and cheap enough, add a scheduled or pre-release CI job first. Do not add it to every default PR run until observed runtime, cost, and flake rate justify that.
 
 ## Update Triggers

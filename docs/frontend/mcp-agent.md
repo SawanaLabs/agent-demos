@@ -28,6 +28,8 @@ updateAt: 2026-05-24
 - Inject the connected server summary and available tool names into the agent instructions on each call.
 - Close MCP clients when the stream finishes.
 - Keep runtime sidebar content declarative: configured MCP servers, configured tools, transport type, and setup expectations.
+- Keep the `/demos/mcp-agent` page dynamically rendered so setup state is read from the runtime environment that the chat API route uses. Do not let build-time env snapshots disable a runtime-ready deployment.
+- When MCP agent setup is unavailable, disable every chat-turn entry path, including the composer, submit button, sample prompts, and retry. UI handlers should also guard against sending while setup is unavailable or a turn is already busy.
 - Project Docs MCP tools should read durable docs from `docs/` and feature-local `README.md` files rather than scraping rendered pages.
 - The first suggestions should cover both scenes without a mode label: project docs review, Next.js runtime diagnostics, and checklist-driven demo planning.
 

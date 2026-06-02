@@ -71,5 +71,5 @@ This repository maintains project-specific knowledge and conventions in `docs/`;
 - Confirm every first-level domain has `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
 - Confirm `docs/index.md` covers every first-level domain.
 - Confirm each `docs/<domain>/index.md` covers every `docs/<domain>/<subdomain>.md` file.
-- When shell access is available, run `scripts/verify-docs-system.sh <repo-root-or-docs-dir>` to verify the docs structure.
+- When shell access is available, run the bundled [scripts/verify-docs-system.sh](./scripts/verify-docs-system.sh) with the target repo root or `docs/` directory to verify the docs structure.
 - Summarize what was created or updated and why.

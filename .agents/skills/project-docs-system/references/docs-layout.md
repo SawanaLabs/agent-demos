@@ -168,4 +168,4 @@ Also update map files whenever docs files change:
 
 ## Verification Helper
 
-When shell access is available and structure has changed, optionally run `scripts/verify-docs-system.sh <repo-root-or-docs-dir>` from this skill bundle to verify the minimum docs-system contract.
+When shell access is available and structure has changed, optionally run the bundled [scripts/verify-docs-system.sh](../scripts/verify-docs-system.sh) with the target repo root or `docs/` directory to verify the minimum docs-system contract.

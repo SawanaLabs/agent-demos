@@ -166,13 +166,15 @@ export function ObjectGenerationWorkspace({
                         {entry.liveStatus === "streaming" ? null : (
                           <div className="flex justify-end">
                             <Button
+                              aria-label="Regenerate this object from the same prompt and attachments"
                               onClick={() => retryReview(entry)}
                               size="sm"
+                              title="Runs the same request again and records a new result."
                               type="button"
                               variant="outline"
                             >
                               <ArrowClockwiseIcon className="size-3.5" />
-                              Replay generation
+                              Regenerate object
                             </Button>
                           </div>
                         )}

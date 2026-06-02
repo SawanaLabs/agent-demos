@@ -89,28 +89,6 @@ Third in-app Browser retry:
 
 ## Issues
 
-### QA-LOCAL-006 - P3 - Object Generation "Replay generation" creates a new record
-
-Repro:
-
-1. Open `http://localhost:3000/demos/object-generation`.
-2. Click suggestion: `Generate a launch-risk object for this pricing page draft and flag unsupported claims.`
-3. Click `Replay generation`.
-
-Expected:
-
-- If "Replay" means audit replay, it should restore or rerender the same recorded output.
-- If "Replay" means rerun, the label should make that clear.
-
-Actual:
-
-- First output had record id `f52d95ee`.
-- Replay produced a new output with record id `7fb1a572` and changed score/content.
-
-Repro value:
-
-- Low-priority wording/behavior ambiguity. Functional structured output worked.
-
 ### QA-LOCAL-007 - P2 - LangGraph answers are functional but under-grounded in this repo's local setup
 
 Repro:
@@ -166,7 +144,7 @@ Repro value:
 | Streaming Chat Shell | UI | Pass | Suggestion answered; trace drawer opened; replay produced 110 events and reconstructed text. |
 | Loop Agent | UI | Pass | HITL checkpoint appeared; approve continued to completed escalation answer. |
 | MCP Agent | UI | Pass | Used `project__list_demos` and `project__read_demo_docs`; answer cited project docs. |
-| Object Generation | UI | Pass with P3 note | Structured object generated; replay wording/behavior is ambiguous. |
+| Object Generation | UI | Pass | Structured object generated; regenerate action now explicitly reruns the same input and records a new output. |
 | Trace Eval Agent | UI | Pass | Trace, deterministic gate, and LLM judge all ran; one live LLM factual judgment is out of scope for this local QA mechanism check. |
 | Multimodal Chatbot | HTTP page plus API | Pass | Cold Next.js dev cache rebuild restored the page; page GET returned `200` and text API answered. See `docs/frontend/multimodal-chatbot.md`. |
 | Customer Memory Agent | API | Pass | Thread creation returned `201`; message call used `manageCustomerMemory` for `Brightfield wants launch updates every Friday.` |

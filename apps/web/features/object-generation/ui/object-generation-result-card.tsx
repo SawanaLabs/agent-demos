@@ -156,7 +156,7 @@ export function ObjectGenerationResultCard({
             )}
           >
             {record.errorMessage ??
-              "Stored the final object snapshot and token usage for replay, audit, and cost review."}
+              "Stored the final object snapshot and token usage for audit, reruns, and cost review."}
           </p>
         </section>
       ) : null}

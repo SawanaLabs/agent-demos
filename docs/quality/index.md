@@ -18,5 +18,5 @@ Use this domain when changing linting, formatting, type checking, tests, or CI q
 ## Subdomains
 
 - [Environment Config](./environment-config.md): `keys.ts` and `env.ts` contracts, direct `process.env` policy, and migration rules.
-- [Integration Testing](./integration-testing.md): Default test layering, Vercel Sandbox integration tests, cost controls, and release-gate policy.
+- [Integration Testing](./integration-testing.md): Default test layering, production demo smoke checks, Vercel Sandbox integration tests, cost controls, and release-gate policy.
 - [Ultracite](./ultracite.md): Root Ultracite/Biome setup, command usage, and known resolver boundaries.

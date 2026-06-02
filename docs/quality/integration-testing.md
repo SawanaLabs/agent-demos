@@ -11,7 +11,7 @@ updateAt: 2026-06-02
 - Covers repository-wide integration-test conventions.
 - Covers tests that cross module boundaries, runtime providers, external services, or sandbox-backed execution.
 - Covers the initial Vercel Sandbox integration-test direction for the `skills-agent` and Ultra Chatbot Agent demos.
-- Main current surfaces: `apps/web/vitest.config.ts`, `apps/web/vitest.integration.config.ts`, `apps/web/features/shared/vercel-sandbox/server/integration-test.ts`, `apps/web/features/shared/vercel-sandbox/server/session.ts`, `apps/web/features/skills-agent/server/*`, `apps/web/features/ultra-chatbot-agent/server/sandbox-tools.integration.test.ts`, and `.agents/skills/skill-creator`.
+- Main current surfaces: `apps/web/vitest.config.ts`, `apps/web/vitest.integration.config.ts`, `scripts/smoke/demos-production.mjs`, `apps/web/features/shared/vercel-sandbox/server/integration-test.ts`, `apps/web/features/shared/vercel-sandbox/server/session.ts`, `apps/web/features/skills-agent/server/*`, `apps/web/features/ultra-chatbot-agent/server/sandbox-tools.integration.test.ts`, and `.agents/skills/skill-creator`.
 
 ## Domain Language
 
@@ -23,6 +23,7 @@ updateAt: 2026-06-02
 - **Toolbox-level integration test**: A server-side integration test that assembles an app feature's toolset and calls those tools directly, without entering through the LLM chat route.
 - **Vercel Sandbox OIDC auth**: The default authentication mode for sandbox-backed tests and Vercel-hosted production; local runs use `vercel env pull`, while Vercel production receives platform-managed OIDC credentials automatically.
 - **E2E test**: A Codex/Computer Use-driven user-flow verification that operates the app through the browser or desktop surface.
+- **Production demo smoke test**: A production-server route check that renders every top-level demo page after `next build` and fails when the AI Gateway setup state leaks into configured runtime HTML.
 
 ## Current Subdomain Docs
 
@@ -39,6 +40,7 @@ updateAt: 2026-06-02
 - Retry likely network-dependent sandbox bootstrap failures once, then surface the error. This follows the repository's general network retry convention without hiding broken contracts.
 - Do not put LLM calls in the first sandbox integration layer. LLM-backed route tests are a separate, higher-cost layer because model output, gateway availability, and streaming timing add flake risk.
 - Treat Codex App browser-harness failures separately from application failures. The in-app Browser can have Codex App-scoped localhost access, so prefer dev servers started from inside Codex App when using it. If it cannot reach the server, the webview cannot attach, or input automation fails because the virtual clipboard is unavailable, retry with normal Chrome, Computer Use, CDP, or browser-independent HTTP/API evidence before recording an app QA defect.
+- Keep production demo smoke checks provider-safe. `pnpm smoke:demos:production` starts `next start` against the existing `.next` build with a synthetic AI Gateway key when no key is already present, renders pages only, and does not submit chat requests or call model providers.
 
 ## Recommended Layers
 
@@ -48,6 +50,7 @@ updateAt: 2026-06-02
 - **Ultra Agent sandbox bash readiness**: Assembles `createUltraChatbotAgentSandboxToolbox`, calls the exposed `bash` tool directly, and runs `uv run python -c ...` to prove Ultra's real sandbox bash path can execute uv-backed Python without entering the LLM route.
 - **Skills Agent deterministic integration**: Creates a Vercel Sandbox, activates `skill-creator`, runs its script through `uv`, reads the generated skill artifact, validates it, and cleans up. The first implementation lives at `apps/web/features/skills-agent/server/skill-builder.integration.test.ts`.
 - **Codex/Computer Use E2E**: Runs only when specifically needed to verify user-facing streaming, UI behavior, desktop/browser interaction, or model-tool coordination. This layer should not be the first release gate for sandbox runtime correctness.
+- **Production demo page smoke**: Runs after `pnpm build` to verify every top-level `/demos/*` page returns HTTP 200, no configured AI Gateway page renders `AI_GATEWAY_API_KEY is missing`, and `/demos/foundation-chat` remains a no-store dynamic production response. Use this after Turbo env, demo page rendering, or AI Gateway setup-state changes.
 
 ## Skills Agent First Scenario
 
@@ -74,11 +77,14 @@ updateAt: 2026-06-02
 - Run it from `apps/web` with `VERCEL_SANDBOX_INTEGRATION=1 pnpm test:integration`.
 - The `apps/web` script sources root and app `.env`, `.env.local`, and `.env.development.local` files before running Vitest.
 - Running the integration command without `VERCEL_SANDBOX_INTEGRATION=1` is expected to fail fast before creating any sandbox.
+- Run the local production demo smoke after a build with `pnpm smoke:demos:production`; the command starts and stops `next start` itself.
+- Run the same smoke against a deployed URL with `DEMO_SMOKE_BASE_URL=https://<deployment-host> pnpm smoke:demos:production`.
 
 ## Run Policy
 
 - Do not run real Vercel Sandbox integration tests on every code edit by default.
 - Run the sandbox smoke integration after introducing or changing the integration harness, Vercel Sandbox credentials, sandbox factory options, or cleanup logic.
+- Run the production demo smoke after changing Turbo env config, AI Gateway env contracts, `apps/web/app/demos/*/page.tsx` rendering mode, or production deployment settings that affect demo page runtime env.
 - Run the Skills Agent deterministic integration when changing `apps/web/features/shared/vercel-sandbox`, `apps/web/features/skills-agent/server`, `.agents/skills/skill-creator`, or the Skill Builder artifact contract.
 - Run the Ultra Agent sandbox bash readiness scenario when changing `apps/web/features/ultra-chatbot-agent/server/sandbox-tools.ts`, the shared Vercel Sandbox session layer, or the skills-agent sandbox bootstrap that Ultra reuses.
 - Run the sandbox-backed integration suite before marking the `skills-agent` or Ultra Chatbot Agent sandbox demos release-ready, and before merging changes that materially alter sandbox lifecycle, toolchain bootstrap, skill activation, generated artifact handling, or Ultra sandbox tool exposure.

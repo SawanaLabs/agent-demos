@@ -31,6 +31,9 @@ updateAt: 2026-06-02
   - `pnpm lint` and `pnpm check` run `ultracite check`.
   - `pnpm format` and `pnpm fix` run `ultracite fix`.
   - `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:pull`, `pnpm db:push`, and `pnpm db:studio` delegate to `@workspace/database`.
+- The root `turbo.json` owns shared task shape. App-specific Turbo task inputs belong in package-level configs that extend the root config.
+- `apps/web/turbo.json` extends the root Turbo config and owns `web#build` environment-variable classification. Keep web deployment env there instead of widening root task env lists for the whole monorepo.
+- Turbo should stay in strict env mode for production builds. Do not switch to `envMode: "loose"` to work around missing deployment env; classify build-output variables with `env` and runtime-only variables with `passThroughEnv`.
 - `pnpm --filter web dev` runs the web app on port `3000`. If that port is occupied, stop the stale process before starting another dev server.
 - For database package work, keep `DATABASE_URL` in `packages/database/.env.local`, root `.env.local`, `packages/database/.env`, or root `.env`; `packages/database/drizzle.config.ts` loads those files in that precedence order.
 - Schema sync policy lives in [Database Workflow](./database-workflow.md). Use the CLI commands above for synchronization and escalate to the user before any non-CLI workaround.
@@ -39,3 +42,4 @@ updateAt: 2026-06-02
 
 - Update this file when workspace packages are added, removed, or renamed.
 - Update this file when root scripts, Turbo tasks, or package ownership boundaries change.
+- Update this file when package-level Turbo configs are added, removed, or change task ownership.

@@ -31,9 +31,15 @@ updateAt: 2026-06-02
 - Do not mirror `@t3-oss/env-nextjs` into ordinary demo registry items just to preserve app preview validation. Use a small registry env adapter plus `envVars` unless the registry item explicitly installs a broader env-management architecture.
 - Biome `style.noProcessEnv` is enabled at warning level across the repository. The only standing override is for `**/env.ts` and `**/keys.ts` files, where direct `process.env` reads are part of the contract layer by design.
 - Existing warnings in tests or untouched parallel work are acceptable during migration, but new production code should follow the contract-layer pattern immediately.
+- `apps/web/turbo.json` owns the web app's Turborepo deployment env classification. Keep `env` for variables that affect `next build` output or demo setup/readiness rendering, and keep `passThroughEnv` for runtime-only secrets that must be available to server routes without entering the build cache hash.
+- AI Gateway, database, Redis, Blob, LangGraph, and native OpenAI model selection variables are build-output inputs for `web#build` because demo pages can render setup/readiness state from them.
+- Cron and Vercel Sandbox credential variables are runtime-only pass-through inputs for `web#build`. Do not put `VERCEL_OIDC_TOKEN` or the `VERCEL_TOKEN` credential trio into build hash inputs unless the build output intentionally depends on those values.
+- Demo pages under `apps/web/app/demos/*/page.tsx` should export `dynamic = "force-dynamic"` so setup/readiness state reflects the current deployment runtime instead of a static build snapshot. `apps/web/app/demos/page-rendering-contract.test.ts` enforces this for all demo workspaces.
+- When adding a new web environment contract, update the matching `keys.ts`, `apps/web/env.ts`, `apps/web/turbo.json`, and the narrow contract tests in the same change.
 
 ## Update Triggers
 
 - Update this file when a new shared environment contract appears.
 - Update this file when `biome.jsonc` changes the `noProcessEnv` rule level or override shape.
 - Update this file when the repository adopts a new env validation library or app-level aggregation strategy.
+- Update this file when `apps/web/turbo.json` changes env or pass-through classification.

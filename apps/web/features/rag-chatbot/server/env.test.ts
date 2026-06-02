@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getRagChatbotConfig,
@@ -7,6 +7,10 @@ import {
 } from "./env";
 
 describe("rag chatbot env", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("reports gateway setup issues without requiring database access", () => {
     expect(getRagChatbotSetupState({})).toMatchObject({
       isReady: false,
@@ -26,6 +30,15 @@ describe("rag chatbot env", () => {
       chatModel: "openai/gpt-4.1-mini",
       embeddingModel: "openai/text-embedding-3-small",
     });
+  });
+
+  it("reads the embedding model from the app env contract", () => {
+    vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+    vi.stubEnv("AI_GATEWAY_EMBEDDING_MODEL", "openai/text-embedding-3-large");
+
+    expect(getRagChatbotSetupState().config.embeddingModel).toBe(
+      "openai/text-embedding-3-large"
+    );
   });
 
   it("reports the index setup issue in dependency order", () => {

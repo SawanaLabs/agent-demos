@@ -274,6 +274,23 @@ export function SkillsAgentWorkspace({
     ],
     []
   );
+  const canStartChatTurn = isChatAvailable && !isBusy;
+
+  function sendChatMessage(text: string) {
+    if (!canStartChatTurn) {
+      return;
+    }
+
+    sendMessage({ text });
+  }
+
+  function regenerateChatTurn() {
+    if (!canStartChatTurn) {
+      return;
+    }
+
+    regenerate();
+  }
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -328,10 +345,10 @@ export function SkillsAgentWorkspace({
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
-            <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
+            <PromptInput onSubmit={({ text }) => sendChatMessage(text)}>
               <PromptInputBody>
                 <PromptInputTextarea
-                  disabled={!isChatAvailable || isBusy}
+                  disabled={!canStartChatTurn}
                   placeholder="Describe a rough idea or ask for a reusable skill draft."
                 />
               </PromptInputBody>
@@ -355,7 +372,8 @@ export function SkillsAgentWorkspace({
                   ) : null}
                   {hasMessages ? (
                     <Button
-                      onClick={() => regenerate()}
+                      disabled={!canStartChatTurn}
+                      onClick={regenerateChatTurn}
                       size="sm"
                       type="button"
                       variant="outline"
@@ -365,7 +383,7 @@ export function SkillsAgentWorkspace({
                     </Button>
                   ) : null}
                   <PromptInputSubmit
-                    disabled={!isChatAvailable}
+                    disabled={!canStartChatTurn}
                     status={status}
                   />
                 </div>
@@ -376,8 +394,9 @@ export function SkillsAgentWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {samplePrompts.map((prompt) => (
                   <Button
+                    disabled={!canStartChatTurn}
                     key={prompt}
-                    onClick={() => sendMessage({ text: prompt })}
+                    onClick={() => sendChatMessage(prompt)}
                     size="sm"
                     type="button"
                     variant="outline"

@@ -41,6 +41,7 @@ updateAt: 2026-06-02
 - Treat capability controls as mixed visibility. Lightweight low-risk state such as the active RAG source or MCP connection may stay visible in the workspace, while higher-risk capabilities such as sandbox execution stay hidden until the agent requests enablement or the operator explicitly turns them on.
 - Store sandbox enablement as chat-scoped capability state on the Ultra chat row. This state records the visitor's current choice for that conversation; manual enable, manual disable, and HITL approval must all update the same persisted `sandboxEnabled` value instead of maintaining parallel UI-only state.
 - Treat manual sandbox disablement as revoking the execution capability for the current chat. If a later request in the same chat needs sandbox-backed work, the agent should request `enableSandbox` again and the visitor can approve it through the same HITL path.
+- When sandbox is enabled but the execution toolbox cannot be prepared, return a concrete chat API JSON error and close any already-opened MCP clients instead of letting the post-approval turn fail as an unhandled route exception.
 
 ## Product Capability Boundary
 

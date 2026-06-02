@@ -140,6 +140,10 @@ function hasUnsupportedAttachment(message: UIMessage) {
   );
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 let ultraChatbotAgentStreamContext:
   | ReturnType<typeof createResumableStreamContext>
   | undefined;
@@ -281,13 +285,6 @@ export async function handleUltraChatbotAgentChatRequest(
     await createUltraChatbotAgentProjectDocsMcpToolbox({
       origin: new URL(request.url).origin,
     });
-  const sandboxToolbox = capabilities.sandboxEnabled
-    ? await createUltraChatbotAgentSandboxToolbox({
-        chatId: input.id,
-        env,
-        visitorId: viewer.visitorId,
-      })
-    : null;
   let closedProjectDocsMcp = false;
 
   async function closeProjectDocsMcpToolbox() {
@@ -297,6 +294,32 @@ export async function handleUltraChatbotAgentChatRequest(
 
     closedProjectDocsMcp = true;
     await projectDocsMcpToolbox.close();
+  }
+
+  let sandboxToolbox: Awaited<
+    ReturnType<typeof createUltraChatbotAgentSandboxToolbox>
+  > | null = null;
+
+  if (capabilities.sandboxEnabled) {
+    try {
+      sandboxToolbox = await createUltraChatbotAgentSandboxToolbox({
+        chatId: input.id,
+        env,
+        visitorId: viewer.visitorId,
+      });
+    } catch (error) {
+      await closeProjectDocsMcpToolbox();
+
+      return Response.json(
+        {
+          error: getErrorMessage(
+            error,
+            "Failed to prepare Ultra sandbox tools."
+          ),
+        },
+        { status: 500 }
+      );
+    }
   }
 
   try {

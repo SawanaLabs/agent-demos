@@ -796,4 +796,56 @@ describe("ultra chatbot agent runtime", () => {
       visitorId: "visitor-123",
     });
   });
+
+  it("returns a concrete setup error when enabled sandbox tools cannot be prepared", async () => {
+    const { handleUltraChatbotAgentChatRequest } = await importRuntimeModule();
+
+    sandboxToolboxState.createUltraChatbotAgentSandboxToolbox.mockRejectedValue(
+      new Error(
+        "Vercel Sandbox credentials are missing. Add VERCEL_OIDC_TOKEN or the VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID trio."
+      )
+    );
+    storeState.loadChatSession.mockResolvedValue({
+      chat: {
+        activeStreamId: null,
+        capabilities: {
+          sandboxEnabled: true,
+        },
+        createdAt: new Date("2026-05-27T00:00:00.000Z"),
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        selectedChatModel: "openai/gpt-4.1-mini",
+        title: "Sandbox chat",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+        visibility: "private",
+        visitorId: "visitor-123",
+      },
+      messages: [createUserMessage()],
+    });
+
+    const response = await handleUltraChatbotAgentChatRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: createUserMessage(),
+          selectedChatModel: "openai/gpt-4.1-mini",
+          selectedVisibilityType: "private",
+        }),
+        method: "POST",
+      }),
+      { visitorId: "visitor-123" },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Vercel Sandbox credentials are missing. Add VERCEL_OIDC_TOKEN or the VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID trio.",
+    });
+    expect(aiMockState.ToolLoopAgent).not.toHaveBeenCalled();
+    expect(projectDocsMcpToolboxState.close).toHaveBeenCalledTimes(1);
+  });
 });

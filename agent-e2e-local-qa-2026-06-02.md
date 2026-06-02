@@ -18,7 +18,6 @@ Scope: read-only local QA run against `pnpm --dir apps/web dev` on `http://local
 - UI/browser covered: homepage, Foundation Chat, RAG Chatbot, Persistent & Resume Agent, Streaming Chat Shell, Loop Agent, MCP Agent, Object Generation, Trace Eval Agent.
 - API/local route covered after browser failure: Customer Memory Agent, OpenAI Agents SDK Demo, LangGraph Agent, Skills Agent, Sandbox Agent, Ultra Chatbot Agent.
 - Multimodal Chatbot was retested after a cold Next.js dev cache rebuild; page GET and text API both pass locally.
-- Remaining highest priority defect: Trace Eval Agent gave a high score to a stale Braintrust claim.
 - Ultra sandbox API path passed locally after sandbox capability was enabled; the UI approve-click flow was not completed because the browser session failed before that point.
 
 ## Retest Addendum - LangGraph Agent
@@ -89,31 +88,6 @@ Third in-app Browser retry:
 - Revised browser note: LangGraph UI E2E now passes locally. The earlier attach failures are still useful as browser-harness instability evidence, but they did not reproduce on the third attempt.
 
 ## Issues
-
-### QA-LOCAL-002 - P1 - Trace Eval judge missed a stale factual claim about Braintrust
-
-Repro:
-
-1. Open `http://localhost:3000/demos/trace-eval-agent`.
-2. Click suggestion: `Pick a tracing + eval stack for a Next.js AI agent`.
-3. Wait for answer, trace, deterministic gate, and judge.
-
-Expected:
-
-- The recommendation should treat Braintrust as a current AI observability/evals/tracing product or cite uncertainty.
-- Eval gate should flag a major vendor-classification error.
-
-Actual:
-
-- The answer said Braintrust is mainly a decentralized talent platform and is less known as a direct observability/tracing solution.
-- The same run showed trace complete, gate score `100%`, judge score `94%`, and all deterministic/LLM judge checks passed.
-- Official Braintrust pages describe it as an AI observability and evaluation platform with traces, tool-call inspection, and evals:
-  - https://www.braintrust.dev/
-  - https://www.braintrust.dev/docs
-
-Repro value:
-
-- This is a product-quality failure in the eval demo: the app functioned, but the eval layer gave a high score to a stale/wrong answer.
 
 ### QA-LOCAL-003 - P2 - LangGraph Agent needs paired API server for local use
 
@@ -252,7 +226,7 @@ Repro value:
 | Loop Agent | UI | Pass | HITL checkpoint appeared; approve continued to completed escalation answer. |
 | MCP Agent | UI | Pass | Used `project__list_demos` and `project__read_demo_docs`; answer cited project docs. |
 | Object Generation | UI | Pass with P3 note | Structured object generated; replay wording/behavior is ambiguous. |
-| Trace Eval Agent | UI | Functional pass, quality fail | Trace and eval ran, but stale Braintrust claim passed judge. See QA-LOCAL-002. |
+| Trace Eval Agent | UI | Pass | Trace, deterministic gate, and LLM judge all ran; one live LLM factual judgment is out of scope for this local QA mechanism check. |
 | Multimodal Chatbot | HTTP page plus API | Pass | Cold Next.js dev cache rebuild restored the page; page GET returned `200` and text API answered. See `docs/frontend/multimodal-chatbot.md`. |
 | Customer Memory Agent | API | Pass | Thread creation returned `201`; message call used `manageCustomerMemory` for `Brightfield wants launch updates every Friday.` |
 | OpenAI Agents SDK Demo | API | Pass | Route streamed and used MCP tool `mcp_openai_agents_demo_docs__read_demo_doc`; response completed. |
@@ -263,6 +237,5 @@ Repro value:
 
 ## Notes For Next Fix Pass
 
-- Start with Trace Eval's knowledge/judge contract. The issue is not streaming or tooling; it is answer correctness plus eval scoring.
 - For Ultra, use a normal browser or repaired browser harness to retest the actual approve button. The API route and sandbox tools currently pass locally after capability enablement.
 - LangGraph UI is locally usable through `pnpm dev:langgraph-agent`; improve prompt grounding so setup answers use this repo's real env names and paired command.

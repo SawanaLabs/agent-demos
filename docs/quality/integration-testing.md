@@ -38,6 +38,7 @@ updateAt: 2026-06-02
 - Treat sandbox creation, active CPU, provisioned memory, network transfer, and snapshot storage as the cost drivers. Package downloads during cold bootstrap can dominate the cost of small tests, so avoid unnecessary dependency installs.
 - Retry likely network-dependent sandbox bootstrap failures once, then surface the error. This follows the repository's general network retry convention without hiding broken contracts.
 - Do not put LLM calls in the first sandbox integration layer. LLM-backed route tests are a separate, higher-cost layer because model output, gateway availability, and streaming timing add flake risk.
+- Treat Codex App browser-harness failures separately from application failures. The in-app Browser can have Codex App-scoped localhost access, so prefer dev servers started from inside Codex App when using it. If it cannot reach the server, the webview cannot attach, or input automation fails because the virtual clipboard is unavailable, retry with normal Chrome, Computer Use, CDP, or browser-independent HTTP/API evidence before recording an app QA defect.
 
 ## Recommended Layers
 

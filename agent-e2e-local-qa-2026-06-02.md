@@ -89,21 +89,6 @@ Third in-app Browser retry:
 
 ## Issues
 
-### QA-LOCAL-005 - P2 - In-app Browser input automation is unreliable for this app
-
-Repro:
-
-1. Use in-app Browser automation to fill a demo textarea.
-
-Actual:
-
-- `locator.fill`, `locator.type`, and `tab.cua.type` failed with `Browser Use virtual clipboard is not installed`.
-- Character-by-character keyboard `press` worked and was used for manual follow-up messages.
-
-Repro value:
-
-- This is likely a QA harness limitation, not an app bug. It matters because it slowed local E2E and prevented clean multi-turn UI coverage after the browser session broke.
-
 ### QA-LOCAL-006 - P3 - Object Generation "Replay generation" creates a new record
 
 Repro:

@@ -1,7 +1,7 @@
 ---
 title: Trace and Eval Agent
 description: Stable research-agent, trace-panel, and eval-pipeline conventions for the trace-eval-agent demo.
-updateAt: 2026-05-25
+updateAt: 2026-06-02
 ---
 
 # Trace and Eval Agent
@@ -24,6 +24,7 @@ updateAt: 2026-05-25
 - Treat the chat agent as the primary product surface. Trace and eval are passive observers layered onto the agent run, and they must not degrade normal chat behavior.
 - Token usage, session trace, deterministic eval, and an LLM-as-judge eval pipeline are part of the expected product surface.
 - Token usage is an observability signal, not a quality gate. Keep it visible for cost and run-size inspection, but do not fail the deterministic gate or judge hard failures because a run used more tokens.
+- Treat this demo's QA bar as mechanism integrity: a run must be traceable, the deterministic gate must evaluate structural evidence, the LLM judge must receive the full judge context, and the UI must show the result. Do not classify one live LLM answer or one live LLM judge score as a stable product defect when the trace/eval mechanism worked and the remaining concern is model judgment quality.
 
 ## Domain Language
 
@@ -100,6 +101,8 @@ updateAt: 2026-05-25
 - `skipped` and `failed-run` are eval outcomes. They must not block the agent from continuing the chat.
 - `failed-run` should stay visible in the trace/eval UI as an operational result, but it must not rewrite the agent's stored message history just to simplify evaluation.
 - The LLM-as-judge pipeline sits behind `apps/web/features/trace-eval-agent/model/trace-eval-judge.ts` and `apps/web/features/trace-eval-agent/server/evaluation.ts`. Deterministic checks assemble evidence first; the judge consumes the prompt, final answer, sources, tool trace, usage, deterministic check results, and rubric; the result returns structured score, rationale, and recommended action for the UI.
+- Live LLM behavior is expected to vary. A stale or weak answer can be useful QA evidence only when it reveals a mechanism gap such as missing sources in the snapshot, lost trace metadata, skipped deterministic checks, absent judge context, failed judge transport, or UI failure to expose the eval result.
+- Do not add vendor-specific deterministic checks to compensate for a single live model judgment. Scenario-specific factual policy belongs in the research prompt, source evidence, or replaceable judge rubric for a copied production use case.
 - Judge transport is observer-oriented, but it should stream structured judge content instead of synthetic heartbeat events. `apps/web/app/api/demos/trace-eval-agent/evaluate/stream/route.ts` now returns an AI SDK object text stream that `useObject` can consume directly. The JSON route at `apps/web/app/api/demos/trace-eval-agent/evaluate/route.ts` remains the non-streaming contract.
 - Keep the judge stream protocol aligned with the repo's `content-review` object-generation pattern: `streamText` plus `Output.object()` on the server, `experimental_useObject` on the client, and partial structured fields rendered as they arrive.
 - The LLM judge panel should derive visible progress from real streamed fields such as summary, rationale, dimensions, and action. Do not rebuild a fake SSE progress layer unless the product later needs a second transport for operational telemetry.

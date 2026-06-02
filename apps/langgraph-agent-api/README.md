@@ -8,6 +8,9 @@ It has two deployment entries:
   target.
 - `app.py` for a Vercel-compatible FastAPI wrapper that exposes the minimum
   Agent Server-like surface required by the current Next.js demo.
+- `vercel.json` for the Vercel FastAPI framework preset. Keep this file in the
+  API project root; otherwise a CLI-created Vercel project can serve `app.py` as
+  a static file instead of mounting it as an ASGI app.
 
 ## Setup
 
@@ -68,8 +71,15 @@ The paired script starts the FastAPI backend on `127.0.0.1:2024` and the web
 app with `LANGGRAPH_AGENT_API_URL=http://localhost:2024` plus
 `LANGGRAPH_AGENT_ASSISTANT_ID=agent`.
 
-For a Vercel project, use `apps/langgraph-agent-api` as the project root. The
-required environment variables are:
+For a Vercel project, use `apps/langgraph-agent-api` as the project root and
+keep `framework` set to `fastapi` through `vercel.json`. The current production
+project is `agent-demos-langgraph-agent-api` at:
+
+```text
+https://agent-demos-langgraph-agent-api.vercel.app
+```
+
+The required API project environment variables are:
 
 ```bash
 AI_GATEWAY_API_KEY=<vercel-ai-gateway-key>

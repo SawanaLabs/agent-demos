@@ -173,6 +173,7 @@ export function FoundationChatWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {foundationChatSamplePrompts.map((prompt) => (
                   <Button
+                    disabled={!isChatAvailable || isBusy}
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}
                     size="sm"

@@ -1,7 +1,7 @@
 ---
 title: Project Knowledge Protocol
 description: Cross-domain language, collaboration conventions, and repository boundary rules.
-updateAt: 2026-05-26
+updateAt: 2026-06-02
 ---
 
 # Project Knowledge Protocol
@@ -16,7 +16,7 @@ updateAt: 2026-05-26
 ## Domain Language
 
 - **Workspace package**: A package under `apps/*` or `packages/*` managed by the root pnpm workspace.
-- **Root quality gate**: The root-level Ultracite check and fix workflow, exposed through `pnpm lint`, `pnpm check`, `pnpm format`, and `pnpm fix`.
+- **Root quality gate**: The root-level Ultracite and TypeScript workflow, exposed through `pnpm lint`, `pnpm check`, `pnpm format`, `pnpm fix`, and `pnpm typecheck`.
 - **Shared UI package**: `packages/ui`, the frontend primitive layer for reusable shadcn, AI Elements, Tailwind, hook, and UI utility exports consumed by `apps/web`.
 
 ## Collaboration Conventions
@@ -28,6 +28,13 @@ updateAt: 2026-05-26
 - If a command fails with a likely network issue, retry once before treating it as a real blocker.
 - Prefer explicit errors over fallback behavior that hides broken contracts.
 - Keep tests focused on the core contract surface instead of adding broad test volume by default.
+
+## Completion Checks
+
+- After code changes, run `pnpm check` or `pnpm lint`, plus `pnpm typecheck`, unless the change is docs-only or the user explicitly narrows scope.
+- Run focused Vitest tests for touched contract surfaces when they exist; add a small contract test when core behavior changes without useful coverage.
+- For provider, sandbox, database, cross-module, UI, or complete-flow changes, choose the next evidence layer from [Quality Knowledge Protocol](./quality/DOCS.md): integration test, browser QA, or E2E.
+- Final responses must state which checks ran, which checks were skipped with reasons, and any remaining quality risk.
 
 ## Boundary Principles
 

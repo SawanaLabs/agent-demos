@@ -34,6 +34,10 @@ import {
   useState,
 } from "react";
 
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import type {
   PersistentAgentChatRecord,
   PersistentAgentChatSession,
@@ -210,6 +214,30 @@ function useResumeRecovery(input: {
   ]);
 }
 
+function createPersistentAgentTransport() {
+  return new DefaultChatTransport({
+    api: "/api/demos/persistent-agent",
+    credentials: "include",
+    prepareReconnectToStreamRequest: ({ id }) => ({
+      api: `/api/demos/persistent-agent/${id}/stream`,
+      credentials: "include",
+    }),
+    prepareSendMessagesRequest: ({
+      id,
+      messageId,
+      messages: nextMessages,
+      trigger,
+    }) => ({
+      body: {
+        id,
+        message: nextMessages.at(-1),
+        messageId,
+        trigger,
+      },
+    }),
+  });
+}
+
 export function PersistentAgentWorkspace({
   chatModel,
   draftChatId,
@@ -227,26 +255,25 @@ export function PersistentAgentWorkspace({
     id: chatId,
     updatedAt: initialSession?.chat.updatedAt ?? null,
   }));
-  const { error, messages, resumeStream, sendMessage, setMessages, status } =
-    useChat({
-      id: chatId,
-      messages: initialSession?.messages ?? [],
-      resume: initialSession?.chat.activeStreamId != null,
-      transport: new DefaultChatTransport({
-        api: "/api/demos/persistent-agent",
-        credentials: "include",
-        prepareReconnectToStreamRequest: ({ id }) => ({
-          api: `/api/demos/persistent-agent/${id}/stream`,
-          credentials: "include",
-        }),
-        prepareSendMessagesRequest: ({ id, messages: nextMessages }) => ({
-          body: {
-            id,
-            message: nextMessages.at(-1),
-          },
-        }),
-      }),
-    });
+  const {
+    clearError,
+    error,
+    messages,
+    regenerate,
+    resumeStream,
+    sendMessage,
+    setMessages,
+    status,
+  } = useChat({
+    id: chatId,
+    messages: initialSession?.messages ?? [],
+    resume: initialSession?.chat.activeStreamId != null,
+    transport: createPersistentAgentTransport(),
+  });
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
   const latestAssistant = [...messages]
@@ -332,15 +359,9 @@ export function PersistentAgentWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
+            {hasMessages || error ? (
               <>
                 {messages.map((message) => (
                   <Message from={message.role} key={message.id}>
@@ -353,6 +374,13 @@ export function PersistentAgentWorkspace({
                     </MessageContent>
                   </Message>
                 ))}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
                 {showResumeThinking ? (
                   <Message from="assistant">
                     <MessageContent className="max-w-3xl">

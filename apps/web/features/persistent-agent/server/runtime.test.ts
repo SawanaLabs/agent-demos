@@ -31,6 +31,7 @@ const resumableStreamState = vi.hoisted(() => ({
 
 const storeState = vi.hoisted(() => ({
   cleanupExpiredChats: vi.fn(),
+  deleteMessagesAfterMessage: vi.fn(),
   listChatsForVisitor: vi.fn(),
   loadChatSession: vi.fn(),
   saveFinishedMessages: vi.fn(),
@@ -81,6 +82,19 @@ function createUserMessage(): UIMessage {
   };
 }
 
+function createAssistantMessage(): UIMessage {
+  return {
+    id: "assistant-1",
+    parts: [
+      {
+        text: "Route-backed chat persistence stores the visible transcript.",
+        type: "text",
+      },
+    ],
+    role: "assistant",
+  };
+}
+
 describe("persistent agent runtime", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -91,6 +105,7 @@ describe("persistent agent runtime", () => {
     resumableStreamState.createNewResumableStream.mockReset();
     resumableStreamState.resumeExistingStream.mockReset();
     storeState.cleanupExpiredChats.mockReset();
+    storeState.deleteMessagesAfterMessage.mockReset();
     storeState.listChatsForVisitor.mockReset();
     storeState.loadChatSession.mockReset();
     storeState.saveFinishedMessages.mockReset();
@@ -104,6 +119,9 @@ describe("persistent agent runtime", () => {
       },
     });
     storeState.loadChatSession.mockResolvedValue(null);
+    storeState.deleteMessagesAfterMessage.mockResolvedValue({
+      deletedCount: 0,
+    });
     storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
     storeState.saveFinishedMessages.mockResolvedValue(undefined);
     storeState.setActiveStream.mockResolvedValue(undefined);
@@ -223,6 +241,54 @@ describe("persistent agent runtime", () => {
       ]),
       visitorId: "visitor-123",
     });
+  });
+
+  it("replays a persisted user turn when regenerating a failed assistant response", async () => {
+    const { handlePersistentAgentChatRequest } = await importRuntimeModule();
+    const userMessage = createUserMessage();
+    const assistantMessage = createAssistantMessage();
+
+    storeState.loadChatSession.mockResolvedValue({
+      chat: {
+        activeStreamId: null,
+        createdAt: "2026-05-25T00:00:00.000Z",
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        title: "Retry test",
+        updatedAt: "2026-05-25T00:00:00.000Z",
+        visitorId: "visitor-123",
+      },
+      messages: [userMessage, assistantMessage],
+    });
+
+    const response = await handlePersistentAgentChatRequest(
+      new Request("http://localhost/api/demos/persistent-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: userMessage,
+          messageId: assistantMessage.id,
+          trigger: "regenerate-message",
+        }),
+        method: "POST",
+      }),
+      {
+        visitorId: "visitor-123",
+      },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(storeState.deleteMessagesAfterMessage).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
+      messageId: userMessage.id,
+      visitorId: "visitor-123",
+    });
+    expect(aiMockState.responseOptions?.originalMessages).toEqual([
+      userMessage,
+    ]);
   });
 
   it("reuses a module-level resumable stream context across chat turns", async () => {

@@ -43,6 +43,10 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
 import type { UltraChatbotAgentCapabilities } from "../server/capabilities";
 import type {
@@ -374,6 +378,7 @@ export function UltraChatbotAgentWorkspace({
 
   const {
     addToolApprovalResponse,
+    clearError,
     error,
     messages,
     regenerate,
@@ -393,16 +398,27 @@ export function UltraChatbotAgentWorkspace({
         api: `/api/demos/ultra-chatbot-agent/${id}/stream`,
         credentials: "include",
       }),
-      prepareSendMessagesRequest: ({ id, messages: nextMessages }) => ({
+      prepareSendMessagesRequest: ({
+        id,
+        messageId,
+        messages: nextMessages,
+        trigger,
+      }) => ({
         body: {
           id,
           message: nextMessages.at(-1),
+          messageId,
           selectedChatModel: selectedChatModelRef.current,
           selectedVisibilityType: selectedVisibilityRef.current,
+          trigger,
         },
       }),
     }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+  });
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
   });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
@@ -765,11 +781,6 @@ export function UltraChatbotAgentWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
         {editError ? (
           <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
             {editError}
@@ -813,43 +824,54 @@ export function UltraChatbotAgentWorkspace({
 
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              <UltraChatbotAgentMessages
-                chatId={chatMeta.id}
-                editingMessageId={editingMessageId}
-                editingRetainedFileUrls={editingRetainedFileUrls}
-                editingText={editingText}
-                isBusy={isBusy}
-                isSandboxUpdating={isSandboxUpdating}
-                messages={messages}
-                onArtifactOpen={openArtifact}
-                onCancelEdit={() => {
-                  setEditingMessageId(null);
-                  setEditingRetainedFileUrls([]);
-                  setEditingText("");
-                  setEditError(null);
-                }}
-                onEditTextChange={setEditingText}
-                onRemoveEditingFile={(url) =>
-                  setEditingRetainedFileUrls((current) =>
-                    current.filter((currentUrl) => currentUrl !== url)
-                  )
-                }
-                onSandboxApprovalResponse={handleSandboxApprovalResponse}
-                onSaveEdit={handleSaveEdit}
-                onStartEdit={({ messageId, retainedFileUrls, text }) => {
-                  setEditingMessageId(messageId);
-                  setEditingRetainedFileUrls(retainedFileUrls);
-                  setEditingText(text);
-                  setEditError(null);
-                }}
-                onVote={handleVote}
-                pendingVote={pendingVote}
-                showResumeThinking={showResumeThinking}
-                showThinking={showThinking}
-                status={status}
-                votesByMessageId={votesByMessageId}
-              />
+            {hasMessages || error ? (
+              <>
+                {hasMessages ? (
+                  <UltraChatbotAgentMessages
+                    chatId={chatMeta.id}
+                    editingMessageId={editingMessageId}
+                    editingRetainedFileUrls={editingRetainedFileUrls}
+                    editingText={editingText}
+                    isBusy={isBusy}
+                    isSandboxUpdating={isSandboxUpdating}
+                    messages={messages}
+                    onArtifactOpen={openArtifact}
+                    onCancelEdit={() => {
+                      setEditingMessageId(null);
+                      setEditingRetainedFileUrls([]);
+                      setEditingText("");
+                      setEditError(null);
+                    }}
+                    onEditTextChange={setEditingText}
+                    onRemoveEditingFile={(url) =>
+                      setEditingRetainedFileUrls((current) =>
+                        current.filter((currentUrl) => currentUrl !== url)
+                      )
+                    }
+                    onSandboxApprovalResponse={handleSandboxApprovalResponse}
+                    onSaveEdit={handleSaveEdit}
+                    onStartEdit={({ messageId, retainedFileUrls, text }) => {
+                      setEditingMessageId(messageId);
+                      setEditingRetainedFileUrls(retainedFileUrls);
+                      setEditingText(text);
+                      setEditError(null);
+                    }}
+                    onVote={handleVote}
+                    pendingVote={pendingVote}
+                    showResumeThinking={showResumeThinking}
+                    showThinking={showThinking}
+                    status={status}
+                    votesByMessageId={votesByMessageId}
+                  />
+                ) : null}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <div className="flex size-full flex-col items-center justify-center gap-6 py-12">
                 <ConversationEmptyState

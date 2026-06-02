@@ -47,6 +47,9 @@ updateAt: 2026-06-01
 - `resume: true` is enabled only when the stored chat still has an `activeStreamId`.
 - Resume support depends on Redis via `resumable-stream`, so `REDIS_URL` is part of the setup contract for this demo.
 - Reuse one module-level resumable-stream context and wire it to `after`. Recreating Redis clients per request adds enough latency to miss the refresh-resume window.
+- `prepareSendMessagesRequest` passes AI SDK `trigger` and `messageId` alongside the last user message. Retry uses `trigger: "regenerate-message"` to replay from the persisted user turn rather than appending a duplicate user message to the model history.
+- A failed assistant generation may leave a persisted user message as the tail row. The retry path treats that as the canonical replay point, clears stale stream state through the existing store writes, and persists the assistant response only after stream finish.
+- Chat send errors render through the shared Conversation Error Message Module inside the visible conversation. That transient error row is not stored in `persistent_agent_messages`.
 
 ## Cleanup Contract
 

@@ -14,6 +14,10 @@ import { createResumableStreamContext } from "resumable-stream/ioredis";
 
 import { env as appEnv } from "@/env";
 import { getAiGatewaySetupState } from "@/features/shared/ai-gateway/server/env";
+import {
+  prepareRouteBackedChatReplay,
+  type RouteBackedChatRequestTrigger,
+} from "@/features/shared/chat/server/route-backed-chat-replay";
 import { getDatabaseSetupState } from "@/features/shared/database/server/env";
 
 import {
@@ -57,8 +61,10 @@ type DemoEnv = Record<string, string | undefined>;
 interface UltraChatbotAgentRequestBody {
   id?: string;
   message?: UIMessage;
+  messageId?: string;
   selectedChatModel?: string;
   selectedVisibilityType?: "private" | "public";
+  trigger?: RouteBackedChatRequestTrigger;
 }
 
 export interface UltraChatbotAgentRuntimeState {
@@ -109,17 +115,27 @@ export function getUltraChatbotAgentRuntimeState(
 }
 
 function readRequestBody(body: unknown) {
-  const { id, message, selectedChatModel, selectedVisibilityType } = (body ??
-    {}) as UltraChatbotAgentRequestBody;
+  const {
+    id,
+    message,
+    messageId,
+    selectedChatModel,
+    selectedVisibilityType,
+    trigger,
+  } = (body ?? {}) as UltraChatbotAgentRequestBody;
 
   if (
     typeof id !== "string" ||
     id.trim().length === 0 ||
     !message ||
     typeof message !== "object" ||
+    (messageId !== undefined && typeof messageId !== "string") ||
     typeof selectedChatModel !== "string" ||
     (selectedVisibilityType !== "private" &&
-      selectedVisibilityType !== "public")
+      selectedVisibilityType !== "public") ||
+    (trigger !== undefined &&
+      trigger !== "submit-message" &&
+      trigger !== "regenerate-message")
   ) {
     throw new Error(invalidRequestBodyError);
   }
@@ -127,8 +143,13 @@ function readRequestBody(body: unknown) {
   return {
     id: id.trim(),
     message,
+    messageId:
+      typeof messageId === "string" && messageId.trim().length > 0
+        ? messageId.trim()
+        : undefined,
     selectedChatModel,
     selectedVisibilityType,
+    trigger,
   };
 }
 
@@ -182,6 +203,32 @@ function getStreamContext(env: DemoEnv) {
   return ultraChatbotAgentStreamContext;
 }
 
+async function saveUltraChatbotAgentReplayStart(input: {
+  chatId: string;
+  message: UIMessage;
+  replay: ReturnType<typeof prepareRouteBackedChatReplay>;
+  selectedChatModel: string;
+  selectedVisibilityType: "private" | "public";
+  store: ReturnType<typeof createUltraChatbotAgentChatStore>;
+  visitorId: string;
+}) {
+  if (input.replay.trimAfterMessageId) {
+    await input.store.deleteMessagesAfterMessage({
+      chatId: input.chatId,
+      messageId: input.replay.trimAfterMessageId,
+      visitorId: input.visitorId,
+    });
+  }
+
+  await input.store.saveIncomingUserMessage({
+    chatId: input.chatId,
+    message: input.message,
+    selectedChatModel: input.selectedChatModel,
+    selectedVisibilityType: input.selectedVisibilityType,
+    visitorId: input.visitorId,
+  });
+}
+
 export async function handleUltraChatbotAgentChatRequest(
   request: Request,
   viewer: { visitorId: string },
@@ -214,8 +261,10 @@ export async function handleUltraChatbotAgentChatRequest(
   let input: {
     id: string;
     message: UIMessage;
+    messageId?: string;
     selectedChatModel: string;
     selectedVisibilityType: "private" | "public";
+    trigger?: RouteBackedChatRequestTrigger;
   };
 
   try {
@@ -254,18 +303,24 @@ export async function handleUltraChatbotAgentChatRequest(
   const capabilities =
     existingSession?.chat.capabilities ??
     getUltraChatbotAgentDefaultCapabilities();
-  const originalMessages = existingSession
-    ? [...existingSession.messages, input.message]
-    : [input.message];
+  const replay = prepareRouteBackedChatReplay({
+    incomingMessage: input.message,
+    messageId: input.messageId,
+    persistedMessages: existingSession?.messages ?? [],
+    trigger: input.trigger,
+  });
+  const originalMessages = replay.messages;
   const replayableMessages =
     projectUltraChatbotAgentHistoryForModel(originalMessages);
 
   try {
-    await store.saveIncomingUserMessage({
+    await saveUltraChatbotAgentReplayStart({
       chatId: input.id,
       message: input.message,
+      replay,
       selectedChatModel: input.selectedChatModel,
       selectedVisibilityType: input.selectedVisibilityType,
+      store,
       visitorId: viewer.visitorId,
     });
   } catch (error) {

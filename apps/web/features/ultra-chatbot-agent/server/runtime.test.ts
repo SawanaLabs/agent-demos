@@ -33,6 +33,7 @@ const resumableStreamState = vi.hoisted(() => ({
 }));
 
 const storeState = vi.hoisted(() => ({
+  deleteMessagesAfterMessage: vi.fn(),
   listChatsForVisitor: vi.fn(),
   loadChatSession: vi.fn(),
   saveFinishedMessages: vi.fn(),
@@ -233,6 +234,19 @@ function createAssistantSearchMessage(): UIMessage {
   };
 }
 
+function createAssistantMessage(): UIMessage {
+  return {
+    id: "assistant-1",
+    parts: [
+      {
+        text: "Artifacts can evolve beside the route-backed conversation.",
+        type: "text",
+      },
+    ],
+    role: "assistant",
+  };
+}
+
 describe("ultra chatbot agent runtime", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -243,6 +257,7 @@ describe("ultra chatbot agent runtime", () => {
     redisState.Redis.mockReset();
     resumableStreamState.createNewResumableStream.mockReset();
     resumableStreamState.resumeExistingStream.mockReset();
+    storeState.deleteMessagesAfterMessage.mockReset();
     storeState.listChatsForVisitor.mockReset();
     storeState.loadChatSession.mockReset();
     storeState.saveFinishedMessages.mockReset();
@@ -275,6 +290,9 @@ describe("ultra chatbot agent runtime", () => {
       this.stream = aiMockState.stream;
     });
     storeState.loadChatSession.mockResolvedValue(null);
+    storeState.deleteMessagesAfterMessage.mockResolvedValue({
+      deletedCount: 0,
+    });
     storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
     storeState.saveFinishedMessages.mockResolvedValue(undefined);
     storeState.setActiveStream.mockResolvedValue(undefined);
@@ -713,6 +731,59 @@ describe("ultra chatbot agent runtime", () => {
     );
     expect(JSON.stringify(assistantMessage)).not.toContain("tool-web_search");
     expect(JSON.stringify(assistantMessage)).not.toContain("source-url");
+  });
+
+  it("replays a persisted user turn when regenerating a failed assistant response", async () => {
+    const { handleUltraChatbotAgentChatRequest } = await importRuntimeModule();
+    const userMessage = createUserMessage();
+    const assistantMessage = createAssistantMessage();
+
+    storeState.loadChatSession.mockResolvedValue({
+      chat: {
+        activeStreamId: null,
+        capabilities: {
+          sandboxEnabled: false,
+        },
+        createdAt: new Date("2026-05-27T00:00:00.000Z"),
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        selectedChatModel: "openai/gpt-4.1-mini",
+        title: "Retry test",
+        updatedAt: new Date("2026-05-27T00:00:00.000Z"),
+        visibility: "private",
+        visitorId: "visitor-123",
+      },
+      messages: [userMessage, assistantMessage],
+    });
+
+    const response = await handleUltraChatbotAgentChatRequest(
+      new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+        body: JSON.stringify({
+          id: "7dad003a-e507-448b-ac02-10937a0290da",
+          message: userMessage,
+          messageId: assistantMessage.id,
+          selectedChatModel: "openai/gpt-4.1-mini",
+          selectedVisibilityType: "private",
+          trigger: "regenerate-message",
+        }),
+        method: "POST",
+      }),
+      { visitorId: "visitor-123" },
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+        DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+        REDIS_URL: "redis://localhost:6379",
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(storeState.deleteMessagesAfterMessage).toHaveBeenCalledWith({
+      chatId: "7dad003a-e507-448b-ac02-10937a0290da",
+      messageId: userMessage.id,
+      visitorId: "visitor-123",
+    });
+    expect(aiMockState.responseOptions?.originalMessages).toEqual([
+      userMessage,
+    ]);
   });
 
   it("exposes sandbox-backed tools after sandbox is already enabled", async () => {

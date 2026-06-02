@@ -10,6 +10,10 @@ import Redis from "ioredis";
 import { after } from "next/dist/server/after";
 import { createResumableStreamContext } from "resumable-stream/ioredis";
 import {
+  prepareRouteBackedChatReplay,
+  type RouteBackedChatRequestTrigger,
+} from "@/features/shared/chat/server/route-backed-chat-replay";
+import {
   createPersistentAgentChatStore,
   getPersistentAgentChatNotFoundError,
   persistentAgentCleanupCronScheduleUtc,
@@ -36,6 +40,8 @@ const persistentAgentSystemPrompt = [
 interface PersistentAgentRequestBody {
   id?: string;
   message?: UIMessage;
+  messageId?: string;
+  trigger?: RouteBackedChatRequestTrigger;
 }
 
 export interface PersistentAgentRuntimeState {
@@ -67,13 +73,18 @@ export function getPersistentAgentRuntimeState(
 }
 
 function readRequestBody(body: unknown) {
-  const { id, message } = (body ?? {}) as PersistentAgentRequestBody;
+  const { id, message, messageId, trigger } = (body ??
+    {}) as PersistentAgentRequestBody;
 
   if (
     typeof id !== "string" ||
     id.trim().length === 0 ||
     !message ||
-    typeof message !== "object"
+    typeof message !== "object" ||
+    (messageId !== undefined && typeof messageId !== "string") ||
+    (trigger !== undefined &&
+      trigger !== "submit-message" &&
+      trigger !== "regenerate-message")
   ) {
     throw new Error(invalidRequestBodyError);
   }
@@ -81,6 +92,11 @@ function readRequestBody(body: unknown) {
   return {
     id: id.trim(),
     message,
+    messageId:
+      typeof messageId === "string" && messageId.trim().length > 0
+        ? messageId.trim()
+        : undefined,
+    trigger,
   };
 }
 
@@ -143,7 +159,12 @@ export async function handlePersistentAgentChatRequest(
     );
   }
 
-  let input: { id: string; message: UIMessage };
+  let input: {
+    id: string;
+    message: UIMessage;
+    messageId?: string;
+    trigger?: RouteBackedChatRequestTrigger;
+  };
 
   try {
     input = readRequestBody(body);
@@ -165,11 +186,23 @@ export async function handlePersistentAgentChatRequest(
     input.id,
     viewer.visitorId
   );
-  const originalMessages = existingSession
-    ? [...existingSession.messages, input.message]
-    : [input.message];
+  const replay = prepareRouteBackedChatReplay({
+    incomingMessage: input.message,
+    messageId: input.messageId,
+    persistedMessages: existingSession?.messages ?? [],
+    trigger: input.trigger,
+  });
+  const originalMessages = replay.messages;
 
   try {
+    if (replay.trimAfterMessageId) {
+      await store.deleteMessagesAfterMessage({
+        chatId: input.id,
+        messageId: replay.trimAfterMessageId,
+        visitorId: viewer.visitorId,
+      });
+    }
+
     await store.saveIncomingUserMessage({
       chatId: input.id,
       message: input.message,

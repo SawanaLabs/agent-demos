@@ -1,5 +1,5 @@
 import type { UIMessage } from "ai";
-import { and, asc, desc, eq, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 
 const maxPersistentAgentTitleLength = 72;
 
@@ -320,6 +320,63 @@ export function createPersistentAgentChatStore() {
       if (rows.length === 0) {
         throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
       }
+    },
+    async deleteMessagesAfterMessage(input: {
+      chatId: string;
+      messageId: string;
+      visitorId: string;
+    }) {
+      const { database, persistentAgentChats, persistentAgentMessages } =
+        await loadPersistentAgentDatabase();
+
+      const [targetMessage] = await database
+        .select({
+          createdAt: persistentAgentMessages.createdAt,
+        })
+        .from(persistentAgentMessages)
+        .innerJoin(
+          persistentAgentChats,
+          eq(persistentAgentMessages.chatId, persistentAgentChats.id)
+        )
+        .where(
+          and(
+            eq(persistentAgentMessages.chatId, input.chatId),
+            eq(persistentAgentMessages.messageId, input.messageId),
+            eq(persistentAgentChats.visitorId, input.visitorId)
+          )
+        )
+        .limit(1);
+
+      if (!targetMessage) {
+        throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
+      }
+
+      const deletedRows = await database
+        .delete(persistentAgentMessages)
+        .where(
+          and(
+            eq(persistentAgentMessages.chatId, input.chatId),
+            gt(persistentAgentMessages.createdAt, targetMessage.createdAt)
+          )
+        )
+        .returning({ messageId: persistentAgentMessages.messageId });
+
+      await database
+        .update(persistentAgentChats)
+        .set({
+          activeStreamId: null,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(persistentAgentChats.id, input.chatId),
+            eq(persistentAgentChats.visitorId, input.visitorId)
+          )
+        );
+
+      return {
+        deletedCount: deletedRows.length,
+      };
     },
     async cleanupExpiredChats(input?: { now?: Date }) {
       const { database, persistentAgentChats } =

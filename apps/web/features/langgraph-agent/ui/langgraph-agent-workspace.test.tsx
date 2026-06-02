@@ -6,12 +6,13 @@ import { LangGraphAgentWorkspace } from "./langgraph-agent-workspace";
 import type { LangGraphAgentMessage } from "./use-langgraph-agent";
 
 interface LangGraphAgentChatState {
+  clearError: () => void;
   error: Error | null;
   graphEvents: [];
   hasMessages: boolean;
   isBusy: boolean;
   messages: LangGraphAgentMessage[];
-  regenerate: () => void;
+  regenerate: () => Promise<void>;
   sendMessage: (message: { text: string }) => void;
   startNewThread: () => void;
   status: "ready";
@@ -21,12 +22,13 @@ interface LangGraphAgentChatState {
 
 const chatState = vi.hoisted(() => ({
   current: {
+    clearError: () => undefined,
     error: null,
     graphEvents: [],
     hasMessages: false,
     isBusy: false,
     messages: [],
-    regenerate: () => undefined,
+    regenerate: async () => undefined,
     sendMessage: () => undefined,
     startNewThread: () => undefined,
     status: "ready",
@@ -74,12 +76,13 @@ function expectButtonDisabled(markup: string, text: string) {
 describe("langgraph-agent workspace UI", () => {
   beforeEach(() => {
     chatState.current = {
+      clearError: () => undefined,
       error: null,
       graphEvents: [],
       hasMessages: false,
       isBusy: false,
       messages: [],
-      regenerate: () => undefined,
+      regenerate: async () => undefined,
       sendMessage: () => undefined,
       startNewThread: () => undefined,
       status: "ready",
@@ -121,5 +124,26 @@ describe("langgraph-agent workspace UI", () => {
     const markup = createWorkspaceMarkup();
 
     expectButtonDisabled(markup, "Retry");
+  });
+
+  it("renders chat errors as assistant-side conversation error messages", () => {
+    chatState.current = {
+      ...chatState.current,
+      error: new Error("LangGraph API returned an empty 500 response."),
+      hasMessages: true,
+      messages: [
+        {
+          id: "message-1",
+          metadata: undefined,
+          parts: [{ text: "Plan the handoff.", type: "text" }],
+          role: "user",
+        } satisfies LangGraphAgentMessage,
+      ],
+    };
+
+    const markup = createWorkspaceMarkup();
+
+    expect(markup).toContain("Assistant response failed");
+    expect(markup).toContain("LangGraph API returned an empty 500 response.");
   });
 });

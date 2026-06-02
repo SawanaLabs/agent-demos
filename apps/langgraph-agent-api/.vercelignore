@@ -3,6 +3,15 @@
 .langgraph_api
 .pytest_cache
 .venv
+.vercel
 __pycache__
 *.pyc
 tests
+
+# Keep the FastAPI deployment from being classified as the root pnpm/Turbo workspace.
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+turbo.json
+apps/web
+packages

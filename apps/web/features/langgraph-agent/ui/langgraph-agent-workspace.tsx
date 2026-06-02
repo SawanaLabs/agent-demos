@@ -37,6 +37,10 @@ import {
   SquareIcon,
 } from "lucide-react";
 
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import type { LangGraphProgressData } from "../server/stream-normalizer";
 import { getLangGraphThinkingText } from "./langgraph-agent-message-parts";
 import {
@@ -221,6 +225,7 @@ export function LangGraphAgentWorkspace({
   setupMessage,
 }: LangGraphAgentWorkspaceProps) {
   const {
+    clearError,
     error,
     graphEvents,
     hasMessages,
@@ -233,6 +238,10 @@ export function LangGraphAgentWorkspace({
     stop,
     threadId,
   } = useLangGraphAgent();
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const canStartChatTurn = isChatAvailable && !isBusy;
   const emptyStateDescription = isChatAvailable
     ? "Ask the remote LangGraph agent to explain, plan, or validate a product-agent integration path."
@@ -269,52 +278,54 @@ export function LangGraphAgentWorkspace({
           </>
         )}
 
-        {error ? (
-          <>
-            <div className="px-4 py-3 text-destructive text-xs/relaxed">
-              {error.message}
-            </div>
-            <Separator />
-          </>
-        ) : null}
-
         <Conversation>
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message, index) => {
-                const text = getTextContent(message);
-                let messageBody = (
-                  <p className="text-muted-foreground text-sm">
-                    Waiting for LangGraph output.
-                  </p>
-                );
-
-                if (message.role === "assistant") {
-                  messageBody = (
-                    <LangGraphAssistantTrace
-                      events={graphEvents}
-                      isLastMessage={index === messages.length - 1}
-                      isStreaming={isBusy}
-                      message={message}
-                    />
+            {hasMessages || error ? (
+              <>
+                {messages.map((message, index) => {
+                  const text = getTextContent(message);
+                  let messageBody = (
+                    <p className="text-muted-foreground text-sm">
+                      Waiting for LangGraph output.
+                    </p>
                   );
-                } else if (text) {
-                  messageBody = <MessageResponse>{text}</MessageResponse>;
-                }
 
-                return (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent
-                      className={cn(
-                        "space-y-4",
-                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                      )}
-                    >
-                      {messageBody}
-                    </MessageContent>
-                  </Message>
-                );
-              })
+                  if (message.role === "assistant") {
+                    messageBody = (
+                      <LangGraphAssistantTrace
+                        events={graphEvents}
+                        isLastMessage={index === messages.length - 1}
+                        isStreaming={isBusy}
+                        message={message}
+                      />
+                    );
+                  } else if (text) {
+                    messageBody = <MessageResponse>{text}</MessageResponse>;
+                  }
+
+                  return (
+                    <Message from={message.role} key={message.id}>
+                      <MessageContent
+                        className={cn(
+                          "space-y-4",
+                          message.role === "assistant"
+                            ? "max-w-3xl"
+                            : "max-w-2xl"
+                        )}
+                      >
+                        {messageBody}
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy || !isChatAvailable}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description={emptyStateDescription}

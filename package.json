@@ -25,6 +25,7 @@
     "dev:langchain-agent": "pnpm dev:langgraph-agent",
     "lint": "ultracite check",
     "format": "ultracite fix",
+    "preprod:langgraph-agent-api": "apps/langgraph-agent-api/scripts/preprod-vercel-build.sh",
     "registry:build": "pnpm registry:sync:check && pnpm registry:catalog:check && pnpm registry:generate && node scripts/registry/export-public-registry.mjs --clean-output && pnpm --dir packages/ui exec shadcn build registry.json -o apps/web/public/r -c ../.. && pnpm registry:public:format",
     "registry:catalog:check": "node --test apps/web/features/demo-catalog/registry-availability.test.mjs",
     "registry:check": "pnpm registry:sync:check && pnpm registry:catalog:check && node scripts/registry/export-public-registry.mjs --check && pnpm registry:public:check",

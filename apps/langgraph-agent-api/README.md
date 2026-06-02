@@ -79,6 +79,37 @@ project is `agent-demos-langgraph-agent-api` at:
 https://agent-demos-langgraph-agent-api.vercel.app
 ```
 
+Keep `pyproject.toml` and `uv.lock` as the dependency source of truth. The
+Vercel project config pins the install step to:
+
+```bash
+if [ -d apps/langgraph-agent-api ]; then cd apps/langgraph-agent-api; fi; uv sync --active --frozen --no-dev
+```
+
+It also runs a uv-backed build smoke check:
+
+```bash
+if [ -d apps/langgraph-agent-api ]; then cd apps/langgraph-agent-api; fi; uv run --active --frozen --no-dev python -c 'from app import app'
+```
+
+Do not add a generated `requirements.txt` for this deployment path. Keep the
+`.vercelignore` entries that exclude the root pnpm/Turbo workspace files;
+otherwise Vercel can classify this FastAPI project as the monorepo workspace and
+skip the Python dependency install.
+
+For local PREPROD verification, run this from the repository root:
+
+```bash
+pnpm preprod:langgraph-agent-api
+```
+
+The script runs `uv python install/find` for the version in `.python-version`,
+exports that uv-managed Python directory into `PATH`, and then delegates to
+`vercel build --prod --yes`. This matters because Vercel's local Python builder
+spawns `python3.12` before the project install command runs. A uv-managed Python
+can exist on disk while still being invisible to that subprocess unless its bin
+directory is present in `PATH`.
+
 The required API project environment variables are:
 
 ```bash

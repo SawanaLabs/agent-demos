@@ -1,4 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "fastapi"
+  "buildCommand": "if [ -d apps/langgraph-agent-api ]; then cd apps/langgraph-agent-api; fi; uv run --active --frozen --no-dev python -c 'from app import app'",
+  "framework": "fastapi",
+  "installCommand": "if [ -d apps/langgraph-agent-api ]; then cd apps/langgraph-agent-api; fi; uv sync --active --frozen --no-dev"
 }

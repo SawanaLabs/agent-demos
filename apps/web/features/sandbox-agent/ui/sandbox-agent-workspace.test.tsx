@@ -2,6 +2,7 @@ import {
   WebPreview,
   WebPreviewConsole,
 } from "@workspace/ui/components/ai-elements/web-preview";
+import { Tabs } from "@workspace/ui/components/tabs";
 import type { UIMessage } from "ai";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -15,6 +16,7 @@ import {
   parsePreviewStatus,
   sanitizePreviewText,
 } from "./preview-state";
+import { SandboxConversationPane } from "./sandbox-conversation-pane";
 
 function createAssistantMessage(parts: UIMessage["parts"]): UIMessage {
   return {
@@ -162,5 +164,36 @@ describe("sandbox-agent workspace UI", () => {
     );
 
     expect(markup).not.toContain("rotate-180");
+  });
+
+  it("disables sample prompts when sandbox chat setup is unavailable", () => {
+    const samplePrompt =
+      "Build a pricing landing page with an interactive calculator and start a live preview.";
+    const markup = renderToStaticMarkup(
+      createElement(
+        Tabs,
+        { value: "conversation" },
+        createElement(SandboxConversationPane, {
+          chatModel: "openai/gpt-5-mini",
+          hasMessages: false,
+          isBusy: false,
+          isChatAvailable: false,
+          messages: [],
+          onOpenPreview: () => undefined,
+          onRegenerate: () => undefined,
+          onSendMessage: () => undefined,
+          onStop: () => undefined,
+          samplePrompts: [samplePrompt],
+          status: "ready",
+        })
+      )
+    );
+    const promptIndex = markup.indexOf(samplePrompt);
+    const buttonStart = markup.lastIndexOf("<button", promptIndex);
+    const buttonEnd = markup.indexOf(">", buttonStart);
+    const sampleButtonOpeningTag = markup.slice(buttonStart, buttonEnd + 1);
+
+    expect(promptIndex).toBeGreaterThan(-1);
+    expect(sampleButtonOpeningTag).toMatch(/\sdisabled(?:=""|="true"|(?=\s|>))/);
   });
 });

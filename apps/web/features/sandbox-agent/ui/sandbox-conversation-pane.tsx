@@ -145,6 +145,7 @@ export function SandboxConversationPane({
               <div className="mt-3 flex flex-wrap gap-2">
                 {samplePrompts.map((prompt) => (
                   <Button
+                    disabled={!isChatAvailable || isBusy}
                     key={prompt}
                     onClick={() => onSendMessage(prompt)}
                     size="sm"

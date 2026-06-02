@@ -38,6 +38,7 @@ updateAt: 2026-06-01
 - When a sandbox preview URL has already stopped or returns a non-OK status, surface that state explicitly inside the `Preview` tab instead of leaving a blank iframe.
 - Keep the conversation tab free of inline iframes; preview affordances there should switch into the `Preview` tab.
 - Keep the prompt composer only in the `Conversation` tab. The `Preview` tab should stay focused on the preview surface itself.
+- When sandbox-agent setup is unavailable, disable every message entry path, including sample prompt buttons. Sample prompts must not bypass the disabled composer and spend a doomed sandbox/model request.
 - Keep the runtime panel focused on configured tools, preview contract, and sandbox provider state.
 - Keep the workspace aligned with the repository's default React split: `sandbox-agent-workspace.tsx` stays thin, stateful orchestration lives in custom hooks, and preview/message derivation lives in helper modules.
 

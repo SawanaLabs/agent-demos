@@ -1,6 +1,18 @@
-# AI SDK 6 AI Elements Demos
+# Agent Demos
 
 This context defines the product language for a demo collection that showcases full-stack agent patterns and keeps each example portable for reuse in compatible projects.
+
+## Project Wish
+
+This repository should feel like a place where builders and agents can do serious work with unusually low friction.
+
+We are building Agent Demos so that a developer, a future PR author, or a developer-directed coding agent can read the repository, understand the project language, install or copy an **Agent Demo**, and keep moving without guessing which stack, files, or setup steps matter.
+
+The experience we are aiming for is ambitious: a developer should be able to hand our registry guide to their own coding agent, let it research, scaffold, install, verify, and guide the few human-only setup steps, then end with a production-capable AI starter that can be deployed under their domain and extended with new business modules or additional **Agent Demos**.
+
+That means this codebase should be pleasant for both humans and agents: coherent modules, obvious copy boundaries, explicit contracts, visible runtime state, useful errors, and docs that help experienced developers move faster while giving first-time builders a path their agent can safely lead.
+
+When tradeoffs are unclear, favor the path that makes the next competent agent more autonomous and the next developer more confident to invest in this codebase.
 
 ## Language
 

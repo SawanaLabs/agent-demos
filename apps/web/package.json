@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "cd ../.. && ultracite check",
     "format": "cd ../.. && ultracite fix",
+    "test:integration": "set -a; [ ! -f ../../.env ] || . ../../.env; [ ! -f ../../.env.local ] || . ../../.env.local; [ ! -f ../../.env.development.local ] || . ../../.env.development.local; [ ! -f .env.local ] || . ./.env.local; [ ! -f .env.development.local ] || . ./.env.development.local; set +a; vitest run --config vitest.integration.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

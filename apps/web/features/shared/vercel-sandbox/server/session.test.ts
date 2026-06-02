@@ -1,8 +1,15 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { Sandbox } from "@vercel/sandbox";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  assertVercelSandboxIntegrationReady,
+  getVercelSandboxSetupState,
+  type VercelSandboxEnv,
+} from "./env";
+import {
+  createVercelSandbox,
   createVercelSandboxSessionRegistry,
   VERCEL_SANDBOX_AGENTS_FILE,
   VERCEL_SANDBOX_PROJECT_ROOT,
@@ -135,5 +142,77 @@ describe("vercel sandbox session registry", () => {
 
     expect(bootstrapCalls).toEqual(["chat-1"]);
     expect(sandboxes).toHaveLength(1);
+  });
+});
+
+describe("vercel sandbox factory", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("lets integration tests create non-persistent low-resource sandboxes", async () => {
+    const sandbox = new FakeSandbox();
+    const getSpy = vi
+      .spyOn(Sandbox, "get")
+      .mockRejectedValueOnce(new Error("sandbox not found"));
+    const createSpy = vi
+      .spyOn(Sandbox, "create")
+      .mockResolvedValueOnce(sandbox as never);
+
+    await expect(
+      createVercelSandbox(
+        "skills-agent-it-123",
+        { VERCEL_OIDC_TOKEN: "oidc-token" },
+        {
+          persistent: false,
+          resources: { vcpus: 1 },
+          tags: { feature: "skills-agent", suite: "integration" },
+          timeout: 120_000,
+        }
+      )
+    ).resolves.toBe(sandbox);
+
+    expect(getSpy).toHaveBeenCalledWith({ name: "skills-agent-it-123" });
+    expect(createSpy).toHaveBeenCalledWith({
+      name: "skills-agent-it-123",
+      persistent: false,
+      resources: { vcpus: 1 },
+      runtime: "node24",
+      tags: { feature: "skills-agent", suite: "integration" },
+      timeout: 120_000,
+    });
+  });
+});
+
+describe("vercel sandbox integration env", () => {
+  const readyEnv = {
+    VERCEL_OIDC_TOKEN: "oidc-token",
+    VERCEL_SANDBOX_INTEGRATION: "1",
+  } satisfies VercelSandboxEnv;
+
+  it("requires an explicit opt-in flag before real provider-backed tests run", () => {
+    expect(() =>
+      assertVercelSandboxIntegrationReady({
+        VERCEL_OIDC_TOKEN: "oidc-token",
+      })
+    ).toThrow(
+      "Set VERCEL_SANDBOX_INTEGRATION=1 to run real provider-backed tests."
+    );
+    expect(assertVercelSandboxIntegrationReady(readyEnv)).toMatchObject({
+      authMode: "oidc",
+      isReady: true,
+    });
+  });
+
+  it("keeps setup-state credential validation independent from the integration opt-in", () => {
+    expect(getVercelSandboxSetupState(readyEnv)).toMatchObject({
+      authMode: "oidc",
+      isReady: true,
+    });
+    expect(() =>
+      assertVercelSandboxIntegrationReady({
+        VERCEL_SANDBOX_INTEGRATION: "1",
+      })
+    ).toThrow("Vercel Sandbox credentials are missing.");
   });
 });

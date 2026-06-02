@@ -3,6 +3,7 @@ import { env as appEnv } from "@/env";
 export interface VercelSandboxEnv {
   VERCEL_OIDC_TOKEN?: string;
   VERCEL_PROJECT_ID?: string;
+  VERCEL_SANDBOX_INTEGRATION?: string;
   VERCEL_TEAM_ID?: string;
   VERCEL_TOKEN?: string;
 }
@@ -71,4 +72,22 @@ export function getVercelSandboxSetupState(
     providerLabel: "Vercel Sandbox",
     runtime: "node24",
   };
+}
+
+export function assertVercelSandboxIntegrationReady(
+  env: VercelSandboxEnv = appEnv
+) {
+  if (env.VERCEL_SANDBOX_INTEGRATION !== "1") {
+    throw new Error(
+      "Vercel Sandbox integration tests are disabled. Set VERCEL_SANDBOX_INTEGRATION=1 to run real provider-backed tests."
+    );
+  }
+
+  const setupState = getVercelSandboxSetupState(env);
+
+  if (!setupState.isReady) {
+    throw new Error(setupState.issues.join(" "));
+  }
+
+  return setupState;
 }

@@ -40,6 +40,7 @@ interface SandboxFs {
 }
 
 export interface VercelSandboxHandle {
+  delete?(options?: { signal?: AbortSignal }): Promise<unknown>;
   fs: SandboxFs;
   runCommand(options: {
     args: string[];
@@ -58,6 +59,16 @@ export interface VercelSandboxHandle {
 export type VercelSandboxFactory = (
   sessionId: string
 ) => Promise<VercelSandboxHandle>;
+
+export interface VercelSandboxCreateOptions {
+  persistent?: boolean;
+  ports?: number[];
+  resources?: {
+    vcpus: number;
+  };
+  tags?: Record<string, string>;
+  timeout?: number;
+}
 
 export interface VercelSandboxSession {
   readonly artifactsRoot: string;
@@ -102,9 +113,7 @@ interface SessionEntry {
 export async function createVercelSandbox(
   sessionId: string,
   env: VercelSandboxEnv = appEnv,
-  options: {
-    ports?: number[];
-  } = {}
+  options: VercelSandboxCreateOptions = {}
 ): Promise<VercelSandboxHandle> {
   const setupState = getVercelSandboxSetupState(env);
 
@@ -112,13 +121,34 @@ export async function createVercelSandbox(
     throw new Error(setupState.issues.join(" "));
   }
 
-  const baseOptions = {
+  const baseOptions: {
+    name: string;
+    persistent: boolean;
+    ports?: number[];
+    resources?: {
+      vcpus: number;
+    };
+    runtime: typeof setupState.runtime;
+    tags?: Record<string, string>;
+    timeout: number;
+  } = {
     name: sessionId,
-    persistent: true,
-    ports: options.ports,
+    persistent: options.persistent ?? true,
     runtime: setupState.runtime,
-    timeout: 300_000,
+    timeout: options.timeout ?? 300_000,
   };
+
+  if (options.ports) {
+    baseOptions.ports = options.ports;
+  }
+
+  if (options.resources) {
+    baseOptions.resources = options.resources;
+  }
+
+  if (options.tags) {
+    baseOptions.tags = options.tags;
+  }
 
   if (setupState.authMode === "oidc") {
     try {

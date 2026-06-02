@@ -1,7 +1,7 @@
 ---
 title: Environment Config
 description: Durable rules for environment-variable contracts, env modules, and direct process.env usage.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # Environment Config
@@ -21,6 +21,7 @@ updateAt: 2026-06-01
 - Keep package-level contracts strict when the package cannot operate without the variable, and keep app-level contracts soft when the UI can render in a setup-required state.
 - `apps/web/env.ts` is the app-level aggregation point for shared optional environment contracts that multiple features consume.
 - Shared optional infrastructure contracts such as Redis, Vercel Sandbox, and Vercel Blob should each live in `apps/web/features/shared/<capability>/server/keys.ts`, then flow into `apps/web/env.ts` for app-level aggregation.
+- `VERCEL_SANDBOX_INTEGRATION=1` is a test-only opt-in key owned by the shared Vercel Sandbox environment contract. Integration tests that create real Vercel Sandbox resources must require it before provider setup is attempted.
 - Shared environment modules that must ship through the shadcn registry should split portable runtime contracts from environment adapters. The portable contract accepts an env record or explicit config; the app adapter wires `apps/web/env.ts`; the registry adapter wires consumer `process.env`.
 - The AI Gateway shared contract lives at `apps/web/features/shared/ai-gateway/server/contract.ts`. It owns Node version checks, Gateway default resolution, setup-state construction, and `createGateway` wiring. App demo `server/env.ts` files should import that contract and get env data through feature-local `server/env-source.ts` adapters.
 - Registry AI Gateway demos should copy the same portable contract into `registry/<demo-slug>/lib/ai-gateway/contract.ts`. Their demo-owned `env-source.ts` files may read `process.env`; their demo-owned `env.ts` files should import `@/lib/ai-gateway/contract` and keep demo-specific defaults or extra setup issues local.

@@ -32,6 +32,7 @@
     "registry:sync:check": "node scripts/registry-sync/sync-registry-demo.mjs --all --check",
     "registry:sync:write": "node scripts/registry-sync/sync-registry-demo.mjs --all --write",
     "registry:validate": "pnpm registry:sync:check && pnpm registry:catalog:check && pnpm registry:generate && pnpm --dir packages/ui exec shadcn registry validate registry.json -c ../..",
+    "test:integration": "pnpm --dir apps/web test:integration",
     "typecheck": "turbo typecheck",
     "check": "ultracite check",
     "fix": "ultracite fix"

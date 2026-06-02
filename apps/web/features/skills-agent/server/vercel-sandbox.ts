@@ -7,6 +7,7 @@ import {
   VERCEL_SANDBOX_PROJECT_ROOT as SHARED_VERCEL_SANDBOX_PROJECT_ROOT,
   VERCEL_SANDBOX_SKILLS_ROOT as SHARED_VERCEL_SANDBOX_SKILLS_ROOT,
   VERCEL_SANDBOX_WORKSPACE_ROOT as SHARED_VERCEL_SANDBOX_WORKSPACE_ROOT,
+  type VercelSandboxCreateOptions,
   type VercelSandboxFactory,
   type VercelSandboxHandle,
   type VercelSandboxSessionBootstrap,
@@ -15,6 +16,7 @@ import {
 import { getSkillsAgentEnv, type SkillsAgentEnv } from "./env";
 
 export type {
+  VercelSandboxCreateOptions,
   VercelSandboxFactory,
   VercelSandboxHandle,
   VercelSandboxSession,
@@ -175,9 +177,7 @@ const bootstrapSandboxPythonProject: VercelSandboxSessionBootstrap = async ({
 export function createVercelSandbox(
   sessionId: string,
   env: SkillsAgentEnv = getSkillsAgentEnv(),
-  options: {
-    ports?: number[];
-  } = {}
+  options: VercelSandboxCreateOptions = {}
 ): Promise<VercelSandboxHandle> {
   return createSharedVercelSandbox(sessionId, env, options);
 }

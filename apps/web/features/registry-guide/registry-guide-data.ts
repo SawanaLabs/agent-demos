@@ -30,7 +30,7 @@ export const registryGuideConfig = {
     aiSdkDocs: "https://ai-sdk.dev/docs",
     aiSdkProviderSetup:
       "https://ai-sdk.dev/docs/getting-started/choosing-a-provider",
-    githubRepo: "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
+    githubRepo: "https://github.com/SawanaLabs/agent-demos",
     agentDocsSystemSkill:
       "https://github.com/multicul-silver-wolf/agent-docs-system-skill",
     mattPocockSkills: "https://github.com/mattpocock/skills",

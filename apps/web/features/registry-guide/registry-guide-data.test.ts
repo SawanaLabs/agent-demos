@@ -22,6 +22,9 @@ describe("registry guide data", () => {
     expect(registryGuideConfig.namespaceSetupCommand).toBe(
       "pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json"
     );
+    expect(registryGuideConfig.sourceLinks.githubRepo).toBe(
+      "https://github.com/SawanaLabs/agent-demos"
+    );
     expect(supportedRegistryDemoNotes.map((demo) => demo.slug)).toEqual(
       publicRegistryDemos
         .filter((demo) => !demo.mainline)

@@ -8,7 +8,7 @@
     "typescript": "5.9.3",
     "ultracite": "7.7.0"
   },
-  "name": "ai-sdk-6-ai-elements-demos",
+  "name": "agent-demos",
   "scripts": {
     "build": "turbo build",
     "db:generate": "pnpm --filter @workspace/database db:generate",

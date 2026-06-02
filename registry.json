@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "ai-sdk-6-ai-elements-demos",
-  "homepage": "https://github.com/SawanaLabs/ai-sdk-6-ai-elements-demos",
+  "name": "agent-demos",
+  "homepage": "https://github.com/SawanaLabs/agent-demos",
   "include": [
     "registry/foundation-chat/registry.json",
     "registry/rag-chatbot/registry.json",

@@ -73,3 +73,12 @@ def test_integration_request_returns_frontend_contract_observations() -> None:
     assert routed["route"] == "integration"
     assert result["observations"]
     assert "threads/{thread_id}/runs/stream" in result["observations"][0]
+    assert "does not provide durable checkpoints" in result["observations"][0]
+    assert "LANGGRAPH_AGENT_API_URL" in result["observations"][0]
+    assert "AI_GATEWAY_API_KEY" in result["observations"][0]
+    assert "LANGGRAPH_AGENT_MODEL defaults to openai/gpt-5-mini" in result[
+        "observations"
+    ][0]
+    assert "x-api-key" in result["observations"][0]
+    assert "Next.js server route" in result["observations"][0]
+    assert "Do not expose them as NEXT_PUBLIC" in result["observations"][0]

@@ -109,8 +109,22 @@ def inspect_frontend_contract(topic: str) -> str:
         "Use the LangGraph Agent Server thread endpoint "
         "POST /threads/{thread_id}/runs/stream with assistant_id, input.messages, "
         'and stream_mode ["updates", "messages-tuple"]. The Next.js route adapts '
-        "those SSE frames into AI SDK UIMessage chunks, while Agent Server owns "
-        "thread checkpoints and persistence."
+        "those SSE frames into AI SDK UIMessage chunks. Full Agent Server or "
+        "LangSmith deployments own thread checkpoints and persistence. The "
+        "lightweight Vercel FastAPI wrapper confirms thread ids, streams graph "
+        "events, and does not provide durable checkpoints; ordinary chat "
+        "continuity comes from the messages sent with each run request. Use "
+        "Python 3.12 for the Vercel-compatible API project. Backend env keys "
+        "are AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN, optional "
+        "AI_GATEWAY_BASE_URL, and optional LANGGRAPH_AGENT_API_KEY; "
+        "LANGGRAPH_AGENT_MODEL defaults to openai/gpt-5-mini. The Next.js "
+        "server route reads LANGGRAPH_AGENT_API_URL, "
+        "LANGGRAPH_AGENT_ASSISTANT_ID, and the same optional "
+        "LANGGRAPH_AGENT_API_KEY, then sends that service key as x-api-key to "
+        "the Python backend. Do not expose them as NEXT_PUBLIC variables. Do "
+        "not send the AI_GATEWAY_API_KEY from the frontend; it stays "
+        "server-side in the Python backend. The local FastAPI wrapper runs on "
+        "port 2024 with uv run uvicorn app:app --host 127.0.0.1 --port 2024."
     )
 
 

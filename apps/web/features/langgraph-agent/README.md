@@ -72,6 +72,12 @@ The route converts LangGraph SSE frames into AI SDK UI message chunks:
 The frontend owns only the active `threadId` for the current workspace session.
 Agent Server owns checkpoints and persistence.
 
+When the backend is the Vercel-compatible FastAPI wrapper in
+`apps/langgraph-agent-api/app.py`, `/threads` is contract confirmation rather
+than durable thread creation. The wrapper can chat and stream graph progress,
+but ordinary chat continuity depends on the frontend sending the current visible
+messages with each request.
+
 ## Adapting an Existing Python LangGraph Agent
 
 1. Expose your graph through `langgraph.json` with a stable graph id.
@@ -84,6 +90,11 @@ Agent Server owns checkpoints and persistence.
 The frontend does not require your Python graph to use this repository's sample
 nodes. It only requires the official thread-scoped run endpoint and stream
 modes above.
+
+For a lightweight Vercel deployment, expose the same contract through FastAPI
+without adding LangServe, LangCorn, or a template project. Keep the graph module
+unchanged and add only the deployment adapter needed for `/threads` and
+`/runs/stream`.
 
 ## Source Anchors
 

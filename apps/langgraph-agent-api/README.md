@@ -2,6 +2,13 @@
 
 Python LangGraph backend for the `langgraph-agent` frontend demo.
 
+It has two deployment entries:
+
+- `langgraph.json` for local `langgraph dev` and any future full Agent Server
+  target.
+- `app.py` for a Vercel-compatible FastAPI wrapper that exposes the minimum
+  Agent Server-like surface required by the current Next.js demo.
+
 ## Setup
 
 ```bash
@@ -31,12 +38,45 @@ pnpm dev:langgraph-agent-web
 ```
 
 `LANGGRAPH_AGENT_API_KEY` is optional for local `langgraph dev`; use it when the
-frontend talks to a hosted LangGraph/LangSmith deployment that requires an API
-key.
+frontend talks to a hosted backend that requires an API key.
 
 The local scripts default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`.
 Set `LANGGRAPH_AGENT_MODEL` before running either script to test a different
 OpenAI-compatible model through Vercel AI Gateway.
+
+## Vercel FastAPI Entry
+
+Run the lightweight FastAPI wrapper locally:
+
+```bash
+cd apps/langgraph-agent-api
+uv run uvicorn app:app --host 127.0.0.1 --port 2024
+```
+
+Then point the frontend at `http://127.0.0.1:2024` with
+`LANGGRAPH_AGENT_ASSISTANT_ID=agent`.
+
+For a Vercel project, use `apps/langgraph-agent-api` as the project root. The
+required environment variables are:
+
+```bash
+AI_GATEWAY_API_KEY=<vercel-ai-gateway-key>
+LANGGRAPH_AGENT_API_KEY=<optional-shared-service-key>
+LANGGRAPH_AGENT_MODEL=openai/gpt-5-mini
+```
+
+Set the web project to the deployed API URL and the same service key:
+
+```bash
+LANGGRAPH_AGENT_API_URL=https://<api-project>.vercel.app
+LANGGRAPH_AGENT_ASSISTANT_ID=agent
+LANGGRAPH_AGENT_API_KEY=<same-optional-shared-service-key>
+```
+
+The FastAPI entry is intentionally lightweight. It confirms UUID threads,
+invokes the existing compiled LangGraph graph, and streams `updates` plus
+`messages-tuple` events. It does not provide durable checkpoint resume,
+interrupt/resume, crash recovery, or LangSmith/LangGraph Platform monitoring.
 
 ## Contract
 

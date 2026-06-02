@@ -1,7 +1,7 @@
 ---
 title: LangGraph Agent
 description: Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo.
-updateAt: 2026-06-01
+updateAt: 2026-06-02
 ---
 
 # LangGraph Agent
@@ -39,6 +39,11 @@ updateAt: 2026-06-01
 - Make at least one LangGraph-native capability visible. Good first-version candidates are graph node progress, thread-scoped checkpoint resume, or a human-in-the-loop interrupt. A plain tool loop would duplicate the existing [Loop Agent](./loop-agent.md).
 - Keep JavaScript LangGraph as a later runtime variant, not the v1 source core. It can become useful for a single-language Next.js demo after the Python adapter story is proven.
 - Treat LangGraph Platform, LangSmith deployment transport, or a compatible self-hosted Python service as valid backend targets when the frontend adapter contract stays stable.
+- Treat a Vercel-compatible FastAPI backend as a second deployment entry for the same Python LangGraph backend, not as a second Agent Demo, catalog entry, frontend experience, or replacement graph core. Its job is to preserve the existing frontend Agent Server contract while making the backend deployable on Vercel.
+- Keep the Vercel-compatible FastAPI backend acceptance bar intentionally lightweight: the graph can be invoked, the demo can chat, answer tokens can stream, and basic graph progress can reach the existing UI. Durable thread resume, interrupt/resume, crash recovery, and platform-grade concurrency stay outside this deployment entry until explicitly added.
+- Keep the existing frontend adapter stable for this lightweight deployment path. The Vercel-compatible backend should implement the same `POST /threads` and thread-scoped `/runs/stream` surface so the frontend can switch between local `langgraph dev`, hosted Agent Server, and Vercel wrapper through `LANGGRAPH_AGENT_API_URL`.
+- In the Vercel-compatible backend, treat `/threads` as contract confirmation instead of durable thread creation. Without a persistent checkpointer, ordinary chat continuity depends on the frontend sending the current visible message context with each run request.
+- Do not introduce LangServe, LangCorn, `agent-service-toolkit`, or another wrapper framework for the first Vercel-compatible backend. The immediate goal is a small FastAPI adaptation and deployment layer around the existing `langgraph_agent` graph so the Next.js frontend can keep receiving Agent Server-like stream messages.
 - Use the official LangGraph Agent Server API as the v1 backend contract. The canonical adapter path creates or confirms a UUID thread through `POST /threads` and then calls the thread-scoped `/runs/stream` endpoint with `assistant_id`, `input.messages`, and `stream_mode`.
 - Do not define a custom streaming protocol for v1. If a team already has a FastAPI wrapper or another Python service, the tutorial should show how to adapt that service to the official LangGraph-compatible stream contract.
 - Use official LangGraph thread-scoped persistence as the v1 persistence boundary. The Next.js adapter should create, receive, or forward a UUID `thread_id`, confirm it through the official `POST /threads` API, and pass it through the official LangGraph SDK/API when streaming runs.
@@ -72,8 +77,10 @@ updateAt: 2026-06-01
 - The Next.js runtime uses `POST /threads` with `if_exists: "do_nothing"` before `POST /threads/{thread_id}/runs/stream` with `stream_mode: ["updates", "messages-tuple"]`, converts UI messages to LangGraph `human`/`ai`/`system` messages, and emits AI SDK text chunks plus `data-graph-progress` data parts.
 - The active thread id is generated client-side as a UUID for the current workspace session. V1 does not add a frontend chat-history database, thread list, cross-thread memory, or durable resume UI.
 - The Python validation backend lives in `apps/langgraph-agent-api/` and is managed by `uv`. It exposes graph id `agent` through `langgraph.json`, uses a route -> plan -> tool -> synthesize -> answer graph, and runs locally with `uv run langgraph dev --port 2024`.
+- The Python backend also exposes `app.py` as a Vercel-compatible FastAPI entry. This wrapper keeps the existing `POST /threads` and `/threads/{thread_id}/runs/stream` contract, invokes the same compiled graph, and streams only the `updates` plus `messages-tuple` events the frontend already understands.
 - Use `pnpm dev:langgraph-agent` to start the fixed-port local Python server and paired Next.js app together. `pnpm dev:langchain-agent` is a compatibility alias for the same command. The underlying API script sources root `.env` and `.env.local`, defaults `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`, then runs LangGraph on port 2024. The web script points at `http://localhost:2024`, carries the same model default for screen metadata, and keeps the existing Next.js port 3000 contract. Use `pnpm dev:langgraph-agent-api` or `pnpm dev:langgraph-agent-web` only when one side needs to be run independently.
 - Local `langgraph dev` uses in-memory persistence for development and testing. Hosted LangGraph or LangSmith deployments own durable persistence for production.
+- The Vercel-compatible FastAPI entry currently uses no persistent checkpointer. Treat it as the lightweight hosted chat path for the demo, with continuity supplied by the frontend request messages.
 
 ## Open Decisions
 

@@ -18,7 +18,7 @@ Scope: read-only local QA run against `pnpm --dir apps/web dev` on `http://local
 - UI/browser covered: homepage, Foundation Chat, RAG Chatbot, Persistent & Resume Agent, Streaming Chat Shell, Loop Agent, MCP Agent, Object Generation, Trace Eval Agent.
 - API/local route covered after browser failure: Customer Memory Agent, OpenAI Agents SDK Demo, LangGraph Agent, Skills Agent, Sandbox Agent, Ultra Chatbot Agent.
 - Multimodal Chatbot was retested after a cold Next.js dev cache rebuild; page GET and text API both pass locally.
-- Ultra sandbox API path passed locally after sandbox capability was enabled; the UI approve-click flow was not completed because the browser session failed before that point.
+- Ultra sandbox UI approval path was retested in normal Chrome; inline approval persisted the chat capability and the next same-chat turn executed sandbox `bash`.
 
 ## Retest Addendum - LangGraph Agent
 
@@ -88,27 +88,6 @@ Third in-app Browser retry:
 - Revised browser note: LangGraph UI E2E now passes locally. The earlier attach failures are still useful as browser-harness instability evidence, but they did not reproduce on the third attempt.
 
 ## Issues
-
-### QA-LOCAL-004 - P2 - Full UI approval path for Ultra sandbox was not completed in this run
-
-Repro attempted:
-
-1. POST to `/api/demos/ultra-chatbot-agent` asking to enable sandbox and run `pwd`.
-2. The stream produced a `tool-approval-request` for `enableSandbox`.
-3. Browser UI approval could not be clicked after the browser session failed during Multimodal navigation.
-
-Actual API evidence:
-
-- First turn approval request works.
-- API-level capability enablement works:
-  - PATCH `/api/demos/ultra-chatbot-agent/{chatId}/capabilities` with `{"sandboxEnabled":true}` returned `{"sandboxEnabled":true}`.
-- Second turn with the same chat and cookie exposed the `bash` tool and succeeded:
-  - Command: `pwd && echo local sandbox ok`
-  - Tool output: `/vercel/sandbox/project` and `local sandbox ok`
-
-Repro value:
-
-- Local API layer passed. The user's reported production issue, "Ultra sandbox cannot be used after approval", still needs a real UI click/reload repro once the browser harness can stay attached or a normal browser is used.
 
 ### QA-LOCAL-005 - P2 - In-app Browser input automation is unreliable for this app
 
@@ -210,9 +189,8 @@ Repro value:
 | LangGraph Agent | UI | Pass with content note | Third Browser retry passed suggestion plus follow-up in one thread after `pnpm dev:langgraph-agent`; answer grounding needs work. See QA-LOCAL-007. |
 | Skills Agent | API | Pass | `grill-with-docs` skill tool selected and streamed successfully. |
 | Sandbox Agent | API plus preview GET | Pass | Wrote `index.html`, started preview, returned `https://sb-5uqy6wbewrlq.vercel.run/index.html`; GET returned `sandbox preview ok`. |
-| Ultra Chatbot Agent | API | Partial UI gap, API pass | Approval request generated; manual capability patch enabled sandbox; `bash` returned `/vercel/sandbox/project` and `local sandbox ok`. |
+| Ultra Chatbot Agent | UI approval plus API stream | Pass | Normal Chrome retest clicked inline `enableSandbox` approval, page showed `Sandbox enabled`, and the next same-chat turn used `bash` with `/vercel/sandbox/project ultra-ui-approval-ok`. |
 
 ## Notes For Next Fix Pass
 
-- For Ultra, use a normal browser or repaired browser harness to retest the actual approve button. The API route and sandbox tools currently pass locally after capability enablement.
 - LangGraph UI is locally usable through `pnpm dev:langgraph-agent`; improve prompt grounding so setup answers use this repo's real env names and paired command.

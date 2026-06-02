@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LangGraphAgentWorkspace } from "./langgraph-agent-workspace";
 import type { LangGraphAgentMessage } from "./use-langgraph-agent";
 
-type LangGraphAgentChatState = {
+interface LangGraphAgentChatState {
   error: Error | null;
   graphEvents: [];
   hasMessages: boolean;
@@ -17,7 +17,7 @@ type LangGraphAgentChatState = {
   status: "ready";
   stop: () => void;
   threadId: string;
-};
+}
 
 const chatState = vi.hoisted(() => ({
   current: {

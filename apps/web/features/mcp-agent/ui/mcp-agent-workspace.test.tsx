@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { configuredMcpServers, configuredMcpTools } from "../server/runtime";
 import { McpAgentWorkspace } from "./mcp-agent-workspace";
 
-type McpAgentChatState = {
+interface McpAgentChatState {
   error: Error | null;
   hasMessages: boolean;
   isBusy: boolean;
@@ -15,7 +15,7 @@ type McpAgentChatState = {
   sendMessage: (message: { text: string }) => void;
   status: "ready";
   stop: () => void;
-};
+}
 
 const chatState = vi.hoisted(() => ({
   current: {

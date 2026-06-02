@@ -194,6 +194,8 @@ describe("sandbox-agent workspace UI", () => {
     const sampleButtonOpeningTag = markup.slice(buttonStart, buttonEnd + 1);
 
     expect(promptIndex).toBeGreaterThan(-1);
-    expect(sampleButtonOpeningTag).toMatch(/\sdisabled(?:=""|="true"|(?=\s|>))/);
+    expect(sampleButtonOpeningTag).toMatch(
+      /\sdisabled(?:=""|="true"|(?=\s|>))/
+    );
   });
 });

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SkillsAgentWorkspace } from "./skills-agent-workspace";
 
-type SkillsAgentChatState = {
+interface SkillsAgentChatState {
   error: Error | null;
   hasMessages: boolean;
   isBusy: boolean;
@@ -14,7 +14,7 @@ type SkillsAgentChatState = {
   sendMessage: (message: { text: string }) => void;
   status: "ready";
   stop: () => void;
-};
+}
 
 const chatState = vi.hoisted(() => ({
   current: {

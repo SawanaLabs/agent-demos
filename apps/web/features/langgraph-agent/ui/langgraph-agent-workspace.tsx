@@ -233,6 +233,29 @@ export function LangGraphAgentWorkspace({
     stop,
     threadId,
   } = useLangGraphAgent();
+  const canStartChatTurn = isChatAvailable && !isBusy;
+  const emptyStateDescription = isChatAvailable
+    ? "Ask the remote LangGraph agent to explain, plan, or validate a product-agent integration path."
+    : "Set LANGGRAPH_AGENT_API_URL and LANGGRAPH_AGENT_ASSISTANT_ID before sending a chat turn.";
+  const emptyStateTitle = isChatAvailable
+    ? "LangGraph thread is ready"
+    : "LangGraph setup is required";
+
+  function sendChatMessage(text: string) {
+    if (!canStartChatTurn) {
+      return;
+    }
+
+    sendMessage({ text });
+  }
+
+  function regenerateChatTurn() {
+    if (!canStartChatTurn) {
+      return;
+    }
+
+    regenerate();
+  }
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -294,9 +317,9 @@ export function LangGraphAgentWorkspace({
               })
             ) : (
               <ConversationEmptyState
-                description="Ask the remote LangGraph agent to explain, plan, or validate a product-agent integration path."
+                description={emptyStateDescription}
                 icon={<GitBranchIcon className="size-5" />}
-                title="LangGraph thread is ready"
+                title={emptyStateTitle}
               />
             )}
           </ConversationContent>
@@ -306,10 +329,10 @@ export function LangGraphAgentWorkspace({
         <Separator />
         <div className="px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
-            <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
+            <PromptInput onSubmit={({ text }) => sendChatMessage(text)}>
               <PromptInputBody>
                 <PromptInputTextarea
-                  disabled={!isChatAvailable || isBusy}
+                  disabled={!canStartChatTurn}
                   placeholder="Ask the LangGraph agent to reason through an integration or implementation question."
                 />
               </PromptInputBody>
@@ -344,7 +367,8 @@ export function LangGraphAgentWorkspace({
                   ) : null}
                   {hasMessages ? (
                     <Button
-                      onClick={() => regenerate()}
+                      disabled={!canStartChatTurn}
+                      onClick={regenerateChatTurn}
                       size="sm"
                       type="button"
                       variant="outline"
@@ -354,7 +378,7 @@ export function LangGraphAgentWorkspace({
                     </Button>
                   ) : null}
                   <PromptInputSubmit
-                    disabled={!isChatAvailable}
+                    disabled={!canStartChatTurn}
                     status={status}
                   />
                 </div>
@@ -365,8 +389,9 @@ export function LangGraphAgentWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {langGraphAgentSamplePrompts.map((prompt) => (
                   <Button
+                    disabled={!canStartChatTurn}
                     key={prompt}
-                    onClick={() => sendMessage({ text: prompt })}
+                    onClick={() => sendChatMessage(prompt)}
                     size="sm"
                     type="button"
                     variant="outline"

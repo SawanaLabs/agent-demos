@@ -30,6 +30,7 @@ updateAt: 2026-06-02
 - Treat this as a frontend Agent Demo subdomain. Do not create a new first-level docs domain for LangGraph unless LangGraph work grows beyond one demo.
 - Use `apps/web/features/langgraph-agent/` as the default feature slice unless the demo slug changes during planning.
 - Keep the route entry thin under `apps/web/app/demos/langgraph-agent/page.tsx` and keep any API route thin under `apps/web/app/api/demos/langgraph-agent/route.ts`.
+- Keep `/demos/langgraph-agent` dynamically rendered so the setup banner, runtime panel, empty-state copy, and composer state read the same runtime deployment env as the chat API route. Do not let build-time env snapshots disable a runtime-ready LangGraph deployment.
 - Use a dedicated `langgraph` catalog pattern for this demo. During implementation, update `DemoPattern`, `demoPatternLabels`, and the demo metadata instead of placing this demo under the existing `loop` pattern.
 - Build v1 around a remote Python LangGraph runtime. The frontend demo should prove that an existing Python LangGraph agent can be connected to a product-quality Next.js surface without rewriting the agent in JavaScript.
 - Defer the concrete business scenario until the official integration path is proven. Start with a general capability validation graph instead of designing a domain-specific agent first.
@@ -74,6 +75,7 @@ updateAt: 2026-06-02
 
 - V1 is implemented under `apps/web/features/langgraph-agent/` with thin route entries at `apps/web/app/demos/langgraph-agent/page.tsx` and `apps/web/app/api/demos/langgraph-agent/route.ts`.
 - The frontend requires `LANGGRAPH_AGENT_API_URL` and `LANGGRAPH_AGENT_ASSISTANT_ID`; `LANGGRAPH_AGENT_API_KEY` is optional for hosted Agent Server deployments.
+- When remote LangGraph setup is unavailable, disable every chat-turn entry path, including the composer, submit button, sample prompts, and retry. UI handlers should also guard against sending while setup is unavailable or a turn is already busy.
 - The Next.js runtime uses `POST /threads` with `if_exists: "do_nothing"` before `POST /threads/{thread_id}/runs/stream` with `stream_mode: ["updates", "messages-tuple"]`, converts UI messages to LangGraph `human`/`ai`/`system` messages, and emits AI SDK text chunks plus `data-graph-progress` data parts.
 - The active thread id is generated client-side as a UUID for the current workspace session. V1 does not add a frontend chat-history database, thread list, cross-thread memory, or durable resume UI.
 - The Python validation backend lives in `apps/langgraph-agent-api/` and is managed by `uv`. It exposes graph id `agent` through `langgraph.json`, uses a route -> plan -> tool -> synthesize -> answer graph, and runs locally with `uv run langgraph dev --port 2024`.

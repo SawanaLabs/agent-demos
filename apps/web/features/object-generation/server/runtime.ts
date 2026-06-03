@@ -1,4 +1,4 @@
-import { type LanguageModelUsage, Output, streamText } from "ai";
+import { Output, streamText } from "ai";
 import {
   type ObjectGenerationRequest,
   objectGenerationAcceptedMediaTypes,
@@ -12,7 +12,6 @@ import {
   getObjectGenerationSetupState,
   type ObjectGenerationEnv,
 } from "./env";
-import { startRecordedObjectGenerationRun } from "./recorded-object-generation-run";
 
 const invalidBodyError =
   'Expected a JSON body with a "prompt" string and an "attachments" array.';
@@ -49,7 +48,6 @@ interface ObjectGenerationRequestDependencies {
 
 export interface ObjectGenerationStreamResult {
   textStream: AsyncIterable<string>;
-  totalUsage: PromiseLike<LanguageModelUsage>;
 }
 
 function isAcceptedMediaType(mediaType: string) {
@@ -143,7 +141,30 @@ export function createObjectGenerationStream(
 
   return Promise.resolve({
     textStream: result.textStream,
-    totalUsage: result.totalUsage,
+  });
+}
+
+function createObjectGenerationResponse(stream: ObjectGenerationStreamResult) {
+  const encoder = new TextEncoder();
+
+  const body = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        for await (const chunk of stream.textStream) {
+          controller.enqueue(encoder.encode(chunk));
+        }
+
+        controller.close();
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+  });
+
+  return new Response(body, {
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+    },
   });
 }
 
@@ -200,5 +221,5 @@ export async function handleObjectGenerationRequest(
 
   const stream = await dependencies.createObjectGenerationStream(input, env);
 
-  return startRecordedObjectGenerationRun(stream);
+  return createObjectGenerationResponse(stream);
 }

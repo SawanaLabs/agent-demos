@@ -5,14 +5,12 @@ import { Progress } from "@workspace/ui/components/progress";
 import { cn } from "@workspace/ui/lib/utils";
 import type { DeepPartial } from "ai";
 
-import type { ObjectGenerationRecord } from "../record";
 import type { ObjectGenerationResult } from "../schema";
 
 type ReviewCardStatus = "streaming" | "ready" | "error" | "stopped";
 
 interface ObjectGenerationResultCardProps {
   errorMessage?: string | null;
-  record?: ObjectGenerationRecord | null;
   result: DeepPartial<ObjectGenerationResult> | undefined;
   status: ReviewCardStatus;
 }
@@ -58,20 +56,8 @@ function getStatusCopy(status: ReviewCardStatus) {
   }
 }
 
-function getRecordStatusCopy(status: ObjectGenerationRecord["status"]) {
-  switch (status) {
-    case "pending":
-      return "Recording final object";
-    case "ready":
-      return "Final object recorded";
-    case "error":
-      return "Record failed";
-  }
-}
-
 export function ObjectGenerationResultCard({
   errorMessage,
-  record,
   result,
   status,
 }: ObjectGenerationResultCardProps) {
@@ -109,57 +95,6 @@ export function ObjectGenerationResultCard({
           <Progress value={riskScore} />
         </div>
       )}
-
-      {record ? (
-        <section className="space-y-2">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Recorded output
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">
-              {getRecordStatusCopy(record.status)}
-            </Badge>
-            <Badge variant="outline">Record {record.id.slice(0, 8)}</Badge>
-            {record.recordedAt ? (
-              <Badge variant="outline">
-                {new Date(record.recordedAt).toLocaleTimeString()}
-              </Badge>
-            ) : null}
-            {record.usage?.inputTokens === undefined ? null : (
-              <Badge variant="outline">Input {record.usage.inputTokens}</Badge>
-            )}
-            {record.usage?.outputTokens === undefined ? null : (
-              <Badge variant="outline">
-                Output {record.usage.outputTokens}
-              </Badge>
-            )}
-            {record.usage?.totalTokens === undefined ? null : (
-              <Badge variant="outline">Total {record.usage.totalTokens}</Badge>
-            )}
-            {record.usage?.reasoningTokens === undefined ? null : (
-              <Badge variant="outline">
-                Reasoning {record.usage.reasoningTokens}
-              </Badge>
-            )}
-            {record.usage?.cachedInputTokens === undefined ? null : (
-              <Badge variant="outline">
-                Cache {record.usage.cachedInputTokens}
-              </Badge>
-            )}
-          </div>
-          <p
-            className={cn(
-              "text-sm/relaxed",
-              record.status === "error"
-                ? "text-destructive"
-                : "text-muted-foreground"
-            )}
-          >
-            {record.errorMessage ??
-              "Stored the final object snapshot and token usage for audit, reruns, and cost review."}
-          </p>
-        </section>
-      ) : null}
 
       {result?.summary ? (
         <section className="space-y-1">

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import type { PendingReviewAttachment } from "./convert-files-to-object-generation-inputs";
 import {
-  attachRecordIdToEntry,
   collectReviewPreviewUrls,
   createReviewThreadEntry,
   failReviewThreadEntry,
@@ -62,7 +61,6 @@ describe("object-generation session", () => {
       errorMessage: null,
       id: "entry-1",
       prompt: "Review this submission.",
-      record: null,
       status: "streaming",
     });
   });
@@ -91,7 +89,7 @@ describe("object-generation session", () => {
     ]);
   });
 
-  it("moves an entry through record pending, error, stop, and replay display states", () => {
+  it("moves an entry through error, stop, and replay display states", () => {
     const entry = createReviewThreadEntry({
       id: "entry-1",
       pendingAttachments: [
@@ -101,9 +99,8 @@ describe("object-generation session", () => {
       requestAttachments: [],
     });
 
-    const withRecord = attachRecordIdToEntry([entry], "entry-1", "record-1");
     const failed = failReviewThreadEntry(
-      withRecord,
+      [entry],
       "entry-1",
       "stream failed",
       {
@@ -123,10 +120,6 @@ describe("object-generation session", () => {
       }
     );
 
-    expect(withRecord[0]?.record).toMatchObject({
-      id: "record-1",
-      status: "pending",
-    });
     expect(failed[0]?.status).toBe("error");
     expect(stopped[0]?.status).toBe("stopped");
     expect(displayEntries[0]).toMatchObject({
@@ -135,7 +128,6 @@ describe("object-generation session", () => {
         summary: "Live result",
       },
       liveStatus: "streaming",
-      record: null,
       status: "streaming",
     });
   });

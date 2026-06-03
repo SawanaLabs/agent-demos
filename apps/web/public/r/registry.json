@@ -374,11 +374,6 @@
           "target": "app/api/demos/object-generation/route.ts"
         },
         {
-          "path": "registry/object-generation/app/api/demos/object-generation/records/route.ts",
-          "type": "registry:page",
-          "target": "app/api/demos/object-generation/records/route.ts"
-        },
-        {
           "path": "registry/object-generation/components/object-generation/object-generation-screen.tsx",
           "type": "registry:component",
           "target": "@components/object-generation/object-generation-screen.tsx"
@@ -432,21 +427,6 @@
           "path": "registry/object-generation/lib/object-generation/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/object-generation/runtime.ts"
-        },
-        {
-          "path": "registry/object-generation/lib/object-generation/recorded-object-generation-run.ts",
-          "type": "registry:lib",
-          "target": "@lib/object-generation/recorded-object-generation-run.ts"
-        },
-        {
-          "path": "registry/object-generation/lib/object-generation/object-generation-records.ts",
-          "type": "registry:lib",
-          "target": "@lib/object-generation/object-generation-records.ts"
-        },
-        {
-          "path": "registry/object-generation/lib/object-generation/record.ts",
-          "type": "registry:lib",
-          "target": "@lib/object-generation/record.ts"
         },
         {
           "path": "registry/object-generation/lib/object-generation/schema.ts",

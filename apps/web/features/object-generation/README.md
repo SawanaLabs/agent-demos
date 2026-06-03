@@ -2,7 +2,7 @@
 
 Generates a structured object from multimodal inputs and renders the live object inside the assistant message.
 
-The completed-run action regenerates the object from the same prompt and attachments. It intentionally creates a new recorded output so reviewers can compare reruns instead of treating the action as a replay of one frozen record.
+The completed-run action regenerates the object from the same prompt and attachments. It creates a fresh streamed object instead of replaying one frozen result.
 
 ## File Tree
 
@@ -10,10 +10,8 @@ The completed-run action regenerates the object from the same prompt and attachm
 object-generation/
   demo-meta.ts
   README.md
-  record.ts
   schema.ts
   server/
-    object-generation-records.ts
     runtime.ts
     runtime.test.ts
   ui/

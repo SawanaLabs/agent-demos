@@ -4,7 +4,6 @@ import { experimental_useObject as useObject } from "@ai-sdk/react";
 import type { DeepPartial } from "ai";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { ObjectGenerationRecord } from "@/lib/object-generation/record";
 import type {
   ObjectGenerationAttachment,
   ObjectGenerationResult,
@@ -16,44 +15,16 @@ import {
   type PendingReviewAttachment,
 } from "./convert-files-to-object-generation-inputs";
 import {
-  attachRecordIdToEntry,
   collectReviewPreviewUrls,
   createReviewThreadEntry,
   failReviewThreadEntry,
   mergePendingReviewAttachments,
-  readRecordIdFromResponse,
   restartReviewThreadEntry,
   stopReviewThreadEntry,
   toDisplayReviewThreadEntries,
   type DisplayReviewThreadEntry,
   type ReviewThreadEntry,
 } from "./object-generation-session";
-
-async function fetchObjectGenerationRecord(recordId: string) {
-  const response = await fetch(
-    `/api/demos/object-generation/records?recordId=${encodeURIComponent(recordId)}`
-  );
-
-  if (!response.ok) {
-    throw new Error((await response.text()) || "Failed to load review record.");
-  }
-
-  return (await response.json()) as ObjectGenerationRecord;
-}
-
-function buildRecordFetchError(recordId: string, error: unknown): ObjectGenerationRecord {
-  return {
-    errorMessage:
-      error instanceof Error
-        ? error.message
-        : "Failed to load the recorded review output.",
-    id: recordId,
-    recordedAt: new Date().toISOString(),
-    result: null,
-    status: "error",
-    usage: null,
-  };
-}
 
 export interface ObjectGenerationSessionController {
   composerError: string | null;
@@ -111,17 +82,6 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
       );
       setActiveEntryId(null);
     },
-    async fetch(input, init) {
-      const response = await fetch(input, init);
-      const entryId = activeEntryIdRef.current;
-      const recordId = readRecordIdFromResponse(response);
-
-      if (entryId && recordId) {
-        setEntries((current) => attachRecordIdToEntry(current, entryId, recordId));
-      }
-
-      return response;
-    },
     async onFinish({ error: finishError, object: finalObject }) {
       const entryId = activeEntryIdRef.current;
 
@@ -130,17 +90,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
       }
 
       const currentEntry = entriesRef.current.find((entry) => entry.id === entryId);
-      const recordId = currentEntry?.record?.id;
       const result = finalObject ?? latestObjectRef.current ?? currentEntry?.result;
-      let record = currentEntry?.record ?? null;
-
-      if (recordId) {
-        try {
-          record = await fetchObjectGenerationRecord(recordId);
-        } catch (recordError) {
-          record = buildRecordFetchError(recordId, recordError);
-        }
-      }
 
       setEntries((current) =>
         current.map((entry) =>
@@ -148,7 +98,6 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
             ? {
                 ...entry,
                 errorMessage: finishError?.message ?? null,
-                record,
                 result,
                 status: finishError ? "error" : "ready",
               }

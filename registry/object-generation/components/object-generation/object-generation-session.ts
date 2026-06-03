@@ -1,9 +1,5 @@
 import type { DeepPartial } from "ai";
 
-import {
-  objectGenerationRecordIdHeader,
-  type ObjectGenerationRecord,
-} from "@/lib/object-generation/record";
 import type {
   ObjectGenerationAttachment,
   ObjectGenerationResult,
@@ -21,7 +17,6 @@ export interface ReviewThreadEntry {
   id: string;
   prompt: string;
   requestAttachments: ObjectGenerationAttachment[];
-  record: ObjectGenerationRecord | null;
   result: DeepPartial<ObjectGenerationResult> | undefined;
   status: ReviewEntryStatus;
 }
@@ -42,20 +37,8 @@ interface CreateReviewThreadEntryInput {
 interface FinalizeReviewThreadEntryInput {
   entryId: string;
   errorMessage?: string | null;
-  record: ObjectGenerationRecord | null;
   result: DeepPartial<ObjectGenerationResult> | undefined;
   status: ReviewEntryStatus;
-}
-
-export function buildPendingRecord(recordId: string): ObjectGenerationRecord {
-  return {
-    errorMessage: null,
-    id: recordId,
-    recordedAt: null,
-    result: null,
-    status: "pending",
-    usage: null,
-  };
 }
 
 export function createReviewThreadEntry({
@@ -69,7 +52,6 @@ export function createReviewThreadEntry({
     errorMessage: null,
     id,
     prompt,
-    record: null,
     requestAttachments,
     result: undefined,
     status: "streaming",
@@ -121,27 +103,11 @@ export function collectReviewPreviewUrls(
   return previewUrls;
 }
 
-export function attachRecordIdToEntry(
-  entries: ReviewThreadEntry[],
-  entryId: string,
-  recordId: string
-) {
-  return entries.map((entry) =>
-    entry.id === entryId
-      ? {
-          ...entry,
-          record: buildPendingRecord(recordId),
-        }
-      : entry
-  );
-}
-
 export function finalizeReviewThreadEntry(
   entries: ReviewThreadEntry[],
   {
     entryId,
     errorMessage = null,
-    record,
     result,
     status,
   }: FinalizeReviewThreadEntryInput
@@ -151,7 +117,6 @@ export function finalizeReviewThreadEntry(
       ? {
           ...entry,
           errorMessage,
-          record,
           result,
           status,
         }
@@ -168,8 +133,6 @@ export function failReviewThreadEntry(
   return finalizeReviewThreadEntry(entries, {
     entryId,
     errorMessage,
-    record:
-      entries.find((entry) => entry.id === entryId)?.record ?? null,
     result,
     status: "error",
   });
@@ -182,8 +145,6 @@ export function stopReviewThreadEntry(
 ) {
   return finalizeReviewThreadEntry(entries, {
     entryId,
-    record:
-      entries.find((entry) => entry.id === entryId)?.record ?? null,
     result,
     status: "stopped",
   });
@@ -195,12 +156,11 @@ export function restartReviewThreadEntry(
 ) : ReviewThreadEntry[] {
   return entries.map((entry): ReviewThreadEntry =>
     entry.id === entryId
-      ? {
-          ...entry,
-          errorMessage: null,
-          record: null,
-          status: "streaming" as const,
-        }
+        ? {
+            ...entry,
+            errorMessage: null,
+            status: "streaming" as const,
+          }
       : entry
   );
 }
@@ -232,8 +192,4 @@ export function toSubmittedReviewAttachments(
     mediaType: attachment.file.type || "application/octet-stream",
     previewUrl: attachment.previewUrl,
   }));
-}
-
-export function readRecordIdFromResponse(response: Response) {
-  return response.headers.get(objectGenerationRecordIdHeader);
 }

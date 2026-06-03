@@ -29,14 +29,6 @@ describe("ObjectGenerationWorkspace", () => {
           },
           liveStatus: "ready",
           prompt: "Review this pricing page.",
-          record: {
-            errorMessage: null,
-            id: "f52d95ee-record",
-            recordedAt: "2026-06-02T12:00:00.000Z",
-            result: null,
-            status: "ready",
-            usage: null,
-          },
           requestAttachments: [],
           result: {
             decision: "needs_review",
@@ -71,7 +63,7 @@ describe("ObjectGenerationWorkspace", () => {
 
     expect(markup).toContain("Regenerate object");
     expect(markup).toContain(
-      "Runs the same request again and records a new result."
+      "Runs the same request again and generates a new result."
     );
     expect(markup).not.toContain("Replay generation");
   });

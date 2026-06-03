@@ -1,8 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
-import {
-  clearObjectGenerationRecordsForTest,
-  handleObjectGenerationRecordRequest,
-} from "./object-generation-records";
+import { describe, expect, it } from "vitest";
 import {
   getObjectGenerationRuntimeState,
   handleObjectGenerationRequest,
@@ -11,10 +7,6 @@ import {
 const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
 
 describe("content review runtime", () => {
-  afterEach(() => {
-    clearObjectGenerationRecordsForTest();
-  });
-
   it("maps shared gateway setup into a structured-review runtime state", () => {
     expect(
       getObjectGenerationRuntimeState({
@@ -55,23 +47,6 @@ describe("content review runtime", () => {
               prompt: input.prompt,
             });
           })(),
-          totalUsage: Promise.resolve({
-            cachedInputTokens: undefined,
-            inputTokenDetails: {
-              cacheReadTokens: undefined,
-              cacheWriteTokens: undefined,
-              noCacheTokens: 12,
-            },
-            inputTokens: 12,
-            outputTokenDetails: {
-              reasoningTokens: undefined,
-              textTokens: 18,
-            },
-            outputTokens: 18,
-            reasoningTokens: undefined,
-            raw: undefined,
-            totalTokens: 30,
-          }),
         }),
       }
     );
@@ -83,7 +58,7 @@ describe("content review runtime", () => {
     });
   });
 
-  it("records the final object and token usage after the object stream finishes", async () => {
+  it("streams the final object without a cross-request record lookup", async () => {
     const finalObject = {
       categories: [
         {
@@ -139,56 +114,13 @@ describe("content review runtime", () => {
             yield payload.slice(0, 80);
             yield payload.slice(80);
           })(),
-          totalUsage: Promise.resolve({
-            cachedInputTokens: 11,
-            inputTokenDetails: {
-              cacheReadTokens: 11,
-              cacheWriteTokens: 0,
-              noCacheTokens: 94,
-            },
-            inputTokens: 105,
-            outputTokenDetails: {
-              reasoningTokens: 14,
-              textTokens: 58,
-            },
-            outputTokens: 72,
-            reasoningTokens: 14,
-            raw: undefined,
-            totalTokens: 177,
-          }),
         }),
       }
     );
 
     expect(response.status).toBe(200);
-
-    const recordId = response.headers.get("x-object-generation-record-id");
-    expect(recordId).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    );
+    expect(response.headers.get("x-object-generation-record-id")).toBeNull();
     await expect(response.text()).resolves.toEqual(JSON.stringify(finalObject));
-
-    const recordResponse = await handleObjectGenerationRecordRequest(
-      new Request(
-        `http://localhost/api/demos/object-generation/records?recordId=${recordId}`
-      )
-    );
-
-    expect(recordResponse.status).toBe(200);
-    await expect(recordResponse.json()).resolves.toEqual({
-      errorMessage: null,
-      id: recordId,
-      recordedAt: expect.any(String),
-      result: finalObject,
-      status: "ready",
-      usage: {
-        cachedInputTokens: 11,
-        inputTokens: 105,
-        outputTokens: 72,
-        reasoningTokens: 14,
-        totalTokens: 177,
-      },
-    });
   });
 
   it("returns a setup error before attempting structured review work", async () => {
@@ -229,23 +161,6 @@ describe("content review runtime", () => {
           textStream: (async function* () {
             yield JSON.stringify({ ok: true });
           })(),
-          totalUsage: Promise.resolve({
-            cachedInputTokens: undefined,
-            inputTokenDetails: {
-              cacheReadTokens: undefined,
-              cacheWriteTokens: undefined,
-              noCacheTokens: 0,
-            },
-            inputTokens: 0,
-            outputTokenDetails: {
-              reasoningTokens: undefined,
-              textTokens: 0,
-            },
-            outputTokens: 0,
-            reasoningTokens: undefined,
-            raw: undefined,
-            totalTokens: 0,
-          }),
         }),
       }
     );
@@ -271,23 +186,6 @@ describe("content review runtime", () => {
           textStream: (async function* () {
             yield JSON.stringify({ ok: true });
           })(),
-          totalUsage: Promise.resolve({
-            cachedInputTokens: undefined,
-            inputTokenDetails: {
-              cacheReadTokens: undefined,
-              cacheWriteTokens: undefined,
-              noCacheTokens: 0,
-            },
-            inputTokens: 0,
-            outputTokenDetails: {
-              reasoningTokens: undefined,
-              textTokens: 0,
-            },
-            outputTokens: 0,
-            reasoningTokens: undefined,
-            raw: undefined,
-            totalTokens: 0,
-          }),
         }),
       }
     );

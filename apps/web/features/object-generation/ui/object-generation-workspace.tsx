@@ -150,7 +150,6 @@ export function ObjectGenerationWorkspace({
                         <MessageContent className="max-w-3xl space-y-3">
                           <ObjectGenerationResultCard
                             errorMessage={entry.errorMessage}
-                            record={entry.record}
                             result={entry.liveResult}
                             status={entry.liveStatus}
                           />
@@ -161,7 +160,7 @@ export function ObjectGenerationWorkspace({
                                 aria-label="Regenerate this object from the same prompt and attachments"
                                 onClick={() => retryReview(entry)}
                                 size="sm"
-                                title="Runs the same request again and records a new result."
+                                title="Runs the same request again and generates a new result."
                                 type="button"
                                 variant="outline"
                               >

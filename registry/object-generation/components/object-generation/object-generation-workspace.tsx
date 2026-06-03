@@ -157,7 +157,6 @@ export function ObjectGenerationWorkspace({
                       <MessageContent className="space-y-3 max-w-3xl">
                         <ObjectGenerationResultCard
                           errorMessage={entry.errorMessage}
-                          record={entry.record}
                           result={entry.liveResult}
                           status={entry.liveStatus}
                         />

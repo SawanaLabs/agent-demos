@@ -18,11 +18,12 @@ The main message routes have a real Site Usage Gate, and the visitor-owned demos
 
 The current repository is closer to the stated demo posture now that code-owned database rows, Customer Memory event text, site-usage events, Ultra Blob uploads, and tagged Vercel Sandbox resources share the 7-day Demo Data Retention Window.
 
-The remaining launch caveats are narrower: visitor cookies remain resettable, one Customer Memory mutation layer still deserves owner predicates as defense in depth, and public docs routes should stay free of private deployment notes.
+The remaining launch caveats are narrower: visitor identities are still resettable by clearing cookies, one Customer Memory mutation layer deserves owner predicates as defense in depth, and public docs routes should stay free of private deployment notes.
 
 ## Existing Controls That Work
 
 - Main model-backed routes commonly use `createMeteredDemoRoute` or `createVisitorOwnedMeteredDemoRoute`; the default policy allows 50 successful usage events per visitor per UTC day (`apps/web/features/site-usage-gate/server/policy.ts:6`, `apps/web/features/site-usage-gate/server/route-wrapper.ts:58`).
+- Visitor cookies keep `HttpOnly` and `SameSite=Lax`, and shared Visitor Owner cookies now add `Secure` automatically in production (`apps/web/features/shared/visitor-owner/server/route-owner.ts`).
 - OpenAI Agents SDK Realtime client-secret minting is wrapped by the Site Usage Gate and counts as `send_message` usage for `openai-agents-sdk-demo` (`apps/web/app/api/demos/openai-agents-sdk-demo/realtime/client-secrets/route.ts:6`).
 - LangGraph's web route is metered before it calls the runtime, and the hosted FastAPI wrapper now requires the matching server-side `LANGGRAPH_AGENT_API_KEY` plus request `x-api-key` (`apps/web/app/api/demos/langgraph-agent/route.ts:6`, `apps/langgraph-agent-api/langgraph_agent/vercel_app.py:51`).
 - Sandbox preview status checks now require a sandbox `sessionId`, compare the requested preview URL against the exact origin returned by the existing sandbox handle, do not create a sandbox session from the status route, avoid redirects, apply a 3 second timeout, and cap response body reads (`apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:37`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:97`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:160`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:190`).
@@ -39,24 +40,7 @@ The remaining launch caveats are narrower: visitor cookies remain resettable, on
 
 ## Findings
 
-### F1 - Medium/Low - Cookie-only ownership is acceptable for friendly traffic but easy to reset
-
-Evidence:
-
-- Visitor ownership is based on cookies (`apps/web/features/shared/visitor-owner/server/route-owner.ts:45`).
-- Cookies use `HttpOnly` and `SameSite=Lax`, but do not set `Secure` (`apps/web/features/shared/visitor-owner/server/route-owner.ts:65`).
-- The Site Usage visitor cookie lasts 365 days (`apps/web/features/site-usage-gate/server/viewer-context.ts:6`).
-- Demo visitor cookies such as Ultra last 30 days (`apps/web/features/ultra-chatbot-agent/server/viewer-context.ts:3`).
-
-Impact:
-
-Visitor-to-visitor isolation is good enough for normal browsing, but a visitor can clear cookies to obtain a new identity and another allowance. This is consistent with the current personal-demo posture, but it is not abuse-resistant against automation.
-
-Recommendation:
-
-Set `Secure` on cookies in production. Accept cookie-reset bypass as a known limitation for the portfolio phase, or add a lightweight IP/user-agent hash only after real abuse appears. Do not add CAPTCHA by default for the current stated traffic model.
-
-### F2 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
+### F1 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
 
 Evidence:
 
@@ -71,7 +55,7 @@ Recommendation:
 
 Pass `customerId` and `visitorId` into memory mutation methods and include them in the SQL `WHERE` clauses. This is a small defense-in-depth fix and aligns with the rest of the visitor-owner model.
 
-### F3 - Low - Public docs MCP routes are read-only but expose repository docs
+### F2 - Low - Public docs MCP routes are read-only but expose repository docs
 
 Evidence:
 
@@ -87,10 +71,9 @@ Keep docs free of secrets and private deployment details. Add auth only if the d
 
 ## Recommended Fix Order
 
-1. Add production `Secure` cookies.
-2. Add owner predicates to Customer Memory mutations.
-3. Keep public docs free of secrets and private deployment details.
+1. Add owner predicates to Customer Memory mutations.
+2. Keep public docs free of secrets and private deployment details.
 
 ## Current Readiness Call
 
-For a friendly personal portfolio with low traffic, main chat spend is reasonably controlled and code-owned database, event, Blob, and tagged Sandbox resource retention now match the 7-day demo policy. For a public link that could receive automated traffic, visitor-cookie limitations and Customer Memory mutation hardening are still real enough to fix before launch.
+For a friendly personal portfolio with low traffic, main chat spend is reasonably controlled and code-owned database, event, Blob, and tagged Sandbox resource retention now match the 7-day demo policy. For a public link that could receive automated traffic, cookie-reset limitations and Customer Memory mutation hardening are still real enough to track before launch.

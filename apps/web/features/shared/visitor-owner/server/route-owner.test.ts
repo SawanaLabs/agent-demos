@@ -1,7 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createVisitorOwner } from "./route-owner";
 
 describe("visitor owner route module", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("passes a created visitor id to the handler and appends the owner cookie", async () => {
     const owner = createVisitorOwner({
       cookieName: "demo_visitor_id",
@@ -26,6 +30,19 @@ describe("visitor owner route module", () => {
       "demo_visitor_id=visitor-new; Path=/; HttpOnly; SameSite=Lax; Max-Age=60"
     );
     expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("marks visitor cookies secure in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const owner = createVisitorOwner({
+      cookieName: "demo_visitor_id",
+      createVisitorId: () => "visitor-new",
+      maxAgeSeconds: 60,
+    });
+
+    expect(owner.buildVisitorCookie("visitor-new")).toBe(
+      "demo_visitor_id=visitor-new; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=60"
+    );
   });
 
   it("reuses an existing visitor id without appending a cookie", async () => {

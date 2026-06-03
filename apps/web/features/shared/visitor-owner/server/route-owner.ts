@@ -1,3 +1,5 @@
+import { env as appEnv } from "@/env";
+
 export interface VisitorOwnerContext {
   isNewVisitor: boolean;
   shouldSetCookie: boolean;
@@ -26,11 +28,13 @@ export function createVisitorOwner({
   createVisitorId = () => crypto.randomUUID(),
   isValidVisitorId = (visitorId) => visitorId.trim().length > 0,
   maxAgeSeconds,
+  secure = appEnv.NODE_ENV === "production",
 }: {
   cookieName: string;
   createVisitorId?: () => string;
   isValidVisitorId?: (visitorId: string) => boolean;
   maxAgeSeconds: number;
+  secure?: boolean;
 }): VisitorOwner {
   function readVisitorIdFromCookieHeader(cookieHeader: string | null) {
     const visitorId = getCookieValue(cookieHeader, cookieName);
@@ -68,8 +72,11 @@ export function createVisitorOwner({
       "Path=/",
       "HttpOnly",
       "SameSite=Lax",
+      secure ? "Secure" : null,
       `Max-Age=${maxAgeSeconds}`,
-    ].join("; ");
+    ]
+      .filter((part): part is string => typeof part === "string")
+      .join("; ");
   }
 
   function appendVisitorCookie(

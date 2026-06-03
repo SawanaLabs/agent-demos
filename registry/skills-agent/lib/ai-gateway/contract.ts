@@ -2,8 +2,7 @@ import { createGateway } from "ai";
 
 export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const MINIMUM_NODE_VERSION = "22.13.0";
-const nodeVersionPattern =
-  /^v?(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:[-+].*)?$/;
+const nodeVersionPattern = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/;
 
 export type AiGatewayEnvRecord = Record<string, string | undefined>;
 
@@ -61,9 +60,9 @@ const genericMissingApiKeyIssue =
 
 export function parseNodeVersion(version: string): ParsedNodeVersion {
   const match = nodeVersionPattern.exec(version);
-  const major = Number(match?.groups?.major);
-  const minor = Number(match?.groups?.minor);
-  const patch = Number(match?.groups?.patch);
+  const major = Number(match?.[1]);
+  const minor = Number(match?.[2]);
+  const patch = Number(match?.[3]);
 
   if (![major, minor, patch].every(Number.isInteger)) {
     throw new Error(`Unable to parse Node.js version: "${version}".`);

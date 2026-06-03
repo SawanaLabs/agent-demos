@@ -63,6 +63,11 @@
           "target": "@components/demo-chat/use-demo-chat.ts"
         },
         {
+          "path": "components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
           "path": "components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"

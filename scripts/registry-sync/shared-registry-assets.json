@@ -4,7 +4,19 @@
     {
       "name": "ai-gateway-contract",
       "source": "apps/web/features/shared/ai-gateway/server/contract.ts",
-      "target": "lib/ai-gateway/contract.ts"
+      "target": "lib/ai-gateway/contract.ts",
+      "transforms": [
+        {
+          "from": "const nodeVersionPattern =\n  /^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:[-+].*)?$/;",
+          "to": "const nodeVersionPattern = /^v?(\\d+)\\.(\\d+)\\.(\\d+)(?:[-+].*)?$/;",
+          "expectedMatches": 1
+        },
+        {
+          "from": "  const major = Number(match?.groups?.major);\n  const minor = Number(match?.groups?.minor);\n  const patch = Number(match?.groups?.patch);",
+          "to": "  const major = Number(match?.[1]);\n  const minor = Number(match?.[2]);\n  const patch = Number(match?.[3]);",
+          "expectedMatches": 1
+        }
+      ]
     },
     {
       "name": "ai-elements-prompt-input",
@@ -59,6 +71,30 @@
       "demos": ["foundation-chat"],
       "source": "apps/web/features/shared/chat/ui/use-demo-chat.ts",
       "target": "components/demo-chat/use-demo-chat.ts"
+    },
+    {
+      "name": "conversation-error-message",
+      "demos": ["foundation-chat"],
+      "source": "apps/web/features/shared/chat/ui/conversation-error-message.tsx",
+      "target": "components/demo-chat/conversation-error-message.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/message\";",
+          "to": "from \"@/components/ai-elements/message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/"]
     }
   ]
 }

@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-06-02
+updateAt: 2026-06-03
 ---
 
 # shadcn Registry Distribution
@@ -32,11 +32,14 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@ai-sdk-6-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
 - Use a visible handoff title like "Hand this guide to your agent" so the page frames the prompt as a guide-backed task brief instead of a standalone path summary.
 - Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
+- Treat coding-agent-assisted adaptation as part of the consumer story. A Registry Consumer may install a demo into a new or existing project, give the installed source plus linked docs to their coding agent, and ask that agent to adapt routes, styling, data services, or provider settings to the host project.
 
 ## Current Rules
 
 - Keep `registry/registry-demos.json` as the public registry manifest. It is the source of truth for registry namespace, production domain, public demo order, mainline guide demo, setup notes, and whether a demo enters the public **Registry Export**.
 - Keep `registry/registry-demos.json` as the source of truth for **Registry Availability** too. Every ready **Demo Catalog Entry** must either appear in `demos` or appear in `omittedReadyDemos` with a reason.
+- The long-term distribution target is the full demo catalog, not only the current public registry subset. `publicRegistry: false` and `omittedReadyDemos` describe current packaging readiness, not a permanent product boundary.
+- Minimum distributability means the registry command installs a complete reference implementation into a fresh shadcn Next.js project, the installed project compiles and runs, the item carries its required env examples, runtime files, UI files, route files, and docs or source links, and the demo happy path works after the declared services are configured. Host-project adaptation such as route naming, database provider choice, auth, deployment environment, or styling integration is expected to be handled by the Registry Consumer's coding agent with the installed source and linked docs.
 - Use `apps/web/features/demo-catalog/registry-availability.ts` as the join module between **Demo Catalog Entry** data and the **Registry Export** manifest. The join fails when a registry demo is missing from the catalog, when a registry demo points at a roadmap entry, or when a ready demo has no registry availability classification.
 - Generate the root `registry.json` from `registry/registry-demos.json` with `pnpm registry:generate`; do not hand-edit the root `include` list.
 - Keep `registry.json` as the generated root source registry that composes public demo-owned registries with `include`.
@@ -62,6 +65,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Registry-owned demo shell components should inherit the consumer project's shadcn language. Compose `button`, `badge`, `card`, `textarea`, theme tokens, and related primitives instead of hard-coding top-level panel geometry or writing local styling that overrides the preset's default radius and border character without a clear product reason.
 - Registry-owned demo components must target the public contract of the official shadcn primitive they declare in `registryDependencies`. Do not rely on workspace-local extensions such as extra slot exports or child composition APIs unless the registry item vendors that primitive itself.
 - Finish the consumer project's own `pnpm dlx shadcn@latest init` flow before installing any demo item. That step installs the base preset dependencies behind official primitives such as `button`, including `@base-ui/react` and `class-variance-authority`.
+- Every public demo registry item must support standalone direct install after only the namespace setup command. Do not require a Registry Consumer to install `foundation-chat` or any other demo first. Shared runtime, shell, AI Elements, or AI Gateway files needed by multiple demos must be included by that demo's registry item, usually through the shared registry asset projection.
 - Use external AI Elements registry URLs in `registryDependencies` when they install cleanly. `foundation-chat` keeps `conversation` and `message` external, but ships its own `prompt-input` because the upstream registry version currently fails TypeScript checks against the current shadcn/Base UI stack.
 - Explicitly list every package imported by registry-owned files in `dependencies`. Keep the consumer host contract narrow and documented, then let the package manager resolve duplicates.
 - Treat fresh consumer acceptance as the final dependency-closure check. In the current CLI flow, nested `registryDependencies` did not reliably pull every transitive npm package into a clean consumer app, so each demo item must still declare the runtime packages its installed files need.
@@ -80,6 +84,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 
 - `shadcn build` and the producer-side `shadcn/registry` loaders both consume source registry files. They solve distribution. They do not remove the need for a maintained source registry tree.
 - This means the repo still needs an explicit ownership model for demo preview code versus registry source code. Current `foundation-chat` keeps an app preview implementation and a registry implementation because the registry copy uses consumer-project aliases and cannot import workspace-only modules.
+- During fresh-consumer registry acceptance, prefer fixing the portable registry source, demo registry manifest, shared registry assets, or sync tooling before touching the working `apps/web` demo preview. Escalate before changing `apps/web` solely to satisfy a consumer install issue.
 - The current preferred ownership model is app-first plus explicit sync, once a demo is copy-ready under [Registry Sync](./registry-sync.md).
 - Keep per-demo sync tooling under `scripts/registry-sync/`.
 - Keep registry-only wiring files under registry ownership even in an app-first model. That includes `registry/<demo-slug>/registry.json`, route-entry files, vendored exception files, and generated output under `apps/web/public/r/`.
@@ -87,6 +92,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Once a sync manifest exists, treat `files[]` as the distribution contract and the manifest as the projection contract. Keep both updated in the same change when a synced file is added or removed.
 - Until a sync step exists for a given demo, update the app preview files and the registry source files in the same change and verify both paths.
 - For portable assets shared by many demo chunks, or shared by a selected subset of chunks, prefer the shared registry asset manifest over repeating the file in each demo-specific sync manifest.
+- Direct standalone install remains the acceptance boundary even when shared registry assets are projected into many demo chunks. The consumer should be able to replace the guide's `foundation-chat` command with any public demo command and still receive a complete copy for that demo.
 
 ## Foundation Chat Item
 
@@ -251,6 +257,18 @@ curl -X POST http://localhost:3000/api/demos/<demo-slug> \
 
 Do not treat a registry item as finished until the fresh consumer path passes. Validation and build prove schema correctness. The fresh consumer app proves distribution correctness.
 
+Run fresh-consumer acceptance in two layers. During author work, install from a local served registry URL such as `http://localhost:3000/r/{name}.json` so unpublished registry source can be fixed quickly. Before claiming the user-facing guide path works, repeat the same flow against `https://agent-demos.hsawana9.com/r/{name}.json` after deployment.
+
+Use one clean consumer project per demo for the primary acceptance check. Do not require or rely on a consumer project that installs multiple demo registry items in sequence. Multi-demo install compatibility is a separate optional audit, not part of the per-demo direct-install standard.
+
+Run registry verification as one vertical demo loop at a time. If a demo fails fresh-consumer acceptance, fix that demo to passing before starting the next demo, then commit that completed demo slice separately. Avoid broad queue-first audits that turn one shared registry failure into repeated noise across many demos.
+
+Use the current simple-to-complex verification order: `multimodal-chatbot`, `object-generation`, `streaming-chat-shell`, `loop-agent`, `mcp-agent`, `trace-eval-agent`, `rag-chatbot`, `customer-memory-agent`, `persistent-agent`, then `sandbox-agent`. This order prioritizes AI-Gateway-only demos with smaller state surfaces before database, Redis, and Vercel Sandbox-backed demos.
+
+For AI-Gateway-only registry demos, the fresh-consumer happy path must include a browser-level interaction after `AI_GATEWAY_API_KEY` is configured: open the installed demo page, click the first suggestion, and verify that the UI completes a visible assistant response. API route smoke checks are supporting evidence only; they do not replace the page-level suggestion flow.
+
+For this registry-verification phase, browser-level E2E means a human-style Codex in-app Browser check against the running fresh consumer dev server. CLI automation may create the consumer app, install the registry item, configure env, start the server, and collect logs, but the acceptance interaction itself is performed through the browser: open the demo page, click the first suggestion, observe the visible response, and inspect obvious UI/runtime failures.
+
 ## Reusable Checklist
 
 Use this condensed checklist when the next demo starts registry work:
@@ -267,3 +285,4 @@ Use this condensed checklist when the next demo starts registry work:
 - fresh consumer page probes return `200`
 - fresh consumer invalid-body API probes return the expected validation error
 - fresh consumer `pnpm exec tsc --noEmit`, `pnpm build`, and `pnpm dev` pass
+- AI-Gateway-only demo: fresh consumer browser flow clicks the first suggestion and receives a visible assistant response

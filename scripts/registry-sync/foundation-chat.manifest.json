@@ -71,6 +71,11 @@
           "expectedMatches": 1
         },
         {
+          "from": "from \"@/features/shared/chat/ui/conversation-error-message\";",
+          "to": "from \"@/components/demo-chat/conversation-error-message\";",
+          "expectedMatches": 1
+        },
+        {
           "from": "from \"@workspace/ui/lib/utils\";",
           "to": "from \"@/lib/utils\";",
           "expectedMatches": 1
@@ -78,7 +83,8 @@
       ],
       "forbidPatternsAfterTransform": [
         "@workspace/",
-        "@/features/foundation-chat/"
+        "@/features/foundation-chat/",
+        "@/features/shared/"
       ]
     },
     {

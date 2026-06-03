@@ -1,7 +1,7 @@
 ---
 title: Trace and Eval Agent
 description: Stable research-agent, trace-panel, and eval-pipeline conventions for the trace-eval-agent demo.
-updateAt: 2026-06-02
+updateAt: 2026-06-03
 ---
 
 # Trace and Eval Agent
@@ -60,7 +60,8 @@ updateAt: 2026-06-02
 - `apps/web/features/trace-eval-agent/server/chat.ts` currently uses AI SDK `streamText` plus `toUIMessageStreamResponse()` for the research loop. Keep this shape unless the upstream AI SDK guidance for built-in search tools changes.
 - `apps/web/features/trace-eval-agent/model/trace-eval-chat-history.ts` owns the replay-safe chat projection before `convertToModelMessages()`. Replay only safe user/system content plus assistant final-answer text. Do not replay `reasoning`, `tool-*`, or `source-*` parts into the next model turn.
 - `apps/web/features/trace-eval-agent/server/chat.ts` must stream both reasoning and sources to the client with `sendReasoning: true` and `sendSources: true`.
-- Keep the research loop bounded for interactive UX. The current contract uses low reasoning effort, low text verbosity, and prompt-level guidance that caps the agent at two `web_search` calls per answer.
+- Keep the research loop bounded for interactive UX. The current contract uses `stopWhen: stepCountIs(20)`, low reasoning effort, low text verbosity, and prompt-level guidance that caps the agent at two `web_search` calls per answer.
+- Keep the trace-eval model resolver feature-local. `TRACE_EVAL_AGENT_CHAT_MODEL` is the explicit override, `openai/gpt-5-mini` is the demo default, and the global `AI_GATEWAY_CHAT_MODEL` is only a fallback for copied or modified deployments without a feature model. Runtime metadata, setup-state config, and chat execution must use the same resolver.
 - Research-run metadata should be attached through `messageMetadata` on the AI SDK stream response, not through ad hoc client timers or local-only bookkeeping.
 - Token usage is a product signal. Keep total usage in assistant message metadata, show it in the trace, and include it in eval inputs as context.
 - Do not treat token usage as a deterministic eval check, judge hard failure, or standalone score penalty. The judge may mention overly long or inefficient runs in rationale when it affects user experience, but token count alone is not a failure condition.

@@ -84,7 +84,7 @@ export async function streamTraceEvalAgent(
     messages: await convertToModelMessages(replayableMessages),
     model: openai(chatModel),
     providerOptions: TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
-    stopWhen: stepCountIs(8),
+    stopWhen: stepCountIs(20),
     system: traceEvalAgentInstructions,
     tools: {
       [TRACE_EVAL_SEARCH_TOOL_NAME]: openai.tools.webSearch({

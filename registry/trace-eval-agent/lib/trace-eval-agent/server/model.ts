@@ -1,4 +1,6 @@
-const DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
+export const DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
+export const TRACE_EVAL_AGENT_CHAT_MODEL_ENV_KEY =
+  "TRACE_EVAL_AGENT_CHAT_MODEL";
 
 export const TRACE_EVAL_SEARCH_TOOL_NAME = "web_search";
 
@@ -15,5 +17,13 @@ type TraceEvalAgentEnv = Record<string, string | undefined>;
 export function resolveTraceEvalAgentChatModel(
   env: TraceEvalAgentEnv = {}
 ): string {
-  return env.AI_GATEWAY_CHAT_MODEL || DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL;
+  const featureChatModel =
+    env[TRACE_EVAL_AGENT_CHAT_MODEL_ENV_KEY] ||
+    DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL;
+
+  return (
+    featureChatModel ||
+    env.AI_GATEWAY_CHAT_MODEL ||
+    DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL
+  );
 }

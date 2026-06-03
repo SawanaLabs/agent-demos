@@ -174,6 +174,7 @@ describe("streamTraceEvalAgent", () => {
         },
       })
     );
+    expect(stepCountIsMock).toHaveBeenCalledWith(20);
 
     const openaiFactory = createOpenAIMock.mock.results[0]?.value as {
       tools: {

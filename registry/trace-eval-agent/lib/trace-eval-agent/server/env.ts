@@ -8,8 +8,12 @@ import {
   type AiGatewayEnvRecord,
   type AiGatewaySetupConfig,
 } from "@/lib/ai-gateway/contract";
+import {
+  DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL,
+  resolveTraceEvalAgentChatModel,
+} from "./model";
 
-export const DEFAULT_CHAT_MODEL = "openai/gpt-5-mini";
+export const DEFAULT_CHAT_MODEL = DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL;
 
 export type TraceEvalAgentEnv = AiGatewayEnvRecord;
 
@@ -33,13 +37,22 @@ export function getTraceEvalAgentEnv(): TraceEvalAgentEnv {
 export function getTraceEvalAgentConfig(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentConfig {
-  return readAiGatewayContractConfig(env, traceEvalAgentContract);
+  return {
+    ...readAiGatewayContractConfig(env, traceEvalAgentContract),
+    chatModel: resolveTraceEvalAgentChatModel(env),
+  };
 }
 
 export function getTraceEvalAgentSetupState(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentSetupState {
-  return buildAiGatewayContractSetupState(env, traceEvalAgentContract);
+  return buildAiGatewayContractSetupState(env, {
+    ...traceEvalAgentContract,
+    buildConfig: (resolvedEnv) => ({
+      baseURL: resolvedEnv.baseURL,
+      chatModel: resolveTraceEvalAgentChatModel(env),
+    }),
+  });
 }
 
 export function createTraceEvalAgentGateway(

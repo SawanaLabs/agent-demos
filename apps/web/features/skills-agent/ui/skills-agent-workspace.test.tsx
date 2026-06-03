@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SkillsAgentWorkspace } from "./skills-agent-workspace";
 
 interface SkillsAgentChatState {
+  clearError: () => void;
   error: Error | null;
   hasMessages: boolean;
   isBusy: boolean;
@@ -18,6 +19,7 @@ interface SkillsAgentChatState {
 
 const chatState = vi.hoisted(() => ({
   current: {
+    clearError: () => undefined,
     error: null,
     hasMessages: false,
     isBusy: false,
@@ -74,6 +76,7 @@ function expectButtonDisabled(markup: string, text: string) {
 describe("skills agent workspace UI", () => {
   beforeEach(() => {
     chatState.current = {
+      clearError: () => undefined,
       error: null,
       hasMessages: false,
       isBusy: false,

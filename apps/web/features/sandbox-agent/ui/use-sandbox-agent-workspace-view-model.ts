@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useConversationErrorRetry } from "@/features/shared/chat/ui/conversation-error-message";
+
 import { getLatestPreviewOutput } from "./preview-state";
 import { samplePrompts } from "./sandbox-agent-model";
 import { useSandboxAgentChat } from "./use-sandbox-agent-chat";
@@ -13,6 +15,7 @@ export function useSandboxAgentWorkspaceViewModel() {
   const [activeTab, setActiveTab] = useState<SandboxAgentTab>("conversation");
   const [isTabsMounted, setIsTabsMounted] = useState(false);
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -22,6 +25,10 @@ export function useSandboxAgentWorkspaceViewModel() {
     status,
     stop,
   } = useSandboxAgentChat();
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const latestPreview = useMemo(
     () => getLatestPreviewOutput(messages),
     [messages]
@@ -48,6 +55,7 @@ export function useSandboxAgentWorkspaceViewModel() {
     actions: {
       onOpenPreview: () => setActiveTab("preview"),
       onRegenerate: () => regenerate(),
+      onRetryError: retryConversationError,
       onSendMessage: (text: string) => sendMessage({ text }),
       onStop: stop,
       onTabChange: (value: SandboxAgentTab) => setActiveTab(value),

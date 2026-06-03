@@ -44,6 +44,10 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 
 import {
   getGroundedSourceKey,
@@ -67,6 +71,7 @@ export function RagChatbotWorkspace({
   setupMessage,
 }: RagChatbotWorkspaceProps) {
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -76,6 +81,10 @@ export function RagChatbotWorkspace({
     status,
     stop,
   } = useRagChatbot();
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const samplePrompts = useMemo(
     () => [
       "What does the manual say about the NASA logotype?",
@@ -94,93 +103,98 @@ export function RagChatbotWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message) => {
-                const projection = projectGroundedMessage(message);
+            {hasMessages || error ? (
+              <>
+                {messages.map((message) => {
+                  const projection = projectGroundedMessage(message);
 
-                return (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent
-                      className={cn(
-                        "space-y-4",
-                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                      )}
-                    >
-                      {projection.sources.length > 0 ? (
-                        <Sources>
-                          <SourcesTrigger count={projection.sources.length} />
-                          <SourcesContent>
-                            {projection.sources.map((source, index) => (
-                              <Source
-                                href={source.documentUrl}
-                                key={getGroundedSourceKey(
-                                  message.id,
-                                  source,
-                                  index
-                                )}
-                                title={source.citationLabel}
-                              >
-                                <span className="font-medium">
-                                  {source.citationLabel}
-                                </span>
-                                {source.sectionTitle ? (
-                                  <span className="text-muted-foreground">
-                                    {source.sectionTitle}
+                  return (
+                    <Message from={message.role} key={message.id}>
+                      <MessageContent
+                        className={cn(
+                          "space-y-4",
+                          message.role === "assistant"
+                            ? "max-w-3xl"
+                            : "max-w-2xl"
+                        )}
+                      >
+                        {projection.sources.length > 0 ? (
+                          <Sources>
+                            <SourcesTrigger count={projection.sources.length} />
+                            <SourcesContent>
+                              {projection.sources.map((source, index) => (
+                                <Source
+                                  href={source.documentUrl}
+                                  key={getGroundedSourceKey(
+                                    message.id,
+                                    source,
+                                    index
+                                  )}
+                                  title={source.citationLabel}
+                                >
+                                  <span className="font-medium">
+                                    {source.citationLabel}
                                   </span>
-                                ) : null}
-                              </Source>
-                            ))}
-                          </SourcesContent>
-                        </Sources>
-                      ) : null}
+                                  {source.sectionTitle ? (
+                                    <span className="text-muted-foreground">
+                                      {source.sectionTitle}
+                                    </span>
+                                  ) : null}
+                                </Source>
+                              ))}
+                            </SourcesContent>
+                          </Sources>
+                        ) : null}
 
-                      {projection.text ? (
-                        <MessageResponse>{projection.text}</MessageResponse>
-                      ) : (
-                        <p className="text-muted-foreground text-sm">
-                          Waiting for visible output.
-                        </p>
-                      )}
+                        {projection.text ? (
+                          <MessageResponse>{projection.text}</MessageResponse>
+                        ) : (
+                          <p className="text-muted-foreground text-sm">
+                            Waiting for visible output.
+                          </p>
+                        )}
 
-                      {projection.toolParts.map((part) => (
-                        <Tool key={part.toolCallId}>
-                          {part.type === "dynamic-tool" ? (
-                            <ToolHeader
-                              state={part.state}
-                              title="Knowledge Base Retrieval"
-                              toolName={part.toolName}
-                              type={part.type}
-                            />
-                          ) : (
-                            <ToolHeader
-                              state={part.state}
-                              title="Knowledge Base Retrieval"
-                              type={part.type}
-                            />
-                          )}
-                          <ToolContent>
-                            {part.input ? (
-                              <ToolInput input={part.input} />
-                            ) : null}
-                            <ToolOutput
-                              errorText={part.errorText}
-                              output={part.output}
-                            />
-                          </ToolContent>
-                        </Tool>
-                      ))}
-                    </MessageContent>
-                  </Message>
-                );
-              })
+                        {projection.toolParts.map((part) => (
+                          <Tool key={part.toolCallId}>
+                            {part.type === "dynamic-tool" ? (
+                              <ToolHeader
+                                state={part.state}
+                                title="Knowledge Base Retrieval"
+                                toolName={part.toolName}
+                                type={part.type}
+                              />
+                            ) : (
+                              <ToolHeader
+                                state={part.state}
+                                title="Knowledge Base Retrieval"
+                                type={part.type}
+                              />
+                            )}
+                            <ToolContent>
+                              {part.input ? (
+                                <ToolInput input={part.input} />
+                              ) : null}
+                              <ToolOutput
+                                errorText={part.errorText}
+                                output={part.output}
+                              />
+                            </ToolContent>
+                          </Tool>
+                        ))}
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy || !isChatAvailable}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask about the indexed design manual. Every grounded answer is expected to flow through retrieval."

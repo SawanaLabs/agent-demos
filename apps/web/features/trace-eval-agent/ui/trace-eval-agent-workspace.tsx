@@ -23,6 +23,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { useDeferredValue } from "react";
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 import { classifyTraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import { buildTraceEvalRunRecord } from "../model/trace-eval-run-record";
 import { buildTraceEvalSnapshotFromRunRecord } from "../model/trace-eval-snapshot";
@@ -93,46 +94,44 @@ export function TraceEvalAgentWorkspace({
             </div>
           )}
 
-          {runOutcome.kind === "failed-run" ? (
-            <div className="flex items-center justify-between gap-4 border-foreground/10 border-b px-4 py-3 text-xs/relaxed">
-              <p className="text-destructive">{runOutcome.detail}</p>
-              <Button
-                onClick={() => {
-                  handleRetry();
-                }}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                Retry
-              </Button>
-            </div>
-          ) : null}
-
           <Conversation className="min-h-0 flex-1">
             <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 pt-6 pb-[3lh]">
-              {hasMessages ? (
-                messages.map((message, index) => (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent
-                      className={cn(
-                        "space-y-4",
-                        message.role === "assistant" ? "max-w-4xl" : "max-w-2xl"
-                      )}
-                    >
-                      {message.role === "assistant" ? (
-                        <TraceEvalAgentAssistantMessage
-                          isStreaming={isBusy && index === messages.length - 1}
-                          message={message}
-                        />
-                      ) : (
-                        <MessageResponse>
-                          {getTextContent(message)}
-                        </MessageResponse>
-                      )}
-                    </MessageContent>
-                  </Message>
-                ))
+              {hasMessages || runOutcome.kind === "failed-run" ? (
+                <>
+                  {messages.map((message, index) => (
+                    <Message from={message.role} key={message.id}>
+                      <MessageContent
+                        className={cn(
+                          "space-y-4",
+                          message.role === "assistant"
+                            ? "max-w-4xl"
+                            : "max-w-2xl"
+                        )}
+                      >
+                        {message.role === "assistant" ? (
+                          <TraceEvalAgentAssistantMessage
+                            isStreaming={
+                              isBusy && index === messages.length - 1
+                            }
+                            message={message}
+                          />
+                        ) : (
+                          <MessageResponse>
+                            {getTextContent(message)}
+                          </MessageResponse>
+                        )}
+                      </MessageContent>
+                    </Message>
+                  ))}
+                  {runOutcome.kind === "failed-run" ? (
+                    <ConversationErrorMessage
+                      error={runOutcome.detail}
+                      isRetryDisabled={!runtimeState.isChatAvailable || isBusy}
+                      onRetry={handleRetry}
+                      title={runOutcome.title}
+                    />
+                  ) : null}
+                </>
               ) : (
                 <ConversationEmptyState
                   description="Ask for live research. The agent will search the web through AI Gateway, then the trace and eval panel below will score the current conversation."

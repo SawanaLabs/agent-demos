@@ -23,6 +23,10 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import type { McpAgentRuntimeState } from "../server/runtime";
 import { McpAgentAssistantTrace } from "./mcp-agent-assistant-trace";
 import { getTextContent, mcpAgentSamplePrompts } from "./mcp-agent-model";
@@ -47,6 +51,7 @@ export function McpAgentWorkspace({
   setupMessage,
 }: McpAgentWorkspaceProps) {
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -57,6 +62,10 @@ export function McpAgentWorkspace({
     stop,
   } = useMcpAgentChat();
   const canStartChatTurn = isChatAvailable && !isBusy;
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
 
   function sendChatMessage(text: string) {
     if (!canStartChatTurn) {
@@ -83,37 +92,40 @@ export function McpAgentWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 pt-6 pb-[3lh]">
-            {hasMessages ? (
-              messages.map((message, index) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(
-                      "space-y-4",
-                      message.role === "assistant" ? "max-w-4xl" : "max-w-2xl"
-                    )}
-                  >
-                    {message.role === "assistant" ? (
-                      <McpAgentAssistantTrace
-                        isLastMessage={index === messages.length - 1}
-                        isStreaming={isBusy}
-                        message={message}
-                      />
-                    ) : (
-                      <MessageResponse>
-                        {getTextContent(message)}
-                      </MessageResponse>
-                    )}
-                  </MessageContent>
-                </Message>
-              ))
+            {hasMessages || error ? (
+              <>
+                {messages.map((message, index) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        "space-y-4",
+                        message.role === "assistant" ? "max-w-4xl" : "max-w-2xl"
+                      )}
+                    >
+                      {message.role === "assistant" ? (
+                        <McpAgentAssistantTrace
+                          isLastMessage={index === messages.length - 1}
+                          isStreaming={isBusy}
+                          message={message}
+                        />
+                      ) : (
+                        <MessageResponse>
+                          {getTextContent(message)}
+                        </MessageResponse>
+                      )}
+                    </MessageContent>
+                  </Message>
+                ))}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={!canStartChatTurn}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask about project docs, demo planning, or the local Next.js runtime. The agent will choose the relevant MCP tools without a mode switch."

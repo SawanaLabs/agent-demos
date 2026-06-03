@@ -26,6 +26,11 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
 import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
 
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
+
 import { useFoundationChat } from "./use-foundation-chat";
 
 const foundationChatSamplePrompts = [
@@ -55,6 +60,7 @@ export function FoundationChatWorkspace({
   setupMessage,
 }: FoundationChatWorkspaceProps) {
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -64,6 +70,10 @@ export function FoundationChatWorkspace({
     status,
     stop,
   } = useFoundationChat();
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -77,39 +87,41 @@ export function FoundationChatWorkspace({
           </>
         )}
 
-        {error ? (
-          <>
-            <div className="px-4 py-3 text-destructive text-xs/relaxed">
-              {error.message}
-            </div>
-            <Separator />
-          </>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message) => {
-                const text = getTextContent(message);
+            {hasMessages || error ? (
+              <>
+                {messages.map((message) => {
+                  const text = getTextContent(message);
 
-                return (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent
-                      className={cn(
-                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                      )}
-                    >
-                      {text ? (
-                        <MessageResponse>{text}</MessageResponse>
-                      ) : (
-                        <p className="text-muted-foreground text-sm">
-                          Waiting for visible output.
-                        </p>
-                      )}
-                    </MessageContent>
-                  </Message>
-                );
-              })
+                  return (
+                    <Message from={message.role} key={message.id}>
+                      <MessageContent
+                        className={cn(
+                          message.role === "assistant"
+                            ? "max-w-3xl"
+                            : "max-w-2xl"
+                        )}
+                      >
+                        {text ? (
+                          <MessageResponse>{text}</MessageResponse>
+                        ) : (
+                          <p className="text-muted-foreground text-sm">
+                            Waiting for visible output.
+                          </p>
+                        )}
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy || !isChatAvailable}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask about the project, the stack, or any capability you want to turn into the next demo."

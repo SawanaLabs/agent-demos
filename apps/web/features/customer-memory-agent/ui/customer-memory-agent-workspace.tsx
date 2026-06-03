@@ -43,6 +43,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import { useMemo } from "react";
 
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
+
 import type { CustomerMemoryProfile } from "../customer-profiles";
 import type { CustomerMemorySessionData } from "../session-data";
 import {
@@ -570,15 +572,15 @@ function CustomerMemoryChatPanel({
           {setupMessage}
         </div>
       )}
-      <CustomerMemoryErrorBanner message={sessionErrorMessage} />
-      <CustomerMemoryErrorBanner message={chatErrorMessage} />
       <CustomerMemoryConversation
+        chatErrorMessage={chatErrorMessage}
         compactionThreshold={compactionThreshold}
         isBusy={isBusy}
         isSessionLoading={isSessionLoading}
         messages={messages}
         onRegenerateLastTurn={onRegenerateLastTurn}
         session={session}
+        sessionErrorMessage={sessionErrorMessage}
       />
       <CustomerMemoryComposer
         chatModel={chatModel}
@@ -597,43 +599,37 @@ function CustomerMemoryChatPanel({
   );
 }
 
-function CustomerMemoryErrorBanner({ message }: { message: string | null }) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-      {message}
-    </div>
-  );
-}
-
 function CustomerMemoryConversation({
+  chatErrorMessage,
   compactionThreshold,
   isBusy,
   isSessionLoading,
   messages,
   onRegenerateLastTurn,
   session,
+  sessionErrorMessage,
 }: {
+  chatErrorMessage: string | null;
   compactionThreshold: number;
   isBusy: boolean;
   isSessionLoading: boolean;
   messages: UIMessage[];
   onRegenerateLastTurn: () => Promise<void>;
   session: CustomerMemorySessionData | null;
+  sessionErrorMessage: string | null;
 }) {
   return (
     <Conversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
         <CustomerMemoryConversationContent
+          chatErrorMessage={chatErrorMessage}
           compactionThreshold={compactionThreshold}
           isBusy={isBusy}
           isSessionLoading={isSessionLoading}
           messages={messages}
           onRegenerateLastTurn={onRegenerateLastTurn}
           session={session}
+          sessionErrorMessage={sessionErrorMessage}
         />
       </ConversationContent>
       <ConversationScrollButton />
@@ -642,21 +638,27 @@ function CustomerMemoryConversation({
 }
 
 function CustomerMemoryConversationContent({
+  chatErrorMessage,
   compactionThreshold,
   isBusy,
   isSessionLoading,
   messages,
   onRegenerateLastTurn,
   session,
+  sessionErrorMessage,
 }: {
+  chatErrorMessage: string | null;
   compactionThreshold: number;
   isBusy: boolean;
   isSessionLoading: boolean;
   messages: UIMessage[];
   onRegenerateLastTurn: () => Promise<void>;
   session: CustomerMemorySessionData | null;
+  sessionErrorMessage: string | null;
 }) {
-  if (messages.length === 0) {
+  const hasErrors = Boolean(chatErrorMessage || sessionErrorMessage);
+
+  if (messages.length === 0 && !hasErrors) {
     if (isSessionLoading) {
       return <CustomerMemoryConversationSkeleton />;
     }
@@ -728,6 +730,19 @@ function CustomerMemoryConversationContent({
           </div>
         );
       })}
+      {sessionErrorMessage ? (
+        <ConversationErrorMessage
+          error={sessionErrorMessage}
+          title="Customer memory session failed"
+        />
+      ) : null}
+      {chatErrorMessage ? (
+        <ConversationErrorMessage
+          error={chatErrorMessage}
+          isRetryDisabled={isBusy}
+          onRetry={onRegenerateLastTurn}
+        />
+      ) : null}
       {pendingCompaction ? (
         <CustomerMemoryContextCheckpoint
           messageCount={pendingCompaction.messageCount}

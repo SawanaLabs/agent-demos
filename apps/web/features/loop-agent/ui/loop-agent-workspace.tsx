@@ -69,6 +69,10 @@ import {
 import { type ReactNode, useMemo } from "react";
 
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import { useLoopAgentChat } from "./use-loop-agent-chat";
 
 function getTextContent(message: UIMessage) {
@@ -367,6 +371,7 @@ export function LoopAgentWorkspace({
 }: LoopAgentWorkspaceProps) {
   const {
     addToolApprovalResponse,
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -376,6 +381,10 @@ export function LoopAgentWorkspace({
     status,
     stop,
   } = useLoopAgentChat();
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const samplePrompts = useMemo(
     () => [
       `Triage ${triage.caseId} and explain the tool sequence.`,
@@ -394,39 +403,42 @@ export function LoopAgentWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message, index) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(
-                      "space-y-4",
-                      message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                    )}
-                  >
-                    {message.role === "assistant" ? (
-                      <AssistantTrace
-                        isLastMessage={index === messages.length - 1}
-                        isStreaming={isBusy}
-                        message={message}
-                        onApprovalResponse={addToolApprovalResponse}
-                        triage={triage}
-                      />
-                    ) : (
-                      <MessageResponse>
-                        {getTextContent(message)}
-                      </MessageResponse>
-                    )}
-                  </MessageContent>
-                </Message>
-              ))
+            {hasMessages || error ? (
+              <>
+                {messages.map((message, index) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        "space-y-4",
+                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
+                      )}
+                    >
+                      {message.role === "assistant" ? (
+                        <AssistantTrace
+                          isLastMessage={index === messages.length - 1}
+                          isStreaming={isBusy}
+                          message={message}
+                          onApprovalResponse={addToolApprovalResponse}
+                          triage={triage}
+                        />
+                      ) : (
+                        <MessageResponse>
+                          {getTextContent(message)}
+                        </MessageResponse>
+                      )}
+                    </MessageContent>
+                  </Message>
+                ))}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy || !isChatAvailable}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask the agent to triage the default support case and inspect which tools run before the final recommendation."

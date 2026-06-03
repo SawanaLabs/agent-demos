@@ -17,4 +17,17 @@ describe("conversation error message", () => {
     expect(markup).toContain("Model stream failed.");
     expect(markup).toContain("Retry");
   });
+
+  it("renders a non-retryable assistant-side error inside the conversation", () => {
+    const markup = renderToStaticMarkup(
+      createElement(ConversationErrorMessage, {
+        error: "Attachment conversion failed.",
+        title: "Message could not be sent",
+      })
+    );
+
+    expect(markup).toContain("Message could not be sent");
+    expect(markup).toContain("Attachment conversion failed.");
+    expect(markup).not.toContain("Retry");
+  });
 });

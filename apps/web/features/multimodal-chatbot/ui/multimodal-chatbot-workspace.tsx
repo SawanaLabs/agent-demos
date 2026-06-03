@@ -38,6 +38,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import type { RefObject } from "react";
 
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
+
 import {
   getMultimodalFileParts,
   getMultimodalMessageText,
@@ -54,21 +56,46 @@ export interface MultimodalChatbotWorkspaceProps {
 }
 
 interface MultimodalConversationProps {
+  chatErrorMessage: string | null;
+  composerError: string | null;
   hasMessages: boolean;
+  isRetryDisabled: boolean;
   messages: UIMessage[];
+  onRetryChatError: () => Promise<void> | void;
 }
 
 function MultimodalConversation({
+  chatErrorMessage,
+  composerError,
   hasMessages,
+  isRetryDisabled,
   messages,
+  onRetryChatError,
 }: MultimodalConversationProps) {
+  const hasErrors = Boolean(chatErrorMessage || composerError);
+
   return (
     <Conversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-        {hasMessages ? (
-          messages.map((message) => (
-            <MultimodalMessage key={message.id} message={message} />
-          ))
+        {hasMessages || hasErrors ? (
+          <>
+            {messages.map((message) => (
+              <MultimodalMessage key={message.id} message={message} />
+            ))}
+            {chatErrorMessage ? (
+              <ConversationErrorMessage
+                error={chatErrorMessage}
+                isRetryDisabled={isRetryDisabled}
+                onRetry={onRetryChatError}
+              />
+            ) : null}
+            {composerError ? (
+              <ConversationErrorMessage
+                error={composerError}
+                title="Message could not be sent"
+              />
+            ) : null}
+          </>
         ) : (
           <ConversationEmptyState
             description="Attach an image or PDF, ask a question, and inspect how the same chat surface handles ad-hoc multimodal context without preindexing."
@@ -371,21 +398,13 @@ export function MultimodalChatbotWorkspace({
           </div>
         )}
 
-        {controller.chatErrorMessage ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {controller.chatErrorMessage}
-          </div>
-        ) : null}
-
-        {controller.composerError ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {controller.composerError}
-          </div>
-        ) : null}
-
         <MultimodalConversation
+          chatErrorMessage={controller.chatErrorMessage}
+          composerError={controller.composerError}
           hasMessages={controller.hasMessages}
+          isRetryDisabled={controller.isBusy || !isChatAvailable}
           messages={controller.messages}
+          onRetryChatError={controller.retryChatError}
         />
         <MultimodalComposer
           chatModel={chatModel}

@@ -37,6 +37,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { FileUIPart } from "ai";
 import { useMemo, useRef } from "react";
 
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
+
 import { ObjectGenerationResultCard } from "./object-generation-result-card";
 import type { DisplayReviewThreadEntry } from "./object-generation-session";
 import { useObjectGenerationSession } from "./use-object-generation-session";
@@ -93,6 +95,7 @@ export function ObjectGenerationWorkspace({
     ],
     []
   );
+  const hasConversationErrors = Boolean(composerError || streamErrorMessage);
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -103,86 +106,87 @@ export function ObjectGenerationWorkspace({
           </div>
         )}
 
-        {composerError ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {composerError}
-          </div>
-        ) : null}
-
-        {streamErrorMessage ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {streamErrorMessage}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              entries.map((entry) => {
-                const attachmentParts = getUserAttachmentParts(
-                  entry.attachments
-                );
+            {hasMessages || hasConversationErrors ? (
+              <>
+                {entries.map((entry) => {
+                  const attachmentParts = getUserAttachmentParts(
+                    entry.attachments
+                  );
 
-                return (
-                  <div className="space-y-4" key={entry.id}>
-                    <Message from="user">
-                      <MessageContent className="max-w-2xl space-y-4">
-                        {entry.prompt ? (
-                          <MessageResponse>{entry.prompt}</MessageResponse>
-                        ) : (
-                          <p className="text-muted-foreground text-sm">
-                            Attachment-only object generation request.
-                          </p>
-                        )}
+                  return (
+                    <div className="space-y-4" key={entry.id}>
+                      <Message from="user">
+                        <MessageContent className="max-w-2xl space-y-4">
+                          {entry.prompt ? (
+                            <MessageResponse>{entry.prompt}</MessageResponse>
+                          ) : (
+                            <p className="text-muted-foreground text-sm">
+                              Attachment-only object generation request.
+                            </p>
+                          )}
 
-                        {attachmentParts.length > 0 ? (
-                          <Attachments variant="list">
-                            {attachmentParts.map((part, index) => (
-                              <Attachment
-                                data={{
-                                  ...part,
-                                  id: `${entry.id}-${index}-${part.filename ?? "attachment"}`,
-                                }}
-                                key={`${entry.id}-${index}-${part.filename ?? "attachment"}`}
+                          {attachmentParts.length > 0 ? (
+                            <Attachments variant="list">
+                              {attachmentParts.map((part, index) => (
+                                <Attachment
+                                  data={{
+                                    ...part,
+                                    id: `${entry.id}-${index}-${part.filename ?? "attachment"}`,
+                                  }}
+                                  key={`${entry.id}-${index}-${part.filename ?? "attachment"}`}
+                                >
+                                  <AttachmentPreview />
+                                  <AttachmentInfo showMediaType />
+                                </Attachment>
+                              ))}
+                            </Attachments>
+                          ) : null}
+                        </MessageContent>
+                      </Message>
+
+                      <Message from="assistant">
+                        <MessageContent className="max-w-3xl space-y-3">
+                          <ObjectGenerationResultCard
+                            errorMessage={entry.errorMessage}
+                            record={entry.record}
+                            result={entry.liveResult}
+                            status={entry.liveStatus}
+                          />
+
+                          {entry.liveStatus === "streaming" ? null : (
+                            <div className="flex justify-end">
+                              <Button
+                                aria-label="Regenerate this object from the same prompt and attachments"
+                                onClick={() => retryReview(entry)}
+                                size="sm"
+                                title="Runs the same request again and records a new result."
+                                type="button"
+                                variant="outline"
                               >
-                                <AttachmentPreview />
-                                <AttachmentInfo showMediaType />
-                              </Attachment>
-                            ))}
-                          </Attachments>
-                        ) : null}
-                      </MessageContent>
-                    </Message>
+                                <ArrowClockwiseIcon className="size-3.5" />
+                                Regenerate object
+                              </Button>
+                            </div>
+                          )}
+                        </MessageContent>
+                      </Message>
+                    </div>
+                  );
+                })}
 
-                    <Message from="assistant">
-                      <MessageContent className="max-w-3xl space-y-3">
-                        <ObjectGenerationResultCard
-                          errorMessage={entry.errorMessage}
-                          record={entry.record}
-                          result={entry.liveResult}
-                          status={entry.liveStatus}
-                        />
+                {streamErrorMessage ? (
+                  <ConversationErrorMessage error={streamErrorMessage} />
+                ) : null}
 
-                        {entry.liveStatus === "streaming" ? null : (
-                          <div className="flex justify-end">
-                            <Button
-                              aria-label="Regenerate this object from the same prompt and attachments"
-                              onClick={() => retryReview(entry)}
-                              size="sm"
-                              title="Runs the same request again and records a new result."
-                              type="button"
-                              variant="outline"
-                            >
-                              <ArrowClockwiseIcon className="size-3.5" />
-                              Regenerate object
-                            </Button>
-                          </div>
-                        )}
-                      </MessageContent>
-                    </Message>
-                  </div>
-                );
-              })
+                {composerError ? (
+                  <ConversationErrorMessage
+                    error={composerError}
+                    title="Message could not be sent"
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Send text, screenshots, or PDFs. The assistant message streams a structured object directly into the thread."

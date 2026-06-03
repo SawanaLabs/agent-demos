@@ -35,12 +35,6 @@ export function SandboxAgentWorkspace({
           </div>
         )}
 
-        {workspace.error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {workspace.error.message}
-          </div>
-        ) : null}
-
         {workspace.isTabsMounted ? (
           <Tabs
             className="flex min-h-0 flex-1 flex-col gap-0"
@@ -58,12 +52,14 @@ export function SandboxAgentWorkspace({
 
             <SandboxConversationPane
               chatModel={chatModel}
+              error={workspace.error ?? null}
               hasMessages={workspace.hasMessages}
               isBusy={workspace.isBusy}
               isChatAvailable={isChatAvailable}
               messages={workspace.messages}
               onOpenPreview={workspace.actions.onOpenPreview}
               onRegenerate={workspace.actions.onRegenerate}
+              onRetryError={workspace.actions.onRetryError}
               onSendMessage={workspace.actions.onSendMessage}
               onStop={workspace.actions.onStop}
               samplePrompts={workspace.samplePrompts}

@@ -35,7 +35,9 @@ import {
 } from "@workspace/ui/components/collapsible";
 import { cn } from "@workspace/ui/lib/utils";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import type { StreamingAudience } from "../server/contract";
 import {
@@ -77,6 +79,7 @@ interface StreamingChatShellWorkspaceProps {
 }
 
 interface StreamingTranscriptProps {
+  audience: StreamingAudience;
   chat: Chat<UIMessage>;
   isChatAvailable: boolean;
   setupMessage: string | null;
@@ -104,12 +107,18 @@ interface ReplayPromptCardProps {
 }
 
 function StreamingTranscript({
+  audience,
   chat,
   isChatAvailable,
   setupMessage,
 }: StreamingTranscriptProps) {
-  const { error, messages } = useChat({ chat });
+  const { clearError, error, messages, regenerate, status } = useChat({ chat });
   const hasMessages = messages.length > 0;
+  const isBusy = status === "submitted" || status === "streaming";
+  const retryConversationError = useCallback(async () => {
+    clearError();
+    await regenerate({ body: { audience } });
+  }, [audience, clearError, regenerate]);
 
   return (
     <>
@@ -119,36 +128,40 @@ function StreamingTranscript({
         </div>
       )}
 
-      {error ? (
-        <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-          {error.message}
-        </div>
-      ) : null}
-
       <Conversation className="min-h-0">
         <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-          {hasMessages ? (
-            messages.map((message) => {
-              const text = getTextContent(message);
+          {hasMessages || error ? (
+            <>
+              {messages.map((message) => {
+                const text = getTextContent(message);
 
-              return (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(
-                      message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                    )}
-                  >
-                    {text ? (
-                      <MessageResponse>{text}</MessageResponse>
-                    ) : (
-                      <p className="text-muted-foreground text-sm">
-                        Waiting for visible output.
-                      </p>
-                    )}
-                  </MessageContent>
-                </Message>
-              );
-            })
+                return (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
+                      )}
+                    >
+                      {text ? (
+                        <MessageResponse>{text}</MessageResponse>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">
+                          Waiting for visible output.
+                        </p>
+                      )}
+                    </MessageContent>
+                  </Message>
+                );
+              })}
+
+              {error ? (
+                <ConversationErrorMessage
+                  error={error}
+                  isRetryDisabled={!isChatAvailable || isBusy}
+                  onRetry={retryConversationError}
+                />
+              ) : null}
+            </>
           ) : (
             <ConversationEmptyState
               description="Send a prompt, then inspect how the same chat history can be replayed as a developer-side SSE trace."
@@ -496,6 +509,7 @@ export function StreamingChatShellWorkspace({
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         <StreamingTranscript
+          audience={audience}
           chat={chat}
           isChatAvailable={isChatAvailable}
           setupMessage={setupMessage}

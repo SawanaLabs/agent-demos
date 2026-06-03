@@ -430,6 +430,7 @@ export function useCustomerMemorySession(
       return;
     }
 
+    clearError();
     await regenerate();
   }
 

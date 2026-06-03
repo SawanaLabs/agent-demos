@@ -11,9 +11,11 @@ import { useCallback } from "react";
 
 interface ConversationErrorMessageProps {
   className?: string;
-  error: Error;
+  error: Error | string;
   isRetryDisabled?: boolean;
-  onRetry: () => Promise<void> | void;
+  onRetry?: () => Promise<void> | void;
+  retryLabel?: string;
+  title?: string;
 }
 
 interface UseConversationErrorRetryInput {
@@ -35,8 +37,12 @@ export function ConversationErrorMessage({
   className,
   error,
   isRetryDisabled = false,
+  retryLabel = "Retry",
   onRetry,
+  title = "Assistant response failed",
 }: ConversationErrorMessageProps) {
+  const errorMessage = typeof error === "string" ? error : error.message;
+
   return (
     <Message from="assistant">
       <MessageContent
@@ -47,24 +53,26 @@ export function ConversationErrorMessage({
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="font-medium text-sm">Assistant response failed</p>
+            <p className="font-medium text-sm">{title}</p>
             <p className="mt-1 break-words text-xs/relaxed opacity-90">
-              {error.message}
+              {errorMessage}
             </p>
           </div>
-          <Button
-            className="self-start"
-            disabled={isRetryDisabled}
-            onClick={() => {
-              void onRetry();
-            }}
-            size="sm"
-            type="button"
-            variant="destructive"
-          >
-            <RefreshCcwIcon className="size-3.5" />
-            Retry
-          </Button>
+          {onRetry ? (
+            <Button
+              className="self-start"
+              disabled={isRetryDisabled}
+              onClick={() => {
+                void onRetry();
+              }}
+              size="sm"
+              type="button"
+              variant="destructive"
+            >
+              <RefreshCcwIcon className="size-3.5" />
+              {retryLabel}
+            </Button>
+          ) : null}
         </div>
       </MessageContent>
     </Message>

@@ -26,17 +26,21 @@ import { TabsContent } from "@workspace/ui/components/tabs";
 import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
 
+import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
+
 import { SandboxAgentAssistantTrace } from "./sandbox-agent-assistant-trace";
 import { getTextContent } from "./sandbox-agent-model";
 
 interface SandboxConversationPaneProps {
   chatModel: string;
+  error: Error | null;
   hasMessages: boolean;
   isBusy: boolean;
   isChatAvailable: boolean;
   messages: UIMessage[];
   onOpenPreview: () => void;
   onRegenerate: () => void;
+  onRetryError: () => Promise<void> | void;
   onSendMessage: (text: string) => void;
   onStop: () => void;
   samplePrompts: readonly string[];
@@ -45,12 +49,14 @@ interface SandboxConversationPaneProps {
 
 export function SandboxConversationPane({
   chatModel,
+  error,
   hasMessages,
   isBusy,
   isChatAvailable,
   messages,
   onOpenPreview,
   onRegenerate,
+  onRetryError,
   onSendMessage,
   onStop,
   samplePrompts,
@@ -61,30 +67,39 @@ export function SandboxConversationPane({
       <div className="flex h-full min-h-0 flex-col">
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message, index) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(
-                      "space-y-4",
-                      message.role === "assistant" ? "max-w-4xl" : "max-w-2xl"
-                    )}
-                  >
-                    {message.role === "assistant" ? (
-                      <SandboxAgentAssistantTrace
-                        isLastMessage={index === messages.length - 1}
-                        isStreaming={isBusy}
-                        message={message}
-                        onOpenPreview={onOpenPreview}
-                      />
-                    ) : (
-                      <MessageResponse>
-                        {getTextContent(message)}
-                      </MessageResponse>
-                    )}
-                  </MessageContent>
-                </Message>
-              ))
+            {hasMessages || error ? (
+              <>
+                {messages.map((message, index) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        "space-y-4",
+                        message.role === "assistant" ? "max-w-4xl" : "max-w-2xl"
+                      )}
+                    >
+                      {message.role === "assistant" ? (
+                        <SandboxAgentAssistantTrace
+                          isLastMessage={index === messages.length - 1}
+                          isStreaming={isBusy}
+                          message={message}
+                          onOpenPreview={onOpenPreview}
+                        />
+                      ) : (
+                        <MessageResponse>
+                          {getTextContent(message)}
+                        </MessageResponse>
+                      )}
+                    </MessageContent>
+                  </Message>
+                ))}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={isBusy || !isChatAvailable}
+                    onRetry={onRetryError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask the agent to scaffold a static frontend prototype, edit files in the sandbox workspace, and expose a live preview."

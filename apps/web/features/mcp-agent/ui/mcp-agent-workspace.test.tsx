@@ -7,6 +7,7 @@ import { configuredMcpServers, configuredMcpTools } from "../server/runtime";
 import { McpAgentWorkspace } from "./mcp-agent-workspace";
 
 interface McpAgentChatState {
+  clearError: () => void;
   error: Error | null;
   hasMessages: boolean;
   isBusy: boolean;
@@ -19,6 +20,7 @@ interface McpAgentChatState {
 
 const chatState = vi.hoisted(() => ({
   current: {
+    clearError: () => undefined,
     error: null,
     hasMessages: false,
     isBusy: false,
@@ -70,6 +72,7 @@ function expectButtonDisabled(markup: string, text: string) {
 describe("mcp-agent workspace UI", () => {
   beforeEach(() => {
     chatState.current = {
+      clearError: () => undefined,
       error: null,
       hasMessages: false,
       isBusy: false,

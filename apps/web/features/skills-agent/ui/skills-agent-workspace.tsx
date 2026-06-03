@@ -43,6 +43,10 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { isReasoningUIPart, isToolUIPart, type UIMessage } from "ai";
 import { useMemo } from "react";
+import {
+  ConversationErrorMessage,
+  useConversationErrorRetry,
+} from "@/features/shared/chat/ui/conversation-error-message";
 import { useSkillsAgentChat } from "./use-skills-agent-chat";
 
 const configuredTools = [
@@ -257,6 +261,7 @@ export function SkillsAgentWorkspace({
   setupMessage,
 }: SkillsAgentWorkspaceProps) {
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -266,6 +271,11 @@ export function SkillsAgentWorkspace({
     status,
     stop,
   } = useSkillsAgentChat();
+  const canStartChatTurn = isChatAvailable && !isBusy;
+  const retryConversationError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
   const samplePrompts = useMemo(
     () => [
       "Grill this rough idea for a docs chatbot.",
@@ -274,8 +284,6 @@ export function SkillsAgentWorkspace({
     ],
     []
   );
-  const canStartChatTurn = isChatAvailable && !isBusy;
-
   function sendChatMessage(text: string) {
     if (!canStartChatTurn) {
       return;
@@ -301,37 +309,40 @@ export function SkillsAgentWorkspace({
           </div>
         )}
 
-        {error ? (
-          <div className="border-foreground/10 border-b px-4 py-3 text-destructive text-xs/relaxed">
-            {error.message}
-          </div>
-        ) : null}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
-            {hasMessages ? (
-              messages.map((message, index) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent
-                    className={cn(
-                      "space-y-4",
-                      message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
-                    )}
-                  >
-                    {message.role === "assistant" ? (
-                      <AssistantTrace
-                        isLastMessage={index === messages.length - 1}
-                        isStreaming={isBusy}
-                        message={message}
-                      />
-                    ) : (
-                      <MessageResponse>
-                        {getTextContent(message)}
-                      </MessageResponse>
-                    )}
-                  </MessageContent>
-                </Message>
-              ))
+            {hasMessages || error ? (
+              <>
+                {messages.map((message, index) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent
+                      className={cn(
+                        "space-y-4",
+                        message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
+                      )}
+                    >
+                      {message.role === "assistant" ? (
+                        <AssistantTrace
+                          isLastMessage={index === messages.length - 1}
+                          isStreaming={isBusy}
+                          message={message}
+                        />
+                      ) : (
+                        <MessageResponse>
+                          {getTextContent(message)}
+                        </MessageResponse>
+                      )}
+                    </MessageContent>
+                  </Message>
+                ))}
+                {error ? (
+                  <ConversationErrorMessage
+                    error={error}
+                    isRetryDisabled={!canStartChatTurn}
+                    onRetry={retryConversationError}
+                  />
+                ) : null}
+              </>
             ) : (
               <ConversationEmptyState
                 description="Ask the agent to challenge a rough idea, align durable context, and turn that workflow into a reusable skill draft."

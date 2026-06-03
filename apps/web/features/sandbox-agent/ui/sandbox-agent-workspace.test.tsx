@@ -175,11 +175,13 @@ describe("sandbox-agent workspace UI", () => {
         { value: "conversation" },
         createElement(SandboxConversationPane, {
           chatModel: "openai/gpt-5-mini",
+          error: null,
           hasMessages: false,
           isBusy: false,
           isChatAvailable: false,
           messages: [],
           onOpenPreview: () => undefined,
+          onRetryError: () => undefined,
           onRegenerate: () => undefined,
           onSendMessage: () => undefined,
           onStop: () => undefined,

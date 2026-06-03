@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { useConversationErrorRetry } from "@/features/shared/chat/ui/conversation-error-message";
 import { convertFilesToParts } from "./convert-files-to-parts";
 import {
   buildPendingAttachmentId,
@@ -30,6 +31,7 @@ interface UseMultimodalChatbotWorkspaceController {
   pendingAttachments: PendingAttachment[];
   regenerateLastTurn: () => void;
   removePendingAttachment: (attachmentId: string) => void;
+  retryChatError: () => Promise<void>;
   samplePrompts: readonly string[];
   sendSamplePrompt: (text: string) => void;
   status: ChatStatus;
@@ -64,6 +66,7 @@ export function useMultimodalChatbotWorkspace(): UseMultimodalChatbotWorkspaceCo
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingAttachmentsRef = useRef<PendingAttachment[]>([]);
   const {
+    clearError,
     error,
     hasMessages,
     isBusy,
@@ -73,6 +76,10 @@ export function useMultimodalChatbotWorkspace(): UseMultimodalChatbotWorkspaceCo
     status,
     stop,
   } = useMultimodalChatbot();
+  const retryChatError = useConversationErrorRetry({
+    clearError,
+    regenerate,
+  });
 
   useEffect(() => {
     pendingAttachmentsRef.current = pendingAttachments;
@@ -174,6 +181,7 @@ export function useMultimodalChatbotWorkspace(): UseMultimodalChatbotWorkspaceCo
     isBusy,
     messages,
     pendingAttachments,
+    retryChatError,
     samplePrompts: multimodalSamplePrompts,
     status,
     appendFiles,

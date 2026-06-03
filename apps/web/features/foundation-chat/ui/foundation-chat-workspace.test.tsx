@@ -6,6 +6,7 @@ import { FoundationChatWorkspace } from "./foundation-chat-workspace";
 
 vi.mock("./use-foundation-chat", () => ({
   useFoundationChat: () => ({
+    clearError: vi.fn(),
     error: null,
     hasMessages: false,
     isBusy: false,

@@ -80,6 +80,18 @@ _Avoid_: Implicit omission, catalog drift, install badge guess
 The internal standard that an **Agent Demo** must meet by making its pattern clear, its full-stack behavior complete, and its reuse potential credible through use and code structure.
 _Avoid_: Marketing checklist, feature list
 
+**Resource Abuse and Privacy Review**:
+A focused readiness review for an **Agent Demo** that asks whether public operation can burn provider or infrastructure resources, expose private demo data, or gain unintended write control over project code or workspace state.
+_Avoid_: Full security audit, penetration test, compliance audit
+
+**Private Demo Data**:
+Visitor-scoped **Agent Demo** data that should not be visible to another visitor, including messages, uploaded files, memories, votes, generated artifacts, and sandbox artifacts.
+_Avoid_: Sensitive data by default, regulated data, account data
+
+**Demo Data Retention Window**:
+The short-lived period after which visitor-scoped **Private Demo Data** should be removed from demo storage; the default target for this repository is seven days.
+_Avoid_: Permanent history, archive, backup policy
+
 **Production-Ready Demo**:
 An **Agent Demo** whose copy boundary can be used in a compatible real project after required configuration is provided.
 _Avoid_: Toy demo, throwaway example
@@ -128,6 +140,10 @@ _Avoid_: Anonymous user, temporary user
 A **Visitor Owner** scoped to the published demo website as a whole, used for ownership decisions that apply across multiple **Agent Demos**.
 _Avoid_: Per-demo visitor, registry consumer, authenticated user
 
+**Hosted LangGraph Service Key**:
+A server-only shared secret that lets the LangGraph Agent Demo's frontend route call the separately deployed Python LangGraph backend through `x-api-key`.
+_Avoid_: User API key, model provider key, public token
+
 ## Relationships
 
 - An **Agent Demo** may use one or more **Reusable Agent Modules**.
@@ -146,6 +162,8 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - A **Registry Export** contains zero or more **Agent Demos** and may exclude registry source work that has not yet met the **Demo Quality Bar**.
 - **Registry Availability** must classify every ready **Agent Demo** so the **Demo Catalog Entry** and **Registry Export** cannot drift silently.
 - An **Agent Demo** is evaluated against the **Demo Quality Bar**.
+- A **Resource Abuse and Privacy Review** evaluates an **Agent Demo** before it is treated as a **Production-Ready Demo**.
+- **Private Demo Data** is scoped to one **Visitor Owner** and should expire through the **Demo Data Retention Window**.
 - An **Agent Demo** is expected to become a **Production-Ready Demo** before it is treated as ready.
 - The **Roadmap** may include planned **Agent Demos** before they become interactive.
 - An **Agent Demo** may originate from a **Canonical Source Example**.
@@ -158,6 +176,7 @@ _Avoid_: Per-demo visitor, registry consumer, authenticated user
 - The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.
 - A **Site Visitor Owner** may interact with multiple **Agent Demos** on the published demo website.
 - A **Site Visitor Owner** stays outside any **Agent Demo** **Copy Boundary** and should not be distributed through the registry.
+- The **Hosted LangGraph Service Key** protects the service-to-service boundary between the LangGraph Agent Demo's frontend route and its hosted Python backend.
 
 ## RAG Chatbot Direction
 
@@ -180,3 +199,6 @@ The first seed document should be a well-known public design-guide PDF, with the
 - "demo" does not mean toy or disposable. Resolved: ready demos must be production-ready enough to copy into real compatible projects after configuration.
 - Initial demo selection prioritizes AI SDK Recipes, guide, and documentation examples through the **Manual Review Gate** before original batches are planned.
 - "productized" means improving routes, copy boundaries, UI experience, and integration shape while preserving the **Source Core**, especially on backend agent logic.
+- "security audit" can mean dependency scanning, penetration testing, compliance, or infrastructure review. Resolved: use **Resource Abuse and Privacy Review** when the goal is protecting provider spend, Vercel resources, sandbox capacity, private demo data, and project code integrity for this demo collection.
+- "privacy" for this demo collection means visitor-to-visitor isolation and short-lived demo storage. It does not imply a regulated-data or long-term account privacy program unless the product boundary is explicitly expanded.
+- "API key" can mean a provider credential, a user credential, or a service-to-service secret. Resolved: for the LangGraph backend access boundary, use **Hosted LangGraph Service Key** and keep provider credentials such as `AI_GATEWAY_API_KEY` separate and server-only.

@@ -31,11 +31,32 @@ class EchoGraph:
         )
 
 
-def test_thread_endpoint_confirms_uuid_thread_with_optional_api_key(
+def test_thread_endpoint_fails_closed_when_api_key_env_is_missing(
+    monkeypatch,
+) -> None:
+    monkeypatch.delenv("LANGGRAPH_AGENT_API_KEY", raising=False)
+    client = TestClient(create_app(graph_runner=EchoGraph()))
+    thread_id = str(uuid4())
+
+    response = client.post(
+        "/threads",
+        json={
+            "if_exists": "do_nothing",
+            "thread_id": thread_id,
+        },
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "detail": "LANGGRAPH_AGENT_API_KEY is required for the LangGraph agent API.",
+    }
+
+
+def test_thread_endpoint_confirms_uuid_thread_with_required_api_key(
     monkeypatch,
 ) -> None:
     monkeypatch.setenv("LANGGRAPH_AGENT_API_KEY", "service-key")
-    client = TestClient(create_app())
+    client = TestClient(create_app(graph_runner=EchoGraph()))
     thread_id = str(uuid4())
 
     unauthorized = client.post(
@@ -59,13 +80,15 @@ def test_thread_endpoint_confirms_uuid_thread_with_optional_api_key(
     assert response.json()["thread_id"] == thread_id
 
 
-def test_thread_run_streams_agent_server_like_sse_events() -> None:
+def test_thread_run_streams_agent_server_like_sse_events(monkeypatch) -> None:
+    monkeypatch.setenv("LANGGRAPH_AGENT_API_KEY", "service-key")
     client = TestClient(create_app(graph_runner=EchoGraph()))
     thread_id = str(uuid4())
 
     with client.stream(
         "POST",
         f"/threads/{thread_id}/runs/stream",
+        headers={"x-api-key": "service-key"},
         json={
             "assistant_id": "agent",
             "input": {

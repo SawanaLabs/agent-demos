@@ -52,7 +52,10 @@ def _require_api_key(x_api_key: str | None) -> None:
     expected_api_key = os.getenv("LANGGRAPH_AGENT_API_KEY")
 
     if not expected_api_key:
-        return
+        raise HTTPException(
+            status_code=500,
+            detail="LANGGRAPH_AGENT_API_KEY is required for the LangGraph agent API.",
+        )
 
     if x_api_key != expected_api_key:
         raise HTTPException(status_code=401, detail="Invalid LangGraph agent API key.")

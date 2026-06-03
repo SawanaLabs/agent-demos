@@ -3,7 +3,7 @@ import type { UIMessage } from "ai";
 type FetchLike = typeof fetch;
 
 export interface RemoteLangGraphClientOptions {
-  apiKey?: string;
+  apiKey: string;
   baseUrl: string;
   fetch?: FetchLike;
 }
@@ -86,17 +86,10 @@ export function createRemoteLangGraphClient({
   fetch: fetchImpl = fetch,
 }: RemoteLangGraphClientOptions) {
   const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
-  const createJsonHeaders = () => {
-    const headers: Record<string, string> = {
-      "content-type": "application/json",
-    };
-
-    if (apiKey) {
-      headers["x-api-key"] = apiKey;
-    }
-
-    return headers;
-  };
+  const createJsonHeaders = () => ({
+    "content-type": "application/json",
+    "x-api-key": apiKey,
+  });
 
   return {
     async streamThreadRun({

@@ -13,7 +13,7 @@ interface ParsedNodeVersion {
 export type LangGraphAgentEnv = Record<string, string | undefined>;
 
 export interface LangGraphAgentConfig {
-  apiKey?: string;
+  apiKey: string;
   assistantId: string;
   baseUrl: string;
   modelName: string;
@@ -90,7 +90,7 @@ export function getLangGraphAgentConfig(
   assertSupportedNodeRuntime();
 
   return {
-    apiKey: env.LANGGRAPH_AGENT_API_KEY,
+    apiKey: readRequiredEnv(env, "LANGGRAPH_AGENT_API_KEY"),
     assistantId: readRequiredEnv(env, "LANGGRAPH_AGENT_ASSISTANT_ID"),
     baseUrl: readRequiredEnv(env, "LANGGRAPH_AGENT_API_URL"),
     modelName: env.LANGGRAPH_AGENT_MODEL ?? DEFAULT_LANGGRAPH_AGENT_MODEL,
@@ -113,6 +113,12 @@ export function getLangGraphAgentSetupState(
   if (!env.LANGGRAPH_AGENT_API_URL) {
     issues.push(
       "LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo."
+    );
+  }
+
+  if (!env.LANGGRAPH_AGENT_API_KEY) {
+    issues.push(
+      "LANGGRAPH_AGENT_API_KEY is missing. Set it to the shared service key used by the LangGraph agent API."
     );
   }
 

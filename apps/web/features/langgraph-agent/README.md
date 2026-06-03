@@ -11,9 +11,11 @@ Start the paired Python Agent Server and Next.js app from the repository root:
 pnpm dev:langgraph-agent
 ```
 
-That command starts the Python backend on port 2024 and runs the frontend with:
+That command starts the Python backend on port 2024. Set the shared service key
+in the shell or root `.env.local` before running it; the web process then uses:
 
 ```bash
+LANGGRAPH_AGENT_API_KEY=<shared-local-service-key>
 LANGGRAPH_AGENT_API_URL=http://localhost:2024
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 ```
@@ -28,6 +30,7 @@ When running the frontend outside the paired script, add the frontend env keys
 in `apps/web/.env.local`:
 
 ```bash
+LANGGRAPH_AGENT_API_KEY=<shared-local-service-key>
 LANGGRAPH_AGENT_API_URL=http://localhost:2024
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 ```
@@ -86,6 +89,10 @@ The route converts LangGraph SSE frames into AI SDK UI message chunks:
 The frontend owns only the active `threadId` for the current workspace session.
 Agent Server owns checkpoints and persistence.
 
+The route sends `x-api-key` from `LANGGRAPH_AGENT_API_KEY` to the remote
+backend. The Vercel-compatible FastAPI wrapper in this repository requires that
+header and fails closed if its matching env var is missing.
+
 When the backend is the Vercel-compatible FastAPI wrapper in
 `apps/langgraph-agent-api/app.py`, `/threads` is contract confirmation rather
 than durable thread creation. The wrapper can chat and stream graph progress,
@@ -98,8 +105,9 @@ messages with each request.
 2. Run it with `langgraph dev`, `langgraph up`, or a hosted LangGraph/LangSmith deployment.
 3. Point `LANGGRAPH_AGENT_API_URL` at that Agent Server.
 4. Set `LANGGRAPH_AGENT_ASSISTANT_ID` to your graph id.
-5. Ensure the server supports `POST /threads` plus thread-scoped streaming runs.
-6. Ensure the server can stream `updates` and `messages-tuple`.
+5. Set `LANGGRAPH_AGENT_API_KEY` to the service key accepted by that server.
+6. Ensure the server supports `POST /threads` plus thread-scoped streaming runs.
+7. Ensure the server can stream `updates` and `messages-tuple`.
 
 The frontend does not require your Python graph to use this repository's sample
 nodes. It only requires the official thread-scoped run endpoint and stream

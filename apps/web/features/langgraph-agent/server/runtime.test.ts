@@ -22,12 +22,15 @@ function createUserMessage(): UIMessage {
 
 describe("langgraph agent runtime", () => {
   it("reports setup requirements when remote LangGraph config is missing", () => {
-    expect(getLangGraphAgentRuntimeState({})).toMatchObject({
+    const runtimeState = getLangGraphAgentRuntimeState({});
+
+    expect(runtimeState).toMatchObject({
       isChatAvailable: false,
       modelName: "openai/gpt-5-mini",
-      setupMessage: expect.stringContaining("LANGGRAPH_AGENT_API_URL"),
       statusLabel: "Setup required",
     });
+    expect(runtimeState.setupMessage).toContain("LANGGRAPH_AGENT_API_URL");
+    expect(runtimeState.setupMessage).toContain("LANGGRAPH_AGENT_API_KEY");
   });
 
   it("streams official LangGraph SSE frames as AI SDK UI message chunks", async () => {
@@ -52,6 +55,7 @@ describe("langgraph agent runtime", () => {
         threadId: "thread-1",
       },
       {
+        LANGGRAPH_AGENT_API_KEY: "service-key",
         LANGGRAPH_AGENT_API_URL: "http://localhost:2024",
         LANGGRAPH_AGENT_ASSISTANT_ID: "agent",
       },
@@ -77,6 +81,7 @@ describe("langgraph agent runtime", () => {
         method: "POST",
       }),
       {
+        LANGGRAPH_AGENT_API_KEY: "service-key",
         LANGGRAPH_AGENT_API_URL: "http://localhost:2024",
         LANGGRAPH_AGENT_ASSISTANT_ID: "agent",
       }

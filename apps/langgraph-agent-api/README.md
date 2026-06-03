@@ -42,6 +42,7 @@ When running the frontend outside the paired script, set these variables in
 `apps/web/.env.local`:
 
 ```bash
+LANGGRAPH_AGENT_API_KEY=<shared-local-service-key>
 LANGGRAPH_AGENT_API_URL=http://localhost:2024
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 ```
@@ -52,8 +53,9 @@ To run only the paired local web app process:
 pnpm dev:langgraph-agent-web
 ```
 
-`LANGGRAPH_AGENT_API_KEY` is optional for local `langgraph dev`; use it when the
-frontend talks to a hosted backend that requires an API key.
+`LANGGRAPH_AGENT_API_KEY` is required by this repository's web adapter and by
+the Vercel-compatible FastAPI backend. Local `langgraph dev` may ignore the
+header, but the paired web app still requires the same server-only value in env.
 
 The local scripts default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`.
 Set `LANGGRAPH_AGENT_MODEL` before running either script to test a different
@@ -114,7 +116,7 @@ The required API project environment variables are:
 
 ```bash
 AI_GATEWAY_API_KEY=<vercel-ai-gateway-key>
-LANGGRAPH_AGENT_API_KEY=<optional-shared-service-key>
+LANGGRAPH_AGENT_API_KEY=<required-shared-service-key>
 LANGGRAPH_AGENT_MODEL=openai/gpt-5-mini
 ```
 
@@ -123,8 +125,13 @@ Set the web project to the deployed API URL and the same service key:
 ```bash
 LANGGRAPH_AGENT_API_URL=https://<api-project>.vercel.app
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
-LANGGRAPH_AGENT_API_KEY=<same-optional-shared-service-key>
+LANGGRAPH_AGENT_API_KEY=<same-required-shared-service-key>
 ```
+
+Both FastAPI endpoints require an `x-api-key` header that matches
+`LANGGRAPH_AGENT_API_KEY`. If the API project is deployed without that env var,
+the backend fails closed with a setup error instead of serving unauthenticated
+requests.
 
 The FastAPI entry is intentionally lightweight. It confirms UUID threads,
 invokes the existing compiled LangGraph graph, and streams `updates` plus

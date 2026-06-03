@@ -93,7 +93,21 @@ function readTraceEvalSnapshot(body: unknown): TraceEvalSnapshot {
 async function readTraceEvalSnapshotRequest(
   request: Request
 ): Promise<TraceEvalSnapshot> {
-  return readTraceEvalSnapshot(await request.json());
+  const bodyText = await request.text();
+
+  if (!bodyText.trim()) {
+    throw new Error(invalidSnapshotError);
+  }
+
+  try {
+    return readTraceEvalSnapshot(JSON.parse(bodyText));
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(invalidSnapshotError);
+    }
+
+    throw error;
+  }
 }
 
 function assertJudgeableRun({

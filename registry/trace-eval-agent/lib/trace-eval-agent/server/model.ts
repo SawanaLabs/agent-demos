@@ -6,8 +6,6 @@ export const TRACE_EVAL_SEARCH_TOOL_NAME = "web_search";
 
 export const TRACE_EVAL_AGENT_PROVIDER_OPTIONS = {
   openai: {
-    reasoningEffort: "low",
-    reasoningSummary: "auto",
     textVerbosity: "low",
   },
 } as const;

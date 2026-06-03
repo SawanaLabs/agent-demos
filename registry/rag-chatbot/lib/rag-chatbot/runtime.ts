@@ -20,6 +20,7 @@ export interface RagChatbotRuntimeState {
   chatModel: string;
   isChatAvailable: boolean;
   nodeVersion: string;
+  retrievalLabel: string;
   setupMessage: string | null;
   sourceDocument: typeof ragChatbotSourceDocument;
   statusLabel: "Index required" | "Ready" | "Setup required";
@@ -56,6 +57,7 @@ export async function getRagChatbotRuntimeState(
       chatModel: gatewaySetup.config.chatModel,
       isChatAvailable: false,
       nodeVersion: gatewaySetup.nodeVersion,
+      retrievalLabel: "Portable index",
       sourceDocument: ragChatbotSourceDocument,
       setupMessage: gatewaySetup.issues.join(" "),
       statusLabel: "Setup required",
@@ -68,6 +70,7 @@ export async function getRagChatbotRuntimeState(
     chatModel: gatewaySetup.config.chatModel,
     isChatAvailable: knowledgeBaseStatus.isReady,
     nodeVersion: gatewaySetup.nodeVersion,
+    retrievalLabel: knowledgeBaseStatus.retrievalLabel,
     sourceDocument: ragChatbotSourceDocument,
     setupMessage: knowledgeBaseStatus.message,
     statusLabel: knowledgeBaseStatus.statusLabel,

@@ -22,6 +22,7 @@ import {
 import {
   ensureRagKnowledgeBaseReady,
 } from "./knowledge-base-status";
+import { findPortableRagMatches } from "./portable-index";
 import { ragChatbotSourceDocument } from "./source-document";
 
 const matchLimit = 4;
@@ -164,6 +165,11 @@ export async function findRelevantContent(
   }
 
   const sourceSlug = ragChatbotSourceDocument.slug;
+
+  if (!env.DATABASE_URL) {
+    return createRagToolResult(findPortableRagMatches(normalizedQuery));
+  }
+
   const loadDatabase = dependencies.loadDatabase ?? loadRagChatbotDatabase;
   const ensureKnowledgeBaseReady =
     dependencies.ensureKnowledgeBaseReady ??

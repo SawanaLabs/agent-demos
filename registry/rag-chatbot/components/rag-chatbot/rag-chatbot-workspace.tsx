@@ -55,6 +55,7 @@ export interface RagChatbotWorkspaceProps {
   chatModel: string;
   isChatAvailable: boolean;
   nodeVersion: string;
+  retrievalLabel: string;
   setupMessage: string | null;
   sourceDocument: typeof ragChatbotSourceDocument;
 }
@@ -63,6 +64,7 @@ export function RagChatbotWorkspace({
   chatModel,
   isChatAvailable,
   nodeVersion,
+  retrievalLabel,
   sourceDocument,
   setupMessage,
 }: RagChatbotWorkspaceProps) {
@@ -183,7 +185,7 @@ export function RagChatbotWorkspace({
               })
             ) : (
               <ConversationEmptyState
-                description="Ask about the indexed design manual. Every grounded answer is expected to flow through retrieval."
+                description="Ask about the bundled design manual index. Every grounded answer is expected to flow through retrieval."
                 icon={<BookOpenIcon className="size-5" />}
                 title="Document support workspace is ready"
               />
@@ -204,7 +206,7 @@ export function RagChatbotWorkspace({
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">RAG</Badge>
-                  <Badge variant="outline">pgvector</Badge>
+                  <Badge variant="outline">{retrievalLabel}</Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -297,8 +299,8 @@ export function RagChatbotWorkspace({
             </p>
             <p className="mt-1 text-sm">
               The assistant is expected to retrieve evidence first, answer only
-              from indexed content, and surface the retrieval trace alongside
-              the response.
+              from the portable sample index or optional pgvector index, and
+              surface the retrieval trace alongside the response.
             </p>
           </div>
         </div>

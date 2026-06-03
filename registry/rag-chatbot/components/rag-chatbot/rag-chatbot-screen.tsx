@@ -43,12 +43,13 @@ export async function RagChatbotScreen() {
               </BreadcrumbList>
             </Breadcrumb>
             <h1 className="max-w-3xl font-medium text-2xl tracking-tight">
-              Grounded document support chat over a preindexed design manual
+              Grounded document support chat over a portable design manual index
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               This slice turns the official AI SDK RAG recipe into a website
               support chatbot: retrieval-first answers, visible tool state, and
-              source snippets tied to a durable pgvector store.
+              source snippets that work out of the box with an optional
+              pgvector upgrade path.
             </p>
           </div>
 
@@ -63,6 +64,7 @@ export async function RagChatbotScreen() {
             chatModel={runtimeState.chatModel}
             isChatAvailable={runtimeState.isChatAvailable}
             nodeVersion={runtimeState.nodeVersion}
+            retrievalLabel={runtimeState.retrievalLabel}
             sourceDocument={runtimeState.sourceDocument}
             setupMessage={runtimeState.setupMessage}
           />

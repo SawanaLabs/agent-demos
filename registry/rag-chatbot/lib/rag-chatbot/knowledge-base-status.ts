@@ -4,14 +4,17 @@ import {
   type RagChatbotDatabaseModule,
   loadRagChatbotDatabase,
 } from "./database";
+import { getPortableRagIndexResourceCount } from "./portable-index";
 import { ragChatbotSourceDocument } from "./source-document";
 
 type DemoEnv = Record<string, string | undefined>;
+type RagRetrievalLabel = "Portable index" | "pgvector";
 
 export interface RagKnowledgeBaseStatus {
   indexedResourceCount: number;
   isReady: boolean;
   message: string | null;
+  retrievalLabel: RagRetrievalLabel;
   statusLabel: "Index required" | "Ready" | "Setup required";
 }
 
@@ -25,7 +28,7 @@ export function getRagDatabaseSetupIssue(env: DemoEnv): string | null {
     return null;
   }
 
-  return "DATABASE_URL is missing. The RAG chatbot can render, but chat requests require a preindexed pgvector database.";
+  return null;
 }
 
 export function getRagIndexRequiredMessage() {
@@ -61,7 +64,18 @@ export async function getRagKnowledgeBaseStatus(
       indexedResourceCount: 0,
       isReady: false,
       message: databaseIssue,
+      retrievalLabel: "pgvector",
       statusLabel: "Setup required",
+    };
+  }
+
+  if (!env.DATABASE_URL) {
+    return {
+      indexedResourceCount: getPortableRagIndexResourceCount(),
+      isReady: true,
+      message: null,
+      retrievalLabel: "Portable index",
+      statusLabel: "Ready",
     };
   }
 
@@ -75,6 +89,7 @@ export async function getRagKnowledgeBaseStatus(
         indexedResourceCount,
         isReady: false,
         message: getRagIndexRequiredMessage(),
+        retrievalLabel: "pgvector",
         statusLabel: "Index required",
       };
     }
@@ -83,6 +98,7 @@ export async function getRagKnowledgeBaseStatus(
       indexedResourceCount,
       isReady: true,
       message: null,
+      retrievalLabel: "pgvector",
       statusLabel: "Ready",
     };
   } catch (error) {
@@ -93,6 +109,7 @@ export async function getRagKnowledgeBaseStatus(
         error instanceof Error
           ? `Failed to inspect the indexed document state. ${error.message}`
           : "Failed to inspect the indexed document state.",
+      retrievalLabel: "pgvector",
       statusLabel: "Setup required",
     };
   }

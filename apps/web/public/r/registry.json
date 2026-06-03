@@ -110,7 +110,7 @@
     {
       "name": "rag-chatbot",
       "title": "RAG Chatbot",
-      "description": "A grounded document support chatbot with preindexed PDF ingestion, pgvector retrieval, and visible tool traces.",
+      "description": "A grounded document support chatbot with a portable sample index, optional pgvector ingestion, and visible tool traces.",
       "dependencies": [
         "@ai-sdk/react",
         "@base-ui/react",
@@ -216,6 +216,11 @@
           "target": "@lib/rag-chatbot/knowledge-base-status.ts"
         },
         {
+          "path": "registry/rag-chatbot/lib/rag-chatbot/portable-index.ts",
+          "type": "registry:lib",
+          "target": "@lib/rag-chatbot/portable-index.ts"
+        },
+        {
           "path": "registry/rag-chatbot/lib/rag-chatbot/retrieval.ts",
           "type": "registry:lib",
           "target": "@lib/rag-chatbot/retrieval.ts"
@@ -240,10 +245,9 @@
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
-        "AI_GATEWAY_EMBEDDING_MODEL": "openai/text-embedding-3-small",
-        "DATABASE_URL": ""
+        "AI_GATEWAY_EMBEDDING_MODEL": "openai/text-embedding-3-small"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, pgvector-backed retrieval logic, and the AI Gateway plus DATABASE_URL env vars required for indexing and grounded chat.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, a portable sample retrieval index, optional pgvector-backed ingestion, and the AI Gateway env vars required for grounded chat.",
       "type": "registry:block"
     },
     {

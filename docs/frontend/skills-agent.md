@@ -34,7 +34,7 @@ updateAt: 2026-06-03
 - Use the AI SDK chat `id` as the Vercel Sandbox `name`. Reconnect or recreate sandbox sessions through that single identifier.
 - Keep one sandbox singleton per chat session. Do not create a new sandbox on every request or every retry.
 - Keep sandbox persistence enabled. Do not force `persistent: false` for this demo's named sandboxes.
-- Let the shared sandbox factory configure provider lifecycle controls for this demo: five-minute active-session timeout, stable demo tags, 7-day automatic snapshot expiration, and keep-last-one snapshot retention. Existing named sandboxes are updated with the same policy when they reconnect.
+- Let the shared sandbox factory and cleanup cron own provider lifecycle controls for this demo: five-minute active-session timeout, stable demo tags, 7-day automatic snapshot expiration, keep-last-one snapshot retention, and daily deletion of demo-tagged sandbox identities older than the Demo Data Retention Window. Existing named sandboxes are updated with the same policy when they reconnect. Old untagged sandboxes require manual provider inspection.
 - Let any sandbox-backed tool lazily create or resume the sandbox. Do not gate sandbox access on prior skill activation.
 - Reconnect to an existing named sandbox with `Sandbox.get({ name: chatId })` before creating a fresh one for that same chat id.
 - Let Vercel Sandbox own timeout-based session shutdown. Do not add an application-level idle timer that calls `sandbox.stop()` in the background.

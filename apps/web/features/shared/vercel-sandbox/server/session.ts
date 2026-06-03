@@ -218,7 +218,7 @@ export async function createVercelSandbox(
       return sandbox as unknown as VercelSandboxHandle;
     } catch {
       return (await Sandbox.create(
-        baseOptions
+        baseOptions as Parameters<typeof Sandbox.create>[0]
       )) as unknown as VercelSandboxHandle;
     }
   }

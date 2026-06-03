@@ -16,9 +16,9 @@ Assumed adversary: an unauthenticated public visitor who can automate public API
 
 The main message routes have a real Site Usage Gate, and the visitor-owned demos mostly filter persisted chats by visitor cookie. That is enough for a personal portfolio if traffic stays friendly.
 
-The current repository is closer to the stated demo posture now that code-owned database rows, Customer Memory event text, site-usage events, and Ultra Blob uploads share the 7-day Demo Data Retention Window.
+The current repository is closer to the stated demo posture now that code-owned database rows, Customer Memory event text, site-usage events, Ultra Blob uploads, and tagged Vercel Sandbox resources share the 7-day Demo Data Retention Window.
 
-The remaining launch caveats are narrower: provider-side Vercel Sandbox identities still need an explicit tagged cleanup if the product promise is "all Vercel resources are gone after 7 days", visitor cookies remain resettable, and one Customer Memory mutation layer still deserves owner predicates as defense in depth.
+The remaining launch caveats are narrower: visitor cookies remain resettable, one Customer Memory mutation layer still deserves owner predicates as defense in depth, and public docs routes should stay free of private deployment notes.
 
 ## Existing Controls That Work
 
@@ -27,6 +27,7 @@ The remaining launch caveats are narrower: provider-side Vercel Sandbox identiti
 - LangGraph's web route is metered before it calls the runtime, and the hosted FastAPI wrapper now requires the matching server-side `LANGGRAPH_AGENT_API_KEY` plus request `x-api-key` (`apps/web/app/api/demos/langgraph-agent/route.ts:6`, `apps/langgraph-agent-api/langgraph_agent/vercel_app.py:51`).
 - Sandbox preview status checks now require a sandbox `sessionId`, compare the requested preview URL against the exact origin returned by the existing sandbox handle, do not create a sandbox session from the status route, avoid redirects, apply a 3 second timeout, and cap response body reads (`apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:37`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:97`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:160`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:190`).
 - Shared Vercel Sandbox creation now configures every demo-owned sandbox with a five-minute active-session timeout, stable demo tags, persistent snapshot expiration equal to the 7-day Demo Data Retention Window, and a keep-last-one snapshot policy that deletes evicted snapshots. Existing named sandboxes are updated with the same policy on reconnect (`apps/web/features/shared/vercel-sandbox/server/session.ts`).
+- Vercel Sandbox provider-side identity cleanup is now covered by a `CRON_SECRET`-protected daily cron route. It lists only sandboxes tagged with `app=ai-elements-demos` and `retention=7d`, filters by the 7-day age window, deletes via `Sandbox.get({ resume: false })`, and leaves old untagged sandboxes out of automation for manual provider inspection (`apps/web/features/shared/vercel-sandbox/server/cleanup.ts`, `apps/web/app/api/cron/vercel-sandbox-cleanup/route.ts`, `vercel.json`).
 - Ultra file uploads now require Visitor Owner routing plus `chatId`, write under `ultra-chatbot-agent/{visitorId}/{yyyy-mm-dd}/{chatId}/{uuid}-{filename}`, enforce a 20-file or 50MB per visitor/day Blob-list quota, delete Blob objects for per-chat and clear-history deletes, and run a combined 7-day database plus Blob cleanup cron (`apps/web/app/api/demos/ultra-chatbot-agent/files/upload/route.ts`, `apps/web/features/ultra-chatbot-agent/server/upload.ts`, `apps/web/features/ultra-chatbot-agent/server/blob-storage.ts`, `apps/web/features/ultra-chatbot-agent/server/history.ts`, `apps/web/features/ultra-chatbot-agent/server/cleanup.ts`, `apps/web/app/api/cron/ultra-chatbot-agent-cleanup/route.ts`, `vercel.json`).
 - Customer Memory, Persistent Agent, Site Usage Gate, and Ultra cleanup modules now share the 7-day Demo Data Retention Window through `apps/web/features/shared/demo-data-retention/server/policy.ts`.
 - Customer Memory cleanup now deletes visitor-private event rows older than the cutoff, including stored `beforeContent` and `afterContent` text (`apps/web/features/customer-memory-agent/server/cleanup.ts`).
@@ -38,23 +39,7 @@ The remaining launch caveats are narrower: provider-side Vercel Sandbox identiti
 
 ## Findings
 
-### F1 - Medium - Vercel Sandbox provider-side identities lack 7-day deletion
-
-Evidence:
-
-- Shared Vercel Sandbox creation now configures active-session timeout, demo tags, 7-day snapshot expiration, and keep-last-one snapshot retention (`apps/web/features/shared/vercel-sandbox/server/session.ts`).
-- This covers active compute and provider-side filesystem snapshots for newly created or reconnected named sandboxes, but there is still no cron that lists and deletes old provider-side sandbox identities by tag and age.
-- The installed Sandbox SDK exposes `Sandbox.list()` and instance deletion, so the missing piece is a repository tagging policy plus a cleanup route, not a provider limitation.
-
-Impact:
-
-Database, event, Blob content, active Sandbox sessions, and persistent Sandbox snapshots now meet the unified 7-day demo retention target in code-owned or provider-auto-managed layers. Provider-side sandbox identity metadata can still outlive that policy. That matters if the public promise includes every Vercel resource, not just filesystem state and app-owned data.
-
-Recommendation:
-
-Add a cron route that uses `Sandbox.list({ tags })`, filters by age, and calls deletion only for matching demo-owned sandboxes. Keep old untagged sessions out of automated deletion unless manually inspected.
-
-### F2 - Medium/Low - Cookie-only ownership is acceptable for friendly traffic but easy to reset
+### F1 - Medium/Low - Cookie-only ownership is acceptable for friendly traffic but easy to reset
 
 Evidence:
 
@@ -71,7 +56,7 @@ Recommendation:
 
 Set `Secure` on cookies in production. Accept cookie-reset bypass as a known limitation for the portfolio phase, or add a lightweight IP/user-agent hash only after real abuse appears. Do not add CAPTCHA by default for the current stated traffic model.
 
-### F3 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
+### F2 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
 
 Evidence:
 
@@ -86,7 +71,7 @@ Recommendation:
 
 Pass `customerId` and `visitorId` into memory mutation methods and include them in the SQL `WHERE` clauses. This is a small defense-in-depth fix and aligns with the rest of the visitor-owner model.
 
-### F4 - Low - Public docs MCP routes are read-only but expose repository docs
+### F3 - Low - Public docs MCP routes are read-only but expose repository docs
 
 Evidence:
 
@@ -102,10 +87,10 @@ Keep docs free of secrets and private deployment details. Add auth only if the d
 
 ## Recommended Fix Order
 
-1. Add tagged Vercel Sandbox identity cleanup if "all Vercel resources disappear after 7 days" is part of the demo promise.
-2. Add production `Secure` cookies.
-3. Add owner predicates to Customer Memory mutations.
+1. Add production `Secure` cookies.
+2. Add owner predicates to Customer Memory mutations.
+3. Keep public docs free of secrets and private deployment details.
 
 ## Current Readiness Call
 
-For a friendly personal portfolio with low traffic, main chat spend is reasonably controlled and code-owned database, event, Blob, and Sandbox snapshot retention now match the 7-day demo policy. For a public link that could receive automated traffic, provider-side Sandbox identity cleanup and visitor-cookie limitations are still real enough to fix before launch.
+For a friendly personal portfolio with low traffic, main chat spend is reasonably controlled and code-owned database, event, Blob, and tagged Sandbox resource retention now match the 7-day demo policy. For a public link that could receive automated traffic, visitor-cookie limitations and Customer Memory mutation hardening are still real enough to fix before launch.

@@ -47,14 +47,15 @@ export async function SandboxAgentScreen() {
               live result
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              This workspace gives one persistent Vercel Sandbox to each chat,
-              lets the model write HTML, CSS, and JavaScript files, and renders
-              the generated app through AI Elements WebPreview.
+              This workspace gives each chat an isolated project directory, lets
+              the model write HTML, CSS, and JavaScript files, and renders the
+              generated app through AI Elements WebPreview.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+            <Badge variant="outline">{runtimeState.sandboxProvider}</Badge>
             <Badge variant="outline">{runtimeState.chatModel}</Badge>
           </div>
         </header>

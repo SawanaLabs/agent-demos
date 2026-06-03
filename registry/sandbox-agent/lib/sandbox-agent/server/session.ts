@@ -1,17 +1,12 @@
 import {
-  createVercelSandbox,
-  createVercelSandboxSessionRegistry,
-  VERCEL_SANDBOX_ARTIFACTS_ROOT,
-  VERCEL_SANDBOX_PROJECT_ROOT,
-  VERCEL_SANDBOX_WORKSPACE_ROOT,
-  type VercelSandboxHandle,
-  type VercelSandboxSession,
-  type VercelSandboxSessionRegistry,
-} from "./vercel-sandbox";
-import { getSandboxAgentEnv, type SandboxAgentEnv } from "./env";
+  getSandboxAgentEnv,
+  getSandboxAgentSandboxSetupState,
+  type SandboxAgentEnv,
+} from "./env";
+import type { VercelSandboxHandle } from "./vercel-sandbox";
 
-export const SANDBOX_PROJECT_ROOT = VERCEL_SANDBOX_PROJECT_ROOT;
-export const SANDBOX_ARTIFACTS_ROOT = VERCEL_SANDBOX_ARTIFACTS_ROOT;
+export const SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
+export const SANDBOX_ARTIFACTS_ROOT = `${SANDBOX_PROJECT_ROOT}/artifacts`;
 
 export const SANDBOX_AGENT_PREVIEW_PORT = 3000;
 export const SANDBOX_AGENT_PREVIEW_SERVER_PATH =
@@ -82,7 +77,40 @@ createServer(async (request, response) => {
 
 type NamedSandboxHandle = VercelSandboxHandle & {
   domain: (port: number) => string;
+  runCommand(options: {
+    args: string[];
+    cmd: string;
+    cwd: string;
+    detached?: boolean;
+  }): Promise<unknown>;
 };
+
+interface BaseSandboxSession {
+  readonly artifactsRoot: string;
+  pathExists(targetPath: string): Promise<boolean>;
+  readonly projectRoot: string;
+  readFile(targetPath: string): Promise<string>;
+  runCommand(command: string): Promise<{
+    command: string;
+    exitCode: number;
+    stderr: string;
+    stdout: string;
+  }>;
+  readonly sessionId: string;
+  stop(): Promise<void>;
+  writeFile(
+    targetPath: string,
+    content: string
+  ): Promise<{
+    bytes: number;
+    path: string;
+  }>;
+}
+
+interface BaseSandboxSessionRegistry {
+  getSession(sessionId: string): BaseSandboxSession;
+  stopSession(sessionId: string): Promise<void>;
+}
 
 interface DetachedPreviewSandboxHandle {
   runCommand(options: {
@@ -131,6 +159,10 @@ export interface SandboxAgentSessionRegistry {
   getDomain(sessionId: string, port: number): string;
   getSession(sessionId: string): SandboxAgentSession;
   stopSession(sessionId: string): Promise<void>;
+}
+
+interface SandboxAgentSessionRegistryOptions {
+  localPreviewBaseUrl?: string;
 }
 
 function quoteShell(value: string) {
@@ -244,17 +276,25 @@ export async function launchDetachedSandboxPreview({
   });
 }
 
-export function createSandboxAgentSessionRegistry(
-  env: SandboxAgentEnv = getSandboxAgentEnv()
-): SandboxAgentSessionRegistry {
+async function createVercelBackedSandboxAgentSessionRegistry(
+  env: SandboxAgentEnv
+): Promise<SandboxAgentSessionRegistry> {
+  const {
+    createVercelSandbox,
+    createVercelSandboxSessionRegistry,
+    VERCEL_SANDBOX_WORKSPACE_ROOT,
+  } = await import("./vercel-sandbox");
   const sandboxHandles = new Map<string, NamedSandboxHandle>();
-  const baseRegistry: VercelSandboxSessionRegistry =
+  const baseRegistry: BaseSandboxSessionRegistry =
     createVercelSandboxSessionRegistry({
       createSandbox: async (sessionId) => {
-        const sandbox = (await createVercelSandbox(sessionId, env, {
+        const sandbox = await createVercelSandbox(sessionId, env, {
           ports: [SANDBOX_AGENT_PREVIEW_PORT],
-        })) as NamedSandboxHandle;
-        sandboxHandles.set(sessionId, sandbox);
+        });
+        sandboxHandles.set(
+          sessionId,
+          sandbox as unknown as NamedSandboxHandle
+        );
         return sandbox;
       },
       workspaceRoot: VERCEL_SANDBOX_WORKSPACE_ROOT,
@@ -273,9 +313,7 @@ export function createSandboxAgentSessionRegistry(
       return sandbox.domain(port);
     },
     getSession(sessionId) {
-      const baseSession = baseRegistry.getSession(
-        sessionId
-      ) as VercelSandboxSession;
+      const baseSession = baseRegistry.getSession(sessionId);
 
       return {
         artifactsRoot: SANDBOX_ARTIFACTS_ROOT,
@@ -344,12 +382,47 @@ export function createSandboxAgentSessionRegistry(
   return registry;
 }
 
-let sharedRegistry: SandboxAgentSessionRegistry | null = null;
+export async function createSandboxAgentSessionRegistry(
+  env: SandboxAgentEnv = getSandboxAgentEnv(),
+  options: SandboxAgentSessionRegistryOptions = {}
+): Promise<SandboxAgentSessionRegistry> {
+  const setupState = getSandboxAgentSandboxSetupState(env);
 
-export function getSharedSandboxAgentSessionRegistry(
-  env: SandboxAgentEnv = getSandboxAgentEnv()
+  if (setupState.authMode === "local") {
+    const { createLocalSandboxAgentSessionRegistry } =
+      await import("./local-sandbox");
+
+    return createLocalSandboxAgentSessionRegistry({
+      localPreviewBaseUrl: options.localPreviewBaseUrl,
+      previewPort: SANDBOX_AGENT_PREVIEW_PORT,
+    });
+  }
+
+  return createVercelBackedSandboxAgentSessionRegistry(env);
+}
+
+let sharedRegistry: SandboxAgentSessionRegistry | null = null;
+let sharedRegistryMode:
+  | ReturnType<typeof getSandboxAgentSandboxSetupState>["authMode"]
+  | null = null;
+let sharedLocalPreviewBaseUrl: string | undefined;
+
+export async function getSharedSandboxAgentSessionRegistry(
+  env: SandboxAgentEnv = getSandboxAgentEnv(),
+  options: SandboxAgentSessionRegistryOptions = {}
 ) {
-  sharedRegistry ??= createSandboxAgentSessionRegistry(env);
+  const setupState = getSandboxAgentSandboxSetupState(env);
+
+  if (options.localPreviewBaseUrl) {
+    sharedLocalPreviewBaseUrl = options.localPreviewBaseUrl;
+  }
+
+  if (!sharedRegistry || sharedRegistryMode !== setupState.authMode) {
+    sharedRegistry = await createSandboxAgentSessionRegistry(env, {
+      localPreviewBaseUrl: sharedLocalPreviewBaseUrl,
+    });
+    sharedRegistryMode = setupState.authMode;
+  }
 
   return sharedRegistry;
 }

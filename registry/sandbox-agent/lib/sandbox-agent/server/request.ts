@@ -9,6 +9,7 @@ interface SandboxAgentRequestBody {
 }
 
 interface StreamSandboxAgentOptions {
+  localPreviewBaseUrl: string;
   previewPort: number;
   sessionId: string;
 }
@@ -53,6 +54,7 @@ export async function handleSandboxAgentRequest(
 
       return streamSandboxAgent(messages, {
         env,
+        localPreviewBaseUrl: options.localPreviewBaseUrl,
         previewPort: options.previewPort,
         sessionId: options.sessionId,
       });
@@ -66,6 +68,7 @@ export async function handleSandboxAgentRequest(
 
       return streamSandboxAgent(messages, {
         env,
+        localPreviewBaseUrl: options.localPreviewBaseUrl,
         previewPort: options.previewPort,
         sessionId: options.sessionId,
       });
@@ -87,6 +90,7 @@ export async function handleSandboxAgentRequest(
     );
 
     return streamAgent(messages, {
+      localPreviewBaseUrl: new URL(request.url).origin,
       previewPort: runtimeState.previewPort,
       sessionId,
     });

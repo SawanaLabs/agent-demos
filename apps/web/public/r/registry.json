@@ -1172,16 +1172,14 @@
     {
       "name": "sandbox-agent",
       "title": "Sandbox Agent",
-      "description": "A sandbox-backed prototype builder that gives each chat a persistent Vercel Sandbox and a live preview tab.",
+      "description": "A sandbox-backed prototype builder that gives each chat an isolated workspace and a live preview tab.",
       "dependencies": [
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
         "@vercel/sandbox",
         "ai",
-        "bash-tool",
         "class-variance-authority",
-        "just-bash",
         "lucide-react",
         "zod"
       ],
@@ -1214,6 +1212,16 @@
           "path": "registry/sandbox-agent/app/api/demos/sandbox-agent/preview-status/route.ts",
           "type": "registry:page",
           "target": "app/api/demos/sandbox-agent/preview-status/route.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/app/api/demos/sandbox-agent/local-preview/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/local-preview/route.ts"
+        },
+        {
+          "path": "registry/sandbox-agent/app/api/demos/sandbox-agent/local-preview/[sessionId]/[...path]/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/sandbox-agent/local-preview/[sessionId]/[...path]/route.ts"
         },
         {
           "path": "registry/sandbox-agent/components/sandbox-agent/sandbox-agent-screen.tsx",
@@ -1296,6 +1304,11 @@
           "target": "@lib/sandbox-agent/server/env.ts"
         },
         {
+          "path": "registry/sandbox-agent/lib/sandbox-agent/server/local-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/sandbox-agent/server/local-sandbox.ts"
+        },
+        {
           "path": "registry/sandbox-agent/lib/sandbox-agent/server/model.ts",
           "type": "registry:lib",
           "target": "@lib/sandbox-agent/server/model.ts"
@@ -1334,13 +1347,9 @@
       "envVars": {
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
-        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
-        "VERCEL_OIDC_TOKEN": "",
-        "VERCEL_PROJECT_ID": "",
-        "VERCEL_TEAM_ID": "",
-        "VERCEL_TOKEN": ""
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, preview health route, client workspace, sandbox session registry, bash-backed tool surface, and the AI Gateway plus Vercel Sandbox env vars required for persistent previewable chat sessions.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, local preview route, preview health route, client workspace, sandbox session registry, shell/file tool surface, and AI Gateway env vars. It runs with a local isolated workspace by default; Vercel Sandbox credentials are optional if you want remote sandbox execution.",
       "type": "registry:block"
     },
     {

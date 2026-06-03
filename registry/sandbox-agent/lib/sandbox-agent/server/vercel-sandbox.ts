@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path, { posix as posixPath } from "node:path";
 import { Sandbox } from "@vercel/sandbox";
@@ -9,22 +8,7 @@ import {
   type SandboxAgentEnv,
 } from "./env";
 
-function resolveVercelSandboxWorkspaceRoot() {
-  const candidates = [
-    process.cwd(),
-    path.resolve(process.cwd(), "../.."),
-  ];
-
-  for (const candidate of candidates) {
-    if (existsSync(path.join(candidate, "AGENTS.md"))) {
-      return candidate;
-    }
-  }
-
-  return process.cwd();
-}
-
-export const VERCEL_SANDBOX_WORKSPACE_ROOT = resolveVercelSandboxWorkspaceRoot();
+export const VERCEL_SANDBOX_WORKSPACE_ROOT = process.cwd();
 export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
 export const VERCEL_SANDBOX_SKILLS_ROOT =
   `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
@@ -364,7 +348,10 @@ export function createVercelSandboxSessionRegistry({
                 recursive: true,
               });
 
-              const agentsPath = path.join(workspaceRoot, "AGENTS.md");
+              const agentsPath = path.join(
+                /*turbopackIgnore: true*/ workspaceRoot,
+                "AGENTS.md"
+              );
 
               if (await pathExists(agentsPath)) {
                 await copyLocalPathToSandbox(

@@ -67,6 +67,7 @@ export function SandboxAgentWorkspace({
               onSendMessage={workspace.actions.onSendMessage}
               onStop={workspace.actions.onStop}
               samplePrompts={workspace.samplePrompts}
+              sandboxProvider={sandboxProvider}
               status={workspace.status}
             />
 

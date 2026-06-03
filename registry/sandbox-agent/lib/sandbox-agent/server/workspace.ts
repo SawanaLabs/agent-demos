@@ -32,10 +32,12 @@ export function formatSuggestedUseCases(useCases: readonly string[]) {
 export async function createSandboxAgentWorkspace(
   {
     env = getSandboxAgentEnv(),
+    localPreviewBaseUrl,
     sessionId,
     suggestedUseCases = defaultSandboxAgentSuggestedUseCases,
   }: {
     env?: SandboxAgentEnv;
+    localPreviewBaseUrl?: string;
     sessionId: string;
     suggestedUseCases?: readonly string[];
   },
@@ -44,12 +46,15 @@ export async function createSandboxAgentWorkspace(
     getSession?: (sessionId: string) => SandboxAgentSession;
   } = {}
 ): Promise<SandboxAgentWorkspace> {
-  const registry = getSharedSandboxAgentSessionRegistry(env);
+  const registry = await getSharedSandboxAgentSessionRegistry(env, {
+    localPreviewBaseUrl,
+  });
   const getSession =
     dependencies.getSession ?? registry.getSession.bind(registry);
   const session = getSession(sessionId);
   const createToolset = dependencies.createToolset ?? createSandboxAgentToolset;
   const toolset = await createToolset({
+    projectRoot: session.projectRoot,
     session,
   });
 

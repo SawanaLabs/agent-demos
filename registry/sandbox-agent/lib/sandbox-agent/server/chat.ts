@@ -25,10 +25,12 @@ export async function streamSandboxAgent(
   messages: UIMessage[],
   {
     env = getSandboxAgentEnv(),
+    localPreviewBaseUrl,
     sessionId,
     previewPort,
   }: {
     env?: ReturnType<typeof getSandboxAgentEnv>;
+    localPreviewBaseUrl?: string;
     previewPort?: number;
     sessionId: string;
   }
@@ -37,6 +39,7 @@ export async function streamSandboxAgent(
   const chatModel = resolveSandboxAgentChatModel(env);
   const workspace = await createSandboxAgentWorkspace({
     env,
+    localPreviewBaseUrl,
     sessionId,
   });
   const agent = new ToolLoopAgent({

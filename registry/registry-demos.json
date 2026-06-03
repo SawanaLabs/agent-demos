@@ -93,8 +93,8 @@
       "slug": "skills-agent",
       "title": "Skills Agent",
       "registryPath": "registry/skills-agent/registry.json",
-      "publicRegistry": false,
-      "setup": "Under construction. Keep the source registry chunk local until its skill packaging and fresh-consumer checks are complete."
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Runs skill loading and file tools in a local sandbox by default; Vercel Sandbox credentials are optional for remote execution."
     },
     {
       "slug": "mcp-agent",

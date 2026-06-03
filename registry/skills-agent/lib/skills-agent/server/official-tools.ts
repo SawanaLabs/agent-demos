@@ -1,11 +1,9 @@
-import { posix as posixPath } from "node:path";
+import { type ToolSet, tool } from "ai";
+import { z } from "zod";
 
 import type { SkillsAgentSession } from "./sandbox";
 import type { SkillMetadata } from "./skill-catalog";
 
-const DEFAULT_SKILLS_DESTINATION = ".agents/skills";
-const BASH_TOOL_MODULE_SPECIFIER = ["bash", "tool"].join("-");
-const LEADING_DOT_SLASH_PATTERN = /^\.\//;
 const SKILL_NAME_ALIAS_SEPARATOR_PATTERN = /[\s_]+/g;
 const REPEATED_DASH_PATTERN = /-+/g;
 
@@ -18,20 +16,7 @@ const SKILLS_AGENT_TOOL_PROMPT = [
 export interface SkillsAgentOfficialTools {
   availableSkills: Pick<SkillMetadata, "description" | "name">[];
   primedFiles: { content: string; path: string }[];
-  tools: Record<string, unknown>;
-}
-
-interface OfficialSkill {
-  description: string;
-  localPath: string;
-  name: string;
-}
-
-interface SkillToolkit {
-  files: Record<string, string>;
-  instructions: string;
-  skill: unknown;
-  skills: OfficialSkill[];
+  tools: ToolSet;
 }
 
 interface SkillToolSuccessResult {
@@ -43,10 +28,6 @@ interface SkillToolSuccessResult {
     path: string;
   };
   success: true;
-}
-
-function stripLeadingDotSlash(targetPath: string) {
-  return targetPath.replace(LEADING_DOT_SLASH_PATTERN, "");
 }
 
 function normalizeSkillLookupKey(skillName: string) {
@@ -80,36 +61,9 @@ function resolveSkillNameAlias(
   return normalizedMatch?.name ?? trimmedSkillName;
 }
 
-function toSessionSkills(skills: OfficialSkill[]): SkillMetadata[] {
-  return skills.map((skill) => ({
-    description: skill.description,
-    name: skill.name,
-    path: skill.localPath,
-  }));
-}
-
-function isSameSkillPath(leftPath: string, rightPath: string) {
-  return leftPath === rightPath;
-}
-
 function findSkillByName(skills: SkillMetadata[], name: string) {
   return skills.find(
     (skill) => skill.name.toLowerCase() === name.toLowerCase()
-  );
-}
-
-function isInitialSkill(
-  skill: SkillMetadata | undefined,
-  initialSkills: SkillMetadata[]
-) {
-  if (!skill) {
-    return false;
-  }
-
-  return initialSkills.some(
-    (initialSkill) =>
-      initialSkill.name.toLowerCase() === skill.name.toLowerCase() &&
-      isSameSkillPath(initialSkill.path, skill.path)
   );
 }
 
@@ -150,134 +104,111 @@ async function createLoadedSkillToolResult({
 function buildPrimedFiles({
   agentsContent,
   projectRoot,
-  toolkit,
 }: {
   agentsContent: string;
   projectRoot: string;
-  toolkit: SkillToolkit;
 }) {
   return [
     {
       content: agentsContent,
-      path: posixPath.join(projectRoot, "AGENTS.md"),
+      path: `${projectRoot}/AGENTS.md`,
     },
-    ...Object.entries(toolkit.files).map(([relativePath, content]) => ({
-      content,
-      path: posixPath.join(projectRoot, stripLeadingDotSlash(relativePath)),
-    })),
   ];
-}
-
-function createSessionBackedSandbox(session: SkillsAgentSession) {
-  return {
-    executeCommand: async (command: string) => {
-      const result = await session.runCommand(command);
-
-      return {
-        exitCode: result.exitCode,
-        stderr: result.stderr,
-        stdout: result.stdout,
-      };
-    },
-    readFile: (targetPath: string) => session.readFile(targetPath),
-    writeFiles: async (files: { content: string | Buffer; path: string }[]) => {
-      for (const file of files) {
-        await session.writeFile(
-          file.path,
-          typeof file.content === "string"
-            ? file.content
-            : file.content.toString("utf-8")
-        );
-      }
-    },
-  };
 }
 
 export async function createSkillsAgentOfficialTools({
   agentsContent,
   projectRoot,
   session,
-  skillsDirectory,
+  skills,
 }: {
   agentsContent: string;
   projectRoot: string;
   session: SkillsAgentSession;
-  skillsDirectory: string;
+  skills: SkillMetadata[];
 }): Promise<SkillsAgentOfficialTools> {
-  const { createBashTool, experimental_createSkillTool } = await import(
-    BASH_TOOL_MODULE_SPECIFIER
-  );
-  const skillToolkit = await experimental_createSkillTool({
-    destination: DEFAULT_SKILLS_DESTINATION,
-    skillsDirectory,
-  });
-  const sessionSkills = toSessionSkills(skillToolkit.skills);
-  const bashToolkit = await createBashTool({
-    destination: projectRoot,
-    extraInstructions: skillToolkit.instructions,
-    promptOptions: {
-      toolPrompt: SKILLS_AGENT_TOOL_PROMPT,
-    },
-    sandbox: createSessionBackedSandbox(session),
-  });
-  const officialSkillTool = skillToolkit.skill as {
-    description?: string;
-    execute: (input: { skillName: string }) => Promise<unknown>;
-    inputSchema?: unknown;
-  };
-
-  const skillTool = {
-    ...officialSkillTool,
-    description: [
-      officialSkillTool.description,
-      `This tool also scans ${DEFAULT_SKILLS_DESTINATION} inside the active sandbox before each load, so skills installed during the current chat can be loaded by name.`,
-    ]
-      .filter(Boolean)
-      .join("\n\n"),
-    execute: async ({ skillName }: { skillName: string }) => {
-      try {
-        const availableSkills = await session.discoverSkills(sessionSkills);
-        const canonicalSkillName = resolveSkillNameAlias(
-          availableSkills,
-          skillName
-        );
-        const selectedSkill = findSkillByName(
-          availableSkills,
-          canonicalSkillName
-        );
-        const loadedSkill = await session.loadSkill(
-          availableSkills,
-          canonicalSkillName
-        );
-
-        if (isInitialSkill(selectedSkill, sessionSkills)) {
-          return officialSkillTool.execute({ skillName: canonicalSkillName });
-        }
-
-        return createLoadedSkillToolResult({
-          availableSkills,
-          loadedSkill,
-          session,
-        });
-      } catch (error) {
-        return createSkillToolError(error);
-      }
-    },
-  };
-
   return {
-    availableSkills: sessionSkills.map(({ description, name }) => ({
+    availableSkills: skills.map(({ description, name }) => ({
       description,
       name,
     })),
     primedFiles: buildPrimedFiles({
       agentsContent,
       projectRoot,
-      toolkit: skillToolkit,
     }),
     tools: {
-      ...bashToolkit.tools,
-      skill: skillTool,
+      bash: tool({
+        description: [
+          `Run a shell command inside the sandbox workspace at ${projectRoot}.`,
+          SKILLS_AGENT_TOOL_PROMPT,
+        ].join("\n\n"),
+        execute: ({ command }) => session.runCommand(command),
+        inputSchema: z.object({
+          command: z
+            .string()
+            .min(1)
+            .describe("Shell command to run from the sandbox project root."),
+        }),
+      }),
+      readFile: tool({
+        description: "Read a UTF-8 file from the sandbox workspace.",
+        execute: async ({ path }) => ({
+          content: await session.readFile(path),
+          path,
+        }),
+        inputSchema: z.object({
+          path: z
+            .string()
+            .min(1)
+            .describe(
+              "File path to read, relative to the sandbox project root unless absolute."
+            ),
+        }),
+      }),
+      skill: tool({
+        description:
+          "Load full SKILL.md instructions from the visible skills catalog.",
+        execute: async ({ skillName }) => {
+          try {
+            const availableSkills = await session.discoverSkills(skills);
+            const canonicalSkillName = resolveSkillNameAlias(
+              availableSkills,
+              skillName
+            );
+            const loadedSkill = await session.loadSkill(
+              availableSkills,
+              canonicalSkillName
+            );
+
+            return createLoadedSkillToolResult({
+              availableSkills,
+              loadedSkill,
+              session,
+            });
+          } catch (error) {
+            return createSkillToolError(error);
+          }
+        },
+        inputSchema: z.object({
+          skillName: z
+            .string()
+            .min(1)
+            .describe("Name of the skill to load from the visible catalog."),
+        }),
+      }),
+      writeFile: tool({
+        description: "Write a UTF-8 file into the sandbox workspace.",
+        execute: ({ content, path }) => session.writeFile(path, content),
+        inputSchema: z.object({
+          content: z.string().describe("UTF-8 file content to write."),
+          path: z
+            .string()
+            .min(1)
+            .describe(
+              "File path to write, relative to the sandbox project root unless absolute."
+            ),
+        }),
+      }),
     },
   };
 }

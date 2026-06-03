@@ -49,12 +49,13 @@ export async function SkillsAgentScreen() {
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               This workspace tracks the AI SDK skills guide closely: the model
               sees a lightweight catalog first, loads full skill instructions
-              only when needed, and executes inside Vercel Sandbox.
+              only when needed, and executes inside an isolated workspace.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+            <Badge variant="outline">{runtimeState.sandboxProvider}</Badge>
             <Badge variant="outline">{runtimeState.chatModel}</Badge>
           </div>
         </header>

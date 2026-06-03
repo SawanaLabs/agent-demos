@@ -55,11 +55,8 @@ test("current registry manifest classifies every ready catalog demo", () => {
   });
 
   assert.equal(availability.mainlineRegistryDemo.slug, "foundation-chat");
-  assert.equal(availability.publicRegistryDemos.length, 11);
-  assert.deepEqual(
-    availability.privateRegistryDemos.map((demo) => demo.slug),
-    ["skills-agent"]
-  );
+  assert.equal(availability.publicRegistryDemos.length, 12);
+  assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),
     ["langgraph-agent", "openai-agents-sdk-demo", "ultra-chatbot-agent"]

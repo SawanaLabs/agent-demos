@@ -1,16 +1,9 @@
 import path, { posix as posixPath } from "node:path";
-import {
-  copyLocalPathToSandbox,
-  createVercelSandbox,
-  createVercelSandboxSessionRegistry,
-  VERCEL_SANDBOX_AGENTS_FILE,
-  VERCEL_SANDBOX_ARTIFACTS_ROOT,
-  VERCEL_SANDBOX_PROJECT_ROOT,
-  VERCEL_SANDBOX_SKILLS_ROOT,
-  type VercelSandboxFactory,
-  type VercelSandboxHandle,
-  type VercelSandboxSession,
-  type VercelSandboxSessionRegistry,
+import type {
+  VercelSandboxFactory,
+  VercelSandboxHandle,
+  VercelSandboxSession,
+  VercelSandboxSessionRegistry,
 } from "./vercel-sandbox";
 import {
   getSkillsAgentEnv,
@@ -28,10 +21,10 @@ import {
 
 export type SkillsAgentSandboxHandle = VercelSandboxHandle;
 export type SandboxFactory = VercelSandboxFactory;
-export const SANDBOX_PROJECT_ROOT = VERCEL_SANDBOX_PROJECT_ROOT;
-export const SANDBOX_SKILLS_ROOT = VERCEL_SANDBOX_SKILLS_ROOT;
-export const SANDBOX_ARTIFACTS_ROOT = VERCEL_SANDBOX_ARTIFACTS_ROOT;
-export const SANDBOX_AGENTS_FILE = VERCEL_SANDBOX_AGENTS_FILE;
+export const SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
+export const SANDBOX_SKILLS_ROOT = `${SANDBOX_PROJECT_ROOT}/.agents/skills`;
+export const SANDBOX_ARTIFACTS_ROOT = `${SANDBOX_PROJECT_ROOT}/artifacts`;
+export const SANDBOX_AGENTS_FILE = `${SANDBOX_PROJECT_ROOT}/AGENTS.md`;
 
 export interface SkillsAgentSession extends VercelSandboxSession {
   readonly activeSkillDirectory: string | null;
@@ -194,16 +187,27 @@ async function listSandboxSkillFiles(
     .filter(Boolean);
 }
 
-export const createSkillsAgentSandbox = createVercelSandbox;
 export const getSkillsAgentSandboxSetupState = getSkillsAgentSandboxSetup;
 
-export function createSkillsAgentSessionRegistry({
+export async function createSkillsAgentSandbox(
+  sessionId: string,
+  env: SkillsAgentEnv = getSkillsAgentEnv(),
+  options: { ports?: number[] } = {}
+): Promise<SkillsAgentSandboxHandle> {
+  const { createVercelSandbox } = await import("./vercel-sandbox");
+
+  return createVercelSandbox(sessionId, env, options);
+}
+
+export async function createSkillsAgentSessionRegistry({
   createSandbox,
   workspaceRoot = SKILLS_AGENT_WORKSPACE_ROOT,
 }: {
   createSandbox: SandboxFactory;
   workspaceRoot?: string;
-}): SkillsAgentSessionRegistry {
+}): Promise<SkillsAgentSessionRegistry> {
+  const { copyLocalPathToSandbox, createVercelSandboxSessionRegistry } =
+    await import("./vercel-sandbox");
   const baseRegistry: VercelSandboxSessionRegistry =
     createVercelSandboxSessionRegistry({
       createSandbox,
@@ -327,13 +331,32 @@ export function createSkillsAgentSessionRegistry({
 }
 
 let sharedRegistry: SkillsAgentSessionRegistry | null = null;
+let sharedRegistryMode:
+  | ReturnType<typeof getSkillsAgentSandboxSetup>["authMode"]
+  | null = null;
 
-export function getSharedSkillsAgentSessionRegistry(
+export async function getSharedSkillsAgentSessionRegistry(
   env: SkillsAgentEnv = getSkillsAgentEnv()
 ) {
-  sharedRegistry ??= createSkillsAgentSessionRegistry({
-    createSandbox: (sessionId) => createVercelSandbox(sessionId, env),
-  });
+  const setupState = getSkillsAgentSandboxSetup(env);
+
+  if (!sharedRegistry || sharedRegistryMode !== setupState.authMode) {
+    if (setupState.authMode === "local") {
+      const { createLocalSkillsAgentSessionRegistry } = await import(
+        "./local-sandbox"
+      );
+
+      sharedRegistry = createLocalSkillsAgentSessionRegistry();
+    } else {
+      const { createVercelSandbox } = await import("./vercel-sandbox");
+
+      sharedRegistry = await createSkillsAgentSessionRegistry({
+        createSandbox: (sessionId) => createVercelSandbox(sessionId, env),
+      });
+    }
+
+    sharedRegistryMode = setupState.authMode;
+  }
 
   return sharedRegistry;
 }

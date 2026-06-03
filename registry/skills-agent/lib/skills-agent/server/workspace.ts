@@ -8,8 +8,6 @@ import {
 } from "./official-tools";
 import {
   getSharedSkillsAgentSessionRegistry,
-  SANDBOX_ARTIFACTS_ROOT,
-  SANDBOX_PROJECT_ROOT,
   type SkillsAgentSession,
 } from "./sandbox";
 import type { SkillMetadata } from "./skill-catalog";
@@ -39,6 +37,33 @@ export const SKILLS_AGENT_SKILLS_DIRECTORY = path.join(
   SKILLS_AGENT_WORKSPACE_ROOT,
   ".agents/skills"
 );
+const defaultAgentsContent = [
+  "# Skills Agent Consumer Workspace",
+  "",
+  "This project can install repo-local skills under `.agents/skills`.",
+  "Use loaded skill instructions as the source of truth, keep generated drafts under `artifacts/` unless a skill names a canonical path, and inspect optional repository files before reading them.",
+].join("\n");
+
+function isMissingFileError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
+}
+
+async function readAgentsContent(readAgentsFile: typeof readFile) {
+  try {
+    return await readAgentsFile(SKILLS_AGENT_AGENTS_PATH, "utf-8");
+  } catch (error) {
+    if (isMissingFileError(error)) {
+      return defaultAgentsContent;
+    }
+
+    throw error;
+  }
+}
 
 export function toVisibleSkillCatalog(
   skills: SkillMetadata[]
@@ -76,20 +101,22 @@ export async function createSkillsAgentWorkspace(
   const readAgentsFile = dependencies.readAgentsFile ?? readFile;
   const createOfficialTools =
     dependencies.createOfficialTools ?? createSkillsAgentOfficialTools;
-  const session =
-    getSharedSkillsAgentSessionRegistry(env).getSession(sessionId);
+  const session = (
+    await getSharedSkillsAgentSessionRegistry(env)
+  ).getSession(sessionId);
   const visibleSkillCatalog = toVisibleSkillCatalog(skills);
-  const agentsContent = await readAgentsFile(SKILLS_AGENT_AGENTS_PATH, "utf-8");
+  const agentsContent = await readAgentsContent(readAgentsFile);
+  await session.writeFile("AGENTS.md", agentsContent);
   const toolset = await createOfficialTools({
     agentsContent,
-    projectRoot: SANDBOX_PROJECT_ROOT,
+    projectRoot: session.projectRoot,
     session,
-    skillsDirectory: SKILLS_AGENT_SKILLS_DIRECTORY,
+    skills,
   });
 
   return {
-    artifactsRoot: SANDBOX_ARTIFACTS_ROOT,
-    projectRoot: SANDBOX_PROJECT_ROOT,
+    artifactsRoot: session.artifactsRoot,
+    projectRoot: session.projectRoot,
     session,
     toolset,
     visibleSkillCatalog,

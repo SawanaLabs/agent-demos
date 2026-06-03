@@ -24,10 +24,10 @@ export interface SkillsAgentSandboxTokenCredentials {
 }
 
 export interface SkillsAgentSandboxSetupState {
-  authMode: "missing" | "oidc" | "token";
+  authMode: "local" | "oidc" | "token";
   isReady: boolean;
   issues: string[];
-  providerLabel: "Vercel Sandbox";
+  providerLabel: "Local sandbox" | "Vercel Sandbox";
   runtime: "node24";
 }
 
@@ -84,7 +84,10 @@ export function getSkillsAgentSandboxSetupState(
 ): SkillsAgentSandboxSetupState {
   const issues: string[] = [];
   const hasOidc = Boolean(env.VERCEL_OIDC_TOKEN);
-  let authMode: SkillsAgentSandboxSetupState["authMode"] = "missing";
+  const hasAnyTokenCredential = Boolean(
+    env.VERCEL_PROJECT_ID || env.VERCEL_TEAM_ID || env.VERCEL_TOKEN
+  );
+  let authMode: SkillsAgentSandboxSetupState["authMode"] = "local";
 
   if (hasOidc) {
     authMode = "oidc";
@@ -92,9 +95,13 @@ export function getSkillsAgentSandboxSetupState(
     authMode = "token";
   }
 
-  if (authMode === "missing") {
+  if (
+    authMode === "local" &&
+    hasAnyTokenCredential &&
+    !hasSkillsAgentSandboxTokenCredentials(env)
+  ) {
     issues.push(
-      "Vercel Sandbox credentials are missing. Add VERCEL_OIDC_TOKEN or the VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID trio."
+      "Vercel Sandbox token credentials are incomplete. Set VERCEL_TOKEN, VERCEL_TEAM_ID, and VERCEL_PROJECT_ID together, or remove them to use local sandbox mode."
     );
   }
 
@@ -102,7 +109,7 @@ export function getSkillsAgentSandboxSetupState(
     authMode,
     isReady: issues.length === 0,
     issues,
-    providerLabel: "Vercel Sandbox",
+    providerLabel: authMode === "local" ? "Local sandbox" : "Vercel Sandbox",
     runtime: "node24",
   };
 }

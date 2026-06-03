@@ -338,7 +338,7 @@ export function SkillsAgentWorkspace({
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">ToolLoopAgent</Badge>
-                  <Badge variant="outline">Vercel Sandbox</Badge>
+                  <Badge variant="outline">{sandboxProvider}</Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">

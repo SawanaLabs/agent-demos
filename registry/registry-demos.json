@@ -31,7 +31,7 @@
       "title": "RAG Chatbot",
       "registryPath": "registry/rag-chatbot/registry.json",
       "publicRegistry": true,
-      "setup": "Needs DATABASE_URL, an embedding model, and a Postgres database with vector search for document indexing."
+      "setup": "AI Gateway only. Uses a portable sample retrieval index by default; add DATABASE_URL and pgvector when you want custom document indexing."
     },
     {
       "slug": "multimodal-chatbot",
@@ -52,7 +52,7 @@
       "title": "Memory & Persistence Agent",
       "registryPath": "registry/customer-memory-agent/registry.json",
       "publicRegistry": true,
-      "setup": "Needs DATABASE_URL for persistent threads, saved memories, and compaction checkpoints."
+      "setup": "AI Gateway only. Uses visitor-scoped in-memory persistence by default; add DATABASE_URL when you want Postgres-backed memories and compaction checkpoints."
     },
     {
       "slug": "streaming-chat-shell",
@@ -80,14 +80,14 @@
       "title": "Persistent Agent",
       "registryPath": "registry/persistent-agent/registry.json",
       "publicRegistry": true,
-      "setup": "Needs DATABASE_URL and REDIS_URL for addressable chats and resumable streams."
+      "setup": "AI Gateway only. Uses in-memory chats and local streams by default; add DATABASE_URL and REDIS_URL when you want durable chats and resumable streams."
     },
     {
       "slug": "sandbox-agent",
       "title": "Sandbox Agent",
       "registryPath": "registry/sandbox-agent/registry.json",
       "publicRegistry": true,
-      "setup": "Needs Vercel Sandbox credentials plus AI Gateway credentials for persistent preview sessions."
+      "setup": "AI Gateway only. Runs a local sandbox and local preview route by default; Vercel Sandbox credentials are optional for remote sandbox execution."
     },
     {
       "slug": "skills-agent",

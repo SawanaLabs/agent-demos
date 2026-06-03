@@ -19,6 +19,7 @@ export function useSandboxAgentWorkspaceViewModel() {
     error,
     hasMessages,
     isBusy,
+    chat,
     messages,
     regenerate,
     sendMessage,
@@ -33,7 +34,7 @@ export function useSandboxAgentWorkspaceViewModel() {
     () => getLatestPreviewOutput(messages),
     [messages]
   );
-  const previewState = useSandboxPreviewState(latestPreview);
+  const previewState = useSandboxPreviewState(latestPreview, chat.id);
 
   useEffect(() => {
     setIsTabsMounted(true);

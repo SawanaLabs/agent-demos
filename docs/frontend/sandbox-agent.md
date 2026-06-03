@@ -1,7 +1,7 @@
 ---
 title: Sandbox Agent
 description: Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo.
-updateAt: 2026-06-01
+updateAt: 2026-06-03
 ---
 
 # Sandbox Agent
@@ -32,6 +32,7 @@ updateAt: 2026-06-01
 - Show tool calls above the assistant body in the message trace.
 - Split the workspace into `Conversation` and `Preview` tabs.
 - Keep the live sandbox preview in the dedicated `Preview` tab with AI Elements `WebPreview`.
+- Keep preview health checks demo-light but bounded: `preview-status` accepts `sessionId` plus `url`, compares the URL against the exact origin returned by the existing sandbox handle for the fixed preview port, and must not accept a broad Vercel-domain allowlist or create a sandbox from the status route.
 - Mirror the official AI Elements `WebPreview` composition inside the `Preview` tab: `WebPreviewNavigation`, navigation buttons, `WebPreviewUrl`, `WebPreviewBody`, and `WebPreviewConsole`.
 - Keep the preview shell close to the official `WebPreview` example while adapting it to this product shell: use a `Copy preview URL` action instead of a URL-selection action.
 - Remove extra preview framing in the `Preview` tab. The preview surface should sit flush in the tab content without an extra local card border, extra tab-to-preview gap, or an inner empty-state border.
@@ -46,5 +47,6 @@ updateAt: 2026-06-01
 
 - Update this file when the sandbox provider changes away from `@vercel/sandbox`.
 - Update this file when the preview contract changes away from `WebPreview` plus a fixed sandbox port.
+- Update this file when preview health checks move from demo-light exact-origin checks to visitor ownership, preview ids, or persisted preview metadata.
 - Update this file when the first shipped use case stops being a static frontend prototype workflow.
 - Update this file when registry packaging starts deriving the portable `registry/sandbox-agent` sandbox runtime from the shared app Module.

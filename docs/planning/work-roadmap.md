@@ -1,7 +1,7 @@
 ---
 title: Work Roadmap
 description: Recoverable work topics and intended future states for this repository.
-updateAt: 2026-05-29
+updateAt: 2026-06-03
 ---
 
 # Work Roadmap
@@ -20,9 +20,12 @@ This roadmap captures recoverable work intent for the user, agents, or any perso
 
 The top 1-5 recoverable work topics to resume first, expected to be resolved within the next few days. If this section grows beyond five items, reorganize or remove stale items before adding more.
 
-- X4 LangGraph backend deployment to LangSmith Cloud
-  - Intended State: The Python LangGraph backend from `apps/langgraph-agent-api` is deployed on LangSmith Cloud, the already-deployed Vercel web app points `LANGGRAPH_AGENT_API_URL` at that deployment, `LANGGRAPH_AGENT_ASSISTANT_ID` remains aligned with the `agent` graph id, and `/demos/langgraph-agent` streams successfully against the production Agent Server.
-  - Discussion: The deployment decision is made: keep the web app on Vercel and deploy the LangGraph backend to LangSmith Cloud. Target actual launch within one week of 2026-05-29, by 2026-06-05.
+- Agent demo conversation-visible send errors
+  - Intended State: When any agent demo hits a message-send failure, including request validation, API route, provider/model, tool/runtime, sandbox, or stream errors, the failed turn is represented as an explicit error message inside the same conversation so the user can see what failed and continue from the conversation history.
+  - Discussion: User requested this as a one-week roadmap item on 2026-06-02. Target resolution by 2026-06-09. As of 2026-06-03, LangGraph, Persistent Agent, Ultra Chatbot Agent, and OpenAI Agents SDK Demo have conversation-visible error paths, while older chat demos such as Foundation Chat, RAG Chatbot, MCP Agent, Skills Agent, Loop Agent, Streaming Chat Shell, and Customer Memory Agent still need review or migration away from workspace-level error banners.
+- Seven-day cleanup for visitor-created private demo data
+  - Intended State: Every Visitor Owner-created Private Demo Data surface expires after the Demo Data Retention Window of seven days, including visitor-created database rows, Vercel Blob uploads, Redis-backed resume stream state, and Vercel Sandbox artifacts or persistent sessions. Cleanup preserves non-visitor-generated operating or seed data such as preindexed RAG resources, site usage access codes, and system configuration unless a separate retention decision changes that boundary.
+  - Discussion: User confirmed on 2026-06-03 that "all persistent content" means user-created persistent demo data and that the retention window should be unified to seven days. Current implementation does not yet match that target: customer-memory and persistent-agent cleanup use three days, site-usage event cleanup uses thirty days, and Ultra Chatbot Agent plus Blob, Redis, and sandbox-backed surfaces still need an explicit cleanup story. Support waitlist entries remain a separate operating-data classification unless the product boundary later treats them as Private Demo Data.
 
 ## Near-Term
 

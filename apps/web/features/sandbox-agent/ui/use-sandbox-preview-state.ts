@@ -39,6 +39,7 @@ export interface SandboxPreviewState {
   previewContainerRef: React.RefObject<HTMLDivElement | null>;
   previewLogs: PreviewLog[];
   previewReloadKey: number;
+  sandboxSessionId: string;
 }
 
 export interface PreviewHealthState {
@@ -47,7 +48,8 @@ export interface PreviewHealthState {
 }
 
 export function useSandboxPreviewState(
-  latestPreview: LatestPreview | null
+  latestPreview: LatestPreview | null,
+  sandboxSessionId: string
 ): SandboxPreviewState {
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
   const [previewHistoryState, setPreviewHistoryState] = useState<{
@@ -234,10 +236,30 @@ export function useSandboxPreviewState(
     previewContainerRef,
     previewLogs,
     previewReloadKey,
+    sandboxSessionId,
   };
 }
 
+export function buildPreviewStatusUrl({
+  previewReloadKey,
+  previewUrl,
+  sandboxSessionId,
+}: {
+  previewReloadKey: number;
+  previewUrl: string;
+  sandboxSessionId: string;
+}) {
+  const params = new URLSearchParams({
+    sessionId: sandboxSessionId,
+    url: previewUrl,
+    reload: String(previewReloadKey),
+  });
+
+  return `/api/demos/sandbox-agent/preview-status?${params}`;
+}
+
 export function usePreviewHealth(
+  sandboxSessionId: string,
   previewUrl: string,
   previewReloadKey: number,
   appendPreviewLog: SandboxPreviewState["appendPreviewLog"]
@@ -265,9 +287,11 @@ export function usePreviewHealth(
     }));
 
     fetch(
-      `/api/demos/sandbox-agent/preview-status?url=${encodeURIComponent(
-        previewUrl
-      )}&reload=${previewReloadKey}`,
+      buildPreviewStatusUrl({
+        previewReloadKey,
+        previewUrl,
+        sandboxSessionId,
+      }),
       {
         cache: "no-store",
         signal: controller.signal,
@@ -319,7 +343,7 @@ export function usePreviewHealth(
       isCancelled = true;
       controller.abort();
     };
-  }, [appendPreviewLog, previewReloadKey, previewUrl]);
+  }, [appendPreviewLog, previewReloadKey, previewUrl, sandboxSessionId]);
 
   return health;
 }

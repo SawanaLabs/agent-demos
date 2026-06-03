@@ -18,15 +18,15 @@ The main message routes have a real Site Usage Gate, and the visitor-owned demos
 
 The current repository is not ready for a public, unknown-traffic launch without a few focused fixes. The highest-risk gaps are helper routes that bypass the normal message gate:
 
-1. Sandbox preview status fetches arbitrary HTTP(S) URLs from the server.
-2. Ultra file upload can write public Blob objects repeatedly and has no Blob cleanup story.
-3. The "delete all DB and Blob content after 7 days" target is not implemented across all private demo stores.
+1. Ultra file upload can write public Blob objects repeatedly and has no Blob cleanup story.
+2. The "delete all DB and Blob content after 7 days" target is not implemented across all private demo stores.
 
 ## Existing Controls That Work
 
 - Main model-backed routes commonly use `createMeteredDemoRoute` or `createVisitorOwnedMeteredDemoRoute`; the default policy allows 50 successful usage events per visitor per UTC day (`apps/web/features/site-usage-gate/server/policy.ts:6`, `apps/web/features/site-usage-gate/server/route-wrapper.ts:58`).
 - OpenAI Agents SDK Realtime client-secret minting is wrapped by the Site Usage Gate and counts as `send_message` usage for `openai-agents-sdk-demo` (`apps/web/app/api/demos/openai-agents-sdk-demo/realtime/client-secrets/route.ts:6`).
 - LangGraph's web route is metered before it calls the runtime, and the hosted FastAPI wrapper now requires the matching server-side `LANGGRAPH_AGENT_API_KEY` plus request `x-api-key` (`apps/web/app/api/demos/langgraph-agent/route.ts:6`, `apps/langgraph-agent-api/langgraph_agent/vercel_app.py:51`).
+- Sandbox preview status checks now require a sandbox `sessionId`, compare the requested preview URL against the exact origin returned by the existing sandbox handle, do not create a sandbox session from the status route, avoid redirects, apply a 3 second timeout, and cap response body reads (`apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:37`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:97`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:160`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:190`).
 - Customer Memory thread listing and loading filter by `customerId` plus `visitorId` (`apps/web/features/customer-memory-agent/server/thread-store.ts:159`, `apps/web/features/customer-memory-agent/server/thread-store.ts:276`).
 - Persistent Agent chat loading, saving, and cleanup are visitor-scoped, and message rows cascade when chats are deleted (`apps/web/features/persistent-agent/server/chat-store.ts:128`, `apps/web/features/persistent-agent/server/chat-store.ts:139`, `apps/web/features/persistent-agent/server/schema.ts:56`).
 - Ultra chat history, chat loading, writes, documents, suggestions, votes, and visibility routes are mostly visitor-scoped (`apps/web/features/ultra-chatbot-agent/server/chat-store.ts:179`, `apps/web/features/ultra-chatbot-agent/server/chat-store.ts:190`, `apps/web/features/ultra-chatbot-agent/server/chat-store.ts:336`).
@@ -35,23 +35,7 @@ The current repository is not ready for a public, unknown-traffic launch without
 
 ## Findings
 
-### F1 - High - Sandbox preview-status is an SSRF and server-resource probe
-
-Evidence:
-
-- `/api/demos/sandbox-agent/preview-status` accepts any absolute `http:` or `https:` URL (`apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:28`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:62`).
-- It follows redirects and reads `response.text()` from the server side (`apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:76`, `apps/web/app/api/demos/sandbox-agent/preview-status/route.ts:80`).
-- It is not wrapped by the Site Usage Gate or a visitor owner route.
-
-Impact:
-
-An unauthenticated caller can make the Vercel function fetch arbitrary public or internal-looking HTTP(S) targets, burn function time and bandwidth, and use status/body snippets for probing.
-
-Recommendation:
-
-Restrict this route to preview URLs created by the sandbox registry. At minimum, allowlist expected Sandbox preview host patterns, reject localhost/private/link-local IP ranges after DNS resolution, add an `AbortSignal.timeout`, cap response bytes, and meter calls. A stronger option is to remove the public `url` parameter and accept only a server-known `sessionId` plus preview id.
-
-### F2 - Medium/High - Ultra upload can repeatedly create public Blob objects and has no cleanup
+### F1 - Medium/High - Ultra upload can repeatedly create public Blob objects and has no cleanup
 
 Evidence:
 
@@ -68,7 +52,7 @@ Recommendation:
 
 Track uploaded blob `pathname`, visitor id, chat id, and created time in database storage. Meter uploads or add a per-visitor daily byte cap. Delete blobs when their owning chat is deleted and from a scheduled cleanup after the Demo Data Retention Window. If public Blob URLs remain, document that uploaded files are private by route ownership only, not by Blob access control.
 
-### F3 - Medium - 7-day DB and Blob retention target is not implemented across stores
+### F2 - Medium - 7-day DB and Blob retention target is not implemented across stores
 
 Evidence:
 
@@ -86,7 +70,7 @@ Recommendation:
 
 Define a single `Demo Data Retention Window` constant or clearly documented per-store policy. For the user's current target, add a 7-day cleanup for Ultra chats, messages, documents, suggestions, streams, votes, and Blob uploads; decide whether Customer Memory/Persistent Agent should remain stricter at 3 days or align to 7 days; delete Customer Memory events that contain private text; classify site usage/waitlist separately from private demo content.
 
-### F4 - Medium/Low - Cookie-only ownership is acceptable for friendly traffic but easy to reset
+### F3 - Medium/Low - Cookie-only ownership is acceptable for friendly traffic but easy to reset
 
 Evidence:
 
@@ -103,7 +87,7 @@ Recommendation:
 
 Set `Secure` on cookies in production. Accept cookie-reset bypass as a known limitation for the portfolio phase, or add a lightweight IP/user-agent hash only after real abuse appears. Do not add CAPTCHA by default for the current stated traffic model.
 
-### F5 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
+### F4 - Low/Medium - Customer Memory mutation lacks owner predicates at the final SQL layer
 
 Evidence:
 
@@ -118,7 +102,7 @@ Recommendation:
 
 Pass `customerId` and `visitorId` into memory mutation methods and include them in the SQL `WHERE` clauses. This is a small defense-in-depth fix and aligns with the rest of the visitor-owner model.
 
-### F6 - Low - Public docs MCP routes are read-only but expose repository docs
+### F5 - Low - Public docs MCP routes are read-only but expose repository docs
 
 Evidence:
 
@@ -134,10 +118,9 @@ Keep docs free of secrets and private deployment details. Add auth only if the d
 
 ## Recommended Fix Order
 
-1. Lock `preview-status` to sandbox-owned preview URLs and add timeout/byte caps.
-2. Add Ultra upload metering/byte caps and Blob tracking.
-3. Implement the 7-day cleanup story for Ultra DB rows, Blob uploads, and Customer Memory events.
-4. Add production `Secure` cookies and owner predicates to Customer Memory mutations.
+1. Add Ultra upload metering/byte caps and Blob tracking.
+2. Implement the 7-day cleanup story for Ultra DB rows, Blob uploads, and Customer Memory events.
+3. Add production `Secure` cookies and owner predicates to Customer Memory mutations.
 
 ## Current Readiness Call
 

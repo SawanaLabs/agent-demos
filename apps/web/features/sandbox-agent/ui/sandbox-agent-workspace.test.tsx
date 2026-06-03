@@ -17,6 +17,7 @@ import {
   sanitizePreviewText,
 } from "./preview-state";
 import { SandboxConversationPane } from "./sandbox-conversation-pane";
+import { buildPreviewStatusUrl } from "./use-sandbox-preview-state";
 
 function createAssistantMessage(parts: UIMessage["parts"]): UIMessage {
   return {
@@ -151,6 +152,18 @@ describe("sandbox-agent workspace UI", () => {
       })
     ).toBe(
       "Preview is unavailable. HTTP 410 SANDBOX_STOPPED This sandbox was stopped and is no longer reachable."
+    );
+  });
+
+  it("builds preview status checks with the sandbox session id", () => {
+    expect(
+      buildPreviewStatusUrl({
+        previewReloadKey: 2,
+        previewUrl: "https://sandbox-session.vercel.run/index.html",
+        sandboxSessionId: "chat-123",
+      })
+    ).toBe(
+      "/api/demos/sandbox-agent/preview-status?sessionId=chat-123&url=https%3A%2F%2Fsandbox-session.vercel.run%2Findex.html&reload=2"
     );
   });
 

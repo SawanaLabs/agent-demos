@@ -45,6 +45,7 @@ export function SandboxPreviewPane({
   previewState,
 }: SandboxPreviewPaneProps) {
   const previewHealth = usePreviewHealth(
+    previewState.sandboxSessionId,
     previewState.activePreviewUrl,
     previewState.previewReloadKey,
     previewState.appendPreviewLog

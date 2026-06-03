@@ -14,7 +14,7 @@
       "schedule": "0 20 * * *"
     },
     {
-      "path": "/api/cron/ultra-chatbot-agent-blob-cleanup",
+      "path": "/api/cron/ultra-chatbot-agent-cleanup",
       "schedule": "0 20 * * *"
     }
   ]

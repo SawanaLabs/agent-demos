@@ -1,4 +1,6 @@
-export const siteUsageCleanupRetentionDays = 30;
+import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
+
+export const siteUsageCleanupRetentionDays = demoDataRetentionDays;
 export const siteUsageCleanupCronScheduleUtc = "0 20 * * *";
 
 export interface SiteUsageCleanupPersistence {

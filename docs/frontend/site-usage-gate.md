@@ -1,7 +1,7 @@
 ---
 title: Site Usage Gate
 description: Product-language boundary for the published demo website's visitor usage limits and invitation-code upgrades.
-updateAt: 2026-06-02
+updateAt: 2026-06-03
 ---
 
 # Site Usage Gate
@@ -91,7 +91,7 @@ updateAt: 2026-06-02
 - `site_usage_waitlist_entries` should store the **Site Visitor Owner**, triggering demo slug when available, optional visitor message, willingness-to-pay/support intent value, and creation time.
 - `site_usage_waitlist_entries` must not be read by allowance checks, usage-window calculation, or invite-code redemption.
 - Future generic feedback should use a separate feedback domain and table, for example `site_feedback_entries`, rather than reusing `site_usage_waitlist_entries`.
-- Usage events should be retained for 30 days, aligning the usage gate with the repository's short-lived visitor-data cleanup posture.
+- Usage events should be retained for the shared 7-day Demo Data Retention Window, aligning the usage gate with the repository's short-lived visitor-data cleanup posture.
 - The route wrapper should check active allowance before invoking a demo handler, then create the **Usage Event** only after the handler produces a successful model-backed response. Returned validation and environment errors should not consume usage.
 - Once a successful model-backed response has been created and the **Usage Event** has been recorded, provider failures, streaming failures, or tool-loop failures do not roll the usage event back.
 - First-version enforcement is best-effort and may allow small concurrent overages. Do not add transaction locks, serializable isolation, or window counter tables until real traffic proves they are needed.

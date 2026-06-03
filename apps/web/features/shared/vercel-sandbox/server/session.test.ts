@@ -12,7 +12,10 @@ import {
   createVercelSandbox,
   createVercelSandboxSessionRegistry,
   VERCEL_SANDBOX_AGENTS_FILE,
+  VERCEL_SANDBOX_DEMO_APP_TAG,
+  VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
   VERCEL_SANDBOX_PROJECT_ROOT,
+  VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
   type VercelSandboxFactory,
 } from "./session";
 
@@ -72,6 +75,7 @@ class FakeSandboxFileSystem {
 class FakeSandbox {
   readonly fs = new FakeSandboxFileSystem();
   stopCount = 0;
+  updateCalls: unknown[] = [];
 
   runCommand() {
     return Promise.resolve({
@@ -83,6 +87,11 @@ class FakeSandbox {
 
   stop() {
     this.stopCount += 1;
+    return Promise.resolve();
+  }
+
+  update(options: unknown) {
+    this.updateCalls.push(options);
     return Promise.resolve();
   }
 }
@@ -178,9 +187,72 @@ describe("vercel sandbox factory", () => {
       persistent: false,
       resources: { vcpus: 1 },
       runtime: "node24",
-      tags: { feature: "skills-agent", suite: "integration" },
+      tags: {
+        app: VERCEL_SANDBOX_DEMO_APP_TAG,
+        feature: "skills-agent",
+        retention: "7d",
+        suite: "integration",
+      },
       timeout: 120_000,
     });
+  });
+
+  it("configures persistent sandboxes with demo tags and automatic 7-day snapshot retention", async () => {
+    const sandbox = new FakeSandbox();
+    vi.spyOn(Sandbox, "get").mockRejectedValueOnce(
+      new Error("sandbox not found")
+    );
+    const createSpy = vi
+      .spyOn(Sandbox, "create")
+      .mockResolvedValueOnce(sandbox as never);
+
+    await expect(
+      createVercelSandbox("chat-1", {
+        VERCEL_OIDC_TOKEN: "oidc-token",
+      })
+    ).resolves.toBe(sandbox);
+
+    expect(createSpy).toHaveBeenCalledWith({
+      keepLastSnapshots: VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
+      name: "chat-1",
+      persistent: true,
+      runtime: "node24",
+      snapshotExpiration: VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+      tags: {
+        app: VERCEL_SANDBOX_DEMO_APP_TAG,
+        retention: "7d",
+      },
+      timeout: 300_000,
+    });
+  });
+
+  it("updates existing named sandboxes with the same lifecycle policy", async () => {
+    const sandbox = new FakeSandbox();
+    const getSpy = vi
+      .spyOn(Sandbox, "get")
+      .mockResolvedValueOnce(sandbox as never);
+    const createSpy = vi.spyOn(Sandbox, "create");
+
+    await expect(
+      createVercelSandbox("chat-1", {
+        VERCEL_OIDC_TOKEN: "oidc-token",
+      })
+    ).resolves.toBe(sandbox);
+
+    expect(getSpy).toHaveBeenCalledWith({ name: "chat-1" });
+    expect(createSpy).not.toHaveBeenCalled();
+    expect(sandbox.updateCalls).toEqual([
+      {
+        keepLastSnapshots: VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
+        persistent: true,
+        snapshotExpiration: VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+        tags: {
+          app: VERCEL_SANDBOX_DEMO_APP_TAG,
+          retention: "7d",
+        },
+        timeout: 300_000,
+      },
+    ]);
   });
 });
 

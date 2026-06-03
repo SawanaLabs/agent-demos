@@ -4,9 +4,9 @@ import {
   getCronSecretError,
 } from "@/features/shared/cron/server/env";
 import {
-  cleanupExpiredUltraChatbotAgentUploadBlobs,
-  ultraChatbotAgentBlobCleanupCronScheduleUtc,
-} from "@/features/ultra-chatbot-agent/server/blob-cleanup";
+  cleanupExpiredUltraChatbotAgentDemoData,
+  ultraChatbotAgentCleanupCronScheduleUtc,
+} from "@/features/ultra-chatbot-agent/server/cleanup";
 
 function isAuthorizedCronRequest(request: Request, cronSecret: string) {
   const authorizationHeader = request.headers.get("authorization");
@@ -31,18 +31,18 @@ export async function GET(request: Request) {
   if (!isAuthorizedCronRequest(request, cronSecret)) {
     return Response.json(
       {
-        error: "Unauthorized ultra-chatbot-agent blob cleanup request.",
+        error: "Unauthorized ultra-chatbot-agent cleanup request.",
       },
       { status: 401 }
     );
   }
 
   try {
-    const result = await cleanupExpiredUltraChatbotAgentUploadBlobs();
+    const result = await cleanupExpiredUltraChatbotAgentDemoData();
 
     return Response.json({
       ...result,
-      scheduleUtc: ultraChatbotAgentBlobCleanupCronScheduleUtc,
+      scheduleUtc: ultraChatbotAgentCleanupCronScheduleUtc,
     });
   } catch (error) {
     return Response.json(
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Ultra-chatbot-agent blob cleanup failed.",
+            : "Ultra-chatbot-agent cleanup failed.",
       },
       { status: 500 }
     );

@@ -22,6 +22,7 @@ updateAt: 2026-06-03
 - Use the AI SDK `ToolLoopAgent` runtime plus `@vercel/sandbox` for the source core of this demo.
 - Use the AI SDK chat `id` as the Vercel Sandbox `name`. Keep one persistent named sandbox per chat session.
 - Keep sandbox persistence enabled and let Vercel own timeout-based shutdown. Do not add an application-level idle `stop()` timer.
+- Let the shared sandbox factory configure provider lifecycle controls for this demo: five-minute active-session timeout, stable demo tags, 7-day automatic snapshot expiration, and keep-last-one snapshot retention. Existing named sandboxes are updated with the same policy when they reconnect.
 - In the app runtime, keep shared sandbox lifecycle, file IO, retry, stop, and write-fallback behavior in `apps/web/features/shared/vercel-sandbox/server/session.ts`. Keep `apps/web/features/sandbox-agent/server/vercel-sandbox.ts` as a thin Adapter for demo env wiring and preview-port setup.
 - Use the official `bash-tool` surface for `bash`, `readFile`, and `writeFile`.
 - Keep `startPreview` as the one demo-specific tool that bridges generated static files to a live preview URL.

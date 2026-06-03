@@ -3,6 +3,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import path, { posix as posixPath } from "node:path";
 import { Sandbox } from "@vercel/sandbox";
 import { env as appEnv } from "@/env";
+import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
 import {
   getVercelSandboxSetupState,
   getVercelSandboxTokenCredentials,
@@ -27,6 +28,17 @@ export const VERCEL_SANDBOX_PROJECT_ROOT = "/vercel/sandbox/project";
 export const VERCEL_SANDBOX_SKILLS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/.agents/skills`;
 export const VERCEL_SANDBOX_ARTIFACTS_ROOT = `${VERCEL_SANDBOX_PROJECT_ROOT}/artifacts`;
 export const VERCEL_SANDBOX_AGENTS_FILE = `${VERCEL_SANDBOX_PROJECT_ROOT}/AGENTS.md`;
+
+const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+export const VERCEL_SANDBOX_DEMO_APP_TAG = "ai-elements-demos";
+export const VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS =
+  demoDataRetentionDays * millisecondsPerDay;
+export const VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS = {
+  count: 1,
+  deleteEvicted: true,
+  expiration: VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+};
 
 interface SandboxFs {
   exists(path: string): Promise<boolean>;
@@ -61,13 +73,35 @@ export type VercelSandboxFactory = (
 ) => Promise<VercelSandboxHandle>;
 
 export interface VercelSandboxCreateOptions {
+  keepLastSnapshots?: {
+    count: number;
+    deleteEvicted?: boolean;
+    expiration?: number;
+  };
   persistent?: boolean;
   ports?: number[];
   resources?: {
     vcpus: number;
   };
+  snapshotExpiration?: number;
   tags?: Record<string, string>;
   timeout?: number;
+}
+
+interface VercelSandboxLifecycleOptions {
+  keepLastSnapshots?: {
+    count: number;
+    deleteEvicted?: boolean;
+    expiration?: number;
+  };
+  persistent: boolean;
+  ports?: number[];
+  resources?: {
+    vcpus: number;
+  };
+  snapshotExpiration?: number;
+  tags: Record<string, string>;
+  timeout: number;
 }
 
 export interface VercelSandboxSession {
@@ -110,6 +144,50 @@ interface SessionEntry {
   seededBaseWorkspace: boolean;
 }
 
+function mergeVercelSandboxTags(tags: Record<string, string> = {}) {
+  const mergedTags = {
+    ...tags,
+    app: VERCEL_SANDBOX_DEMO_APP_TAG,
+    retention: `${demoDataRetentionDays}d`,
+  };
+
+  if (Object.keys(mergedTags).length > 5) {
+    throw new Error(
+      "Vercel Sandbox supports at most 5 tags. Keep demo sandbox custom tags to 3 or fewer."
+    );
+  }
+
+  return mergedTags;
+}
+
+function buildVercelSandboxLifecycleOptions(
+  options: VercelSandboxCreateOptions
+): VercelSandboxLifecycleOptions {
+  const persistent = options.persistent ?? true;
+  const lifecycleOptions: VercelSandboxLifecycleOptions = {
+    persistent,
+    tags: mergeVercelSandboxTags(options.tags),
+    timeout: options.timeout ?? 300_000,
+  };
+
+  if (persistent) {
+    lifecycleOptions.snapshotExpiration =
+      options.snapshotExpiration ?? VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS;
+    lifecycleOptions.keepLastSnapshots =
+      options.keepLastSnapshots ?? VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS;
+  }
+
+  if (options.ports) {
+    lifecycleOptions.ports = options.ports;
+  }
+
+  if (options.resources) {
+    lifecycleOptions.resources = options.resources;
+  }
+
+  return lifecycleOptions;
+}
+
 export async function createVercelSandbox(
   sessionId: string,
   env: VercelSandboxEnv = appEnv,
@@ -121,40 +199,23 @@ export async function createVercelSandbox(
     throw new Error(setupState.issues.join(" "));
   }
 
-  const baseOptions: {
+  const lifecycleOptions = buildVercelSandboxLifecycleOptions(options);
+  const baseOptions: VercelSandboxLifecycleOptions & {
     name: string;
-    persistent: boolean;
-    ports?: number[];
-    resources?: {
-      vcpus: number;
-    };
     runtime: typeof setupState.runtime;
-    tags?: Record<string, string>;
-    timeout: number;
   } = {
+    ...lifecycleOptions,
     name: sessionId,
-    persistent: options.persistent ?? true,
     runtime: setupState.runtime,
-    timeout: options.timeout ?? 300_000,
   };
-
-  if (options.ports) {
-    baseOptions.ports = options.ports;
-  }
-
-  if (options.resources) {
-    baseOptions.resources = options.resources;
-  }
-
-  if (options.tags) {
-    baseOptions.tags = options.tags;
-  }
 
   if (setupState.authMode === "oidc") {
     try {
-      return (await Sandbox.get({
+      const sandbox = await Sandbox.get({
         name: sessionId,
-      })) as unknown as VercelSandboxHandle;
+      });
+      await sandbox.update(lifecycleOptions);
+      return sandbox as unknown as VercelSandboxHandle;
     } catch {
       return (await Sandbox.create(
         baseOptions
@@ -165,12 +226,14 @@ export async function createVercelSandbox(
   const tokenCredentials = getVercelSandboxTokenCredentials(env);
 
   try {
-    return (await Sandbox.get({
+    const sandbox = await Sandbox.get({
       name: sessionId,
       projectId: tokenCredentials.projectId,
       teamId: tokenCredentials.teamId,
       token: tokenCredentials.token,
-    })) as unknown as VercelSandboxHandle;
+    });
+    await sandbox.update(lifecycleOptions);
+    return sandbox as unknown as VercelSandboxHandle;
   } catch {
     return (await Sandbox.create({
       ...baseOptions,

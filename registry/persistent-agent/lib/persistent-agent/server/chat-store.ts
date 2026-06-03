@@ -8,7 +8,7 @@ import {
 const maxPersistentAgentTitleLength = 72;
 
 export const persistentAgentCleanupCronScheduleUtc = "0 20 * * *";
-export const persistentAgentCleanupRetentionDays = 3;
+export const persistentAgentCleanupRetentionDays = 7;
 
 export interface PersistentAgentChatRecord {
   activeStreamId: string | null;

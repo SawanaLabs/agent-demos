@@ -1,10 +1,12 @@
 import { and, inArray, sql } from "drizzle-orm";
 
+import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
+
 import { getVisitorPrivateCustomerMemoryProfileIds } from "../customer-profiles";
 import { loadCustomerMemoryAgentDatabase } from "./database";
 import { customerMemorySharedVisitorId } from "./viewer-context";
 
-export const customerMemoryCleanupRetentionDays = 3;
+export const customerMemoryCleanupRetentionDays = demoDataRetentionDays;
 export const customerMemoryCleanupCronScheduleUtc = "0 20 * * *";
 
 export interface ExpiredCustomerMemoryThreadRecord {
@@ -17,6 +19,7 @@ export interface ExpiredCustomerMemoryThreadRecord {
 export interface CustomerMemoryCleanupResult {
   compactionsDeleted: number;
   cutoff: string;
+  eventsDeleted: number;
   memoriesDeleted: number;
   messagesDeleted: number;
   retentionDays: number;
@@ -28,6 +31,10 @@ export interface CustomerMemoryCleanupPersistence {
   countCompactionsForThreads(threadIds: string[]): Promise<number>;
   countMemoriesForThreads(threadIds: string[]): Promise<number>;
   countMessagesForThreads(threadIds: string[]): Promise<number>;
+  deleteEventsOlderThan(input: {
+    customerIds: string[];
+    olderThan: string;
+  }): Promise<number>;
   deleteMemoriesForThreads(threadIds: string[]): Promise<number>;
   deleteThreadsByIds(threadIds: string[]): Promise<number>;
   findExpiredThreads(input: {
@@ -103,6 +110,26 @@ function createDatabaseBackedPersistence(): CustomerMemoryCleanupPersistence {
         .where(inArray(customerMemoryMessages.threadId, threadIds));
 
       return row?.count ?? 0;
+    },
+    async deleteEventsOlderThan(input) {
+      if (input.customerIds.length === 0) {
+        return 0;
+      }
+
+      const { customerMemoryEvents, database } =
+        await loadCustomerMemoryAgentDatabase();
+      const rows = await database
+        .delete(customerMemoryEvents)
+        .where(
+          and(
+            inArray(customerMemoryEvents.customerId, input.customerIds),
+            sql`${customerMemoryEvents.createdAt} < ${input.olderThan}`,
+            sql`${customerMemoryEvents.visitorId} <> ${customerMemorySharedVisitorId}`
+          )
+        )
+        .returning({ id: customerMemoryEvents.id });
+
+      return rows.length;
     },
     async deleteMemoriesForThreads(threadIds) {
       if (threadIds.length === 0) {
@@ -186,16 +213,23 @@ export async function cleanupExpiredCustomerMemoryThreads(
   const persistence =
     dependencies.persistence ?? createDatabaseBackedPersistence();
 
-  const expiredThreads = await persistence.findExpiredThreads({
-    customerIds: visitorPrivateCustomerIds,
-    olderThan: cutoff,
-  });
+  const [eventsDeleted, expiredThreads] = await Promise.all([
+    persistence.deleteEventsOlderThan({
+      customerIds: visitorPrivateCustomerIds,
+      olderThan: cutoff,
+    }),
+    persistence.findExpiredThreads({
+      customerIds: visitorPrivateCustomerIds,
+      olderThan: cutoff,
+    }),
+  ]);
   const threadIds = expiredThreads.map((thread) => thread.id);
 
   if (threadIds.length === 0) {
     return {
       compactionsDeleted: 0,
       cutoff,
+      eventsDeleted,
       memoriesDeleted: 0,
       messagesDeleted: 0,
       retentionDays,
@@ -217,6 +251,7 @@ export async function cleanupExpiredCustomerMemoryThreads(
   return {
     compactionsDeleted,
     cutoff,
+    eventsDeleted,
     memoriesDeleted,
     messagesDeleted,
     retentionDays,

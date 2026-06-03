@@ -9,6 +9,8 @@ import {
 } from "@workspace/database/drizzle";
 import type { UIMessage } from "ai";
 
+import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
+
 import {
   getUltraChatbotAgentDefaultCapabilities,
   normalizeUltraChatbotAgentCapabilities,
@@ -44,6 +46,31 @@ export interface UltraChatbotAgentVoteRecord {
   visitorId: string;
 }
 
+export const ultraChatbotAgentCleanupRetentionDays = demoDataRetentionDays;
+
+export interface UltraChatbotAgentExpiredChatRecord {
+  id: string;
+  updatedAt: string;
+}
+
+export interface UltraChatbotAgentChatCleanupResult {
+  chatIds: string[];
+  deletedChats: number;
+  deletedVotes: number;
+  expiresBefore: string;
+  retentionDays: number;
+}
+
+export interface UltraChatbotAgentChatCleanupPersistence {
+  deleteExpiredChatsByIds(chatIds: string[]): Promise<{
+    deletedChats: number;
+    deletedVotes: number;
+  }>;
+  findExpiredChats(input: {
+    olderThan: Date;
+  }): Promise<UltraChatbotAgentExpiredChatRecord[]>;
+}
+
 interface UltraChatbotAgentDatabaseModule {
   database: typeof import("@workspace/database")["database"];
   ultraChatbotAgentChats: typeof import("@workspace/database")["ultraChatbotAgentChats"];
@@ -53,6 +80,10 @@ interface UltraChatbotAgentDatabaseModule {
 
 function toIsoString(value: Date | string) {
   return value instanceof Date ? value.toISOString() : value;
+}
+
+function subtractDays(date: Date, days: number) {
+  return new Date(date.getTime() - days * 24 * 60 * 60 * 1000);
 }
 
 function normalizeChatRecord(record: {
@@ -172,6 +203,101 @@ function isInvalidUltraChatbotAgentChatIdError(error: unknown) {
       candidate.message.includes("invalid input syntax for type uuid")
     );
   });
+}
+
+function createDatabaseBackedUltraChatbotAgentChatCleanupPersistence(): UltraChatbotAgentChatCleanupPersistence {
+  return {
+    async deleteExpiredChatsByIds(chatIds) {
+      if (chatIds.length === 0) {
+        return {
+          deletedChats: 0,
+          deletedVotes: 0,
+        };
+      }
+
+      const { database, ultraChatbotAgentChats, ultraChatbotAgentVotes } =
+        await loadUltraChatbotAgentDatabase();
+
+      return database.transaction(async (tx) => {
+        const deletedVotes = await tx
+          .delete(ultraChatbotAgentVotes)
+          .where(inArray(ultraChatbotAgentVotes.chatId, chatIds))
+          .returning({
+            chatId: ultraChatbotAgentVotes.chatId,
+            messageId: ultraChatbotAgentVotes.messageId,
+            visitorId: ultraChatbotAgentVotes.visitorId,
+          });
+        const deletedChats = await tx
+          .delete(ultraChatbotAgentChats)
+          .where(inArray(ultraChatbotAgentChats.id, chatIds))
+          .returning({ id: ultraChatbotAgentChats.id });
+
+        return {
+          deletedChats: deletedChats.length,
+          deletedVotes: deletedVotes.length,
+        };
+      });
+    },
+    async findExpiredChats(input) {
+      const { database, ultraChatbotAgentChats } =
+        await loadUltraChatbotAgentDatabase();
+      const rows = await database
+        .select({
+          id: ultraChatbotAgentChats.id,
+          updatedAt: ultraChatbotAgentChats.updatedAt,
+        })
+        .from(ultraChatbotAgentChats)
+        .where(lt(ultraChatbotAgentChats.updatedAt, input.olderThan));
+
+      return rows.map((row) => ({
+        id: row.id,
+        updatedAt: toIsoString(row.updatedAt),
+      }));
+    },
+  };
+}
+
+export async function cleanupExpiredUltraChatbotAgentChats(
+  input: {
+    now?: Date;
+    retentionDays?: number;
+  } = {},
+  dependencies: {
+    persistence?: UltraChatbotAgentChatCleanupPersistence;
+  } = {}
+): Promise<UltraChatbotAgentChatCleanupResult> {
+  const now = input.now ?? new Date();
+  const retentionDays =
+    input.retentionDays ?? ultraChatbotAgentCleanupRetentionDays;
+  const expiresBefore = subtractDays(now, retentionDays);
+  const persistence =
+    dependencies.persistence ??
+    createDatabaseBackedUltraChatbotAgentChatCleanupPersistence();
+  const expiredChats = await persistence.findExpiredChats({
+    olderThan: expiresBefore,
+  });
+  const chatIds = expiredChats.map((chat) => chat.id);
+
+  if (chatIds.length === 0) {
+    return {
+      chatIds: [],
+      deletedChats: 0,
+      deletedVotes: 0,
+      expiresBefore: expiresBefore.toISOString(),
+      retentionDays,
+    };
+  }
+
+  const { deletedChats, deletedVotes } =
+    await persistence.deleteExpiredChatsByIds(chatIds);
+
+  return {
+    chatIds,
+    deletedChats,
+    deletedVotes,
+    expiresBefore: expiresBefore.toISOString(),
+    retentionDays,
+  };
 }
 
 export function createUltraChatbotAgentChatStore() {
@@ -738,6 +864,9 @@ export function createUltraChatbotAgentChatStore() {
 
         throw error;
       }
+    },
+    cleanupExpiredChats(input?: { now?: Date }) {
+      return cleanupExpiredUltraChatbotAgentChats(input);
     },
   };
 }

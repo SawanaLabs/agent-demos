@@ -1,10 +1,12 @@
 import type { UIMessage } from "ai";
 import { and, asc, desc, eq, gt, lt } from "drizzle-orm";
 
+import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
+
 const maxPersistentAgentTitleLength = 72;
 
 export const persistentAgentCleanupCronScheduleUtc = "0 20 * * *";
-export const persistentAgentCleanupRetentionDays = 3;
+export const persistentAgentCleanupRetentionDays = demoDataRetentionDays;
 
 export interface PersistentAgentChatRecord {
   activeStreamId: string | null;

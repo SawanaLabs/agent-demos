@@ -62,7 +62,7 @@ vi.mock("./chat-store", () => ({
   getPersistentAgentChatNotFoundError: (chatId: string) =>
     `No persistent-agent chat found for ${chatId}.`,
   persistentAgentCleanupCronScheduleUtc: "0 20 * * *",
-  persistentAgentCleanupRetentionDays: 3,
+  persistentAgentCleanupRetentionDays: 7,
 }));
 
 function importRuntimeModule() {
@@ -137,7 +137,7 @@ describe("persistent agent runtime", () => {
     const { getPersistentAgentRuntimeState } = await importRuntimeModule();
 
     expect(getPersistentAgentRuntimeState({})).toMatchObject({
-      cleanupRetentionDays: 3,
+      cleanupRetentionDays: 7,
       cleanupScheduleUtc: "0 20 * * *",
       isChatAvailable: false,
       resumeRequiresRedis: true,

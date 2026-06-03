@@ -15,10 +15,10 @@ describe("site usage cleanup", () => {
     });
 
     expect(deleteEventsOlderThan).toHaveBeenCalledWith(
-      new Date("2026-04-29T10:00:00.000Z")
+      new Date("2026-05-22T10:00:00.000Z")
     );
     expect(result).toEqual({
-      cutoff: "2026-04-29T10:00:00.000Z",
+      cutoff: "2026-05-22T10:00:00.000Z",
       deletedEvents: 3,
       retentionDays: siteUsageCleanupRetentionDays,
     });

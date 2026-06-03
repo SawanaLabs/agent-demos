@@ -7,7 +7,7 @@ const { cleanupExpiredCustomerMemoryThreadsMock } = vi.hoisted(() => ({
 vi.mock("@/features/customer-memory-agent/server/cleanup", () => ({
   cleanupExpiredCustomerMemoryThreads: cleanupExpiredCustomerMemoryThreadsMock,
   customerMemoryCleanupCronScheduleUtc: "0 20 * * *",
-  customerMemoryCleanupRetentionDays: 3,
+  customerMemoryCleanupRetentionDays: 7,
 }));
 
 import { GET } from "./route";
@@ -58,9 +58,10 @@ describe("customer memory cleanup cron route", () => {
     cleanupExpiredCustomerMemoryThreadsMock.mockResolvedValue({
       compactionsDeleted: 1,
       cutoff: "2026-05-20T20:00:00.000Z",
+      eventsDeleted: 3,
       memoriesDeleted: 2,
       messagesDeleted: 4,
-      retentionDays: 3,
+      retentionDays: 7,
       threadIds: ["thread-1"],
       threadsDeleted: 1,
     });
@@ -78,9 +79,10 @@ describe("customer memory cleanup cron route", () => {
     await expect(response.json()).resolves.toEqual({
       compactionsDeleted: 1,
       cutoff: "2026-05-20T20:00:00.000Z",
+      eventsDeleted: 3,
       memoriesDeleted: 2,
       messagesDeleted: 4,
-      retentionDays: 3,
+      retentionDays: 7,
       scheduleUtc: "0 20 * * *",
       threadIds: ["thread-1"],
       threadsDeleted: 1,

@@ -5,6 +5,11 @@ import path from "node:path";
 import { Sandbox } from "@vercel/sandbox";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  VERCEL_SANDBOX_DEMO_APP_TAG,
+  VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
+  VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+} from "@/features/shared/vercel-sandbox/server/session";
+import {
   createSkillsAgentSandbox,
   createSkillsAgentSessionRegistry,
   SANDBOX_AGENTS_FILE,
@@ -98,6 +103,7 @@ class FakeSandbox {
   failRunCommandError: FakeSandboxApiError | null = null;
   failStopCount = 0;
   stopCount = 0;
+  updateCalls: unknown[] = [];
 
   getSandboxSkillFiles() {
     return Array.from(this.fs.files.keys())
@@ -222,6 +228,11 @@ class FakeSandbox {
       return Promise.reject(new Error("sandbox stop failed"));
     }
 
+    return Promise.resolve();
+  }
+
+  update(options: unknown) {
+    this.updateCalls.push(options);
     return Promise.resolve();
   }
 }
@@ -777,11 +788,29 @@ Use this workflow for Word documents.
 
     expect(getSpy).toHaveBeenNthCalledWith(1, { name: "chat-1" });
     expect(getSpy).toHaveBeenNthCalledWith(2, { name: "chat-2" });
+    expect(resumedSandbox.updateCalls).toEqual([
+      {
+        keepLastSnapshots: VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
+        persistent: true,
+        snapshotExpiration: VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+        tags: {
+          app: VERCEL_SANDBOX_DEMO_APP_TAG,
+          retention: "7d",
+        },
+        timeout: 300_000,
+      },
+    ]);
     expect(createSpy).toHaveBeenCalledTimes(1);
     expect(createSpy).toHaveBeenCalledWith({
+      keepLastSnapshots: VERCEL_SANDBOX_KEEP_LAST_SNAPSHOTS,
       name: "chat-2",
       persistent: true,
       runtime: "node24",
+      snapshotExpiration: VERCEL_SANDBOX_SNAPSHOT_EXPIRATION_MS,
+      tags: {
+        app: VERCEL_SANDBOX_DEMO_APP_TAG,
+        retention: "7d",
+      },
       timeout: 300_000,
     });
 

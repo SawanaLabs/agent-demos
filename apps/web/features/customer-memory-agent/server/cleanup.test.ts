@@ -13,6 +13,7 @@ function createPersistence(
     countCompactionsForThreads: vi.fn().mockResolvedValue(1),
     countMemoriesForThreads: vi.fn().mockResolvedValue(2),
     countMessagesForThreads: vi.fn().mockResolvedValue(4),
+    deleteEventsOlderThan: vi.fn().mockResolvedValue(3),
     deleteMemoriesForThreads: vi.fn().mockResolvedValue(2),
     deleteThreadsByIds: vi.fn().mockResolvedValue(1),
     findExpiredThreads: vi.fn().mockResolvedValue([
@@ -42,7 +43,11 @@ describe("customer memory cleanup", () => {
 
     expect(persistence.findExpiredThreads).toHaveBeenCalledWith({
       customerIds: ["demo-sandbox"],
-      olderThan: "2026-05-20T20:00:00.000Z",
+      olderThan: "2026-05-16T20:00:00.000Z",
+    });
+    expect(persistence.deleteEventsOlderThan).toHaveBeenCalledWith({
+      customerIds: ["demo-sandbox"],
+      olderThan: "2026-05-16T20:00:00.000Z",
     });
     expect(persistence.deleteMemoriesForThreads).toHaveBeenCalledWith([
       "thread-1",
@@ -50,7 +55,8 @@ describe("customer memory cleanup", () => {
     expect(persistence.deleteThreadsByIds).toHaveBeenCalledWith(["thread-1"]);
     expect(result).toEqual({
       compactionsDeleted: 1,
-      cutoff: "2026-05-20T20:00:00.000Z",
+      cutoff: "2026-05-16T20:00:00.000Z",
+      eventsDeleted: 3,
       memoriesDeleted: 2,
       messagesDeleted: 4,
       retentionDays: customerMemoryCleanupRetentionDays,
@@ -61,6 +67,7 @@ describe("customer memory cleanup", () => {
 
   it("skips deletion when no visitor-private thread has expired", async () => {
     const persistence = createPersistence({
+      deleteEventsOlderThan: vi.fn().mockResolvedValue(2),
       findExpiredThreads: vi.fn().mockResolvedValue([]),
     });
 
@@ -72,11 +79,16 @@ describe("customer memory cleanup", () => {
       { persistence }
     );
 
+    expect(persistence.deleteEventsOlderThan).toHaveBeenCalledWith({
+      customerIds: ["demo-sandbox"],
+      olderThan: "2026-05-16T20:00:00.000Z",
+    });
     expect(persistence.deleteMemoriesForThreads).not.toHaveBeenCalled();
     expect(persistence.deleteThreadsByIds).not.toHaveBeenCalled();
     expect(result).toEqual({
       compactionsDeleted: 0,
-      cutoff: "2026-05-20T20:00:00.000Z",
+      cutoff: "2026-05-16T20:00:00.000Z",
+      eventsDeleted: 2,
       memoriesDeleted: 0,
       messagesDeleted: 0,
       retentionDays: customerMemoryCleanupRetentionDays,

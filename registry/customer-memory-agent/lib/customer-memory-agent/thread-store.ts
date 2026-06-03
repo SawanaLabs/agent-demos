@@ -2,6 +2,8 @@ import type { UIMessage } from "ai";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import { loadCustomerMemoryAgentDatabase } from "./database";
+import { getCustomerMemoryAgentEnv } from "./env";
+import { createPortableCustomerMemoryThreadPersistence } from "./portable-store";
 
 export interface CustomerMemoryThreadRecord {
   createdAt: string;
@@ -244,7 +246,10 @@ export function createCustomerMemoryThreadStore(
   dependencies: CustomerMemoryThreadStoreDependencies = {}
 ) {
   const persistence =
-    dependencies.persistence ?? createDatabaseBackedPersistence();
+    dependencies.persistence ??
+    (getCustomerMemoryAgentEnv().DATABASE_URL
+      ? createDatabaseBackedPersistence()
+      : createPortableCustomerMemoryThreadPersistence());
 
   async function findThreadByIdSafely(threadId: string) {
     try {

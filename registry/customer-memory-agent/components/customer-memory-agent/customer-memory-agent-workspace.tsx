@@ -809,7 +809,7 @@ function CustomerMemoryComposer({
           </PromptInputBody>
           <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Persistent thread</Badge>
+              <Badge variant="outline">Memory thread</Badge>
               <Badge variant="outline">Agent memory tool</Badge>
               <Badge variant="outline">{chatModel}</Badge>
             </div>
@@ -977,8 +977,8 @@ function CustomerMemorySessionStatePanel({
       </div>
       <p className="text-muted-foreground text-sm/relaxed">
         The agent manages durable customer facts explicitly through the memory
-        lifecycle tool. The chat thread is restored from Postgres whenever you
-        switch back to the account.
+        lifecycle tool. The chat thread is restored from the configured
+        persistence layer whenever you switch back to the account.
       </p>
     </div>
   );

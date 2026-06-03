@@ -11,7 +11,7 @@ import {
 
 const DEFAULT_CUSTOMER_MEMORY_AGENT_CHAT_MODEL = "openai/gpt-4.1-mini";
 const missingDatabaseUrlIssue =
-  "DATABASE_URL is missing. The memory and persistence agent requires a writable Postgres database.";
+  "DATABASE_URL is missing. The registry demo will use in-memory persistence until Postgres is configured.";
 
 export type CustomerMemoryAgentEnv = AiGatewayEnvRecord;
 
@@ -62,11 +62,7 @@ export function getCustomerMemoryAgentDatabaseConfig(
 export function getCustomerMemoryAgentSetupState(
   env: CustomerMemoryAgentEnv = getCustomerMemoryAgentEnv()
 ): CustomerMemoryAgentSetupState {
-  return buildAiGatewayContractSetupState(env, {
-    ...customerMemoryAgentContract,
-    getAdditionalIssues: (_resolvedEnv, currentEnv) =>
-      currentEnv.DATABASE_URL ? [] : [missingDatabaseUrlIssue],
-  });
+  return buildAiGatewayContractSetupState(env, customerMemoryAgentContract);
 }
 
 export function createCustomerMemoryAgentGateway(

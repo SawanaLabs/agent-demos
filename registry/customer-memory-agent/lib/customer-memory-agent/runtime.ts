@@ -45,6 +45,7 @@ export interface CustomerMemoryRuntimeState {
   compactionThreshold: number;
   isChatAvailable: boolean;
   nodeVersion: string;
+  persistenceLabel: string;
   setupMessage: string | null;
   statusLabel: "Ready" | "Setup required";
 }
@@ -59,6 +60,7 @@ export function getCustomerMemoryRuntimeState(
     compactionThreshold: customerMemoryCompactionThreshold,
     isChatAvailable: setup.isReady,
     nodeVersion: setup.nodeVersion,
+    persistenceLabel: env.DATABASE_URL ? "Postgres" : "In-memory",
     setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,
     statusLabel: setup.isReady ? "Ready" : "Setup required",
   };

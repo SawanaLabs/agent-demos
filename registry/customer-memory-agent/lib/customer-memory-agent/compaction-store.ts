@@ -1,6 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 
 import { loadCustomerMemoryAgentDatabase } from "./database";
+import { getCustomerMemoryAgentEnv } from "./env";
+import { createPortableCustomerMemoryCompactionPersistence } from "./portable-store";
 
 export interface CustomerMemoryCompactionRecord {
   createdAt: string;
@@ -100,7 +102,10 @@ export function createCustomerMemoryCompactionStore(
   dependencies: CustomerMemoryCompactionStoreDependencies = {}
 ) {
   const persistence =
-    dependencies.persistence ?? createDatabaseBackedPersistence();
+    dependencies.persistence ??
+    (getCustomerMemoryAgentEnv().DATABASE_URL
+      ? createDatabaseBackedPersistence()
+      : createPortableCustomerMemoryCompactionPersistence());
 
   return {
     async getLatestCompaction(threadId: string) {

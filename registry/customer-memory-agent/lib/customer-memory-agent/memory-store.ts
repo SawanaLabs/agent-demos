@@ -1,6 +1,8 @@
 import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 
 import { loadCustomerMemoryAgentDatabase } from "./database";
+import { getCustomerMemoryAgentEnv } from "./env";
+import { createPortableCustomerMemoryPersistence } from "./portable-store";
 
 export const customerMemoryStatuses = ["active", "updated", "deleted"] as const;
 export const customerMemoryOperations = [
@@ -470,7 +472,10 @@ export function createCustomerMemoryStore(
   dependencies: CustomerMemoryStoreDependencies = {}
 ) {
   const persistence =
-    dependencies.persistence ?? createDatabaseBackedPersistence();
+    dependencies.persistence ??
+    (getCustomerMemoryAgentEnv().DATABASE_URL
+      ? createDatabaseBackedPersistence()
+      : createPortableCustomerMemoryPersistence());
 
   return {
     addMemory: persistence.createMemory,

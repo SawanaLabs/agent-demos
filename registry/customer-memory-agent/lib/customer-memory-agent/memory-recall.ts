@@ -82,6 +82,66 @@ function buildEmbeddingContent(memory: CustomerMemoryRecord) {
     .join("\n");
 }
 
+const wordPattern = /[a-z0-9]+/g;
+const stopWords = new Set([
+  "a",
+  "and",
+  "are",
+  "by",
+  "for",
+  "how",
+  "if",
+  "is",
+  "it",
+  "safe",
+  "should",
+  "that",
+  "the",
+  "to",
+  "today",
+  "what",
+]);
+
+function tokenizeMemoryText(value: string) {
+  return [...value.toLowerCase().matchAll(wordPattern)]
+    .map((match) => match[0])
+    .filter((token) => !stopWords.has(token));
+}
+
+function scoreMemoryForQuery(
+  queryTokens: string[],
+  memory: CustomerMemoryRecord
+) {
+  const searchableText = buildEmbeddingContent(memory).toLowerCase();
+  const matchedTokens = queryTokens.filter((token) =>
+    searchableText.includes(token)
+  );
+
+  return matchedTokens.length / Math.max(queryTokens.length, 1);
+}
+
+async function findPortableCustomerMemoryMatches(input: {
+  customerId: string;
+  query: string;
+  visitorId: string;
+}): Promise<RetrievedCustomerMemory[]> {
+  const queryTokens = tokenizeMemoryText(input.query);
+  const store = createCustomerMemoryStore();
+  const memories = await store.listMemories({
+    customerId: input.customerId,
+    visitorId: input.visitorId,
+  });
+
+  return memories
+    .map((memory) => ({
+      ...memory,
+      similarity: scoreMemoryForQuery(queryTokens, memory),
+    }))
+    .filter((memory) => memory.similarity > 0)
+    .sort((left, right) => right.similarity - left.similarity)
+    .slice(0, memoryRecallLimit);
+}
+
 async function replaceCustomerMemoryEmbeddings(
   records: CustomerMemoryEmbeddingRecord[],
   loadDatabase: () => Promise<CustomerMemoryRecallDatabaseModule>
@@ -213,6 +273,10 @@ export async function indexCustomerMemories(
     return;
   }
 
+  if (!getCustomerMemoryAgentEnv().DATABASE_URL) {
+    return;
+  }
+
   const generateEmbeddings =
     dependencies.generateEmbeddings ?? generateCustomerMemoryEmbeddings;
   const contents = memories.map(buildEmbeddingContent);
@@ -251,6 +315,40 @@ export async function findRelevantCustomerMemory(
 
   if (normalizedQuery.length === 0) {
     return [];
+  }
+
+  if (!env.DATABASE_URL && !dependencies.findMatches) {
+    const matches = await findPortableCustomerMemoryMatches({
+      customerId: input.customerId,
+      query: normalizedQuery,
+      visitorId: input.visitorId,
+    });
+
+    await (
+      dependencies.recordSearchHits ??
+      (async (memories: RetrievedCustomerMemory[]) => {
+        const store = createCustomerMemoryStore();
+        await store.markMemoriesAccessed(memories.map((memory) => memory.id));
+        await Promise.all(
+          memories.map((memory) =>
+            store.recordEvent({
+              afterContent: memory.content,
+              beforeContent: null,
+              customerId: memory.customerId,
+              memoryId: memory.id,
+              metadata: memory.metadata,
+              operation: "search_hit",
+              reason: `Retrieved for query: ${normalizedQuery}`,
+              sourceMessageId: memory.sourceMessageId,
+              threadId: memory.threadId,
+              visitorId: memory.visitorId,
+            })
+          )
+        );
+      })
+    )(matches);
+
+    return matches;
   }
 
   const generateEmbedding =

@@ -30,7 +30,7 @@ function getDatabaseSetupError(env: CustomerMemoryAgentEnv) {
     return null;
   }
 
-  return "DATABASE_URL is missing. Customer-memory sessions require a writable Postgres database.";
+  return null;
 }
 
 export async function handleCustomerMemorySessionRequest(

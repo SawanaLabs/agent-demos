@@ -5,7 +5,7 @@
       "name": "customer-memory-agent",
       "type": "registry:block",
       "title": "Memory & Persistence Agent",
-      "description": "A database-backed support workspace with persistent threads, explicit saved memories, retrieval, and compaction checkpoints.",
+      "description": "A support workspace with in-memory default persistence, optional Postgres storage, explicit saved memories, retrieval, and compaction checkpoints.",
       "dependencies": [
         "@ai-sdk/react",
         "@base-ui/react",
@@ -33,8 +33,7 @@
       "envVars": {
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
-        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
-        "DATABASE_URL": ""
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
       "files": [
         {
@@ -148,6 +147,11 @@
           "target": "@lib/customer-memory-agent/memory-store.ts"
         },
         {
+          "path": "lib/customer-memory-agent/portable-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/customer-memory-agent/portable-store.ts"
+        },
+        {
           "path": "lib/customer-memory-agent/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/customer-memory-agent/runtime.ts"
@@ -188,7 +192,7 @@
           "target": "@lib/customer-memory-agent/viewer-context.ts"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped persistence, saved-memory retrieval, compaction checkpoints, and the Postgres plus AI Gateway env vars required for end-to-end chat. The database must support pgvector."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped in-memory persistence, saved-memory retrieval, compaction checkpoints, and AI Gateway env vars required for end-to-end chat. Add DATABASE_URL when you want Postgres-backed persistence."
     }
   ]
 }

@@ -44,20 +44,22 @@ export function CustomerMemoryAgentScreen() {
               </BreadcrumbList>
             </Breadcrumb>
             <h1 className="max-w-4xl font-medium text-2xl tracking-tight">
-              Persist threads, explicit memories, and handoff compactions across
-              sessions
+              Persist threads, explicit memories, and handoff compactions in a
+              portable workspace
             </h1>
             <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
               This Batch 6 workspace shows the long-lived agent layer: the chat
-              thread is restored from Postgres, the agent explicitly saves
-              durable memories through a tool call, and older context is
-              compacted into a handoff checkpoint once the message threshold is
-              crossed.
+              thread is restored from in-memory storage by default, the agent
+              explicitly saves durable memories through a tool call, and older
+              context is compacted into a handoff checkpoint once the message
+              threshold is crossed. Add Postgres when you want durable storage
+              across server restarts.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{runtimeState.statusLabel}</Badge>
+            <Badge variant="outline">{runtimeState.persistenceLabel}</Badge>
             <Badge variant="outline">{runtimeState.chatModel}</Badge>
             <Badge variant="outline">
               {runtimeState.compactionThreshold} messages to compact

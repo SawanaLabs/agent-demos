@@ -8,8 +8,8 @@ import {
 import { z } from "zod";
 
 import {
-  LOOP_AGENT_PROVIDER_OPTIONS,
   resolveLoopAgentChatModel,
+  resolveLoopAgentProviderOptions,
 } from "./model";
 import {
   createLoopAgentGateway,
@@ -139,10 +139,11 @@ export function streamLoopAgent(
 ) {
   const gateway = createLoopAgentGateway(env);
   const chatModel = resolveLoopAgentChatModel(env);
+  const providerOptions = resolveLoopAgentProviderOptions(chatModel);
   const agent = new ToolLoopAgent({
     instructions: loopAgentInstructions,
     model: gateway(chatModel),
-    providerOptions: LOOP_AGENT_PROVIDER_OPTIONS,
+    ...(providerOptions ? { providerOptions } : {}),
     stopWhen: stepCountIs(6),
     tools: createSupportTriageTools(),
   });

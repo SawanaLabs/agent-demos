@@ -11,6 +11,27 @@ export const LOOP_AGENT_PROVIDER_OPTIONS = {
   },
 } as const;
 
+function getModelName(modelId: string): string {
+  return modelId.split("/").at(-1)?.toLowerCase() ?? modelId.toLowerCase();
+}
+
+export function supportsLoopAgentReasoningOptions(modelId: string): boolean {
+  const modelName = getModelName(modelId);
+
+  return (
+    modelName.startsWith("gpt-5") ||
+    modelName.startsWith("o1") ||
+    modelName.startsWith("o3") ||
+    modelName.startsWith("o4")
+  );
+}
+
+export function resolveLoopAgentProviderOptions(modelId: string) {
+  return supportsLoopAgentReasoningOptions(modelId)
+    ? LOOP_AGENT_PROVIDER_OPTIONS
+    : undefined;
+}
+
 export function resolveLoopAgentChatModel(
   env: LoopAgentEnv = getLoopAgentEnv()
 ): string {

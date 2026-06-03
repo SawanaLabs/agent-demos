@@ -63,6 +63,12 @@ function getAudienceLabel(audience: StreamingAudience) {
   }
 }
 
+const streamingSamplePrompts = [
+  "Explain why replayable streaming traces help debug a production chat incident.",
+  "Draft a buyer-facing summary of this streaming shell in three bullets.",
+  "Show how support teams can use replay traces to inspect a failed answer.",
+] as const;
+
 interface StreamingChatShellWorkspaceProps {
   chatModel: string;
   isChatAvailable: boolean;
@@ -249,6 +255,24 @@ function StreamingComposer({
             </div>
           </PromptInputFooter>
         </PromptInput>
+
+        {hasMessages ? null : (
+          <div className="flex flex-wrap gap-2">
+            {streamingSamplePrompts.map((prompt) => (
+              <Button
+                className="max-w-full justify-start text-left"
+                disabled={!isChatAvailable || isBusy}
+                key={prompt}
+                onClick={() => void handleSend(prompt)}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                {prompt}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

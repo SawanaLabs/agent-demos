@@ -5,9 +5,21 @@ const storeState = vi.hoisted(() => ({
   deleteChatForVisitor: vi.fn(),
   listChatsForVisitorPage: vi.fn(),
 }));
+const blobStorageState = vi.hoisted(() => ({
+  deleteBlobsForChat: vi.fn(),
+  deleteBlobsForVisitor: vi.fn(),
+}));
 
 vi.mock("./chat-store", () => ({
   createUltraChatbotAgentChatStore: vi.fn(() => storeState),
+}));
+vi.mock("@/features/shared/vercel-blob/server/env", () => ({
+  getVercelBlobToken: vi.fn(() => "blob-token"),
+}));
+vi.mock("./blob-storage", () => ({
+  deleteUltraChatbotAgentBlobsForChat: blobStorageState.deleteBlobsForChat,
+  deleteUltraChatbotAgentBlobsForVisitor:
+    blobStorageState.deleteBlobsForVisitor,
 }));
 
 function importHistoryModule() {
@@ -20,6 +32,8 @@ describe("ultra chatbot agent history route contract", () => {
     storeState.deleteAllChatsForVisitor.mockReset();
     storeState.deleteChatForVisitor.mockReset();
     storeState.listChatsForVisitorPage.mockReset();
+    blobStorageState.deleteBlobsForChat.mockReset();
+    blobStorageState.deleteBlobsForVisitor.mockReset();
     storeState.listChatsForVisitorPage.mockResolvedValue({
       chats: [],
       hasMore: false,
@@ -29,6 +43,12 @@ describe("ultra chatbot agent history route contract", () => {
     });
     storeState.deleteChatForVisitor.mockResolvedValue({
       deletedCount: 1,
+    });
+    blobStorageState.deleteBlobsForChat.mockResolvedValue({
+      deletedCount: 1,
+    });
+    blobStorageState.deleteBlobsForVisitor.mockResolvedValue({
+      deletedCount: 2,
     });
   });
 
@@ -82,6 +102,10 @@ describe("ultra chatbot agent history route contract", () => {
     expect(storeState.deleteAllChatsForVisitor).toHaveBeenCalledWith({
       visitorId: "visitor-1",
     });
+    expect(blobStorageState.deleteBlobsForVisitor).toHaveBeenCalledWith({
+      token: "blob-token",
+      visitorId: "visitor-1",
+    });
   });
 
   it("deletes one chat for the current visitor", async () => {
@@ -95,6 +119,11 @@ describe("ultra chatbot agent history route contract", () => {
     expect(response.status).toBe(200);
     expect(storeState.deleteChatForVisitor).toHaveBeenCalledWith({
       chatId: "chat-1",
+      visitorId: "visitor-1",
+    });
+    expect(blobStorageState.deleteBlobsForChat).toHaveBeenCalledWith({
+      chatId: "chat-1",
+      token: "blob-token",
       visitorId: "visitor-1",
     });
   });
@@ -126,5 +155,6 @@ describe("ultra chatbot agent history route contract", () => {
     await expect(response.json()).resolves.toEqual({
       error: "Chat not found.",
     });
+    expect(blobStorageState.deleteBlobsForChat).not.toHaveBeenCalled();
   });
 });

@@ -5,7 +5,7 @@ export interface CronEnv {
 }
 
 export function getCronSecretError() {
-  return "CRON_SECRET is missing. Customer-memory cleanup cron requires an authenticated secret.";
+  return "CRON_SECRET is missing. Cleanup cron routes require an authenticated secret.";
 }
 
 export function getCronSecret(env: CronEnv = appEnv) {

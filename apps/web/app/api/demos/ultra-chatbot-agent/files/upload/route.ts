@@ -2,7 +2,11 @@ import { handleUltraChatbotAgentFileUploadRequest } from "@/features/ultra-chatb
 import { handleUltraChatbotAgentVisitorRequest } from "@/features/ultra-chatbot-agent/server/viewer-context";
 
 export async function POST(request: Request) {
-  return handleUltraChatbotAgentVisitorRequest(request, async () =>
-    handleUltraChatbotAgentFileUploadRequest(request)
+  return handleUltraChatbotAgentVisitorRequest(
+    request,
+    async (ownedRequest, viewer) =>
+      handleUltraChatbotAgentFileUploadRequest(ownedRequest, {
+        visitorId: viewer.visitorId,
+      })
   );
 }

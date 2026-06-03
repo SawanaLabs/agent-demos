@@ -31,7 +31,7 @@ describe("customer memory cleanup cron route", () => {
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toEqual({
       error:
-        "CRON_SECRET is missing. Customer-memory cleanup cron requires an authenticated secret.",
+        "CRON_SECRET is missing. Cleanup cron routes require an authenticated secret.",
     });
   });
 

@@ -897,6 +897,7 @@ export function UltraChatbotAgentWorkspace({
               </div>
             )}
             <UltraChatbotAgentMultimodalInput
+              chatId={chatMeta.id}
               disabled={!isChatAvailable || isBusy}
               footerLeading={
                 <>

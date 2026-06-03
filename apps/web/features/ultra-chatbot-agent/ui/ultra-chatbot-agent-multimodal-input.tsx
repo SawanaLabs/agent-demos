@@ -60,8 +60,9 @@ function toPreviewData(
   };
 }
 
-async function uploadUltraChatbotAgentAttachment(file: File) {
+async function uploadUltraChatbotAgentAttachment(file: File, chatId: string) {
   const formData = new FormData();
+  formData.append("chatId", chatId);
   formData.append("file", file);
 
   const response = await fetch("/api/demos/ultra-chatbot-agent/files/upload", {
@@ -92,6 +93,7 @@ async function uploadUltraChatbotAgentAttachment(file: File) {
 }
 
 export interface UltraChatbotAgentMultimodalInputProps {
+  chatId: string;
   disabled: boolean;
   footerBelow?: ReactNode;
   footerLeading: ReactNode;
@@ -103,6 +105,7 @@ export interface UltraChatbotAgentMultimodalInputProps {
 }
 
 export function UltraChatbotAgentMultimodalInput({
+  chatId,
   disabled,
   footerBelow,
   footerLeading,
@@ -236,7 +239,7 @@ export function UltraChatbotAgentMultimodalInput({
       try {
         const uploadedFileParts = await Promise.all(
           pendingAttachments.map((attachment) =>
-            uploadUltraChatbotAgentAttachment(attachment.file)
+            uploadUltraChatbotAgentAttachment(attachment.file, chatId)
           )
         );
         const parts = [
@@ -266,7 +269,7 @@ export function UltraChatbotAgentMultimodalInput({
         setUploadingAttachmentIds([]);
       }
     },
-    [clearFileInput, onComposerErrorChange, onSend, pendingAttachments]
+    [chatId, clearFileInput, onComposerErrorChange, onSend, pendingAttachments]
   );
 
   return (

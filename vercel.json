@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/site-usage-cleanup",
       "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/ultra-chatbot-agent-blob-cleanup",
+      "schedule": "0 20 * * *"
     }
   ]
 }

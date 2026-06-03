@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent
 description: Product and architecture boundary for the vercel/chatbot application-shape port.
-updateAt: 2026-06-02
+updateAt: 2026-06-03
 ---
 
 # Ultra Chatbot Agent
@@ -119,6 +119,7 @@ updateAt: 2026-06-02
 - The twenty-fourth implemented slice now completes the first model capability metadata contract. `server/models.ts` exposes reasoning, tools, vision, attachment support, artifact tooling, expected latency, and cost posture for each curated model, and the workspace model selector surfaces latency and cost beside the chat or reasoning label.
 - The twenty-fifth implemented slice now clarifies the first coding artifact route. `server/prompts.ts` instructs the main `ToolLoopAgent` to create persisted `kind: "code"` artifacts when the user asks for code they may inspect or edit later, while sandbox-backed execution remains gated behind `enableSandbox`.
 - The twenty-sixth implemented slice now adds per-chat history deletion. `server/history.ts` exposes visitor-owned single-chat deletion through `app/api/demos/ultra-chatbot-agent/[id]/route.ts`, `chat-store.ts` deletes only chats owned by the current visitor, and the history rail renders a sibling delete button outside the chat link to avoid nested interactive markup.
+- The attachment hardening slice now uses Blob-only ownership and retention controls for the demo stage. The upload route requires the current `chatId`, writes objects under `ultra-chatbot-agent/{visitorId}/{yyyy-mm-dd}/{chatId}/{uuid}-{filename}`, enforces a per-visitor daily Blob-list quota before writing, deletes matching Blob pathnames when the visitor deletes a chat or clears history, and adds a 7-day Blob cleanup cron without introducing a database ledger or Redis quota store.
 - The current artifact boundary is now explicit: Ultra fully treats versioned text documents as the first-class artifact kind, while executable code artifacts, spreadsheet artifacts, generated-image artifacts, and the richer ProseMirror editor stack remain recorded checklist defers behind execution, dependency, or release-surface boundaries.
 - The current workspace shell and submit affordance are now fully disposed at checklist level. `ui/ultra-chatbot-agent-workspace.tsx` is the Ultra equivalent of the reference chat shell, and the shared `PromptInputSubmit` primitive already covers the upstream submit-button contract inside this repository's AI Elements stack.
 - The remaining shell wrappers are thinner now. The reference preview shell is already absorbed into `ui/ultra-chatbot-agent-screen.tsx` plus the workspace empty state, and global toast chrome stays deferred behind shared Sonner infrastructure until Ultra's richer artifact and attachment flows actually need cross-panel notifications.
@@ -144,7 +145,8 @@ updateAt: 2026-06-02
 - Store Blob URLs, content type, size, filename, and owner/chat/message/document relationships in Postgres.
 - Keep message parts, votes, documents, suggestions, streams, and structured runtime state in Postgres.
 - Keep the schema in a dedicated database schema file and re-export it through the database schema barrel.
-- The current attachment slice stores Blob-backed file metadata inside the persisted message row, while the current artifact slice keeps selected-document and view-mode state feature-local in the workspace instead of persisting a separate global artifact store yet.
+- The current attachment slice stores Blob-backed file metadata inside the persisted message row and encodes visitor/date/chat ownership in the Blob pathname. Do not add a separate upload ledger for the demo-stage quota and cleanup story unless a later auth or privacy requirement needs stronger addressability.
+- The current artifact slice keeps selected-document and view-mode state feature-local in the workspace instead of persisting a separate global artifact store yet.
 
 ## Storage Direction
 
@@ -155,4 +157,7 @@ updateAt: 2026-06-02
 - The current tool-driven document slice now covers `createDocument`, `editDocument`, `updateDocument`, and `requestSuggestions`. Artifact-specific canvases, transient suggestion stream parts, and full data-stream-driven artifact state are still open work on the checklist.
 - The current attachment slice now covers the pinned reference image-upload path plus PDF chat attachments, while still keeping uploads out of the RAG indexing flow.
 - The current Blob state is now live, not hypothetical. Ultra's upload route is wired to a linked Vercel Blob store, the runtime still fails fast when `BLOB_READ_WRITE_TOKEN` is absent, local `next dev` still depends on pulling that variable into `apps/web/.env.local`, and the currently verified happy path is a direct PNG or JPEG upload through `/api/demos/ultra-chatbot-agent/files/upload` that returns Blob-backed `url`, `pathname`, `contentType`, and `size` metadata for message persistence.
+- Demo-stage upload resource control is Blob SDK backed. The upload route lists the visitor/day prefix and caps accepted files at 20 files or 50MB per visitor per UTC date bucket; each individual file still follows the shared 5MB PNG/JPEG/PDF attachment limit.
+- Uploaded files are private by chat UI ownership and URL secrecy, not by Blob access control, because the current write path uses public Blob URLs. If stronger file privacy becomes a release requirement, move to private Blob access or introduce an explicit owner ledger and signed read path.
+- Blob deletion follows pathname ownership. Per-chat deletion removes Blob objects matching the visitor/chat path, clear-history removes every Ultra Blob object under the visitor path, and the scheduled cleanup deletes Ultra Blob objects older than 7 days by `uploadedAt`.
 - Attachment validation belongs at both ingress points. The upload route validates the Blob write path, and the chat runtime validates persisted `UIMessage` file parts before saving the turn because a client can send chat JSON without using the feature-local composer.

@@ -1,3 +1,8 @@
+import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
+import {
+  deleteUltraChatbotAgentBlobsForChat,
+  deleteUltraChatbotAgentBlobsForVisitor,
+} from "./blob-storage";
 import { createUltraChatbotAgentChatStore } from "./chat-store";
 
 function clampHistoryLimit(value: string | null) {
@@ -46,6 +51,11 @@ export async function handleUltraChatbotAgentDeleteHistoryRequest(viewer: {
       visitorId: viewer.visitorId,
     });
 
+  await deleteUltraChatbotAgentBlobsForVisitor({
+    token: getVercelBlobToken(),
+    visitorId: viewer.visitorId,
+  });
+
   return Response.json(result, { status: 200 });
 }
 
@@ -70,6 +80,12 @@ export async function handleUltraChatbotAgentDeleteChatRequest(
   if (result.deletedCount === 0) {
     return Response.json({ error: "Chat not found." }, { status: 404 });
   }
+
+  await deleteUltraChatbotAgentBlobsForChat({
+    chatId,
+    token: getVercelBlobToken(),
+    visitorId: viewer.visitorId,
+  });
 
   return Response.json(result, { status: 200 });
 }

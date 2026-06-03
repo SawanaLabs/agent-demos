@@ -11,9 +11,9 @@ import {
 
 const DEFAULT_PERSISTENT_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 const missingDatabaseUrlIssue =
-  "DATABASE_URL is missing. Persistent-agent chat storage requires a writable Postgres database.";
+  "DATABASE_URL is missing. Add it only when you want Postgres-backed persistent-agent chat storage.";
 const missingRedisUrlIssue =
-  "REDIS_URL is missing. Persistent-agent resume requires Redis-backed resumable streams.";
+  "REDIS_URL is missing. Add it only when you want Redis-backed resumable streams.";
 
 export type PersistentAgentEnv = AiGatewayEnvRecord;
 
@@ -80,10 +80,6 @@ export function getPersistentAgentSetupState(
 ): PersistentAgentSetupState {
   return buildAiGatewayContractSetupState(env, {
     ...persistentAgentContract,
-    getAdditionalIssues: (_resolvedEnv, currentEnv) => [
-      ...(currentEnv.DATABASE_URL ? [] : [missingDatabaseUrlIssue]),
-      ...(currentEnv.REDIS_URL ? [] : [missingRedisUrlIssue]),
-    ],
   });
 }
 

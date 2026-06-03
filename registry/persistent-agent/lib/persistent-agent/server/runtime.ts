@@ -1,4 +1,5 @@
 import {
+  consumeStream,
   convertToModelMessages,
   createIdGenerator,
   generateId,
@@ -45,6 +46,8 @@ export interface PersistentAgentRuntimeState {
   cleanupScheduleUtc: string;
   isChatAvailable: boolean;
   nodeVersion: string;
+  persistenceLabel: string;
+  resumeLabel: string;
   resumeRequiresRedis: boolean;
   setupMessage: string | null;
   statusLabel: "Ready" | "Setup required";
@@ -61,7 +64,9 @@ export function getPersistentAgentRuntimeState(
     cleanupScheduleUtc: persistentAgentCleanupCronScheduleUtc,
     isChatAvailable: setup.isReady,
     nodeVersion: setup.nodeVersion,
-    resumeRequiresRedis: true,
+    persistenceLabel: env.DATABASE_URL ? "Postgres" : "In-memory",
+    resumeLabel: env.REDIS_URL ? "Redis resume" : "Local stream",
+    resumeRequiresRedis: Boolean(env.REDIS_URL),
     setupMessage: setup.issues.length > 0 ? setup.issues.join(" ") : null,
     statusLabel: setup.isReady ? "Ready" : "Setup required",
   };
@@ -199,20 +204,23 @@ export async function handlePersistentAgentChatRequest(
     messages: await convertToModelMessages(originalMessages),
     system: persistentAgentSystemPrompt,
   });
+  const shouldUseRedisResume = Boolean(env.REDIS_URL);
 
   return result.toUIMessageStreamResponse({
-    consumeSseStream: async ({ stream }) => {
-      const streamId = generateId();
-      await getStreamContext(env).createNewResumableStream(
-        streamId,
-        () => stream
-      );
-      await store.setActiveStream({
-        activeStreamId: streamId,
-        chatId: input.id,
-        visitorId: viewer.visitorId,
-      });
-    },
+    consumeSseStream: shouldUseRedisResume
+      ? async ({ stream }) => {
+          const streamId = generateId();
+          await getStreamContext(env).createNewResumableStream(
+            streamId,
+            () => stream
+          );
+          await store.setActiveStream({
+            activeStreamId: streamId,
+            chatId: input.id,
+            visitorId: viewer.visitorId,
+          });
+        }
+      : consumeStream,
     generateMessageId: createIdGenerator({
       prefix: "pa-msg",
       size: 16,
@@ -252,6 +260,10 @@ export async function handlePersistentAgentStreamResumeRequest(
   }
 
   if (!session.chat.activeStreamId) {
+    return new Response(null, { status: 204 });
+  }
+
+  if (!env.REDIS_URL) {
     return new Response(null, { status: 204 });
   }
 

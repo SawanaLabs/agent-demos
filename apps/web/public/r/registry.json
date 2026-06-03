@@ -1136,6 +1136,11 @@
           "target": "@lib/persistent-agent/server/env.ts"
         },
         {
+          "path": "registry/persistent-agent/lib/persistent-agent/server/portable-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/persistent-agent/server/portable-store.ts"
+        },
+        {
           "path": "registry/persistent-agent/lib/persistent-agent/server/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/persistent-agent/server/runtime.ts"
@@ -1159,11 +1164,9 @@
       "envVars": {
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
-        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
-        "DATABASE_URL": "",
-        "REDIS_URL": ""
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, Postgres-backed chat storage, Redis resumable stream support, and the AI Gateway plus DATABASE_URL and REDIS_URL env vars required for refresh-safe chat state.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, in-memory chat storage by default, optional Postgres-backed chat storage, optional Redis resumable stream support, and the AI Gateway env vars required for the browser happy path.",
       "type": "registry:block"
     },
     {

@@ -4,6 +4,8 @@ import {
   persistentAgentChats,
   persistentAgentMessages,
 } from "./schema";
+import { getPersistentAgentEnv } from "./env";
+import { createPortablePersistentAgentChatPersistence } from "./portable-store";
 
 const maxPersistentAgentTitleLength = 72;
 
@@ -22,6 +24,37 @@ export interface PersistentAgentChatRecord {
 export interface PersistentAgentChatSession {
   chat: PersistentAgentChatRecord;
   messages: UIMessage[];
+}
+
+export interface PersistentAgentChatPersistence {
+  listChatsForVisitor(visitorId: string): Promise<PersistentAgentChatRecord[]>;
+  loadChatSession(
+    chatId: string,
+    visitorId: string
+  ): Promise<PersistentAgentChatSession | null>;
+  saveIncomingUserMessage(input: {
+    chatId: string;
+    message: UIMessage;
+    visitorId: string;
+  }): Promise<void>;
+  saveFinishedMessages(input: {
+    chatId: string;
+    messages: UIMessage[];
+    visitorId: string;
+  }): Promise<void>;
+  setActiveStream(input: {
+    activeStreamId: string | null;
+    chatId: string;
+    visitorId: string;
+  }): Promise<void>;
+  cleanupExpiredChats(input?: { now?: Date }): Promise<{
+    deletedChats: number;
+    expiresBefore: string;
+  }>;
+}
+
+interface PersistentAgentChatStoreDependencies {
+  persistence?: PersistentAgentChatPersistence;
 }
 
 type PersistentAgentDatabaseModule = Awaited<
@@ -125,7 +158,7 @@ function isInvalidPersistentAgentChatIdError(error: unknown) {
   });
 }
 
-export function createPersistentAgentChatStore() {
+function createDatabaseBackedPersistentAgentChatPersistence(): PersistentAgentChatPersistence {
   return {
     async listChatsForVisitor(visitorId: string) {
       const { database, persistentAgentChats } =
@@ -354,4 +387,15 @@ export function createPersistentAgentChatStore() {
       };
     },
   };
+}
+
+export function createPersistentAgentChatStore(
+  dependencies: PersistentAgentChatStoreDependencies = {}
+) {
+  return (
+    dependencies.persistence ??
+    (getPersistentAgentEnv().DATABASE_URL
+      ? createDatabaseBackedPersistentAgentChatPersistence()
+      : createPortablePersistentAgentChatPersistence())
+  );
 }

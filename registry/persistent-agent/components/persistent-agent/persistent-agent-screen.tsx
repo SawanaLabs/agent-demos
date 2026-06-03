@@ -67,7 +67,8 @@ export function PersistentAgentScreen({
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{runtimeState.statusLabel}</Badge>
             <Badge variant="outline">{runtimeState.chatModel}</Badge>
-            <Badge variant="outline">Redis resume</Badge>
+            <Badge variant="outline">{runtimeState.persistenceLabel}</Badge>
+            <Badge variant="outline">{runtimeState.resumeLabel}</Badge>
           </div>
         </header>
 
@@ -78,7 +79,9 @@ export function PersistentAgentScreen({
             initialSession={initialSession}
             isChatAvailable={runtimeState.isChatAvailable}
             nodeVersion={runtimeState.nodeVersion}
+            persistenceLabel={runtimeState.persistenceLabel}
             recentChats={recentChats}
+            resumeLabel={runtimeState.resumeLabel}
             setupMessage={runtimeState.setupMessage}
           />
         </div>

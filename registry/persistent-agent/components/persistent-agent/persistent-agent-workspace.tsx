@@ -72,6 +72,11 @@ function toConversationPath(chatId: string) {
 
 const nodeVersionPrefixPattern = /^v/;
 const resumeRecoveryAttemptLimit = 6;
+const persistentAgentSamplePrompts = [
+  "Explain the route and storage contract for this persistent chat demo.",
+  "Summarize how a user could adapt this demo from in-memory storage to Postgres and Redis.",
+  "Give me a concise QA checklist for verifying refresh-safe chat state.",
+] as const;
 
 async function loadPersistentAgentSessionSnapshot(chatId: string) {
   const response = await fetch(
@@ -104,7 +109,9 @@ interface PersistentAgentWorkspaceProps {
   initialSession: PersistentAgentChatSession | null;
   isChatAvailable: boolean;
   nodeVersion: string;
+  persistenceLabel: string;
   recentChats: PersistentAgentChatRecord[];
+  resumeLabel: string;
   setupMessage: string | null;
 }
 
@@ -211,7 +218,9 @@ export function PersistentAgentWorkspace({
   initialSession,
   isChatAvailable,
   nodeVersion,
+  persistenceLabel,
   recentChats,
+  resumeLabel,
   setupMessage,
 }: PersistentAgentWorkspaceProps) {
   const generatedChatIdRef = useRef(initialSession?.chat.id ?? draftChatId);
@@ -358,7 +367,7 @@ export function PersistentAgentWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Start a conversation, refresh the page, and the same chat will restore from Postgres under this URL."
+                description="Start a conversation, refresh the page, and the same chat will restore under this URL."
                 icon={<RobotIcon className="size-5" />}
                 title="Persistent route is ready"
               />
@@ -379,7 +388,7 @@ export function PersistentAgentWorkspace({
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">Visitor scoped</Badge>
-                  <Badge variant="outline">Postgres</Badge>
+                  <Badge variant="outline">{persistenceLabel}</Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <PromptInputSubmit
@@ -388,6 +397,23 @@ export function PersistentAgentWorkspace({
                 />
               </PromptInputFooter>
             </PromptInput>
+            {hasMessages ? null : (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {persistentAgentSamplePrompts.map((prompt) => (
+                  <Button
+                    className="max-w-full justify-start text-left"
+                    disabled={!isChatAvailable || isBusy}
+                    key={prompt}
+                    onClick={() => void handleSubmit(prompt)}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -443,8 +469,8 @@ export function PersistentAgentWorkspace({
             </p>
             <p className="mt-1 text-sm">
               First send promotes this page into a stable URL. Refresh reloads
-              messages from the database. Mid-stream refresh reconnects through
-              the resume endpoint.
+              messages from the active store. Redis-backed deployments can
+              reconnect mid-stream through the resume endpoint.
             </p>
           </div>
 
@@ -483,7 +509,7 @@ export function PersistentAgentWorkspace({
                 ))
               ) : (
                 <p className="text-muted-foreground text-sm">
-                  No persisted chats for this visitor yet.
+                  No chats for this visitor yet.
                 </p>
               )}
             </div>
@@ -498,7 +524,7 @@ export function PersistentAgentWorkspace({
                 Node {nodeVersion.replace(nodeVersionPrefixPattern, "")}
               </Badge>
               <Badge variant="outline">HTTP-only cookie</Badge>
-              <Badge variant="outline">Redis resume</Badge>
+              <Badge variant="outline">{resumeLabel}</Badge>
             </div>
           </div>
 

@@ -38,8 +38,8 @@ ${registryGuideConfig.foundationChatCommand}`;
 
 export const metadata: Metadata = {
   description:
-    "Create a shadcn Next.js app, install Foundation Chat through the public registry, run it locally, and deploy it to Vercel.",
-  title: "shadcn Registry Guide | AI SDK 6 Agent Demos",
+    "Create a shadcn Next.js app, install Foundation Chat from Agent Demos through the public registry, run it locally, and deploy it to Vercel.",
+  title: "shadcn Registry Guide | Agent Demos",
 };
 
 function ExternalLink({

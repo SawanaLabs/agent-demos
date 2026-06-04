@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   demoCatalogEntries,
@@ -25,6 +26,12 @@ import {
   registryGuideConfig,
   registryGuideUrl,
 } from "@/features/registry-guide/registry-guide-data";
+
+export const metadata: Metadata = {
+  description:
+    "Browse production-ready agent demos that can be installed into fresh Next.js and shadcn projects through the Agent Demos registry.",
+  title: "Agent Demos",
+};
 
 const recommendedDemoRanks = [
   {
@@ -197,7 +204,7 @@ export default function Page() {
         <section className="grid gap-6 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-              AI SDK 6 Agent Demos
+              Agent Demos
             </p>
             <h1 className="max-w-4xl font-medium text-3xl tracking-tight md:text-4xl">
               A portable gallery of production-ready agent demos for Next.js and

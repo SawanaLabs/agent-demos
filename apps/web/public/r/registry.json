@@ -1697,6 +1697,341 @@
       "type": "registry:block"
     },
     {
+      "name": "openai-agents-sdk-demo",
+      "title": "OpenAI Agents SDK Demo",
+      "description": "A complete OpenAI Agents SDK workspace that bridges official Agents runs into AI SDK UI messages, with tools, guardrails, handoffs, MCP docs, sandbox inspection, tracing, and voice transport lanes.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@modelcontextprotocol/sdk",
+        "@openai/agents",
+        "@openai/agents-extensions",
+        "@phosphor-icons/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "openai",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "collapsible",
+        "dialog",
+        "textarea",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/confirmation.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/openai-agents-sdk-demo/app/api/demos/openai-agents-sdk-demo/mcp/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/openai-agents-sdk-demo/mcp/route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/app/api/demos/openai-agents-sdk-demo/realtime/client-secrets/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/openai-agents-sdk-demo/realtime/client-secrets/route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/app/api/demos/openai-agents-sdk-demo/realtime/sip/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/openai-agents-sdk-demo/realtime/sip/route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/app/api/demos/openai-agents-sdk-demo/realtime/twilio/incoming-call/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/openai-agents-sdk-demo/realtime/twilio/incoming-call/route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/app/api/demos/openai-agents-sdk-demo/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/openai-agents-sdk-demo/route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/app/demos/openai-agents-sdk-demo/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/openai-agents-sdk-demo/page.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/demo-chat/use-demo-chat.ts",
+          "type": "registry:component",
+          "target": "@components/demo-chat/use-demo-chat.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-runtime-inspector.ts",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-runtime-inspector.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-screen.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-session.ts",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-session.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-voice-panel.tsx",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-voice-panel.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-voice-utils.ts",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-voice-utils.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-workspace-layout.ts",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-workspace-layout.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/openai-agents-sdk-demo/openai-agents-sdk-demo-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/openai-agents-sdk-demo/openai-agents-sdk-demo-workspace.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/message-metadata.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/message-metadata.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/README.md",
+          "type": "registry:file",
+          "target": "@lib/openai-agents-sdk-demo/README.md"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/agents.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/agents.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/approvals.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/approvals.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/chat.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/context.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/context.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/demo-mcp-server.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/demo-mcp-server.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/extensions.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/extensions.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/guardrails.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/guardrails.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/guide-coverage.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/guide-coverage.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/handoff-extensions.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/handoff-extensions.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/handoffs.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/handoffs.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/mcp.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/mcp.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/models.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/models.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/results.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/results.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/running.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/running.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/runtime.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/sandbox.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/sessions.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/sessions.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/stream-artifacts.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/stream-artifacts.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/streaming.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/streaming.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/tools.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/tracing.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/tracing.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-cloudflare-app.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-cloudflare-app.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-cloudflare-worker-module.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-cloudflare-worker-module.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-cloudflare-worker.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-cloudflare-worker.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-extensions.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-extensions.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-realtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-realtime.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-server-audio.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-server-audio.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-sip-route.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-sip-route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-sip.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-sip.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-twilio-app.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-twilio-app.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-twilio-bridge.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-twilio-bridge.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-twilio-route.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-twilio-route.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice-websocket.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice-websocket.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/server/voice.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/server/voice.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/voice-lane.ts",
+          "type": "registry:lib",
+          "target": "@lib/openai-agents-sdk-demo/voice-lane.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/docs/frontend/openai-agents-sdk-demo.md",
+          "type": "registry:file",
+          "target": "docs/frontend/openai-agents-sdk-demo.md"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "OPENAI_AGENTS_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v1",
+        "OPENAI_AGENTS_MODEL": "",
+        "OPENAI_AGENTS_REASONING_EFFORT": "medium",
+        "OPENAI_AGENTS_TEXT_VERBOSITY": "low",
+        "OPENAI_AGENTS_MAX_TURNS": "6",
+        "OPENAI_AGENTS_VECTOR_STORE_IDS": "",
+        "OPENAI_AGENTS_TRACING_API_KEY": "",
+        "OPENAI_AGENTS_DISABLE_TRACING": "",
+        "OPENAI_AGENTS_TRACE_INCLUDE_SENSITIVE_DATA": "",
+        "OPENAI_API_KEY": "",
+        "OPENAI_AGENTS_TWILIO_MEDIA_STREAM_URL": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. The main local happy path needs AI_GATEWAY_API_KEY and runs through the installed chat route. Native realtime voice, SIP, Twilio, and Cloudflare transport lanes are included in source and require OPENAI_API_KEY plus their public transport wiring before live verification.",
+      "type": "registry:block"
+    },
+    {
       "name": "langgraph-agent",
       "title": "LangGraph Agent",
       "description": "A Next.js AI Elements frontend and proxy route for a separately running Python LangGraph backend.",

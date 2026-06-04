@@ -25,7 +25,12 @@
     },
     {
       "name": "demo-breadcrumb",
-      "demos": ["foundation-chat", "langgraph-agent", "ultra-chatbot-agent"],
+      "demos": [
+        "foundation-chat",
+        "langgraph-agent",
+        "openai-agents-sdk-demo",
+        "ultra-chatbot-agent"
+      ],
       "source": "apps/web/components/demo-breadcrumb.tsx",
       "target": "components/demo-breadcrumb.tsx",
       "transforms": [
@@ -44,7 +49,12 @@
     },
     {
       "name": "demo-workspace-shell",
-      "demos": ["foundation-chat", "langgraph-agent", "ultra-chatbot-agent"],
+      "demos": [
+        "foundation-chat",
+        "langgraph-agent",
+        "openai-agents-sdk-demo",
+        "ultra-chatbot-agent"
+      ],
       "source": "apps/web/components/demo-workspace-shell.tsx",
       "target": "components/demo-workspace-shell.tsx",
       "transforms": [
@@ -68,7 +78,7 @@
     },
     {
       "name": "demo-chat-controller",
-      "demos": ["foundation-chat"],
+      "demos": ["foundation-chat", "openai-agents-sdk-demo"],
       "source": "apps/web/features/shared/chat/ui/use-demo-chat.ts",
       "target": "components/demo-chat/use-demo-chat.ts"
     },

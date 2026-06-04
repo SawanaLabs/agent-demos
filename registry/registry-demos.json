@@ -3,12 +3,7 @@
   "homepage": "https://github.com/SawanaLabs/agent-demos",
   "namespace": "@ai-sdk-6-demos",
   "productionDomain": "agent-demos.hsawana9.com",
-  "omittedReadyDemos": [
-    {
-      "slug": "openai-agents-sdk-demo",
-      "reason": "Uses an OpenAI Agents SDK backend bridge that still needs a portable registry copy and fresh-consumer acceptance."
-    }
-  ],
+  "omittedReadyDemos": [],
   "demos": [
     {
       "slug": "foundation-chat",
@@ -94,6 +89,13 @@
       "registryPath": "registry/mcp-agent/registry.json",
       "publicRegistry": true,
       "setup": "AI Gateway only for the base chat. Local Next.js runtime inspection depends on the installed MCP tooling."
+    },
+    {
+      "slug": "openai-agents-sdk-demo",
+      "title": "OpenAI Agents SDK Demo",
+      "registryPath": "registry/openai-agents-sdk-demo/registry.json",
+      "publicRegistry": true,
+      "setup": "Complete full-stack OpenAI Agents SDK install. AI Gateway drives the main chat happy path with AI_GATEWAY_API_KEY; native OpenAI API keys and public voice transport wiring unlock realtime voice, SIP, Twilio, and Cloudflare lanes."
     },
     {
       "slug": "langgraph-agent",

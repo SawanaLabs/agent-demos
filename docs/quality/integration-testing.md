@@ -1,7 +1,7 @@
 ---
 title: Integration Testing
 description: General conventions for repository integration tests, including Vercel Sandbox-backed contract tests.
-updateAt: 2026-06-02
+updateAt: 2026-06-04
 ---
 
 # Integration Testing
@@ -73,9 +73,10 @@ updateAt: 2026-06-02
 
 ## Current Commands
 
-- Run the provider-backed integration suite from the repo root with `VERCEL_SANDBOX_INTEGRATION=1 pnpm test:integration`.
-- Run it from `apps/web` with `VERCEL_SANDBOX_INTEGRATION=1 pnpm test:integration`.
-- The `apps/web` script sources root and app `.env`, `.env.local`, and `.env.development.local` files before running Vitest.
+- Run the provider-backed integration suite from the repo root with `pnpm test:integration:sandbox`.
+- Run it from `apps/web` with `pnpm test:integration:sandbox`.
+- The explicit sandbox command sources root and app `.env`, `.env.local`, and `.env.development.local` files, then sets `VERCEL_SANDBOX_INTEGRATION=1` before running Vitest.
+- The lower-level form still works from either location with `VERCEL_SANDBOX_INTEGRATION=1 pnpm test:integration`.
 - Running the integration command without `VERCEL_SANDBOX_INTEGRATION=1` is expected to fail fast before creating any sandbox.
 - Run the local production demo smoke after a build with `pnpm smoke:demos:production`; the command starts and stops `next start` itself.
 - Run the same smoke against a deployed URL with `DEMO_SMOKE_BASE_URL=https://<deployment-host> pnpm smoke:demos:production`.

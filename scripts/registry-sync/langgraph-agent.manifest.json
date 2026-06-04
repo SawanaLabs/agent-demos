@@ -1,0 +1,173 @@
+{
+  "demo": "langgraph-agent",
+  "entries": [
+    {
+      "source": "apps/web/features/langgraph-agent/ui/langgraph-agent-screen.tsx",
+      "target": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-screen.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/tooltip\";",
+          "to": "from \"@/components/ui/tooltip\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/langgraph-agent/server/runtime\";",
+          "to": "from \"@/lib/langgraph-agent/server/runtime\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/langgraph-agent/ui/langgraph-agent-workspace\";",
+          "to": "from \"@/components/langgraph-agent/langgraph-agent-workspace\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/langgraph-agent/"
+      ]
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/ui/langgraph-agent-workspace.tsx",
+      "target": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-workspace.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/conversation\";",
+          "to": "from \"@/components/ai-elements/conversation\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/message\";",
+          "to": "from \"@/components/ai-elements/message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/prompt-input\";",
+          "to": "from \"@/components/ai-elements/prompt-input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/reasoning\";",
+          "to": "from \"@/components/ai-elements/reasoning\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/shimmer\";",
+          "to": "from \"@/components/ai-elements/shimmer\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/separator\";",
+          "to": "from \"@/components/ui/separator\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/shared/chat/ui/conversation-error-message\";",
+          "to": "from \"@/components/demo-chat/conversation-error-message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../server/stream-normalizer\";",
+          "to": "from \"@/lib/langgraph-agent/server/stream-normalizer\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "getThinkingMessage={(streaming, duration) => {",
+          "to": "getThinkingMessage={(streaming: boolean, duration?: number) => {",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/langgraph-agent/",
+        "@/features/shared/",
+        "../server/"
+      ]
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/ui/langgraph-agent-message-parts.ts",
+      "target": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-message-parts.ts",
+      "transforms": [
+        {
+          "from": "from \"../server/stream-normalizer\";",
+          "to": "from \"@/lib/langgraph-agent/server/stream-normalizer\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["../server/"]
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/ui/use-langgraph-agent.ts",
+      "target": "registry/langgraph-agent/components/langgraph-agent/use-langgraph-agent.ts",
+      "transforms": [
+        {
+          "from": "from \"../server/stream-normalizer\";",
+          "to": "from \"@/lib/langgraph-agent/server/stream-normalizer\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "  const [chat] = useState(\n",
+          "to": "  /* eslint-disable react-hooks/refs -- Chat transport callbacks run after render and need the current thread id. */\n  const [chat] = useState(\n",
+          "expectedMatches": 1
+        },
+        {
+          "from": "  const controller = useChat({ chat });\n",
+          "to": "  /* eslint-enable react-hooks/refs */\n  const controller = useChat({ chat });\n",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["../server/"]
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/env-source.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/env-source.ts",
+      "transforms": [
+        {
+          "from": "import { env as appEnv } from \"@/env\";\n\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "export function getLangGraphAgentAppEnv() {\n  return appEnv;\n}\n",
+          "to": "export function getLangGraphAgentAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/env.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/env.ts"
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/remote-langgraph-client.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/remote-langgraph-client.ts"
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/runtime.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/runtime.ts"
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/sse-parser.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/sse-parser.ts"
+    },
+    {
+      "source": "apps/web/features/langgraph-agent/server/stream-normalizer.ts",
+      "target": "registry/langgraph-agent/lib/langgraph-agent/server/stream-normalizer.ts"
+    }
+  ]
+}

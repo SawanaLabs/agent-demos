@@ -1695,6 +1695,132 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the MCP agent page, chat route, built-in project-docs MCP route, client workspace, local project-docs discovery, and the AI Gateway env vars required for MCP-backed chat. The optional Next.js runtime MCP server becomes available after next-devtools-mcp can attach to a running Next.js dev server.",
       "type": "registry:block"
+    },
+    {
+      "name": "langgraph-agent",
+      "title": "LangGraph Agent",
+      "description": "A Next.js AI Elements frontend and proxy route for a separately running Python LangGraph backend.",
+      "dependencies": [
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "separator",
+        "textarea",
+        "tooltip",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json"
+      ],
+      "files": [
+        {
+          "path": "registry/langgraph-agent/app/demos/langgraph-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/langgraph-agent/page.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/app/api/demos/langgraph-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/langgraph-agent/route.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/langgraph-agent/langgraph-agent-screen.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/langgraph-agent/langgraph-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/langgraph-agent/langgraph-agent-message-parts.ts",
+          "type": "registry:component",
+          "target": "@components/langgraph-agent/langgraph-agent-message-parts.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/components/langgraph-agent/use-langgraph-agent.ts",
+          "type": "registry:component",
+          "target": "@components/langgraph-agent/use-langgraph-agent.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/ai-elements/shimmer.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/shimmer.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/env-source.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/env.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/remote-langgraph-client.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/remote-langgraph-client.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/sse-parser.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/sse-parser.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/lib/langgraph-agent/server/stream-normalizer.ts",
+          "type": "registry:lib",
+          "target": "@lib/langgraph-agent/server/stream-normalizer.ts"
+        }
+      ],
+      "envVars": {
+        "LANGGRAPH_AGENT_API_KEY": "",
+        "LANGGRAPH_AGENT_API_URL": "http://localhost:2024",
+        "LANGGRAPH_AGENT_ASSISTANT_ID": "agent",
+        "LANGGRAPH_AGENT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs the LangGraph Agent frontend and Next.js proxy route only; run a Python LangGraph backend separately from https://github.com/SawanaLabs/agent-demos/tree/main/apps/langgraph-agent-api. Local-first backend setup uses http://localhost:2024 with LANGGRAPH_AGENT_ASSISTANT_ID=agent and a shared LANGGRAPH_AGENT_API_KEY. The same backend folder also includes a Vercel FastAPI entry for deployment.",
+      "type": "registry:block"
     }
   ]
 }

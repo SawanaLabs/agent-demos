@@ -25,7 +25,7 @@
     },
     {
       "name": "demo-breadcrumb",
-      "demos": ["foundation-chat"],
+      "demos": ["foundation-chat", "langgraph-agent"],
       "source": "apps/web/components/demo-breadcrumb.tsx",
       "target": "components/demo-breadcrumb.tsx",
       "transforms": [
@@ -44,7 +44,7 @@
     },
     {
       "name": "demo-workspace-shell",
-      "demos": ["foundation-chat"],
+      "demos": ["foundation-chat", "langgraph-agent"],
       "source": "apps/web/components/demo-workspace-shell.tsx",
       "target": "components/demo-workspace-shell.tsx",
       "transforms": [
@@ -74,7 +74,7 @@
     },
     {
       "name": "conversation-error-message",
-      "demos": ["foundation-chat"],
+      "demos": ["foundation-chat", "langgraph-agent"],
       "source": "apps/web/features/shared/chat/ui/conversation-error-message.tsx",
       "target": "components/demo-chat/conversation-error-message.tsx",
       "transforms": [

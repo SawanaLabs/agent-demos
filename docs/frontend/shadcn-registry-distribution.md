@@ -1,7 +1,7 @@
 ---
 title: shadcn Registry Distribution
 description: Durable rules for packaging Agent Demos as shadcn registry items.
-updateAt: 2026-06-03
+updateAt: 2026-06-04
 ---
 
 # shadcn Registry Distribution
@@ -202,13 +202,14 @@ Validated again on May 27, 2026 against a clean local consumer app for the curre
 - `sandbox-agent`
 - `mcp-agent`
 
-`skills-agent` currently remains in source registry form but is excluded from the public **Registry Export** while its skill packaging is still under construction.
+`skills-agent` and `langgraph-agent` have since entered the public **Registry Export** after fresh-consumer packaging work.
 
 The current ready demos explicitly omitted from registry source are:
 
-- `langgraph-agent`: needs the separate LangGraph Agent Server service to be packaged into a self-contained registry story.
 - `openai-agents-sdk-demo`: needs the OpenAI Agents SDK backend bridge converted into a portable registry copy.
 - `ultra-chatbot-agent`: is an application-shape port and needs a narrower packaging contract before it becomes a normal registry demo.
+
+`langgraph-agent` is intentionally published as **Frontend slice distribution**: the registry item installs the Next.js page, route proxy, UI, and adapter runtime, while the Python LangGraph backend stays a separate service that the Registry Consumer runs locally or deploys from `apps/langgraph-agent-api`.
 
 The current acceptance bar for a queue-complete registry batch is:
 

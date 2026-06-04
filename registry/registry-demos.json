@@ -5,10 +5,6 @@
   "productionDomain": "agent-demos.hsawana9.com",
   "omittedReadyDemos": [
     {
-      "slug": "langgraph-agent",
-      "reason": "Requires a separate LangGraph Agent Server service and fresh-consumer packaging before it can be exported as a self-contained shadcn registry demo."
-    },
-    {
       "slug": "openai-agents-sdk-demo",
       "reason": "Uses an OpenAI Agents SDK backend bridge that still needs a portable registry copy and fresh-consumer acceptance."
     },
@@ -102,6 +98,13 @@
       "registryPath": "registry/mcp-agent/registry.json",
       "publicRegistry": true,
       "setup": "AI Gateway only for the base chat. Local Next.js runtime inspection depends on the installed MCP tooling."
+    },
+    {
+      "slug": "langgraph-agent",
+      "title": "LangGraph Agent",
+      "registryPath": "registry/langgraph-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "Requires a separately running LangGraph backend. Start local-first with apps/langgraph-agent-api on http://localhost:2024, then set LANGGRAPH_AGENT_API_URL, LANGGRAPH_AGENT_ASSISTANT_ID, and LANGGRAPH_AGENT_API_KEY in the installed Next.js app."
     }
   ]
 }

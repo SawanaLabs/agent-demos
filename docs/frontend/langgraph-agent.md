@@ -1,7 +1,7 @@
 ---
 title: LangGraph Agent
 description: Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo.
-updateAt: 2026-06-03
+updateAt: 2026-06-04
 ---
 
 # LangGraph Agent
@@ -89,6 +89,7 @@ updateAt: 2026-06-03
 - Use `pnpm dev:langgraph-agent` to start the fixed-port local LangGraph CLI Python server and paired Next.js app together. `pnpm dev:langchain-agent` is a compatibility alias for the same command. Use `pnpm dev:langgraph-agent-fastapi` when local development should exercise the Vercel-compatible FastAPI wrapper instead. The underlying API scripts source root `.env` and `.env.local`, default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`, then run on port 2024. The web script points at `http://localhost:2024`, carries the same model default for screen metadata, and keeps the existing Next.js port 3000 contract. Use `pnpm dev:langgraph-agent-api`, `pnpm dev:langgraph-agent-fastapi-api`, or `pnpm dev:langgraph-agent-web` only when one side needs to be run independently.
 - Local `langgraph dev` uses in-memory persistence for development and testing. Hosted LangGraph or LangSmith deployments own durable persistence for production.
 - The Vercel-compatible FastAPI entry currently uses no persistent checkpointer. Treat it as the lightweight hosted chat path for the demo, with continuity supplied by the frontend request messages.
+- `langgraph-agent` is public in the shadcn registry as a **Frontend slice distribution**. The registry item installs the Next.js page, API proxy route, UI, and stream adapter, and the installed route comment points Registry Consumers to `apps/langgraph-agent-api` for local-first backend execution or Vercel FastAPI deployment. Do not package the Python backend through shadcn registry unless the distribution contract is explicitly reopened.
 
 ## Open Decisions
 

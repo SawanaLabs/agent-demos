@@ -207,13 +207,13 @@ export default function Page() {
               Agent Demos
             </p>
             <h1 className="max-w-4xl font-medium text-3xl tracking-tight md:text-4xl">
-              A portable gallery of production-ready agent demos for Next.js and
-              shadcn monorepos
+              Turn agent prototypes into deployable apps
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              Each demo is a feature slice with its own route, server entry,
-              metadata, and UI surface so it can be copied into a new project
-              with minimal rewriting.
+              Pick a production-ready demo slice, hand the guide to Codex, and
+              ship a working Next.js agent app in about an hour. Already have a
+              LangGraph agent? Use this as the launch path to a real web
+              product.
             </p>
           </div>
 

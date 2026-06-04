@@ -198,15 +198,14 @@ export default function RegistryGuidePage() {
           <div className="space-y-3">
             <Badge variant="outline">Public registry guide</Badge>
             <h1 className="max-w-5xl font-medium text-3xl tracking-tight md:text-4xl">
-              From shadcn Create to a deployed Agent Demo
+              Give Codex a launch path for your agent app
             </h1>
             <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
-              This guide is for developers, coding agents, and first-time
-              evaluators who want a clean path from a new shadcn Next.js app to
-              a working AI chat on the web. Use the autopilot path when you want
-              your agent to move fast, or use guided checkpoints when you want
-              it to pause for theme, provider, API key, and deployment
-              decisions. The source lives in the{" "}
+              Start from shadcn Create, install a production-ready Agent Demo
+              slice through the registry, configure a provider, verify locally,
+              and deploy. Use Foundation Chat for the fastest path, or choose
+              the slice that matches your agent scenario. The source lives in
+              the{" "}
               <ExternalLink href={registryGuideConfig.sourceLinks.githubRepo}>
                 GitHub repository
               </ExternalLink>
@@ -218,6 +217,15 @@ export default function RegistryGuidePage() {
               </ExternalLink>{" "}
               namespace flow.
             </p>
+            <div className="flex max-w-4xl flex-col gap-2 border border-foreground/10 bg-muted/40 p-3 sm:flex-row sm:items-start">
+              <Badge className="shrink-0" variant="outline">
+                Agent note
+              </Badge>
+              <p className="text-muted-foreground text-xs/relaxed">
+                Before starting, ask the user whether they want the autopilot
+                path or guided checkpoints. Do not assume the mode.
+              </p>
+            </div>
             <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
               Start by creating a styled project in{" "}
               <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
@@ -335,9 +343,10 @@ export default function RegistryGuidePage() {
             </h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
               Both task briefs point the agent back to this guide as the source
-              of truth. Use autopilot for the fastest autonomous path, or use
-              guided checkpoints when you want the agent to ask before theme,
-              provider, API key, and deployment decisions.
+              of truth. Before any setup starts, the agent should ask the user
+              to choose a mode. Use autopilot for the fastest autonomous path,
+              or use guided checkpoints when the user wants the agent to ask
+              before theme, provider, API key, and deployment decisions.
             </p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">

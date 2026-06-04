@@ -2,14 +2,20 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-面向 Next.js、shadcn/ui、AI SDK 6、AI Elements 以及相关 agent 运行时的生产可用 Agent Demo 切片。
+Agent Demos 帮你把 agent 原型变成可上线应用。
 
-这个仓库同时提供在线 Demo Gallery 和 `@agent-demos` 公开 shadcn registry。每个 Agent Demo 都按可复制切片设计：包含可运行 UI、服务端运行时、配置契约，以及能安装或迁移到兼容应用里的清晰 copy boundary。
+选一个生产可用 demo 切片，把指南交给 Codex，约 1 小时内跑通并部署一个 Next.js agent app。已有 LangGraph Agent，也可以用它快速接到真实 Web 产品界面。
 
 - 在线体验：[agent-demos.hsawana9.com](https://agent-demos.hsawana9.com)
 - Registry 指南：[agent-demos.hsawana9.com/registry-guide](https://agent-demos.hsawana9.com/registry-guide)
 - 公开 registry namespace：`@agent-demos`
 - 许可证：MIT
+
+## 为什么做这个项目
+
+Agent 开发者通常会遇到三种不顺手的路径：示例代码停在上线前，模板把项目锁进一种起步形态，完整应用又很难拆成可复用部分。
+
+Agent Demos 给 Codex 一条可执行的上线路径，也给开发者一组可插拔 demo 切片。选择需要的 agent 场景，通过 registry 安装切片，让 Codex 适配到你的项目，然后从可运行代码开始上线。
 
 ## 安装一个 Demo
 

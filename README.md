@@ -2,14 +2,20 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-Production-ready agent demo slices for Next.js, shadcn/ui, AI SDK 6, AI Elements, and related agent runtimes.
+Agent Demos turns agent prototypes into deployable apps.
 
-This repository powers the live demo gallery and the public shadcn registry namespace for `@agent-demos`. Each Agent Demo is designed as a copyable slice: a working UI, server runtime, setup contract, and a clear boundary you can install or adapt in another compatible app.
+Pick a production-ready demo slice, hand the guide to Codex, and ship a working Next.js agent app in about an hour. If you already have a LangGraph agent, use it as the launch path to a real web product.
 
 - Live gallery: [agent-demos.hsawana9.com](https://agent-demos.hsawana9.com)
 - Registry guide: [agent-demos.hsawana9.com/registry-guide](https://agent-demos.hsawana9.com/registry-guide)
 - Public registry namespace: `@agent-demos`
 - License: MIT
+
+## Why This Exists
+
+Agent builders usually face three weak paths: examples that stop before deployment, templates that lock them into one starting shape, or full apps that are hard to break apart.
+
+Agent Demos gives Codex an executable launch path and gives developers a catalog of pluggable demo slices. Pick the agent scenario you need, install the slice through the registry, let Codex adapt it to your project, and ship from working code.
 
 ## Install a Demo
 

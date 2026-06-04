@@ -1,7 +1,7 @@
 ---
 title: Quality Knowledge Protocol
 description: Domain-level language, reading path, and boundary principles for quality tooling and verification.
-updateAt: 2026-06-03
+updateAt: 2026-06-04
 ---
 
 # Quality Knowledge Protocol
@@ -13,7 +13,6 @@ updateAt: 2026-06-03
 - For environment-variable contracts, read [Environment Config](./environment-config.md) after this file.
 - For integration tests, provider-backed tests, and Vercel Sandbox verification, read [Integration Testing](./integration-testing.md) after this file.
 - For focused abuse, cost, privacy, and code-integrity review boundaries, read [Resource Abuse and Privacy Review](./resource-abuse-privacy-review.md) after this file.
-- For the current repo-grounded abuse and privacy findings, read [Resource Abuse and Privacy Audit - 2026-06-03](./resource-abuse-privacy-audit-2026-06-03.md) after the review boundary.
 - For Ultracite, Biome, formatter, lint, and type-aware quality rules, read [Ultracite](./ultracite.md) after this file.
 
 ## Domain Language

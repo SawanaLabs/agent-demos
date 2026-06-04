@@ -1,7 +1,7 @@
 ---
 title: Resource Abuse and Privacy Review
 description: Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity.
-updateAt: 2026-06-03
+updateAt: 2026-06-04
 ---
 
 # Resource Abuse and Privacy Review
@@ -25,9 +25,8 @@ updateAt: 2026-06-03
 - **Message-First Portfolio Safety**: The default control strength for this personal portfolio-style demo site: meter model-backed turns first, keep hard limits on expensive inputs and tools, and avoid enterprise-grade bot defenses by default.
   _Avoid_: Enterprise abuse prevention, bot mitigation program, CAPTCHA-first security
 
-## Current Subdomain Docs
+## Review Rules
 
-- Current repo-grounded findings are captured in [Resource Abuse and Privacy Audit - 2026-06-03](./resource-abuse-privacy-audit-2026-06-03.md).
 - Use this review name when the user's goal is abuse prevention and privacy protection for the published demo website.
 - Do not default this review to a full dependency CVE audit, compliance audit, cloud account audit, or active production penetration test unless the user explicitly expands the scope.
 - Use **Message-First Portfolio Safety** as the default control strength while this site is a personal portfolio project and visitors are assumed mostly friendly.

@@ -68,6 +68,18 @@ _Avoid_: End user, app customer, casual visitor
 A public-facing documentation surface for **Registry Consumers** that explains how to install **Agent Demos** into compatible projects from an already published registry.
 _Avoid_: Internal registry docs, author maintenance guide, blog-only announcement
 
+**Autopilot Registry Path**:
+A **Registry Guide Page** mode where a coding agent is expected to create the project, install the recommended demo, configure the provider, verify locally, and complete deployment acceptance with minimal interruption.
+_Avoid_: Default tutorial, hidden path
+
+**Guided Registry Checkpoint Path**:
+A **Registry Guide Page** mode where a coding agent pauses at named human-choice points such as shadcn project creation, model provider and API key selection, local acceptance, and deployment decision.
+_Avoid_: Manual tutorial, wizard
+
+**Recommended Starter Demo**:
+An **Agent Demo** recommended as the first working project slice for new registry consumers because it exercises the registry, route, provider, and UI contract with minimal required services while staying independent from other demos.
+_Avoid_: Required first install, prerequisite demo
+
 **Registry Install Hint**:
 A compact install prompt that links to the **Registry Guide Page** and shows a demo-specific registry command when the **Agent Demo** is registry-backed.
 _Avoid_: Full tutorial, duplicated registry guide, author setup notes
@@ -163,6 +175,8 @@ _Avoid_: User API key, model provider key, public token
 - A **Demo Catalog Entry** is written primarily for a **Technical Evaluator**.
 - A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.
 - A **Registry Guide Page** is written for **Registry Consumers** and should refer author maintenance details back to durable internal docs instead of duplicating them.
+- A **Registry Guide Page** may expose an **Autopilot Registry Path** and a **Guided Registry Checkpoint Path** as parallel consumer modes.
+- A **Recommended Starter Demo** helps a first-time **Registry Consumer** get to a working installed project quickly, but it does not become a prerequisite for installing other registry-backed **Agent Demos**.
 - A **Registry Install Hint** may appear in the **Demo Gallery** or near an **Agent Demo**'s operational sidebar, and should stay shorter than the **Registry Guide Page**.
 - A **Registry Export** contains zero or more **Agent Demos** and may exclude registry source work that has not yet met the **Demo Quality Bar**.
 - **Registry Availability** must classify every ready **Agent Demo** so the **Demo Catalog Entry** and **Registry Export** cannot drift silently.

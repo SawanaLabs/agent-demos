@@ -17,7 +17,7 @@ updateAt: 2026-06-04
 ## Public Consumer Guide
 
 - `/registry-guide` is the public **Registry Guide Page** for **Registry Consumers** who have not forked this repository.
-- The public page should be blog-readable but executable: concise setup context, the namespace command, the `foundation-chat` mainline install command, required env vars, agent-facing guidance, and short setup notes for other supported registry demos.
+- The public page should be blog-readable but executable: concise setup context, the namespace command, the `foundation-chat` recommended starter install command, required env vars, agent-facing guidance, and short setup notes for other supported registry demos.
 - The public page should use `agent-demos.hsawana9.com` as the production host in commands:
 
 ```bash
@@ -28,11 +28,15 @@ pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 - Public copy should link inline to source material such as the GitHub repo, shadcn registry docs, AI SDK docs, and AI Elements docs.
 - Keep author maintenance, publishing, sync tooling, and fresh-consumer acceptance details in this internal document instead of duplicating them on `/registry-guide`.
 - Homepage registry entry points should stay compact. The current public entry appears on the homepage and points to `/registry-guide`; demo screen-level install hints are planned separately.
-- The public page's coding-agent handoff should optimize for a new-project mainline. Trust a capable user-directed agent to recognize when the user is already inside an existing project, but do not expand the public handoff copy around that side path.
-- The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@agent-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
-- Use a visible handoff title like "Hand this guide to your agent" so the page frames the prompt as a guide-backed task brief instead of a standalone path summary.
+- The public page should expose two directly visible coding-agent modes: an autopilot path for a capable agent to keep moving through the full setup, and a guided checkpoints path that tells the agent to pause for human choices at shadcn Create, provider/API key selection, local acceptance, and deployment decision.
+- The public page's coding-agent handoffs should optimize for a new-project mainline. Trust a capable user-directed agent to recognize when the user is already inside an existing project, but do not expand the public handoff copy around that side path.
+- Coding-agent handoffs should be copyable task briefs, not compressed tutorials. They should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@agent-demos`, local chat verified after provider configuration, Vercel deployment triggered when requested, and the deployed Foundation Chat URL reported.
+- Use visible handoff titles like "Autopilot task brief" and "Guided checkpoints task brief" so the page frames both prompts as guide-backed operating modes.
 - Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
 - Treat coding-agent-assisted adaptation as part of the consumer story. A Registry Consumer may install a demo into a new or existing project, give the installed source plus linked docs to their coding agent, and ask that agent to adapt routes, styling, data services, or provider settings to the host project.
+- Treat Foundation Chat as the recommended starter demo for first-time registry consumers, not as a prerequisite for other public registry demos. Public copy must not imply that other demo commands require Foundation Chat to be installed first.
+- The provider checkpoint happens after Foundation Chat has been installed. The default installed provider seam is AI Gateway; when the user has another provider key or preference, the coding agent should read AI SDK Providers docs, install the documented provider package, and adapt the installed Foundation Chat provider seam and env contract in the consumer project.
+- Vercel deployment guidance should prefer the CLI path but link to current Vercel CLI, link, and deploy docs instead of freezing detailed commands in the public page. The acceptance criteria must require an actual deployment trigger, the deployment URL, and the full `/demos/foundation-chat` deployed page URL.
 
 ## Current Rules
 

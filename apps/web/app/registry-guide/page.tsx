@@ -25,10 +25,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
+  foundationChatEnvExample,
   recommendedAgentSkills,
   recommendedAgentSkillsCommand,
-  registryGuideAgentTaskBrief,
+  registryGuideAutopilotTaskBrief,
   registryGuideConfig,
+  registryGuideGuidedTaskBrief,
   supportedRegistryDemoNotes,
 } from "@/features/registry-guide/registry-guide-data";
 import { RegistrySmoothScroll } from "@/features/registry-guide/registry-smooth-scroll";
@@ -38,7 +40,7 @@ ${registryGuideConfig.foundationChatCommand}`;
 
 export const metadata: Metadata = {
   description:
-    "Create a shadcn Next.js app, install Foundation Chat from Agent Demos through the public registry, run it locally, and deploy it to Vercel.",
+    "Create a shadcn Next.js app, install a recommended Agent Demo through the public registry, configure a model provider, run it locally, and deploy with Vercel.",
   title: "shadcn Registry Guide | Agent Demos",
 };
 
@@ -147,20 +149,36 @@ function DemoCommandBlock({ command }: { command: string }) {
 
 function AgentSkillCard({
   description,
+  docsUrl,
   name,
 }: {
   description: string;
+  docsUrl: string;
   name: string;
 }) {
   return (
-    <Card className="h-full border-foreground/10" size="sm">
-      <CardHeader>
-        <CardTitle>{name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground text-xs/relaxed">{description}</p>
-      </CardContent>
-    </Card>
+    <Link
+      aria-label={`Open ${name} SKILL.md on GitHub`}
+      className="group block h-full outline-none"
+      href={docsUrl}
+      rel="noreferrer"
+      target="_blank"
+    >
+      <Card
+        className="h-full border-foreground/10 transition-colors group-hover:border-foreground/30 group-focus-visible:border-ring group-focus-visible:ring-1 group-focus-visible:ring-ring/50"
+        size="sm"
+      >
+        <CardHeader>
+          <CardTitle className="flex items-start justify-between gap-2">
+            <span>{name}</span>
+            <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-xs/relaxed">{description}</p>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -180,12 +198,15 @@ export default function RegistryGuidePage() {
           <div className="space-y-3">
             <Badge variant="outline">Public registry guide</Badge>
             <h1 className="max-w-5xl font-medium text-3xl tracking-tight md:text-4xl">
-              From shadcn Create to a deployed Foundation Chat
+              From shadcn Create to a deployed Agent Demo
             </h1>
             <p className="max-w-4xl text-muted-foreground text-sm/relaxed">
               This guide is for developers, coding agents, and first-time
               evaluators who want a clean path from a new shadcn Next.js app to
-              a working AI chat on the web. The source lives in the{" "}
+              a working AI chat on the web. Use the autopilot path when you want
+              your agent to move fast, or use guided checkpoints when you want
+              it to pause for theme, provider, API key, and deployment
+              decisions. The source lives in the{" "}
               <ExternalLink href={registryGuideConfig.sourceLinks.githubRepo}>
                 GitHub repository
               </ExternalLink>
@@ -202,8 +223,8 @@ export default function RegistryGuidePage() {
               <ExternalLink href={registryGuideConfig.sourceLinks.shadcnCreate}>
                 shadcn Create
               </ExternalLink>
-              , then add Foundation Chat. It is the smallest production-ready
-              slice of this repo's{" "}
+              . Then add Foundation Chat as the recommended starter demo. It is
+              the smallest production-ready slice of this repo's{" "}
               <ExternalLink href={registryGuideConfig.sourceLinks.aiSdkDocs}>
                 AI SDK
               </ExternalLink>{" "}
@@ -214,14 +235,14 @@ export default function RegistryGuidePage() {
                 AI Elements
               </ExternalLink>{" "}
               stack: one chat page, one API route, and the required AI Gateway
-              env vars. If you plan to swap models or use direct provider
-              packages after installation, start from the{" "}
+              env vars. If the provider choice changes after installation, use
+              the{" "}
               <ExternalLink
-                href={registryGuideConfig.sourceLinks.aiSdkProviderSetup}
+                href={registryGuideConfig.sourceLinks.aiSdkProviders}
               >
-                AI SDK provider guide
+                AI SDK Providers
               </ExternalLink>{" "}
-              so the demo stays aligned with the official provider contract.
+              docs as the reference before adapting the installed provider seam.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -233,9 +254,15 @@ export default function RegistryGuidePage() {
             </Link>
             <Link
               className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
+              href="#agent-paths"
+            >
+              Agent paths
+            </Link>
+            <Link
+              className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
               href="#next-steps"
             >
-              Full path
+              Full paths
             </Link>
           </div>
         </section>
@@ -249,12 +276,12 @@ export default function RegistryGuidePage() {
               Quick point
             </p>
             <h2 className="font-medium text-2xl tracking-tight">
-              Install the Foundation Chat page slice
+              Install the recommended starter demo
             </h2>
             <p className="text-muted-foreground text-sm/relaxed">
-              This registry item is the core thing this project contributes: it
-              drops a working chat page, API route, AI Elements UI, and AI SDK
-              runtime wiring into the app you created.
+              Foundation Chat is the smallest production-ready starting point:
+              it drops a working chat page, API route, AI Elements UI, and AI
+              SDK runtime wiring into the app you created.
             </p>
           </div>
 
@@ -270,125 +297,190 @@ export default function RegistryGuidePage() {
             to choose Next.js, pick a theme, and run the generated command in
             the new project folder.
           </RequirementCard>
-          <RequirementCard title="Get an AI Gateway key">
-            Create a key from the{" "}
+          <RequirementCard title="Configure a provider">
+            The default path uses{" "}
             <ExternalLink
               href={registryGuideConfig.sourceLinks.aiGatewayAuthenticationDocs}
             >
-              AI Gateway authentication docs
+              AI Gateway
             </ExternalLink>
-            , add it as{" "}
-            <code className="font-mono text-foreground">
-              AI_GATEWAY_API_KEY
-            </code>{" "}
-            in <code className="font-mono text-foreground">.env.local</code>,
-            then run the chat locally and send one message.
-          </RequirementCard>
-          <RequirementCard title="Deploy">
-            Import the project into{" "}
-            <ExternalLink
-              href={registryGuideConfig.sourceLinks.vercelGitDeploymentsDocs}
-            >
-              Vercel from Git
+            . If you already have another provider key, ask your agent to start
+            from{" "}
+            <ExternalLink href={registryGuideConfig.sourceLinks.aiSdkProviders}>
+              AI SDK Providers
             </ExternalLink>{" "}
-            and add the same AI Gateway key in Project Settings before the
-            production check.
+            before changing the installed provider seam.
+          </RequirementCard>
+          <RequirementCard title="Deploy with CLI">
+            Use the{" "}
+            <ExternalLink href={registryGuideConfig.sourceLinks.vercelCliDocs}>
+              Vercel CLI docs
+            </ExternalLink>{" "}
+            to link or create the project, set the required provider env vars,
+            trigger a deployment, and report both the deployment URL and the
+            Foundation Chat page URL.
           </RequirementCard>
         </section>
 
-        <section className="space-y-4 border-foreground/10 border-t pt-8">
+        <section
+          className="space-y-4 border-foreground/10 border-t pt-8"
+          id="agent-paths"
+        >
           <div className="space-y-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
               Coding agents
             </p>
             <h2 className="font-medium text-xl">
-              Hand this guide to your agent
+              Choose how your agent should operate
             </h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              Give this task brief to a coding agent when you want it to
-              initialize the project for you. The brief points the agent back to
-              this guide as the source of truth, then gives it clear acceptance
-              criteria instead of asking it to rediscover the setup path.
+              Both task briefs point the agent back to this guide as the source
+              of truth. Use autopilot for the fastest autonomous path, or use
+              guided checkpoints when you want the agent to ask before theme,
+              provider, API key, and deployment decisions.
             </p>
           </div>
-          <GuideCommandPanel
-            actions={
-              <OpenAgentBriefInChatButton query={registryGuideAgentTaskBrief} />
-            }
-            code={registryGuideAgentTaskBrief}
-            title="agent task brief"
-          />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-2">
+              <h3 className="font-medium text-sm">Autopilot task brief</h3>
+              <p className="text-muted-foreground text-xs/relaxed">
+                Let the agent create the app, install the recommended starter
+                demo, configure the default provider, verify locally, and
+                complete the Vercel deployment.
+              </p>
+              <GuideCommandPanel
+                actions={
+                  <OpenAgentBriefInChatButton
+                    query={registryGuideAutopilotTaskBrief}
+                  />
+                }
+                code={registryGuideAutopilotTaskBrief}
+                title="autopilot task brief"
+              />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-medium text-sm">
+                Guided checkpoints task brief
+              </h3>
+              <p className="text-muted-foreground text-xs/relaxed">
+                Keep the same setup path, but require the agent to pause for
+                shadcn Create choices, provider selection, API key setup, and
+                deployment approval.
+              </p>
+              <GuideCommandPanel
+                actions={
+                  <OpenAgentBriefInChatButton
+                    query={registryGuideGuidedTaskBrief}
+                  />
+                }
+                code={registryGuideGuidedTaskBrief}
+                title="guided checkpoints task brief"
+              />
+            </div>
+          </div>
         </section>
 
         <section
-          className="grid gap-6 border-foreground/10 border-t pt-8 lg:grid-cols-[minmax(0,1fr)_20rem]"
+          className="space-y-6 border-foreground/10 border-t pt-8"
           id="next-steps"
         >
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                Full path
-              </p>
-              <h2 className="font-medium text-xl">
-                From a fresh app to deployed chat
-              </h2>
-              <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-                This is the human path: create a themed app with{" "}
-                <ExternalLink
-                  href={registryGuideConfig.sourceLinks.shadcnCreate}
-                >
-                  shadcn Create
-                </ExternalLink>{" "}
-                first, install the Foundation Chat slice, confirm one local chat
-                turn, then publish the same project to Vercel.
-              </p>
-            </div>
+          <div className="space-y-2">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+              Full paths
+            </p>
+            <h2 className="font-medium text-xl">
+              Pick the level of human involvement
+            </h2>
+            <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+              Both paths start from shadcn Create, install Foundation Chat as
+              the recommended starter demo, verify a local chat turn, and finish
+              with deployment acceptance when Vercel is in scope.
+            </p>
+          </div>
 
-            <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-5 border border-foreground/10 p-4">
               <div className="space-y-2">
-                <h3 className="font-medium text-sm">
-                  1. Create a themed Next.js app
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                  Autopilot full path
+                </p>
+                <h3 className="font-medium text-lg">
+                  Let the agent keep moving
                 </h3>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Open shadcn Create, choose Next.js, pick the style, color, and
-                  radius you want, then run the generated command in a new
-                  folder. When it finishes, move into that project and start
-                  from the app it generated. The important part is that the
-                  project already has shadcn/ui configured before the registry
-                  slice is added.
+                  Use this path when the goal is speed. The agent creates the
+                  project, installs the recommended starter demo, configures the
+                  default provider, verifies locally, then uses Vercel's CLI
+                  docs to deploy and report the result.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-medium text-sm">
-                  2. Install Foundation Chat and test it locally
-                </h3>
+                <h4 className="font-medium text-sm">
+                  1. Create the shadcn Next.js app
+                </h4>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Run the registry commands from the root of the new app. The
-                  first command registers this demo namespace; the second copies
-                  the Foundation Chat page, route, UI, and runtime files into
-                  your project.
+                  Start from{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.shadcnCreate}
+                  >
+                    shadcn Create
+                  </ExternalLink>{" "}
+                  or the official{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.shadcnInstallDocs}
+                  >
+                    installation docs
+                  </ExternalLink>
+                  . The created app should already have shadcn/ui configured
+                  before any registry item is added.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  2. Install the recommended starter demo
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Register the Agent Demos namespace, then add Foundation Chat
+                  from the registry. This copies the page route, API route, UI,
+                  provider env seam, and runtime helper into the new app.
                 </p>
                 <GuideCommandPanel
                   code={quickInstallCommand}
-                  title="install foundation-chat"
+                  title="recommended starter install"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  3. Configure the default provider and verify locally
+                </h4>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Create a key from the{" "}
+                  Default to{" "}
                   <ExternalLink
                     href={
                       registryGuideConfig.sourceLinks
                         .aiGatewayAuthenticationDocs
                     }
                   >
-                    AI Gateway authentication docs
+                    AI Gateway authentication
                   </ExternalLink>
-                  , add it to{" "}
-                  <code className="font-mono text-foreground">.env.local</code>,
-                  then run the app and send one message.
+                  {", add the env vars, run the app, and send one message on "}
+                  <code className="font-mono text-foreground">
+                    {registryGuideConfig.foundationChatRoute}
+                  </code>
+                  . If the user already supplied a provider preference before
+                  the run began, read{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.aiSdkProviders}
+                  >
+                    AI SDK Providers
+                  </ExternalLink>{" "}
+                  before adapting the installed provider seam.
                 </p>
                 <GuideCommandPanel
-                  code="AI_GATEWAY_API_KEY=..."
+                  code={foundationChatEnvExample}
                   title=".env.local"
                 />
                 <GuideCommandPanel
@@ -399,39 +491,150 @@ export default function RegistryGuidePage() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-medium text-sm">
-                  3. Deploy the same project to Vercel
-                </h3>
+                <h4 className="font-medium text-sm">
+                  4. Deploy and report the working URLs
+                </h4>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Commit the app and push it to a Git repository, then import
-                  that repository through{" "}
+                  Use the{" "}
                   <ExternalLink
-                    href={
-                      registryGuideConfig.sourceLinks.vercelGitDeploymentsDocs
-                    }
+                    href={registryGuideConfig.sourceLinks.vercelCliDocs}
                   >
-                    Vercel from Git
-                  </ExternalLink>
-                  . Before the production check, add the same{" "}
+                    Vercel CLI docs
+                  </ExternalLink>{" "}
+                  plus the{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.vercelCliLinkDocs}
+                  >
+                    link
+                  </ExternalLink>{" "}
+                  and{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.vercelCliDeployDocs}
+                  >
+                    deploy
+                  </ExternalLink>{" "}
+                  references. The acceptance result is a real deployment URL and
+                  the full Foundation Chat page URL at{" "}
                   <code className="font-mono text-foreground">
-                    AI_GATEWAY_API_KEY
-                  </code>{" "}
-                  in the project's Environment Variables. Deploy, open{" "}
-                  <code className="font-mono text-foreground">
+                    {"<deployment-url>"}
                     {registryGuideConfig.foundationChatRoute}
                   </code>
-                  , and send the same small test message you used locally.
+                  .
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5 border border-foreground/10 p-4">
+              <div className="space-y-2">
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                  Guided checkpoints full path
+                </p>
+                <h3 className="font-medium text-lg">
+                  Keep the user in the loop
+                </h3>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Use this path when the user wants to learn the stack or make
+                  account and provider choices directly. The agent should pause
+                  at each checkpoint before making the next setup decision.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  1. shadcn Create checkpoint
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Ask the user to open{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.shadcnCreate}
+                  >
+                    shadcn Create
+                  </ExternalLink>
+                  . The user chooses the style, color, radius, and project
+                  shape, then gives the generated command back to the agent. The
+                  agent can run that command and continue from the created
+                  project folder.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  2. Registry starter checkpoint
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  After the shadcn project exists, install Foundation Chat as
+                  the recommended starter demo. This confirms the registry
+                  namespace, route placement, AI Elements UI, and runtime wiring
+                  before deeper project adaptation begins.
+                </p>
+                <GuideCommandPanel
+                  code={quickInstallCommand}
+                  title="recommended starter install"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  3. Provider and API key checkpoint
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Once the code is installed, ask whether to continue with the
+                  default AI Gateway setup or use a provider key the user
+                  already has, such as Moonshot, DeepSeek, or MiniMax. If the
+                  provider changes, read{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.aiSdkProviders}
+                  >
+                    AI SDK Providers
+                  </ExternalLink>{" "}
+                  first, install the documented provider package, then adapt the
+                  installed Foundation Chat provider seam and env contract.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  4. Local completion checkpoint
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Treat local setup as complete only after the selected provider
+                  key is configured, the dev server starts, and{" "}
+                  <code className="font-mono text-foreground">
+                    {registryGuideConfig.foundationChatRoute}
+                  </code>{" "}
+                  returns one visible assistant response.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">
+                  5. Deployment checkpoint
+                </h4>
+                <p className="text-muted-foreground text-xs/relaxed">
+                  Ask whether the user wants to deploy now. If yes, follow the{" "}
+                  <ExternalLink
+                    href={registryGuideConfig.sourceLinks.vercelCliDocs}
+                  >
+                    Vercel CLI docs
+                  </ExternalLink>
+                  . Link or create the project, set the required production env
+                  vars, trigger a deployment, then report the deployment URL and{" "}
+                  <code className="font-mono text-foreground">
+                    {"<deployment-url>"}
+                    {registryGuideConfig.foundationChatRoute}
+                  </code>
+                  .
                 </p>
               </div>
             </div>
           </div>
 
-          <aside className="h-fit space-y-4 border border-foreground/10 p-4">
+          <aside className="space-y-4 border border-foreground/10 p-4">
             <div className="space-y-2">
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                What gets installed
+                What Foundation Chat installs
               </p>
-              <ul className="space-y-2 text-muted-foreground text-xs/relaxed">
+              <ul className="grid gap-2 text-muted-foreground text-xs/relaxed md:grid-cols-2">
                 <li>
                   <code className="font-mono text-foreground">
                     app/demos/foundation-chat
@@ -445,7 +648,9 @@ export default function RegistryGuidePage() {
                   chat route.
                 </li>
                 <li>AI Elements conversation, message, and prompt input UI.</li>
-                <li>AI SDK runtime helper and AI Gateway env defaults.</li>
+                <li>
+                  AI SDK runtime helper plus the default AI Gateway env seam.
+                </li>
               </ul>
             </div>
             <div className="border-foreground/10 border-t pt-4">
@@ -515,6 +720,7 @@ export default function RegistryGuidePage() {
             {recommendedAgentSkills.map((skill) => (
               <AgentSkillCard
                 description={skill.description}
+                docsUrl={skill.docsUrl}
                 key={skill.name}
                 name={skill.name}
               />
@@ -532,9 +738,9 @@ export default function RegistryGuidePage() {
             </p>
             <h2 className="font-medium text-xl">Special setup notes</h2>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              These demos are registry-backed today. Install Foundation Chat
-              first, then use the same namespace to add a larger demo when its
-              extra services match your project.
+              These demos are registry-backed today. After the namespace is
+              registered, add the demo that matches your project and configure
+              its service requirements from the setup note.
             </p>
           </div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

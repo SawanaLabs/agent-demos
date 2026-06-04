@@ -23,8 +23,7 @@ export interface RagChatbotSetupConfig extends AiGatewaySetupConfig {
   embeddingModel: string;
 }
 
-export interface RagChatbotSetupState
-  extends AiGatewayContractSetupState<RagChatbotSetupConfig> {}
+export type RagChatbotSetupState = AiGatewayContractSetupState<RagChatbotSetupConfig>;
 
 export type RagChatbotGateway = ReturnType<typeof createAiGatewayFromContract>;
 

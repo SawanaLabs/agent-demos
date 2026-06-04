@@ -22,8 +22,8 @@ export interface PersistentAgentConfig extends AiGatewayContractConfig {
   redisUrl: string | undefined;
 }
 
-export interface PersistentAgentSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type PersistentAgentSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type PersistentAgentGateway = ReturnType<
   typeof createAiGatewayFromContract

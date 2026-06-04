@@ -12,10 +12,11 @@ import { DEFAULT_CHAT_MODEL } from "./keys";
 
 export type AiGatewayEnv = AiGatewayEnvRecord;
 
-export interface AiGatewayConfig extends AiGatewayContractConfig {}
+export type AiGatewayConfig = AiGatewayContractConfig;
 
-export interface AiGatewaySetupState
-  extends AiGatewayContractSetupState<Omit<AiGatewayConfig, "apiKey">> {}
+export type AiGatewaySetupState = AiGatewayContractSetupState<
+  Omit<AiGatewayConfig, "apiKey">
+>;
 
 export type AiGatewayProvider = ReturnType<typeof createAiGatewayFromContract>;
 

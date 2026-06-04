@@ -13,10 +13,9 @@ export const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
 
 export type MultimodalChatbotEnv = AiGatewayEnvRecord;
 
-export interface MultimodalChatbotConfig extends AiGatewayContractConfig {}
+export type MultimodalChatbotConfig = AiGatewayContractConfig;
 
-export interface MultimodalChatbotSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type MultimodalChatbotSetupState = AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type MultimodalChatbotGateway = ReturnType<typeof createAiGatewayFromContract>;
 

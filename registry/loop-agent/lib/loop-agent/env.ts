@@ -13,10 +13,9 @@ export const DEFAULT_LOOP_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 
 export type LoopAgentEnv = AiGatewayEnvRecord;
 
-export interface LoopAgentConfig extends AiGatewayContractConfig {}
+export type LoopAgentConfig = AiGatewayContractConfig;
 
-export interface LoopAgentSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type LoopAgentSetupState = AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type LoopAgentGateway = ReturnType<typeof createAiGatewayFromContract>;
 

@@ -19,8 +19,7 @@ export interface CustomerMemoryAgentConfig extends AiGatewayContractConfig {
   databaseUrl: string | undefined;
 }
 
-export interface CustomerMemoryAgentSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type CustomerMemoryAgentSetupState = AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type CustomerMemoryAgentGateway = ReturnType<
   typeof createAiGatewayFromContract

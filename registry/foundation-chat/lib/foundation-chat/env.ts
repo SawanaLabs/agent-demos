@@ -13,10 +13,10 @@ export const DEFAULT_FOUNDATION_CHAT_MODEL = "openai/gpt-4.1-mini";
 
 export type FoundationChatEnv = AiGatewayEnvRecord;
 
-export interface FoundationChatConfig extends AiGatewayContractConfig {}
+export type FoundationChatConfig = AiGatewayContractConfig;
 
-export interface FoundationChatSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type FoundationChatSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type FoundationChatGateway = ReturnType<
   typeof createAiGatewayFromContract

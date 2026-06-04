@@ -13,10 +13,9 @@ export const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
 
 export type ObjectGenerationEnv = AiGatewayEnvRecord;
 
-export interface ObjectGenerationConfig extends AiGatewayContractConfig {}
+export type ObjectGenerationConfig = AiGatewayContractConfig;
 
-export interface ObjectGenerationSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type ObjectGenerationSetupState = AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type ObjectGenerationGateway = ReturnType<typeof createAiGatewayFromContract>;
 

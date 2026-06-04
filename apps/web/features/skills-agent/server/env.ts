@@ -15,7 +15,7 @@ export const SKILLS_AGENT_SANDBOX_ENVIRONMENT_LABEL =
 
 export type SkillsAgentEnv = AiGatewayEnvRecord;
 
-export interface SkillsAgentConfig extends AiGatewayContractConfig {}
+export type SkillsAgentConfig = AiGatewayContractConfig;
 
 export interface SkillsAgentSandboxTokenCredentials {
   projectId: string;

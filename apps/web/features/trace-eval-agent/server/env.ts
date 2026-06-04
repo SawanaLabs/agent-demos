@@ -17,10 +17,10 @@ export const DEFAULT_CHAT_MODEL = DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL;
 
 export type TraceEvalAgentEnv = AiGatewayEnvRecord;
 
-export interface TraceEvalAgentConfig extends AiGatewayContractConfig {}
+export type TraceEvalAgentConfig = AiGatewayContractConfig;
 
-export interface TraceEvalAgentSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type TraceEvalAgentSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type TraceEvalAgentGateway = ReturnType<
   typeof createAiGatewayFromContract

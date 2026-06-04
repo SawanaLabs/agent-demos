@@ -13,10 +13,10 @@ export const DEFAULT_MCP_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 
 export type McpAgentEnv = AiGatewayEnvRecord;
 
-export interface McpAgentConfig extends AiGatewayContractConfig {}
+export type McpAgentConfig = AiGatewayContractConfig;
 
-export interface McpAgentSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type McpAgentSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type McpAgentGateway = ReturnType<typeof createAiGatewayFromContract>;
 

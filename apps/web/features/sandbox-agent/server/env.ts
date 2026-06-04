@@ -13,7 +13,7 @@ export const DEFAULT_SANDBOX_AGENT_CHAT_MODEL = "openai/gpt-5-mini";
 
 export type SandboxAgentEnv = AiGatewayEnvRecord;
 
-export interface SandboxAgentConfig extends AiGatewayContractConfig {}
+export type SandboxAgentConfig = AiGatewayContractConfig;
 
 export interface SandboxAgentSandboxTokenCredentials {
   projectId: string;

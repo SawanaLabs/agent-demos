@@ -13,10 +13,10 @@ export const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
 
 export type StreamingChatShellEnv = AiGatewayEnvRecord;
 
-export interface StreamingChatShellConfig extends AiGatewayContractConfig {}
+export type StreamingChatShellConfig = AiGatewayContractConfig;
 
-export interface StreamingChatShellSetupState
-  extends AiGatewayContractSetupState<AiGatewaySetupConfig> {}
+export type StreamingChatShellSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
 export type StreamingChatShellGateway = ReturnType<
   typeof createAiGatewayFromContract

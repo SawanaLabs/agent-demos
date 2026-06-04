@@ -1,7 +1,7 @@
 {
   "name": "agent-demos",
   "homepage": "https://github.com/SawanaLabs/agent-demos",
-  "namespace": "@ai-sdk-6-demos",
+  "namespace": "@agent-demos",
   "productionDomain": "agent-demos.hsawana9.com",
   "omittedReadyDemos": [],
   "demos": [

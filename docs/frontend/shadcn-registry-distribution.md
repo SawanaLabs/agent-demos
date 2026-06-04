@@ -21,15 +21,15 @@ updateAt: 2026-06-04
 - The public page should use `agent-demos.hsawana9.com` as the production host in commands:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 - Public copy should link inline to source material such as the GitHub repo, shadcn registry docs, AI SDK docs, and AI Elements docs.
 - Keep author maintenance, publishing, sync tooling, and fresh-consumer acceptance details in this internal document instead of duplicating them on `/registry-guide`.
 - Homepage registry entry points should stay compact. The current public entry appears on the homepage and points to `/registry-guide`; demo screen-level install hints are planned separately.
 - The public page's coding-agent handoff should optimize for a new-project mainline. Trust a capable user-directed agent to recognize when the user is already inside an existing project, but do not expand the public handoff copy around that side path.
-- The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@ai-sdk-6-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
+- The coding-agent handoff should be a copyable task brief, not a compressed tutorial. It should name the user's goal, point the agent to `https://agent-demos.hsawana9.com/registry-guide` as the source of truth before planning, and list acceptance criteria such as initialized shadcn Next.js app, Foundation Chat installed from `@agent-demos`, local chat verified with `AI_GATEWAY_API_KEY`, and Vercel env prepared.
 - Use a visible handoff title like "Hand this guide to your agent" so the page frames the prompt as a guide-backed task brief instead of a standalone path summary.
 - Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
 - Treat coding-agent-assisted adaptation as part of the consumer story. A Registry Consumer may install a demo into a new or existing project, give the installed source plus linked docs to their coding agent, and ask that agent to adapt routes, styling, data services, or provider settings to the host project.
@@ -104,8 +104,8 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 - Consumer-facing install syntax should standardize on a registry namespace:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 ## Reusable Success Pattern
@@ -176,8 +176,8 @@ Choose:
 Then install the registry namespace and demo:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 Then set `AI_GATEWAY_API_KEY` in `.env.local` and run:
@@ -214,7 +214,7 @@ The current ready demos explicitly omitted from registry source are:
 
 The current acceptance bar for a queue-complete registry batch is:
 
-1. `pnpm dlx shadcn@latest add @ai-sdk-6-demos/<demo-slug>` succeeds in a clean consumer app.
+1. `pnpm dlx shadcn@latest add @agent-demos/<demo-slug>` succeeds in a clean consumer app.
 2. `pnpm build` succeeds in that consumer app after all queued items are installed.
 3. `pnpm dev` starts successfully.
 4. `HEAD /demos/<demo-slug>` returns `200`.
@@ -245,8 +245,8 @@ pnpm dlx shadcn@latest init --preset b0 --template next
 cd <your-app>
 pnpm i
 pnpm dlx shadcn@latest init
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=http://localhost:3000/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/<demo-slug>
+pnpm dlx shadcn@latest registry add @agent-demos=http://localhost:3000/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/<demo-slug>
 pnpm lint
 pnpm exec tsc --noEmit
 pnpm build

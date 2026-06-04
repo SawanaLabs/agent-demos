@@ -15,7 +15,7 @@ updateAt: 2026-06-02
 
 - The workspace includes `apps/*` and `packages/*` from `pnpm-workspace.yaml`.
 - The public GitHub repository is `https://github.com/SawanaLabs/agent-demos`; keep the root package name, registry manifest `homepage`, and registry guide GitHub source link aligned with that repository identity.
-- The public shadcn registry namespace remains `@ai-sdk-6-demos`, and the production registry host remains `agent-demos.hsawana9.com` unless the distribution contract itself changes.
+- The public shadcn registry namespace remains `@agent-demos`, and the production registry host remains `agent-demos.hsawana9.com` unless the distribution contract itself changes.
 - `apps/web` is the Next.js app package.
 - `packages/ui` is the reusable UI package consumed through `@workspace/ui`.
 - `packages/database` is the Drizzle/Neon database package consumed through `@workspace/database`; it owns the shared schema barrel and Drizzle CLI integration for the demos that persist data.

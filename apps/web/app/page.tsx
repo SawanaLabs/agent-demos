@@ -22,6 +22,7 @@ import type { DemoCatalogEntry } from "@/features/demo-catalog/types";
 import { RegistryCopyButton } from "@/features/registry-guide/registry-copy-button";
 import {
   registryGuideAgentTaskBrief,
+  registryGuideConfig,
   registryGuideUrl,
 } from "@/features/registry-guide/registry-guide-data";
 
@@ -55,7 +56,7 @@ const recommendedDemoEntries = recommendedDemoRanks.map((recommendation) => {
   };
 });
 
-const registryGuidePromptPreview = `Read ${registryGuideUrl} first. Then create a new shadcn Next.js app, install @ai-sdk-6-demos/foundation-chat, configure AI_GATEWAY_API_KEY, verify one local chat message, and prepare the Vercel deployment env.`;
+const registryGuidePromptPreview = `Read ${registryGuideUrl} first. Then create a new shadcn Next.js app, install ${registryGuideConfig.namespace}/foundation-chat, configure AI_GATEWAY_API_KEY, verify one local chat message, and prepare the Vercel deployment env.`;
 
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];

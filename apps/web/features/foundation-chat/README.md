@@ -27,8 +27,8 @@ foundation-chat/
 Registry distribution:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://your-deployment.example.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 Author-side registry maintenance for this demo follows [docs/frontend/registry-sync.md](../../../../docs/frontend/registry-sync.md) and starts from [scripts/registry-sync/foundation-chat.sh](../../../../scripts/registry-sync/foundation-chat.sh).
@@ -40,8 +40,8 @@ pnpm dlx shadcn@latest init --preset b0 --template next
 cd <your-app>
 pnpm i
 pnpm dlx shadcn@latest init
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://your-deployment.example.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://your-deployment.example.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 When `pnpm dlx shadcn@latest init` prompts for setup choices, use:

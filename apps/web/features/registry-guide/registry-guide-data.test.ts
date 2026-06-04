@@ -17,10 +17,10 @@ describe("registry guide data", () => {
   it("exports public registry demos from the shared manifest", () => {
     expect(mainlineRegistryDemo?.slug).toBe("foundation-chat");
     expect(registryGuideConfig.foundationChatCommand).toBe(
-      "pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat"
+      "pnpm dlx shadcn@latest add @agent-demos/foundation-chat"
     );
     expect(registryGuideConfig.namespaceSetupCommand).toBe(
-      "pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json"
+      "pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json"
     );
     expect(registryGuideConfig.sourceLinks.githubRepo).toBe(
       "https://github.com/SawanaLabs/agent-demos"

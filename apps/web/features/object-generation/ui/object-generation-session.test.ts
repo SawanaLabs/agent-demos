@@ -99,14 +99,9 @@ describe("object-generation session", () => {
       requestAttachments: [],
     });
 
-    const failed = failReviewThreadEntry(
-      [entry],
-      "entry-1",
-      "stream failed",
-      {
-        summary: "Partial result",
-      }
-    );
+    const failed = failReviewThreadEntry([entry], "entry-1", "stream failed", {
+      summary: "Partial result",
+    });
     const stopped = stopReviewThreadEntry(failed, "entry-1", {
       summary: "Stopped result",
     });

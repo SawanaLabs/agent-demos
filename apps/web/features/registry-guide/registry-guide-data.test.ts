@@ -33,9 +33,13 @@ describe("registry guide data", () => {
   });
 
   it("keeps unpublished work out of the public guide commands", () => {
-    expect(supportedRegistryDemoNotes.map((demo) => demo.slug)).not.toContain(
-      "skills-agent"
+    const supportedDemoSlugs = supportedRegistryDemoNotes.map(
+      (demo) => demo.slug
     );
+
+    for (const omittedReadyDemo of registryManifest.omittedReadyDemos) {
+      expect(supportedDemoSlugs).not.toContain(omittedReadyDemo);
+    }
     expect(
       supportedRegistryDemoNotes.every((demo) =>
         demo.command.startsWith(

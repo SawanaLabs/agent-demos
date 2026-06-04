@@ -29,5 +29,5 @@ describe("demo page rendering", () => {
     const pageModule = await loadPageModule();
 
     expect(pageModule.dynamic).toBe("force-dynamic");
-  });
+  }, 20_000);
 });

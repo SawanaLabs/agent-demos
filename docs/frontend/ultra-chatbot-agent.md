@@ -1,7 +1,7 @@
 ---
 title: Ultra Chatbot Agent
 description: Product and architecture boundary for the vercel/chatbot application-shape port.
-updateAt: 2026-06-03
+updateAt: 2026-06-04
 ---
 
 # Ultra Chatbot Agent
@@ -17,6 +17,7 @@ updateAt: 2026-06-03
 - Port product capabilities and architectural intent, not the reference application's exact file layout or visual design.
 - Keep the port completeness-first: every compatible `vercel/chatbot` capability stays in scope unless it conflicts with this repository's Agent Demo boundary.
 - Keep the copy boundary centered on `apps/web/features/ultra-chatbot-agent` plus thin Next.js page and API route entries.
+- Keep registry distribution completeness-first too: the shadcn registry item should ship Ultra as a full-stack workspace with route-backed APIs, persistence, uploads, RAG, MCP, documents, cleanup, and gated sandbox execution. Blob and Sandbox configuration are part of Ultra's defining capability set when those paths are validated.
 - Use a Visitor Owner for the first release while keeping the Owner concept explicit enough to support authenticated ownership later.
 - Treat the entire auth tree from the reference app as an explicit first-release defer bucket. Ultra uses an HTTP-only visitor cookie in `apps/web/features/ultra-chatbot-agent/server/viewer-context.ts` and therefore does not port login, register, sign-out, guest-session bootstrap, or account navigation yet.
 - Keep Ultra visitor-cookie parsing, creation, serialization, and route response mutation behind the shared Visitor Owner Route Module. Route entries should use the feature-local `handleUltraChatbotAgentVisitorRequest` adapter and only pass `visitorId` into Ultra runtime handlers.

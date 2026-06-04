@@ -15,6 +15,7 @@
     "registry/sandbox-agent/registry.json",
     "registry/skills-agent/registry.json",
     "registry/mcp-agent/registry.json",
-    "registry/langgraph-agent/registry.json"
+    "registry/langgraph-agent/registry.json",
+    "registry/ultra-chatbot-agent/registry.json"
   ]
 }

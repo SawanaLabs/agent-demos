@@ -7,10 +7,6 @@
     {
       "slug": "openai-agents-sdk-demo",
       "reason": "Uses an OpenAI Agents SDK backend bridge that still needs a portable registry copy and fresh-consumer acceptance."
-    },
-    {
-      "slug": "ultra-chatbot-agent",
-      "reason": "Application-shape port is larger than the ordinary demo chunk and needs a narrower registry packaging contract first."
     }
   ],
   "demos": [
@@ -105,6 +101,13 @@
       "registryPath": "registry/langgraph-agent/registry.json",
       "publicRegistry": true,
       "setup": "Requires a separately running LangGraph backend. Start local-first with apps/langgraph-agent-api on http://localhost:2024, then set LANGGRAPH_AGENT_API_URL, LANGGRAPH_AGENT_ASSISTANT_ID, and LANGGRAPH_AGENT_API_KEY in the installed Next.js app."
+    },
+    {
+      "slug": "ultra-chatbot-agent",
+      "title": "Ultra Chatbot Agent",
+      "registryPath": "registry/ultra-chatbot-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "Complete full-stack Ultra install. Configure AI Gateway, Postgres, Redis, Vercel Blob, and Vercel Sandbox credentials. AI Gateway, Postgres, and Redis drive the main chat happy path; Blob and Sandbox drive Ultra uploads and sandbox execution."
     }
   ]
 }

@@ -1,0 +1,532 @@
+import {
+  convertToModelMessages,
+  createIdGenerator,
+  generateId,
+  isFileUIPart,
+  stepCountIs,
+  ToolLoopAgent,
+  UI_MESSAGE_STREAM_HEADERS,
+  type UIMessage,
+} from "ai";
+import Redis from "ioredis";
+import { after } from "next/dist/server/after";
+import { createResumableStreamContext } from "resumable-stream/ioredis";
+
+import { getUltraChatbotAgentAppEnv } from "./env";
+
+const appEnv = getUltraChatbotAgentAppEnv();
+import { getAiGatewaySetupState } from "./env";
+import {
+  prepareRouteBackedChatReplay,
+  type RouteBackedChatRequestTrigger,
+} from "./route-backed-chat-replay";
+import { getDatabaseSetupState } from "./env";
+
+import {
+  isUltraChatbotAgentAcceptedUploadMediaType,
+  ultraChatbotAgentUnsupportedAttachmentMediaTypeError,
+} from "../attachment-config";
+import { getUltraChatbotAgentDefaultCapabilities } from "./capabilities";
+import { projectUltraChatbotAgentHistoryForModel } from "./chat-history";
+import {
+  createUltraChatbotAgentChatStore,
+  getUltraChatbotAgentChatNotFoundError,
+} from "./chat-store";
+import { createUltraChatbotAgentCreateDocumentTool } from "./create-document";
+import { createUltraChatbotAgentEditDocumentTool } from "./edit-document";
+import { createUltraChatbotAgentEnableSandboxTool } from "./enable-sandbox";
+import { createUltraChatbotAgentGetWeatherTool } from "./get-weather";
+import {
+  getUltraChatbotAgentModelCatalog,
+  isUltraChatbotAgentModelId,
+  resolveUltraChatbotAgentDefaultModel,
+} from "./models";
+import { createUltraChatbotAgentProjectDocsMcpToolbox } from "./project-docs-mcp";
+import { getUltraChatbotAgentSystemPrompt } from "./prompts";
+import {
+  createUltraChatbotAgentProvider,
+  ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
+} from "./providers";
+import { createUltraChatbotAgentRequestSuggestionsTool } from "./request-suggestions";
+import { createUltraChatbotAgentResearchReportTool } from "./research-report";
+import { createUltraChatbotAgentSandboxToolbox } from "./sandbox-tools";
+import { createUltraChatbotAgentSearchKnowledgeBaseTool } from "./search-knowledge-base";
+import { createUltraChatbotAgentUpdateDocumentTool } from "./update-document";
+import { createUltraChatbotAgentWebSearchTool } from "./web-search";
+
+const invalidRequestBodyError =
+  'Expected a JSON body with a non-empty "id" string, "message" object, "selectedChatModel" string, and "selectedVisibilityType".';
+const ultraChatbotAgentSearchToolName = "web_search";
+
+type DemoEnv = Record<string, string | undefined>;
+
+interface UltraChatbotAgentRequestBody {
+  id?: string;
+  message?: UIMessage;
+  messageId?: string;
+  selectedChatModel?: string;
+  selectedVisibilityType?: "private" | "public";
+  trigger?: RouteBackedChatRequestTrigger;
+}
+
+export interface UltraChatbotAgentRuntimeState {
+  chatModel: string;
+  isChatAvailable: boolean;
+  models: ReturnType<typeof getUltraChatbotAgentModelCatalog>;
+  nodeVersion: string;
+  resumeRequiresRedis: boolean;
+  setupMessage: string | null;
+  statusLabel: "Ready" | "Setup required";
+}
+
+function getRedisSetupIssue(env: DemoEnv) {
+  return env.REDIS_URL
+    ? null
+    : "REDIS_URL is missing. Ultra-chatbot-agent resume requires Redis-backed resumable streams.";
+}
+
+export function getUltraChatbotAgentRuntimeState(
+  env: DemoEnv = appEnv
+): UltraChatbotAgentRuntimeState {
+  const gatewaySetup = getAiGatewaySetupState(env);
+  const databaseSetup = getDatabaseSetupState(env);
+  const issues = [
+    ...gatewaySetup.issues,
+    ...databaseSetup.issues.map(
+      () =>
+        "DATABASE_URL is missing. Ultra-chatbot-agent storage requires a writable Postgres database."
+    ),
+  ];
+  const redisIssue = getRedisSetupIssue(env);
+
+  if (redisIssue) {
+    issues.push(redisIssue);
+  }
+
+  return {
+    chatModel: resolveUltraChatbotAgentDefaultModel(
+      gatewaySetup.config.chatModel
+    ),
+    isChatAvailable: issues.length === 0,
+    models: getUltraChatbotAgentModelCatalog(),
+    nodeVersion: gatewaySetup.nodeVersion,
+    resumeRequiresRedis: true,
+    setupMessage: issues.length > 0 ? issues.join(" ") : null,
+    statusLabel: issues.length === 0 ? "Ready" : "Setup required",
+  };
+}
+
+function readRequestBody(body: unknown) {
+  const {
+    id,
+    message,
+    messageId,
+    selectedChatModel,
+    selectedVisibilityType,
+    trigger,
+  } = (body ?? {}) as UltraChatbotAgentRequestBody;
+
+  if (
+    typeof id !== "string" ||
+    id.trim().length === 0 ||
+    !message ||
+    typeof message !== "object" ||
+    (messageId !== undefined && typeof messageId !== "string") ||
+    typeof selectedChatModel !== "string" ||
+    (selectedVisibilityType !== "private" &&
+      selectedVisibilityType !== "public") ||
+    (trigger !== undefined &&
+      trigger !== "submit-message" &&
+      trigger !== "regenerate-message")
+  ) {
+    throw new Error(invalidRequestBodyError);
+  }
+
+  return {
+    id: id.trim(),
+    message,
+    messageId:
+      typeof messageId === "string" && messageId.trim().length > 0
+        ? messageId.trim()
+        : undefined,
+    selectedChatModel,
+    selectedVisibilityType,
+    trigger,
+  };
+}
+
+function hasUnsupportedAttachment(message: UIMessage) {
+  return message.parts.some(
+    (part) =>
+      isFileUIPart(part) &&
+      !isUltraChatbotAgentAcceptedUploadMediaType(part.mediaType ?? "")
+  );
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+let ultraChatbotAgentStreamContext:
+  | ReturnType<typeof createResumableStreamContext>
+  | undefined;
+let ultraChatbotAgentStreamPublisher: Redis | undefined;
+let ultraChatbotAgentStreamSubscriber: Redis | undefined;
+
+function getRedisUrl(env: DemoEnv) {
+  if (!env.REDIS_URL) {
+    throw new Error(
+      "REDIS_URL is missing. Ultra-chatbot-agent resume requires Redis-backed resumable streams."
+    );
+  }
+
+  return env.REDIS_URL;
+}
+
+function getStreamContext(env: DemoEnv) {
+  if (!ultraChatbotAgentStreamPublisher) {
+    ultraChatbotAgentStreamPublisher = new Redis(getRedisUrl(env), {
+      enableReadyCheck: false,
+    });
+  }
+
+  if (!ultraChatbotAgentStreamSubscriber) {
+    ultraChatbotAgentStreamSubscriber = new Redis(getRedisUrl(env), {
+      enableReadyCheck: false,
+    });
+  }
+
+  ultraChatbotAgentStreamContext ??= createResumableStreamContext({
+    publisher: ultraChatbotAgentStreamPublisher,
+    subscriber: ultraChatbotAgentStreamSubscriber,
+    waitUntil: after,
+  });
+
+  return ultraChatbotAgentStreamContext;
+}
+
+async function saveUltraChatbotAgentReplayStart(input: {
+  chatId: string;
+  message: UIMessage;
+  replay: ReturnType<typeof prepareRouteBackedChatReplay>;
+  selectedChatModel: string;
+  selectedVisibilityType: "private" | "public";
+  store: ReturnType<typeof createUltraChatbotAgentChatStore>;
+  visitorId: string;
+}) {
+  if (input.replay.trimAfterMessageId) {
+    await input.store.deleteMessagesAfterMessage({
+      chatId: input.chatId,
+      messageId: input.replay.trimAfterMessageId,
+      visitorId: input.visitorId,
+    });
+  }
+
+  await input.store.saveIncomingUserMessage({
+    chatId: input.chatId,
+    message: input.message,
+    selectedChatModel: input.selectedChatModel,
+    selectedVisibilityType: input.selectedVisibilityType,
+    visitorId: input.visitorId,
+  });
+}
+
+export async function handleUltraChatbotAgentChatRequest(
+  request: Request,
+  viewer: { visitorId: string },
+  env: DemoEnv = appEnv
+) {
+  const runtimeState = getUltraChatbotAgentRuntimeState(env);
+
+  if (!runtimeState.isChatAvailable) {
+    return Response.json(
+      {
+        error: runtimeState.setupMessage,
+      },
+      { status: 500 }
+    );
+  }
+
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      {
+        error: "Expected a valid JSON request body.",
+      },
+      { status: 400 }
+    );
+  }
+
+  let input: {
+    id: string;
+    message: UIMessage;
+    messageId?: string;
+    selectedChatModel: string;
+    selectedVisibilityType: "private" | "public";
+    trigger?: RouteBackedChatRequestTrigger;
+  };
+
+  try {
+    input = readRequestBody(body);
+  } catch (error) {
+    if (error instanceof Error && error.message === invalidRequestBodyError) {
+      return Response.json({ error: error.message }, { status: 400 });
+    }
+
+    throw error;
+  }
+
+  if (!isUltraChatbotAgentModelId(input.selectedChatModel)) {
+    return Response.json(
+      {
+        error: `Unsupported selectedChatModel "${input.selectedChatModel}".`,
+      },
+      { status: 400 }
+    );
+  }
+
+  if (hasUnsupportedAttachment(input.message)) {
+    return Response.json(
+      {
+        error: ultraChatbotAgentUnsupportedAttachmentMediaTypeError,
+      },
+      { status: 400 }
+    );
+  }
+
+  const store = createUltraChatbotAgentChatStore();
+  const existingSession = await store.loadChatSession(
+    input.id,
+    viewer.visitorId
+  );
+  const capabilities =
+    existingSession?.chat.capabilities ??
+    getUltraChatbotAgentDefaultCapabilities();
+  const replay = prepareRouteBackedChatReplay({
+    incomingMessage: input.message,
+    messageId: input.messageId,
+    persistedMessages: existingSession?.messages ?? [],
+    trigger: input.trigger,
+  });
+  const originalMessages = replay.messages;
+  const replayableMessages =
+    projectUltraChatbotAgentHistoryForModel(originalMessages);
+
+  try {
+    await saveUltraChatbotAgentReplayStart({
+      chatId: input.id,
+      message: input.message,
+      replay,
+      selectedChatModel: input.selectedChatModel,
+      selectedVisibilityType: input.selectedVisibilityType,
+      store,
+      visitorId: viewer.visitorId,
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === getUltraChatbotAgentChatNotFoundError(input.id)
+    ) {
+      return Response.json({ error: error.message }, { status: 404 });
+    }
+
+    throw error;
+  }
+
+  const provider = createUltraChatbotAgentProvider(env);
+  const modelId = provider.resolveModelId(input.selectedChatModel);
+  const projectDocsMcpToolbox =
+    await createUltraChatbotAgentProjectDocsMcpToolbox({
+      origin: new URL(request.url).origin,
+    });
+  let closedProjectDocsMcp = false;
+
+  async function closeProjectDocsMcpToolbox() {
+    if (closedProjectDocsMcp) {
+      return;
+    }
+
+    closedProjectDocsMcp = true;
+    await projectDocsMcpToolbox.close();
+  }
+
+  let sandboxToolbox: Awaited<
+    ReturnType<typeof createUltraChatbotAgentSandboxToolbox>
+  > | null = null;
+
+  if (capabilities.sandboxEnabled) {
+    try {
+      sandboxToolbox = await createUltraChatbotAgentSandboxToolbox({
+        chatId: input.id,
+        env,
+        visitorId: viewer.visitorId,
+      });
+    } catch (error) {
+      await closeProjectDocsMcpToolbox();
+
+      return Response.json(
+        {
+          error: getErrorMessage(
+            error,
+            "Failed to prepare Ultra sandbox tools."
+          ),
+        },
+        { status: 500 }
+      );
+    }
+  }
+
+  try {
+    const agent = new ToolLoopAgent({
+      instructions: getUltraChatbotAgentSystemPrompt({
+        capabilities,
+        sandboxContextText: sandboxToolbox?.contextText,
+      }),
+      model: provider.gateway(modelId),
+      providerOptions: ULTRA_CHATBOT_AGENT_PROVIDER_OPTIONS,
+      stopWhen: stepCountIs(20),
+      tools: {
+        ...projectDocsMcpToolbox.tools,
+        ...(sandboxToolbox?.tools ?? {}),
+        createDocument: createUltraChatbotAgentCreateDocumentTool({
+          chatId: input.id,
+          visitorId: viewer.visitorId,
+        }),
+        editDocument: createUltraChatbotAgentEditDocumentTool({
+          chatId: input.id,
+          visitorId: viewer.visitorId,
+        }),
+        ...(capabilities.sandboxEnabled
+          ? {}
+          : {
+              enableSandbox: createUltraChatbotAgentEnableSandboxTool({
+                chatId: input.id,
+                visitorId: viewer.visitorId,
+              }),
+            }),
+        getWeather: createUltraChatbotAgentGetWeatherTool(),
+        searchKnowledgeBase: createUltraChatbotAgentSearchKnowledgeBaseTool(),
+        requestSuggestions: createUltraChatbotAgentRequestSuggestionsTool({
+          chatId: input.id,
+          model: provider.gateway(modelId),
+          visitorId: viewer.visitorId,
+        }),
+        createResearchReport: createUltraChatbotAgentResearchReportTool({
+          model: provider.gateway(modelId),
+        }),
+        [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool(
+          {
+            model: provider.hostedToolsGateway(modelId),
+            webSearchTool: provider.hostedToolsGateway.tools.webSearch({
+              searchContextSize: "medium",
+            }),
+          }
+        ),
+        updateDocument: createUltraChatbotAgentUpdateDocumentTool({
+          chatId: input.id,
+          model: provider.gateway(modelId),
+          visitorId: viewer.visitorId,
+        }),
+      },
+    });
+    const result = await agent.stream({
+      messages: await convertToModelMessages(replayableMessages),
+    });
+
+    return result.toUIMessageStreamResponse({
+      consumeSseStream: async ({ stream }) => {
+        const streamId = generateId();
+        await getStreamContext(env).createNewResumableStream(
+          streamId,
+          () => stream
+        );
+        await store.setActiveStream({
+          activeStreamId: streamId,
+          chatId: input.id,
+          visitorId: viewer.visitorId,
+        });
+      },
+      generateMessageId: createIdGenerator({
+        prefix: "ua-msg",
+        size: 16,
+      }),
+      onFinish: async ({ isAborted, messages }) => {
+        try {
+          if (isAborted) {
+            return;
+          }
+
+          await store.saveFinishedMessages({
+            chatId: input.id,
+            messages,
+            visitorId: viewer.visitorId,
+          });
+        } finally {
+          await closeProjectDocsMcpToolbox();
+        }
+      },
+      originalMessages,
+      sendReasoning: true,
+      sendSources: true,
+    });
+  } catch (error) {
+    await closeProjectDocsMcpToolbox();
+    throw error;
+  }
+}
+
+export async function handleUltraChatbotAgentStreamResumeRequest(
+  chatId: string,
+  viewer: { visitorId: string }
+) {
+  const session = await createUltraChatbotAgentChatStore().loadChatSession(
+    chatId,
+    viewer.visitorId
+  );
+
+  if (!session) {
+    return Response.json(
+      {
+        error: getUltraChatbotAgentChatNotFoundError(chatId),
+      },
+      { status: 404 }
+    );
+  }
+
+  if (!session.chat.activeStreamId) {
+    return new Response(null, { status: 204 });
+  }
+
+  return new Response(
+    await getStreamContext(appEnv).resumeExistingStream(
+      session.chat.activeStreamId
+    ),
+    {
+      headers: UI_MESSAGE_STREAM_HEADERS,
+    }
+  );
+}
+
+export async function handleUltraChatbotAgentSessionRequest(
+  chatId: string,
+  viewer: { visitorId: string }
+) {
+  const session = await createUltraChatbotAgentChatStore().loadChatSession(
+    chatId,
+    viewer.visitorId
+  );
+
+  if (!session) {
+    return Response.json(
+      {
+        error: getUltraChatbotAgentChatNotFoundError(chatId),
+      },
+      { status: 404 }
+    );
+  }
+
+  return Response.json(session);
+}

@@ -202,14 +202,15 @@ Validated again on May 27, 2026 against a clean local consumer app for the curre
 - `sandbox-agent`
 - `mcp-agent`
 
-`skills-agent` and `langgraph-agent` have since entered the public **Registry Export** after fresh-consumer packaging work.
+`skills-agent`, `langgraph-agent`, and `ultra-chatbot-agent` have since entered the public **Registry Export** after fresh-consumer packaging work.
 
 The current ready demos explicitly omitted from registry source are:
 
 - `openai-agents-sdk-demo`: needs the OpenAI Agents SDK backend bridge converted into a portable registry copy.
-- `ultra-chatbot-agent`: is an application-shape port and needs a narrower packaging contract before it becomes a normal registry demo.
 
 `langgraph-agent` is intentionally published as **Frontend slice distribution**: the registry item installs the Next.js page, route proxy, UI, and adapter runtime, while the Python LangGraph backend stays a separate service that the Registry Consumer runs locally or deploys from `apps/langgraph-agent-api`.
+
+`ultra-chatbot-agent` is intentionally published as a complete full-stack registry item. The install ships the workspace shell, route-backed chat APIs, model selector, history, voting, documents, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. AI Gateway, Postgres, and Redis are required for the main happy path. Blob and Vercel Sandbox credentials belong to Ultra's core capability set and should be configured when validating uploads or sandbox execution.
 
 The current acceptance bar for a queue-complete registry batch is:
 
@@ -264,7 +265,7 @@ Use one clean consumer project per demo for the primary acceptance check. Do not
 
 Run registry verification as one vertical demo loop at a time. If a demo fails fresh-consumer acceptance, fix that demo to passing before starting the next demo, then commit that completed demo slice separately. Avoid broad queue-first audits that turn one shared registry failure into repeated noise across many demos.
 
-Use the current simple-to-complex verification order: `multimodal-chatbot`, `object-generation`, `streaming-chat-shell`, `loop-agent`, `mcp-agent`, `trace-eval-agent`, `rag-chatbot`, `customer-memory-agent`, `persistent-agent`, then `sandbox-agent`. This order prioritizes AI-Gateway-only demos with smaller state surfaces before database, Redis, and Vercel Sandbox-backed demos.
+Use the current simple-to-complex verification order: `foundation-chat`, `multimodal-chatbot`, `object-generation`, `streaming-chat-shell`, `loop-agent`, `mcp-agent`, `trace-eval-agent`, `rag-chatbot`, `customer-memory-agent`, `persistent-agent`, `sandbox-agent`, `skills-agent`, `langgraph-agent`, then `ultra-chatbot-agent`. This order prioritizes AI-Gateway-only demos with smaller state surfaces before database, Redis, external backend, Blob, MCP, RAG, and Vercel Sandbox-backed demos.
 
 For AI-Gateway-only registry demos, the fresh-consumer happy path must include a browser-level interaction after `AI_GATEWAY_API_KEY` is configured: open the installed demo page, click the first suggestion, and verify that the UI completes a visible assistant response. API route smoke checks are supporting evidence only; they do not replace the page-level suggestion flow.
 

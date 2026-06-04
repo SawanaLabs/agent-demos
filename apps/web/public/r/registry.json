@@ -1821,6 +1821,785 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs the LangGraph Agent frontend and Next.js proxy route only; run a Python LangGraph backend separately from https://github.com/SawanaLabs/agent-demos/tree/main/apps/langgraph-agent-api. Local-first backend setup uses http://localhost:2024 with LANGGRAPH_AGENT_ASSISTANT_ID=agent and a shared LANGGRAPH_AGENT_API_KEY. The same backend folder also includes a Vercel FastAPI entry for deployment.",
       "type": "registry:block"
+    },
+    {
+      "name": "ultra-chatbot-agent",
+      "title": "Ultra Chatbot Agent",
+      "description": "A complete AI SDK application-shape agent workspace with persistent chat, resumable streams, documents, uploads, RAG, MCP, research reports, and gated sandbox tools.",
+      "dependencies": [
+        "@ai-sdk/mcp",
+        "@ai-sdk/openai",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "@modelcontextprotocol/sdk",
+        "@neondatabase/serverless",
+        "@phosphor-icons/react",
+        "@vercel/blob",
+        "@vercel/sandbox",
+        "ai",
+        "class-variance-authority",
+        "drizzle-orm",
+        "ioredis",
+        "lucide-react",
+        "pdfjs-dist",
+        "resumable-stream",
+        "server-only",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "alert-dialog",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "dialog",
+        "dropdown-menu",
+        "separator",
+        "skeleton",
+        "spinner",
+        "textarea",
+        "tooltip",
+        "https://elements.ai-sdk.dev/api/registry/attachments.json",
+        "https://elements.ai-sdk.dev/api/registry/code-block.json",
+        "https://elements.ai-sdk.dev/api/registry/confirmation.json",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/model-selector.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/shimmer.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/suggestion.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/grill-with-docs/ADR-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/ADR-FORMAT.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/grill-with-docs/CONTEXT-FORMAT.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/CONTEXT-FORMAT.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/grill-with-docs/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/grill-with-docs/SKILL.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/agents/openai.yaml",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/agents/openai.yaml"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/assets/skill-creator-small.svg",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator-small.svg"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/assets/skill-creator.png",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/assets/skill-creator.png"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/license.txt",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/license.txt"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/references/openai_yaml.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/references/openai_yaml.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/scripts/generate_openai_yaml.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/generate_openai_yaml.py"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/scripts/init_skill.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/init_skill.py"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/scripts/quick_validate.py",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/scripts/quick_validate.py"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/.agents/skills/skill-creator/SKILL.md",
+          "type": "registry:file",
+          "target": ".agents/skills/skill-creator/SKILL.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/cron/ultra-chatbot-agent-cleanup/route.ts",
+          "type": "registry:page",
+          "target": "app/api/cron/ultra-chatbot-agent-cleanup/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/capabilities/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/capabilities/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/messages/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/messages/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/session/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/session/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/stream/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/stream/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/[id]/visibility/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/[id]/visibility/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/document/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/document/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/files/upload/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/files/upload/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/history/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/history/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/mcp/project-docs/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/mcp/project-docs/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/models/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/models/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/suggestions/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/suggestions/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/api/demos/ultra-chatbot-agent/vote/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/ultra-chatbot-agent/vote/route.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/demos/ultra-chatbot-agent/[id]/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/ultra-chatbot-agent/[id]/page.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/app/demos/ultra-chatbot-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/ultra-chatbot-agent/page.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ai-elements/code-block.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/code-block.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ai-elements/shimmer.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/shimmer.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/resume-pending-state.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/resume-pending-state.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-artifact-actions.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-artifact-actions.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-artifact-state.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-artifact-state.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-artifact.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-artifact.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-diff-view.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-diff-view.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-browser.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-browser.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-client.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-client.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-detail.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-detail.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-dialog.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-dialog.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-preview.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-preview.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-document-suggestions.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-document-suggestions.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-history-item.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-history-item.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-history-sidebar.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-history-sidebar.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-history-state.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-history-state.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-knowledge-base-result.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-knowledge-base-result.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-message-parts.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-message-parts.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-message-reasoning.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-message-reasoning.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-message-rendering-model.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-message-rendering-model.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-message-response.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-message-response.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-messages.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-messages.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-multimodal-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-multimodal-input.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-preview-attachment.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-preview-attachment.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-project-docs-result.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-project-docs-result.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-research-report.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-research-report.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-sandbox-approval.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-sandbox-approval.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-sandbox-confirmation.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-sandbox-confirmation.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-screen.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-sources.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-sources.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-suggested-actions.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-suggested-actions.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-version-footer.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-version-footer.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-visibility-selector.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-visibility-selector.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-weather.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-weather.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/ultra-chatbot-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/ultra-chatbot-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/use-ultra-chatbot-agent-artifact.ts",
+          "type": "registry:component",
+          "target": "@components/ultra-chatbot-agent/use-ultra-chatbot-agent-artifact.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/docs/ultra-chatbot-agent-registry.md",
+          "type": "registry:file",
+          "target": "docs/ultra-chatbot-agent-registry.md"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/attachment-config.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/attachment-config.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/constants.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/constants.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/knowledge-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/knowledge-source.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/project-docs-mcp/project-docs-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/project-docs-mcp/project-docs-catalog.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/project-docs-mcp/project-mcp-server.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/project-docs-mcp/project-mcp-server.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/project-docs-mcp/project-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/project-docs-mcp/project-tools.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/chat.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/database.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/env-source.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/env.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/index-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/index-source.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/ingestion.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/ingestion.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/knowledge-base-status.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/knowledge-base-status.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/portable-index.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/portable-index.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/retrieval.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/retrieval.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/runtime.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/schema.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/rag-chatbot/source-document.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/rag-chatbot/source-document.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/blob-cleanup.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/blob-cleanup.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/blob-storage.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/blob-storage.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/capabilities.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/capabilities.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/capability-settings.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/capability-settings.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/chat-history.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/chat-history.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/chat-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/chat-store.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/cleanup.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/cleanup.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/create-document.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/create-document.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/database.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/database.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/demo-data-retention-policy.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/demo-data-retention-policy.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/document-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/document-store.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/document-target.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/document-target.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/documents.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/documents.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/edit-document.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/edit-document.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/enable-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/enable-sandbox.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/env.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/get-weather.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/get-weather.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/history.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/history.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/message-edit.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/message-edit.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/models.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/models.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/project-docs-mcp.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/project-docs-mcp.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/prompts.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/prompts.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/providers.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/providers.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/request-suggestions.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/request-suggestions.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/research-report.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/research-report.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/route-backed-chat-replay.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/route-backed-chat-replay.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/route-owner.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/route-owner.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/sandbox-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/sandbox-tools.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/schema.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/schema.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/search-knowledge-base.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/search-knowledge-base.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/session.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/session.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/suggestion-store.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/suggestion-store.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/suggestions.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/suggestions.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/update-document.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/update-document.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/upload.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/upload.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/viewer-context.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/viewer-context.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/visibility.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/visibility.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/votes.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/votes.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/server/web-search.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/server/web-search.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/chat.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/env-source.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/env.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/local-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/local-sandbox.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/local-skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/local-skill-catalog.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/model.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/official-tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/official-tools.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/request.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/request.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/runtime.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/sandbox.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/skill-catalog.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/skill-catalog.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/vercel-sandbox.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/vercel-sandbox.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/workspace.ts",
+          "type": "registry:lib",
+          "target": "@lib/ultra-chatbot-agent/skills-agent/server/workspace.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
+        "AI_GATEWAY_EMBEDDING_MODEL": "openai/text-embedding-3-small",
+        "BLOB_READ_WRITE_TOKEN": "",
+        "CRON_SECRET": "",
+        "DATABASE_URL": "",
+        "REDIS_URL": "",
+        "VERCEL_OIDC_TOKEN": "",
+        "VERCEL_PROJECT_ID": "",
+        "VERCEL_TEAM_ID": "",
+        "VERCEL_TOKEN": ""
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure AI Gateway, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families.",
+      "type": "registry:block"
     }
   ]
 }

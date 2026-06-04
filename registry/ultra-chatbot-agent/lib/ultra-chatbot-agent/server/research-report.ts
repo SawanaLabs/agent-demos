@@ -1,0 +1,110 @@
+import { generateObject, tool } from "ai";
+import { z } from "zod";
+
+const researchReportInputSchema = z.object({
+  audience: z.string().trim().min(1).optional(),
+  evidence: z.string().trim().min(1).optional(),
+  sources: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1),
+        url: z.string().trim().min(1),
+      })
+    )
+    .max(12)
+    .optional()
+    .describe(
+      "Exact source records from prior web_search results. Preserve these URLs instead of inventing new ones."
+    ),
+  topic: z.string().trim().min(1),
+});
+
+const researchReportSourceSchema = z.object({
+  title: z.string().trim().min(1),
+  url: z
+    .string()
+    .trim()
+    .min(1)
+    .describe("A source URL or stable source locator from the evidence."),
+});
+
+export const researchReportSchema = z.object({
+  executiveSummary: z.string().trim().min(1),
+  keyFindings: z.array(z.string().trim().min(1)).min(1).max(6),
+  recommendations: z.array(z.string().trim().min(1)).min(1).max(5),
+  risks: z.array(z.string().trim().min(1)).max(5),
+  sources: z.array(researchReportSourceSchema).max(8),
+  title: z.string().trim().min(1),
+  topic: z.string().trim().min(1),
+});
+
+function buildResearchReportPrompt(
+  input: z.infer<typeof researchReportInputSchema>
+) {
+  return [
+    `Topic: ${input.topic}`,
+    input.audience ? `Audience: ${input.audience}` : null,
+    input.evidence ? `Evidence:\n${input.evidence}` : null,
+    input.sources && input.sources.length > 0
+      ? `Exact sources:\n${input.sources
+          .map((source) => `- ${source.title}: ${source.url}`)
+          .join("\n")}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function normalizeInputSources(
+  sources: NonNullable<z.infer<typeof researchReportInputSchema>["sources"]>
+) {
+  const seenUrls = new Set<string>();
+
+  return sources
+    .map((source) => ({
+      title: source.title.trim(),
+      url: source.url.trim(),
+    }))
+    .filter((source) => {
+      if (!(source.title && source.url) || seenUrls.has(source.url)) {
+        return false;
+      }
+
+      seenUrls.add(source.url);
+      return true;
+    })
+    .slice(0, 8);
+}
+
+export function createUltraChatbotAgentResearchReportTool(input: {
+  model: Parameters<typeof generateObject>[0]["model"];
+}) {
+  return tool({
+    description:
+      "Create a structured research report object from a topic and available evidence. Use this when the user asks for a research brief, comparison report, market scan, or decision memo that should render as a structured component. If web_search was called first, pass its exact sources array in sources.",
+    inputSchema: researchReportInputSchema,
+    execute: async (toolInput) => {
+      const suppliedSources = normalizeInputSources(toolInput.sources ?? []);
+      const response = await generateObject({
+        model: input.model,
+        prompt: buildResearchReportPrompt(toolInput),
+        schema: researchReportSchema,
+        system: [
+          "You create a structured research report for the Ultra Chatbot Agent.",
+          "Keep findings concrete, decision-oriented, and grounded in the provided evidence.",
+          "If the evidence includes URLs, preserve the most relevant sources in the sources array.",
+          "If the topic requires current facts, the main agent should call web_search before this tool and pass the evidence here.",
+        ].join(" "),
+      });
+
+      return {
+        ...response.object,
+        kind: "research-report" as const,
+        sources:
+          suppliedSources.length > 0
+            ? suppliedSources
+            : response.object.sources,
+      };
+    },
+  });
+}

@@ -52,6 +52,10 @@ _Avoid_: Header documentation, onboarding page
 The reusable agent behavior category demonstrated by an **Agent Demo**.
 _Avoid_: Tag, topic
 
+**Agent Scenario Coverage**:
+The product-facing grouping that shows how the demo set spans practical agent application scenarios through multiple **Agent Patterns** and concrete **Agent Demos**.
+_Avoid_: Exhaustive agent taxonomy, feature checklist
+
 **Technical Evaluator**:
 A developer, technical reviewer, or future collaborator who understands the surrounding stack well enough to judge agent quality and reuse potential.
 _Avoid_: Visitor, end user, customer
@@ -155,6 +159,7 @@ _Avoid_: User API key, model provider key, public token
 - An **Agent Demo** has one primary **Demo Workspace**.
 - A **Demo Workspace** may show an **Empty State Explanation** before interaction begins.
 - An **Agent Demo** demonstrates exactly one primary **Agent Pattern**.
+- **Agent Scenario Coverage** groups multiple **Agent Patterns** through representative **Agent Demos**.
 - A **Demo Catalog Entry** is written primarily for a **Technical Evaluator**.
 - A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.
 - A **Registry Guide Page** is written for **Registry Consumers** and should refer author maintenance details back to durable internal docs instead of duplicating them.
@@ -195,6 +200,7 @@ The first seed document should be a well-known public design-guide PDF, with the
 
 - "agent" can mean an **Agent Demo**, a runtime implementation, or a reusable module. Resolved: use **Agent Demo** for the product-level unit and **Reusable Agent Module** for reusable implementation slices.
 - "pattern" should not be free-form. Resolved: use **Agent Pattern** as the controlled business category for cataloging demos.
+- "scenario coverage" is product framing for showing breadth across practical agent use cases. It is not a claim that the project exhaustively covers every possible agent architecture.
 - The **Demo Quality Bar** is an internal evaluation standard, not required visible copy on demo pages.
 - "demo" does not mean toy or disposable. Resolved: ready demos must be production-ready enough to copy into real compatible projects after configuration.
 - Initial demo selection prioritizes AI SDK Recipes, guide, and documentation examples through the **Manual Review Gate** before original batches are planned.

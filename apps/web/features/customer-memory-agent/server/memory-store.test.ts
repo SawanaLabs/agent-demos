@@ -92,11 +92,15 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
           .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
       );
     },
-    markMemoryAccessed(memoryIds) {
-      for (const memoryId of memoryIds) {
+    async markMemoryAccessed(input) {
+      for (const memoryId of input.memoryIds) {
         const memory = memories.get(memoryId);
 
-        if (!memory) {
+        if (
+          !memory ||
+          memory.customerId !== input.customerId ||
+          memory.visitorId !== input.visitorId
+        ) {
           continue;
         }
 
@@ -107,7 +111,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         });
       }
 
-      return Promise.resolve();
+      return;
     },
     recordEvent(input) {
       return Promise.resolve(
@@ -125,11 +129,18 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         })
       );
     },
-    updateMemory(input) {
+    async updateMemory(input) {
       const memory = memories.get(input.memoryId);
 
-      if (!memory) {
-        throw new Error(`No customer memory found for ${input.memoryId}.`);
+      if (
+        !memory ||
+        memory.customerId !== input.customerId ||
+        memory.visitorId !== input.visitorId ||
+        memory.status === "deleted"
+      ) {
+        throw new Error(
+          `No active customer memory found for ${input.memoryId}.`
+        );
       }
 
       const next = {
@@ -157,13 +168,20 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         visitorId: next.visitorId,
       });
 
-      return Promise.resolve(next);
+      return next;
     },
-    deleteMemory(input) {
+    async deleteMemory(input) {
       const memory = memories.get(input.memoryId);
 
-      if (!memory) {
-        throw new Error(`No customer memory found for ${input.memoryId}.`);
+      if (
+        !memory ||
+        memory.customerId !== input.customerId ||
+        memory.visitorId !== input.visitorId ||
+        memory.status === "deleted"
+      ) {
+        throw new Error(
+          `No active customer memory found for ${input.memoryId}.`
+        );
       }
 
       const next = {
@@ -186,7 +204,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         visitorId: next.visitorId,
       });
 
-      return Promise.resolve();
+      return;
     },
   };
 }
@@ -210,9 +228,11 @@ describe("customer memory store", () => {
 
     const updated = await store.updateMemory({
       content: "Acme can send plain-text email only.",
+      customerId: "acme-co",
       memoryId: created.id,
       reason: "User clarified the allowed email format.",
       title: "Plain-text email restriction",
+      visitorId: "demo-shared",
     });
 
     expect(updated.status).toBe("updated");
@@ -228,8 +248,10 @@ describe("customer memory store", () => {
     ]);
 
     await store.deleteMemory({
+      customerId: "acme-co",
       memoryId: created.id,
       reason: "The account restriction was removed.",
+      visitorId: "demo-shared",
     });
 
     await expect(
@@ -296,6 +318,77 @@ describe("customer memory store", () => {
         afterContent: "Only visitor one should see this.",
         operation: "add",
         visitorId: "visitor-1",
+      }),
+    ]);
+  });
+
+  it("rejects mutations when the memory owner does not match", async () => {
+    const store = createCustomerMemoryStore({
+      persistence: createInMemoryPersistence(),
+    });
+
+    const firstVisitorMemory = await store.addMemory({
+      category: "constraint",
+      content: "Only visitor one can change this.",
+      customerId: "demo-sandbox",
+      title: "Visitor one memory",
+      visitorId: "visitor-1",
+    });
+    const secondVisitorMemory = await store.addMemory({
+      category: "constraint",
+      content: "Only visitor two can change this.",
+      customerId: "demo-sandbox",
+      title: "Visitor two memory",
+      visitorId: "visitor-2",
+    });
+
+    await expect(
+      store.updateMemory({
+        content: "Cross-owner update should not land.",
+        customerId: "demo-sandbox",
+        memoryId: secondVisitorMemory.id,
+        visitorId: "visitor-1",
+      })
+    ).rejects.toThrow(
+      `No active customer memory found for ${secondVisitorMemory.id}.`
+    );
+
+    await expect(
+      store.deleteMemory({
+        customerId: "demo-sandbox",
+        memoryId: secondVisitorMemory.id,
+        visitorId: "visitor-1",
+      })
+    ).rejects.toThrow(
+      `No active customer memory found for ${secondVisitorMemory.id}.`
+    );
+
+    await store.markMemoriesAccessed({
+      customerId: "demo-sandbox",
+      memoryIds: [secondVisitorMemory.id],
+      visitorId: "visitor-1",
+    });
+
+    await expect(
+      store.listMemories({
+        customerId: "demo-sandbox",
+        visitorId: "visitor-1",
+      })
+    ).resolves.toEqual([
+      expect.objectContaining({
+        accessCount: 0,
+        id: firstVisitorMemory.id,
+      }),
+    ]);
+    await expect(
+      store.listMemories({
+        customerId: "demo-sandbox",
+        visitorId: "visitor-2",
+      })
+    ).resolves.toEqual([
+      expect.objectContaining({
+        accessCount: 0,
+        id: secondVisitorMemory.id,
       }),
     ]);
   });

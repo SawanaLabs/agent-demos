@@ -61,9 +61,11 @@ export interface CustomerMemoryMemoryPersistence {
     visitorId: string;
   }): Promise<CustomerMemoryRecord>;
   deleteMemory(input: {
+    customerId: string;
     memoryId: string;
     reason?: string | null;
     sourceMessageId?: string | null;
+    visitorId: string;
   }): Promise<void>;
   listEventsForCustomer(input: {
     customerId: string;
@@ -73,7 +75,11 @@ export interface CustomerMemoryMemoryPersistence {
     customerId: string;
     visitorId: string;
   }): Promise<CustomerMemoryRecord[]>;
-  markMemoryAccessed(memoryIds: string[]): Promise<void>;
+  markMemoryAccessed(input: {
+    customerId: string;
+    memoryIds: string[];
+    visitorId: string;
+  }): Promise<void>;
   recordEvent(input: {
     afterContent?: string | null;
     beforeContent?: string | null;
@@ -89,11 +95,13 @@ export interface CustomerMemoryMemoryPersistence {
   updateMemory(input: {
     category?: string;
     content: string;
+    customerId: string;
     memoryId: string;
     metadata?: CustomerMemoryMetadata;
     reason?: string | null;
     sourceMessageId?: string | null;
     title?: string | null;
+    visitorId: string;
   }): Promise<CustomerMemoryRecord>;
 }
 
@@ -241,7 +249,7 @@ async function insertMemoryEvent(
 }
 
 async function getMemoryForMutation(
-  memoryId: string,
+  input: { customerId: string; memoryId: string; visitorId: string },
   databaseModule: CustomerMemoryDatabaseModule
 ) {
   const [row] = await databaseModule.database
@@ -249,14 +257,16 @@ async function getMemoryForMutation(
     .from(databaseModule.customerMemoryMemories)
     .where(
       and(
-        eq(databaseModule.customerMemoryMemories.id, memoryId),
+        eq(databaseModule.customerMemoryMemories.id, input.memoryId),
+        eq(databaseModule.customerMemoryMemories.customerId, input.customerId),
+        eq(databaseModule.customerMemoryMemories.visitorId, input.visitorId),
         ne(databaseModule.customerMemoryMemories.status, "deleted")
       )
     )
     .limit(1);
 
   if (!row) {
-    throw new Error(`No active customer memory found for ${memoryId}.`);
+    throw new Error(`No active customer memory found for ${input.memoryId}.`);
   }
 
   return row;
@@ -323,14 +333,23 @@ function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
           ...databaseModule,
           database: transaction as unknown as typeof databaseModule.database,
         };
-        const current = await getMemoryForMutation(
-          input.memoryId,
-          transactionModule
-        );
+        const current = await getMemoryForMutation(input, transactionModule);
         await transaction
           .update(databaseModule.customerMemoryMemories)
           .set({ status: "deleted", updatedAt: new Date() })
-          .where(eq(databaseModule.customerMemoryMemories.id, input.memoryId));
+          .where(
+            and(
+              eq(databaseModule.customerMemoryMemories.id, input.memoryId),
+              eq(
+                databaseModule.customerMemoryMemories.customerId,
+                input.customerId
+              ),
+              eq(
+                databaseModule.customerMemoryMemories.visitorId,
+                input.visitorId
+              )
+            )
+          );
 
         await insertMemoryEvent(
           {
@@ -382,8 +401,8 @@ function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
 
       return rows.map(normalizeMemoryRecord);
     },
-    async markMemoryAccessed(memoryIds) {
-      if (memoryIds.length === 0) {
+    async markMemoryAccessed(input) {
+      if (input.memoryIds.length === 0) {
         return;
       }
 
@@ -397,7 +416,9 @@ function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
         })
         .where(
           and(
-            inArray(customerMemoryMemories.id, memoryIds),
+            inArray(customerMemoryMemories.id, input.memoryIds),
+            eq(customerMemoryMemories.customerId, input.customerId),
+            eq(customerMemoryMemories.visitorId, input.visitorId),
             ne(customerMemoryMemories.status, "deleted")
           )
         );
@@ -414,10 +435,7 @@ function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
           ...databaseModule,
           database: transaction as unknown as typeof databaseModule.database,
         };
-        const current = await getMemoryForMutation(
-          input.memoryId,
-          transactionModule
-        );
+        const current = await getMemoryForMutation(input, transactionModule);
         const [row] = await transaction
           .update(databaseModule.customerMemoryMemories)
           .set({
@@ -429,7 +447,19 @@ function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
             title: input.title ?? current.title,
             updatedAt: new Date(),
           })
-          .where(eq(databaseModule.customerMemoryMemories.id, input.memoryId))
+          .where(
+            and(
+              eq(databaseModule.customerMemoryMemories.id, input.memoryId),
+              eq(
+                databaseModule.customerMemoryMemories.customerId,
+                input.customerId
+              ),
+              eq(
+                databaseModule.customerMemoryMemories.visitorId,
+                input.visitorId
+              )
+            )
+          )
           .returning();
 
         if (!row) {

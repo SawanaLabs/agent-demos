@@ -111,9 +111,11 @@ export function createCustomerMemoryLifecycle(
           }
 
           await store.deleteMemory({
+            customerId: context.customerId,
             memoryId: operation.memoryId,
             reason: operation.reason,
             sourceMessageId: operation.sourceMessageId,
+            visitorId: context.visitorId,
           });
           continue;
         }
@@ -127,10 +129,12 @@ export function createCustomerMemoryLifecycle(
             await store.updateMemory({
               category: operation.category,
               content: operation.content,
+              customerId: context.customerId,
               memoryId: operation.memoryId,
               reason: operation.reason,
               sourceMessageId: operation.sourceMessageId,
               title: operation.title,
+              visitorId: context.visitorId,
             })
           );
           continue;

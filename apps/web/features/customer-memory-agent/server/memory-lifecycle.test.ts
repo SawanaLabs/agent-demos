@@ -97,6 +97,16 @@ describe("customer memory lifecycle", () => {
     ).resolves.toEqual([updated, created]);
 
     expect(updateMemory).toHaveBeenCalledTimes(1);
+    expect(updateMemory).toHaveBeenCalledWith({
+      category: "constraint",
+      content: "Acme only allows plain-text email.",
+      customerId: "acme-co",
+      memoryId: "memory-2",
+      reason: "Constraint was clarified.",
+      sourceMessageId: "user-2",
+      title: "Plain-text only",
+      visitorId: "demo-shared",
+    });
     expect(addMemory).toHaveBeenCalledTimes(1);
     expect(deleteMemory).not.toHaveBeenCalled();
     expect(recordEvent).not.toHaveBeenCalled();
@@ -169,5 +179,46 @@ describe("customer memory lifecycle", () => {
         replaceEmbeddings,
       })
     );
+  });
+
+  it("passes owner context to delete operations", async () => {
+    const deleteMemory = vi.fn().mockResolvedValue(undefined);
+    const lifecycle = createCustomerMemoryLifecycle({
+      store: {
+        addMemory: vi.fn(),
+        deleteMemory,
+        recordEvent: vi.fn(),
+        updateMemory: vi.fn(),
+      },
+    });
+
+    await expect(
+      lifecycle.applyOperations(
+        [
+          {
+            category: "constraint",
+            content: "",
+            memoryId: "memory-1",
+            operation: "delete",
+            reason: "Restriction was removed.",
+            sourceMessageId: "user-3",
+            title: "Email restriction",
+          },
+        ],
+        {
+          customerId: "acme-co",
+          threadId: "thread-1",
+          visitorId: "demo-shared",
+        }
+      )
+    ).resolves.toEqual([]);
+
+    expect(deleteMemory).toHaveBeenCalledWith({
+      customerId: "acme-co",
+      memoryId: "memory-1",
+      reason: "Restriction was removed.",
+      sourceMessageId: "user-3",
+      visitorId: "demo-shared",
+    });
   });
 });

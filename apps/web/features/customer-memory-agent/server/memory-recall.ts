@@ -277,7 +277,11 @@ export async function findRelevantCustomerMemory(
     dependencies.recordSearchHits ??
     (async (memories: RetrievedCustomerMemory[]) => {
       const store = createCustomerMemoryStore();
-      await store.markMemoriesAccessed(memories.map((memory) => memory.id));
+      await store.markMemoriesAccessed({
+        customerId: input.customerId,
+        memoryIds: memories.map((memory) => memory.id),
+        visitorId: input.visitorId,
+      });
       await Promise.all(
         memories.map((memory) =>
           store.recordEvent({

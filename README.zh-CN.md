@@ -1,14 +1,14 @@
-# AI SDK 6 Agent Demos
+# Agent Demos
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
 面向 Next.js、shadcn/ui、AI SDK 6、AI Elements 以及相关 agent 运行时的生产可用 Agent Demo 切片。
 
-这个仓库同时提供在线 Demo Gallery 和 `@ai-sdk-6-demos` 公开 shadcn registry。每个 Agent Demo 都按可复制切片设计：包含可运行 UI、服务端运行时、配置契约，以及能安装或迁移到兼容应用里的清晰 copy boundary。
+这个仓库同时提供在线 Demo Gallery 和 `@agent-demos` 公开 shadcn registry。每个 Agent Demo 都按可复制切片设计：包含可运行 UI、服务端运行时、配置契约，以及能安装或迁移到兼容应用里的清晰 copy boundary。
 
 - 在线体验：[agent-demos.hsawana9.com](https://agent-demos.hsawana9.com)
 - Registry 指南：[agent-demos.hsawana9.com/registry-guide](https://agent-demos.hsawana9.com/registry-guide)
-- 公开 registry namespace：`@ai-sdk-6-demos`
+- 公开 registry namespace：`@agent-demos`
 - 许可证：MIT
 
 ## 安装一个 Demo
@@ -16,8 +16,8 @@
 在已经初始化 shadcn/ui 的 Next.js App Router 项目里使用公开 registry：
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 在目标应用里设置 `AI_GATEWAY_API_KEY`，启动应用，然后打开 `/demos/foundation-chat`。
@@ -68,7 +68,7 @@ pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
 | [AI SDK](https://ai-sdk.dev/docs) | 核心 TypeScript agent、chat、streaming、tool-calling、structured output、persistence、testing 和 telemetry 契约。 |
 | [AI Elements](https://elements.ai-sdk.dev/docs) | shadcn-style AI interface components，用于 conversations、messages、prompt input、tool state、reasoning、sources 和 workflow UI。 |
 | [shadcn/ui](https://ui.shadcn.com/docs) 与 [shadcn Create](https://ui.shadcn.com/create) | source-owned UI primitives，以及在安装 demo slice 前快速创建带样式的 Next.js consumer app。 |
-| [shadcn Registry](https://ui.shadcn.com/docs/registry) | `@ai-sdk-6-demos` 使用的分发模型，用来发布可复制 pages、routes、components、libs 和 env examples。 |
+| [shadcn Registry](https://ui.shadcn.com/docs/registry) | `@agent-demos` 使用的分发模型，用来发布可复制 pages、routes、components、libs 和 env examples。 |
 | [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/authentication) | 公开 demos 默认 provider contract，让安装后的 demo 可以从一个 server-side key 起步。 |
 | [Next.js](https://nextjs.org/docs) 与 [Turborepo](https://turbo.build/repo/docs) | gallery、registry guide、demo routes 和 packages 使用的 App Router 与 monorepo 基础。 |
 | [next-forge](https://www.next-forge.com/docs) | production-grade Turborepo/Next.js 参考，适合想在 copied demo slices 外围补齐更完整 SaaS 应用壳的团队。 |

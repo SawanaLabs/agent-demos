@@ -1,14 +1,14 @@
-# AI SDK 6 Agent Demos
+# Agent Demos
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
 Production-ready agent demo slices for Next.js, shadcn/ui, AI SDK 6, AI Elements, and related agent runtimes.
 
-This repository powers the live demo gallery and the public shadcn registry namespace for `@ai-sdk-6-demos`. Each Agent Demo is designed as a copyable slice: a working UI, server runtime, setup contract, and a clear boundary you can install or adapt in another compatible app.
+This repository powers the live demo gallery and the public shadcn registry namespace for `@agent-demos`. Each Agent Demo is designed as a copyable slice: a working UI, server runtime, setup contract, and a clear boundary you can install or adapt in another compatible app.
 
 - Live gallery: [agent-demos.hsawana9.com](https://agent-demos.hsawana9.com)
 - Registry guide: [agent-demos.hsawana9.com/registry-guide](https://agent-demos.hsawana9.com/registry-guide)
-- Public registry namespace: `@ai-sdk-6-demos`
+- Public registry namespace: `@agent-demos`
 - License: MIT
 
 ## Install a Demo
@@ -16,8 +16,8 @@ This repository powers the live demo gallery and the public shadcn registry name
 Use the public registry from a Next.js App Router project that already has shadcn/ui initialized:
 
 ```bash
-pnpm dlx shadcn@latest registry add @ai-sdk-6-demos=https://agent-demos.hsawana9.com/r/{name}.json
-pnpm dlx shadcn@latest add @ai-sdk-6-demos/foundation-chat
+pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.com/r/{name}.json
+pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
 Set `AI_GATEWAY_API_KEY` in the target app, run the app, then open `/demos/foundation-chat`.
@@ -68,7 +68,7 @@ This project builds on public docs, tools, and open-source work from the broader
 | [AI SDK](https://ai-sdk.dev/docs) | Core TypeScript agent, chat, streaming, tool-calling, structured output, persistence, testing, and telemetry contracts. |
 | [AI Elements](https://elements.ai-sdk.dev/docs) | shadcn-style AI interface components for conversations, messages, prompt input, tool state, reasoning, sources, and workflow UI. |
 | [shadcn/ui](https://ui.shadcn.com/docs) and [shadcn Create](https://ui.shadcn.com/create) | Source-owned UI primitives and the fastest path to a styled Next.js consumer app before installing a demo slice. |
-| [shadcn Registry](https://ui.shadcn.com/docs/registry) | The distribution model used by `@ai-sdk-6-demos` to ship copyable pages, routes, components, libs, and env examples. |
+| [shadcn Registry](https://ui.shadcn.com/docs/registry) | The distribution model used by `@agent-demos` to ship copyable pages, routes, components, libs, and env examples. |
 | [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/authentication) | The default provider contract for public demos so installs can start from one server-side key. |
 | [Next.js](https://nextjs.org/docs) and [Turborepo](https://turbo.build/repo/docs) | The app-router and monorepo foundation used by the gallery, registry guide, demo routes, and packages. |
 | [next-forge](https://www.next-forge.com/docs) | A production-grade Turborepo/Next.js reference for teams that want a fuller SaaS application shell around copied demo slices. |

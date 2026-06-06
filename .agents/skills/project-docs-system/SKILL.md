@@ -1,6 +1,6 @@
 ---
 name: project-docs-system
-description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including repository DOCS, domain DOCS, docs index files, domain index files, and subdomain docs. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain two-level docs maps, add or update project conventions, capture durable non-obvious practices, or sync AGENTS.md docs-system rules.
+description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including repository DOCS, domain DOCS, docs index files, domain index files, subdomain docs, and lightweight decision records. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain two-level docs maps, add or update project conventions, capture durable non-obvious practices, preserve scoped decisions, or sync AGENTS.md docs-system rules.
 ---
 
 # Project Docs System
@@ -9,7 +9,7 @@ Build and maintain a layered docs system so future work can reuse durable projec
 
 ## Design Philosophy
 
-This docs system borrows from Domain-Driven Design: organize durable knowledge around project domains and bounded contexts, keep shared vocabulary explicit, and place each convention where its scope belongs. `docs/DOCS.md` is the repository knowledge protocol for cross-domain language, collaboration conventions, and boundary principles; `docs/<domain>/DOCS.md` carries the same kind of shared principles inside one domain; index files act as a context map, and leaf docs capture stable knowledge inside one focused subdomain. Do not force tactical DDD patterns into the docs unless the project itself uses them.
+This docs system borrows from Domain-Driven Design: organize durable knowledge around project domains and bounded contexts, keep shared vocabulary explicit, and place each convention where its scope belongs. `docs/DOCS.md` is the repository knowledge protocol for cross-domain language, collaboration conventions, and boundary principles; `docs/<domain>/DOCS.md` carries the same kind of shared principles inside one domain; index files act as a context map, and leaf docs capture stable knowledge inside one focused subdomain. Lightweight decision records live at the same scope as the decision they preserve. Do not force tactical DDD patterns into the docs unless the project itself uses them.
 
 ## Follow This Workflow
 
@@ -31,6 +31,7 @@ This docs system borrows from Domain-Driven Design: organize durable knowledge a
    - Put domain navigation in `docs/<domain>/index.md`.
    - Put stable subdomain knowledge in `docs/<domain>/<subdomain>.md`.
    - Add a `## Domain Language` section only when a docs file depends on confirmed project-specific terms.
+   - Add a `## Decision Records` section only when a decision is hard to reverse, surprising without context, and the result of a real trade-off.
    - Do not store short-lived debugging notes or one-off session details.
 
 4. Keep `AGENTS.md` as the entry point.
@@ -62,6 +63,9 @@ This repository maintains project-specific knowledge and conventions in `docs/`;
 - When bootstrapping a new system from scratch, use the frontmatter keys in [references/docs-layout.md](./references/docs-layout.md).
 - Keep docs files scoped and stable; move repeated domain-level knowledge into `docs/<domain>/DOCS.md` and repeated cross-domain knowledge into `docs/DOCS.md`.
 - Keep `## Domain Language` short: use one-sentence definitions, optional `_Avoid_: ...`, and optional `Related: ...`; skip the section when no confirmed terms are needed.
+- Keep `## Decision Records` lightweight: default to one bullet with `Status`, `Context`, `Decision`, and `Consequences`; expand only when the extra detail prevents future confusion.
+- Use one decision status: `Proposed`, `Accepted`, `Rejected`, `Deprecated`, or `Superseded by YYYY-MM-DD short-decision-slug`.
+- Preserve final decision records as history. When a decision changes, add or link a superseding record instead of rewriting the old rationale.
 - Reference concrete files, routes, or modules when that makes the docs more reusable.
 
 ## Final Verification

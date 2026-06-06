@@ -11,14 +11,17 @@ Use this layout when bootstrapping or repairing a project docs system:
 - `docs/DOCS.md`
   - Act as the repository knowledge protocol.
   - Store cross-domain language, collaboration conventions, and boundary principles.
+  - Store repo-wide decision records only when the decision affects multiple domains.
 - `docs/index.md`
   - Act as the map for first-level domains.
 - `docs/<domain>/DOCS.md`
   - Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
+  - Store domain-wide decision records only when the decision affects multiple subdomain docs.
 - `docs/<domain>/index.md`
   - Act as the map for second-level docs in one domain.
 - `docs/<domain>/<subdomain>.md`
   - Store durable knowledge that only applies to one subdomain.
+  - Store subdomain-specific decision records in an optional `## Decision Records` section.
 
 ## AGENTS Rules Block
 
@@ -40,7 +43,7 @@ Every docs document should start with frontmatter. When creating a new system, u
 ---
 title: Example Title
 description: One-line description of what this docs file covers.
-updateAt: 2026-03-24
+updateAt: YYYY-MM-DD
 ---
 ```
 
@@ -55,6 +58,7 @@ Store:
 - boundary principles for ownership, responsibility, or placement
 - recurring user preferences that affect many tasks
 - architectural expectations that show up repeatedly
+- repo-wide decision records that are hard to reverse, surprising without context, and based on real trade-offs
 
 Avoid:
 
@@ -103,7 +107,7 @@ Use this minimal map template:
 
 ### `docs/<domain>/DOCS.md`
 
-Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
+Store domain-level language, conventions, boundary principles, and decision records shared by multiple subdomain docs.
 
 ### `docs/<domain>/index.md`
 
@@ -132,6 +136,7 @@ Store:
 - ownership boundaries
 - stable file or route relationships
 - user corrections that only matter in that subdomain
+- optional `## Decision Records` entries for decisions scoped to this subdomain
 
 Prefer one clear subdomain per file, such as:
 
@@ -140,6 +145,36 @@ Prefer one clear subdomain per file, such as:
 - `docs/backend/api-contracts.md`
 - `docs/backend/auth-flow.md`
 
+## Decision Records
+
+Add a `## Decision Records` section only when a decision meets all three conditions:
+
+- It is hard to reverse.
+- It would surprise a future reader without context.
+- It came from a real trade-off between meaningful options.
+
+Default to one lightweight bullet:
+
+```md
+## Decision Records
+
+- **YYYY-MM-DD short-decision-slug**: One-sentence summary of the scoped decision.
+  Status: One of `Proposed`, `Accepted`, `Rejected`, `Deprecated`, or `Superseded by YYYY-MM-DD short-decision-slug`.
+  Context: Why this decision came up.
+  Decision: The chosen path.
+  Consequences: The main cost, constraint, or follow-up.
+```
+
+Use the date when the decision is first recorded. Keep the slug lowercase kebab-case and stable for future references. Pick one status value, not the whole list.
+
+Keep the record at the same scope as the decision:
+
+- Repo-wide decisions belong in `docs/DOCS.md`.
+- Domain-wide decisions belong in `docs/<domain>/DOCS.md`.
+- Subdomain decisions belong in `docs/<domain>/<subdomain>.md`.
+
+Preserve final decision records as history. If the decision changes, update status or add a superseding record instead of rewriting the old rationale. If decision records become too many or cross-cutting for scoped docs, promote them into a normal docs domain: `docs/adr/DOCS.md`, `docs/adr/index.md`, and `docs/adr/<slug>.md`.
+
 ## Placement Rules
 
 Use this decision rule before writing:
@@ -147,6 +182,7 @@ Use this decision rule before writing:
 - If knowledge should apply across the repository, put it in `docs/DOCS.md`.
 - If knowledge is shared by multiple subdomain docs inside one domain, put it in `docs/<domain>/DOCS.md`.
 - If a confirmed project-specific term is needed in one docs file, put it in that file's optional `## Domain Language` section.
+- If a decision record is needed, put it in the docs file matching the decision scope.
 - If it maps first-level navigation, put it in `docs/index.md`.
 - If it maps second-level navigation, put it in `docs/<domain>/index.md`.
 - If it only matters for one subdomain, put it in `docs/<domain>/<subdomain>.md`.

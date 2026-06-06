@@ -12,6 +12,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LinkPendingLabel } from "@/components/link-pending-label";
 import {
   demoCatalogEntries,
   demoGalleryVisualClasses,
@@ -142,7 +143,14 @@ function DemoGalleryCard({
           {demo.slug}
         </span>
         <span className="inline-flex items-center gap-1 text-xs">
-          {demo.status === "ready" ? "Open demo" : "Planned"}
+          {demo.status === "ready" ? (
+            <LinkPendingLabel
+              pendingLabel="Opening..."
+              readyLabel="Open demo"
+            />
+          ) : (
+            "Planned"
+          )}
           <ArrowSquareOutIcon className="size-3.5" />
         </span>
       </CardFooter>
@@ -150,7 +158,11 @@ function DemoGalleryCard({
   );
 
   if (demo.status === "ready") {
-    return <Link href={demo.href}>{card}</Link>;
+    return (
+      <Link href={demo.href} prefetch={false}>
+        {card}
+      </Link>
+    );
   }
 
   return <div>{card}</div>;

@@ -1,7 +1,7 @@
 ---
 title: Frontend
 description: Navigation for Next.js app and shared UI package conventions.
-updateAt: 2026-06-02
+updateAt: 2026-06-06
 ---
 
 # Frontend
@@ -32,6 +32,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [shadcn Registry Distribution](./shadcn-registry-distribution.md): Rules for packaging Agent Demos as shadcn registry items, plus the boundary for the public `/registry-guide` consumer guide.
 - [Site Usage Gate](./site-usage-gate.md): Product-language boundary for published-site usage limits, metered turns, and access-code upgrades.
 - [Skills Agent](./skills-agent.md): Stable source-core, sandbox, and skill-catalog conventions for the skills-agent demo.
+- [System Status Pages](./system-status-pages.md): Branded app-level error, global-error, 404, and client exception reporting boundaries.
 - [Trace and Eval Agent](./trace-eval-agent.md): Stable research-agent, session-trace, and eval-gate conventions for the trace-eval-agent demo.
 - [Ultra Chatbot Agent](./ultra-chatbot-agent.md): Product and architecture boundary for the `vercel/chatbot` application-shape port.
 - [Ultra Chatbot Agent Source Checklist](./ultra-chatbot-agent-source-checklist.md): Source-tree checklist for validating the `vercel/chatbot` port.

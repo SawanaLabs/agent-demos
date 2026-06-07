@@ -99,13 +99,13 @@ function GuideCommandPanel({
   title: string;
 }) {
   return (
-    <div className="overflow-hidden border border-foreground/10 bg-background">
-      <div className="flex items-center justify-between gap-3 border-b bg-muted/80 px-3 py-2 text-muted-foreground text-xs">
+    <div className="min-w-0 max-w-full overflow-hidden border border-foreground/10 bg-background">
+      <div className="flex min-w-0 flex-col gap-2 border-b bg-muted/80 px-3 py-2 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <Terminal className="size-3.5 shrink-0" />
           <span className="truncate font-mono">{title}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-1 sm:shrink-0">
           {actions}
           <RegistryCopyButton value={code} />
         </div>

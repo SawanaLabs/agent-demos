@@ -186,10 +186,10 @@ export function UltraChatbotAgentHistorySidebar({
   }
 
   return (
-    <aside className="border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <div>
+    <aside className="min-w-0 border border-foreground/10 bg-background p-4 lg:min-h-0 lg:overflow-y-auto">
+      <div className="min-w-0 space-y-4">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="min-w-0">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
               History
             </p>
@@ -198,7 +198,7 @@ export function UltraChatbotAgentHistorySidebar({
           <Badge variant="outline">{historyPage.chats.length}</Badge>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
             href={toRootPath()}
@@ -221,7 +221,7 @@ export function UltraChatbotAgentHistorySidebar({
           <p className="text-destructive text-xs/relaxed">{historyError}</p>
         ) : null}
 
-        <div className="grid gap-2">
+        <div className="grid min-w-0 gap-2">
           {historyPage.chats.length > 0 ? (
             historyPage.chats.map((chat) => (
               <UltraChatbotAgentHistoryItem

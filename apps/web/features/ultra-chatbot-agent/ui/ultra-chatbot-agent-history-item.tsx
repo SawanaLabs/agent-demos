@@ -55,7 +55,7 @@ export function UltraChatbotAgentHistoryItem({
   return (
     <div
       className={cn(
-        "flex items-start gap-2 border text-sm transition-colors",
+        "flex min-w-0 items-start gap-2 border text-sm transition-colors",
         isActive
           ? "border-foreground bg-foreground text-background"
           : "border-foreground/10 hover:border-foreground/30"
@@ -65,8 +65,10 @@ export function UltraChatbotAgentHistoryItem({
         className="min-w-0 flex-1 px-3 py-2 text-left"
         href={toConversationPath(chat.id)}
       >
-        <div className="flex items-start justify-between gap-3">
-          <span className="line-clamp-2">{chat.title}</span>
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <span className="line-clamp-2 min-w-0 break-words [overflow-wrap:anywhere]">
+            {chat.title}
+          </span>
           <LinkIcon className="mt-0.5 size-3.5 shrink-0" />
         </div>
         <p

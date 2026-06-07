@@ -1,7 +1,7 @@
 ---
 title: Frontend
 description: Navigation for Next.js app and shared UI package conventions.
-updateAt: 2026-06-06
+updateAt: 2026-06-08
 ---
 
 # Frontend
@@ -19,6 +19,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Workspace UI](./workspace-ui.md): Shared primitive boundaries, UI package exports, app wrappers, app imports, and shadcn component placement.
 - [AI SDK Recipes Checklist](./ai-sdk-recipes-checklist.md): Working checklist for converting AI SDK Recipes, guide, and docs examples into portable Agent Demos.
 - [Agent Demo Structure](./agent-demo-structure.md): Copy-boundary layout for independent full-stack agent demos.
+- [RAG Chatbot](./rag-chatbot.md): Stable source-core, indexing, retrieval, and grounded-answer conventions for the RAG Chatbot demo.
 - [Memory & Persistence Agent](./customer-memory-agent.md): Batch 6 rules for shared demo accounts, visitor-private sandbox threads, and cookie-scoped memory persistence.
 - [Persistent Agent](./persistent-agent.md): Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams.
 - [Homepage Gallery](./homepage-gallery.md): Product-facing homepage shape for presenting agent demos.

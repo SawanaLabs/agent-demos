@@ -1,4 +1,7 @@
-import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  ArrowSquareOutIcon,
+  GithubLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@workspace/ui/components/badge";
 import { buttonVariants } from "@workspace/ui/components/button";
 import {
@@ -13,6 +16,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LinkPendingLabel } from "@/components/link-pending-label";
+import { RandomDemoButton } from "@/features/demo-catalog/random-demo-button";
 import {
   demoCatalogEntries,
   demoGalleryVisualClasses,
@@ -65,6 +69,17 @@ const recommendedDemoEntries = recommendedDemoRanks.map((recommendation) => {
 });
 
 const registryGuidePromptPreview = `Read ${registryGuideUrl} first. Then create a new shadcn Next.js app, install ${registryGuideConfig.namespace}/foundation-chat, configure AI_GATEWAY_API_KEY, verify one local chat message, and prepare the Vercel deployment env.`;
+
+const randomDemoDestinations = readyDemoCatalogEntries.map(
+  ({ href, pattern, slug, source, summary, title }) => ({
+    href,
+    patternLabel: demoPatternLabels[pattern],
+    slug,
+    source,
+    summary,
+    title,
+  })
+);
 
 function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
   const styles = demoGalleryVisualClasses[demo.galleryVisual.accent];
@@ -227,6 +242,23 @@ export default function Page() {
               LangGraph agent? Use this as the launch path to a real web
               product.
             </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <RandomDemoButton destinations={randomDemoDestinations} />
+              <Link
+                aria-label="Open Agent Demos GitHub repository"
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "outline" }),
+                  "gap-1.5"
+                )}
+                href={registryGuideConfig.sourceLinks.githubRepo}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <GithubLogoIcon className="size-3.5" />
+                GitHub
+                <ArrowSquareOutIcon className="size-3.5" />
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-3 border border-foreground/10 p-4">

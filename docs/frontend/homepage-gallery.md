@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-06-06
+updateAt: 2026-06-08
 ---
 
 # Homepage Gallery
@@ -20,6 +20,8 @@ updateAt: 2026-06-06
 ## Current Subdomain Docs
 
 - Shape the homepage as a demo gallery for technical evaluators.
+- Keep the hero action row compact and utility-scoped: random exploration actions should appear before repository/documentation links, and the random demo action must choose only ready Agent Demos so roadmap cards remain visible but non-active.
+- Open random exploration in a compact picker dialog: use a fixed-duration slot-machine motion, reveal one linked ready `Demo Catalog Entry` card, keep `This one` as the primary confirmation action, and make `Spin again` exclude the current result when another ready demo exists.
 - Present each ready agent demo as an active gallery card.
 - Disable viewport-driven Next.js prefetching on ready demo gallery card links. Demo routes can be heavy and mobile weak networks should not spend initial bandwidth preloading multiple demo route payloads before the visitor chooses one.
 - Give ready demo gallery card links inline pending feedback, such as `Opening...`, so mobile visitors get immediate confirmation when a client-side route transition waits on route payloads.

@@ -2,7 +2,7 @@
 
 import { Badge } from "@workspace/ui/components/badge";
 
-interface UltraChatbotAgentWeatherData {
+export interface UltraChatbotAgentWeatherData {
   cityName?: string;
   current: {
     temperature_2m: number;

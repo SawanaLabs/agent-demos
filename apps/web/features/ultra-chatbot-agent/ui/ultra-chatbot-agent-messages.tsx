@@ -42,6 +42,11 @@ import { UltraChatbotAgentProjectDocsResultCard } from "./ultra-chatbot-agent-pr
 import { UltraChatbotAgentResearchReport } from "./ultra-chatbot-agent-research-report";
 import { UltraChatbotAgentSandboxConfirmation } from "./ultra-chatbot-agent-sandbox-confirmation";
 import { UltraChatbotAgentSources } from "./ultra-chatbot-agent-sources";
+import {
+  hasUltraChatbotAgentDocumentToolError,
+  isUltraChatbotAgentDocumentTool,
+  isUltraChatbotAgentWeatherResult,
+} from "./ultra-chatbot-agent-tool-results";
 import { UltraChatbotAgentWeather } from "./ultra-chatbot-agent-weather";
 
 interface UltraChatbotAgentMessagesProps {
@@ -548,47 +553,5 @@ function UltraChatbotAgentToolPartView({
         </ToolContent>
       </Tool>
     </div>
-  );
-}
-
-function isUltraChatbotAgentDocumentTool(part: UltraChatbotAgentToolPart) {
-  return (
-    part.type === "tool-createDocument" ||
-    part.type === "tool-editDocument" ||
-    part.type === "tool-updateDocument"
-  );
-}
-
-function hasUltraChatbotAgentDocumentToolError(
-  part: UltraChatbotAgentToolPart,
-  isDocumentTool: boolean
-): part is UltraChatbotAgentToolPart & { output: { error: unknown } } {
-  return (
-    isDocumentTool &&
-    part.state === "output-available" &&
-    part.output !== null &&
-    part.output !== undefined &&
-    typeof part.output === "object" &&
-    "error" in part.output
-  );
-}
-
-function isUltraChatbotAgentWeatherResult(
-  output: UltraChatbotAgentToolPart["output"]
-): output is Parameters<typeof UltraChatbotAgentWeather>[0]["weather"] {
-  if (!output || typeof output !== "object") {
-    return false;
-  }
-
-  return (
-    "current" in output &&
-    typeof output.current === "object" &&
-    output.current !== null &&
-    "daily" in output &&
-    typeof output.daily === "object" &&
-    output.daily !== null &&
-    "current_units" in output &&
-    typeof output.current_units === "object" &&
-    output.current_units !== null
   );
 }

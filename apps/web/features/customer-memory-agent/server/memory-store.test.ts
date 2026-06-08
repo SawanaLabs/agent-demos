@@ -7,42 +7,78 @@ import {
   createCustomerMemoryStore,
 } from "./memory-store";
 
-function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
-  const memories = new Map<string, CustomerMemoryRecord>();
-  const events: CustomerMemoryEventRecord[] = [];
-  let memoryCounter = 0;
-  let eventCounter = 0;
+interface InMemoryCustomerMemoryState {
+  eventCounter: number;
+  events: CustomerMemoryEventRecord[];
+  memories: Map<string, CustomerMemoryRecord>;
+  memoryCounter: number;
+}
 
-  function nextDate(offset: number) {
-    return new Date(
-      `2026-05-23T01:00:${String(offset).padStart(2, "0")}Z`
-    ).toISOString();
+function createInMemoryState(): InMemoryCustomerMemoryState {
+  return {
+    eventCounter: 0,
+    events: [],
+    memories: new Map(),
+    memoryCounter: 0,
+  };
+}
+
+function nextInMemoryDate(offset: number) {
+  return new Date(
+    `2026-05-23T01:00:${String(offset).padStart(2, "0")}Z`
+  ).toISOString();
+}
+
+function recordInMemoryEvent(
+  state: InMemoryCustomerMemoryState,
+  input: Omit<CustomerMemoryEventRecord, "createdAt" | "id">
+) {
+  state.eventCounter += 1;
+  const event = {
+    ...input,
+    createdAt: nextInMemoryDate(state.eventCounter),
+    id: `event-${state.eventCounter}`,
+  };
+  state.events.push(event);
+  return event;
+}
+
+function getActiveInMemoryMemory(
+  state: InMemoryCustomerMemoryState,
+  input: {
+    customerId: string;
+    memoryId: string;
+    visitorId: string;
   }
+) {
+  const memory = state.memories.get(input.memoryId);
 
-  function recordEvent(
-    input: Omit<CustomerMemoryEventRecord, "createdAt" | "id">
+  if (
+    !memory ||
+    memory.customerId !== input.customerId ||
+    memory.visitorId !== input.visitorId ||
+    memory.status === "deleted"
   ) {
-    eventCounter += 1;
-    const event = {
-      ...input,
-      createdAt: nextDate(eventCounter),
-      id: `event-${eventCounter}`,
-    };
-    events.push(event);
-    return event;
+    throw new Error(`No active customer memory found for ${input.memoryId}.`);
   }
+
+  return memory;
+}
+
+function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
+  const state = createInMemoryState();
 
   return {
     createMemory(input) {
-      memoryCounter += 1;
-      const now = nextDate(memoryCounter);
+      state.memoryCounter += 1;
+      const now = nextInMemoryDate(state.memoryCounter);
       const memory = {
         accessCount: 0,
         category: input.category,
         content: input.content,
         createdAt: now,
         customerId: input.customerId,
-        id: `memory-${memoryCounter}`,
+        id: `memory-${state.memoryCounter}`,
         lastAccessedAt: null,
         metadata: input.metadata ?? null,
         sourceMessageId: input.sourceMessageId ?? null,
@@ -53,8 +89,8 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         visitorId: input.visitorId,
       };
 
-      memories.set(memory.id, memory);
-      recordEvent({
+      state.memories.set(memory.id, memory);
+      recordInMemoryEvent(state, {
         afterContent: memory.content,
         beforeContent: null,
         customerId: memory.customerId,
@@ -71,7 +107,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
     },
     listEventsForCustomer(input) {
       return Promise.resolve(
-        events
+        state.events
           .filter(
             (event) =>
               event.customerId === input.customerId &&
@@ -82,7 +118,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
     },
     listVisibleMemoriesForCustomer(input) {
       return Promise.resolve(
-        [...memories.values()]
+        [...state.memories.values()]
           .filter(
             (memory) =>
               memory.customerId === input.customerId &&
@@ -94,7 +130,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
     },
     async markMemoryAccessed(input) {
       for (const memoryId of input.memoryIds) {
-        const memory = memories.get(memoryId);
+        const memory = state.memories.get(memoryId);
 
         if (
           !memory ||
@@ -104,7 +140,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
           continue;
         }
 
-        memories.set(memoryId, {
+        state.memories.set(memoryId, {
           ...memory,
           accessCount: memory.accessCount + 1,
           lastAccessedAt: "2026-05-23T02:00:00.000Z",
@@ -115,7 +151,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
     },
     recordEvent(input) {
       return Promise.resolve(
-        recordEvent({
+        recordInMemoryEvent(state, {
           afterContent: input.afterContent ?? null,
           beforeContent: input.beforeContent ?? null,
           customerId: input.customerId,
@@ -130,18 +166,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
       );
     },
     async updateMemory(input) {
-      const memory = memories.get(input.memoryId);
-
-      if (
-        !memory ||
-        memory.customerId !== input.customerId ||
-        memory.visitorId !== input.visitorId ||
-        memory.status === "deleted"
-      ) {
-        throw new Error(
-          `No active customer memory found for ${input.memoryId}.`
-        );
-      }
+      const memory = getActiveInMemoryMemory(state, input);
 
       const next = {
         ...memory,
@@ -154,8 +179,8 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         updatedAt: "2026-05-23T01:00:30.000Z",
       };
 
-      memories.set(memory.id, next);
-      recordEvent({
+      state.memories.set(memory.id, next);
+      recordInMemoryEvent(state, {
         afterContent: next.content,
         beforeContent: memory.content,
         customerId: next.customerId,
@@ -171,18 +196,7 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
       return next;
     },
     async deleteMemory(input) {
-      const memory = memories.get(input.memoryId);
-
-      if (
-        !memory ||
-        memory.customerId !== input.customerId ||
-        memory.visitorId !== input.visitorId ||
-        memory.status === "deleted"
-      ) {
-        throw new Error(
-          `No active customer memory found for ${input.memoryId}.`
-        );
-      }
+      const memory = getActiveInMemoryMemory(state, input);
 
       const next = {
         ...memory,
@@ -190,8 +204,8 @@ function createInMemoryPersistence(): CustomerMemoryMemoryPersistence {
         updatedAt: "2026-05-23T01:00:40.000Z",
       };
 
-      memories.set(memory.id, next);
-      recordEvent({
+      state.memories.set(memory.id, next);
+      recordInMemoryEvent(state, {
         afterContent: null,
         beforeContent: memory.content,
         customerId: next.customerId,

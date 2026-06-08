@@ -12,7 +12,7 @@ import {
   isUltraChatbotAgentResearchReportResult,
 } from "./ultra-chatbot-agent-message-parts";
 
-describe("ultra chatbot agent message parts", () => {
+describe("ultra chatbot agent message text and file parts", () => {
   it("joins only reasoning parts and skips text or tool parts", () => {
     const message = {
       id: "assistant-1",
@@ -69,7 +69,9 @@ describe("ultra chatbot agent message parts", () => {
       },
     ]);
   });
+});
 
+describe("ultra chatbot agent source parts", () => {
   it("returns only source-url parts with title and url", () => {
     const message = {
       id: "assistant-2",
@@ -213,7 +215,9 @@ describe("ultra chatbot agent message parts", () => {
       },
     ]);
   });
+});
 
+describe("ultra chatbot agent result guards", () => {
   it("treats tool-only assistant messages as visible content", () => {
     const message = {
       id: "assistant-1",
@@ -302,7 +306,9 @@ describe("ultra chatbot agent message parts", () => {
       } as never)
     ).toBe(false);
   });
+});
 
+describe("ultra chatbot agent project docs MCP result parsing", () => {
   it("parses project-docs MCP search outputs into renderable matches", () => {
     expect(
       getUltraChatbotAgentProjectDocsMcpResult({

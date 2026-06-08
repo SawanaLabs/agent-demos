@@ -125,290 +125,317 @@ function isInvalidPersistentAgentChatIdError(error: unknown) {
   });
 }
 
-export function createPersistentAgentChatStore() {
-  return {
-    async listChatsForVisitor(visitorId: string) {
-      const { database, persistentAgentChats } =
-        await loadPersistentAgentDatabase();
-      const rows = await database
-        .select()
-        .from(persistentAgentChats)
-        .where(eq(persistentAgentChats.visitorId, visitorId))
-        .orderBy(desc(persistentAgentChats.updatedAt));
+interface SaveIncomingUserMessageInput {
+  chatId: string;
+  message: UIMessage;
+  visitorId: string;
+}
 
-      return rows.map(normalizeChatRecord);
-    },
-    async loadChatSession(
-      chatId: string,
-      visitorId: string
-    ): Promise<PersistentAgentChatSession | null> {
-      try {
-        const { database, persistentAgentChats, persistentAgentMessages } =
-          await loadPersistentAgentDatabase();
-        const [chat] = await database
-          .select()
-          .from(persistentAgentChats)
-          .where(
-            and(
-              eq(persistentAgentChats.id, chatId),
-              eq(persistentAgentChats.visitorId, visitorId)
-            )
-          )
-          .limit(1);
+interface SaveFinishedMessagesInput {
+  chatId: string;
+  messages: UIMessage[];
+  visitorId: string;
+}
 
-        if (!chat) {
-          return null;
-        }
+interface SetActiveStreamInput {
+  activeStreamId: string | null;
+  chatId: string;
+  visitorId: string;
+}
 
-        const rows = await database
-          .select()
-          .from(persistentAgentMessages)
-          .where(eq(persistentAgentMessages.chatId, chatId))
-          .orderBy(asc(persistentAgentMessages.createdAt));
+interface DeleteMessagesAfterMessageInput {
+  chatId: string;
+  messageId: string;
+  visitorId: string;
+}
 
-        return {
-          chat: normalizeChatRecord(chat),
-          messages: rows.map(toUiMessage),
-        };
-      } catch (error) {
-        if (isInvalidPersistentAgentChatIdError(error)) {
-          return null;
-        }
+async function listPersistentAgentChatsForVisitor(visitorId: string) {
+  const { database, persistentAgentChats } =
+    await loadPersistentAgentDatabase();
+  const rows = await database
+    .select()
+    .from(persistentAgentChats)
+    .where(eq(persistentAgentChats.visitorId, visitorId))
+    .orderBy(desc(persistentAgentChats.updatedAt));
 
-        throw error;
-      }
-    },
-    async saveIncomingUserMessage(input: {
-      chatId: string;
-      message: UIMessage;
-      visitorId: string;
-    }) {
-      const { database, persistentAgentChats, persistentAgentMessages } =
-        await loadPersistentAgentDatabase();
-      const now = new Date();
-      const title = buildChatTitle(input.message);
+  return rows.map(normalizeChatRecord);
+}
 
-      await database.transaction(async (tx) => {
-        const [existingChat] = await tx
-          .select()
-          .from(persistentAgentChats)
-          .where(eq(persistentAgentChats.id, input.chatId))
-          .limit(1);
-
-        if (existingChat && existingChat.visitorId !== input.visitorId) {
-          throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
-        }
-
-        if (existingChat) {
-          await tx
-            .update(persistentAgentChats)
-            .set({
-              activeStreamId: null,
-              title:
-                existingChat.title === "New chat" && title !== "New chat"
-                  ? title
-                  : existingChat.title,
-              updatedAt: now,
-            })
-            .where(eq(persistentAgentChats.id, input.chatId));
-        } else {
-          await tx.insert(persistentAgentChats).values({
-            activeStreamId: null,
-            id: input.chatId,
-            title,
-            updatedAt: now,
-            visitorId: input.visitorId,
-          });
-        }
-
-        await tx
-          .insert(persistentAgentMessages)
-          .values({
-            attachments: [],
-            chatId: input.chatId,
-            createdAt: readMessageCreatedAt(input.message, now),
-            messageId: input.message.id,
-            parts: input.message.parts,
-            role: input.message.role,
-          })
-          .onConflictDoUpdate({
-            set: {
-              parts: input.message.parts,
-              role: input.message.role,
-            },
-            target: [
-              persistentAgentMessages.chatId,
-              persistentAgentMessages.messageId,
-            ],
-          });
-      });
-    },
-    async saveFinishedMessages(input: {
-      chatId: string;
-      messages: UIMessage[];
-      visitorId: string;
-    }) {
-      const { database, persistentAgentChats, persistentAgentMessages } =
-        await loadPersistentAgentDatabase();
-      const now = new Date();
-
-      await database.transaction(async (tx) => {
-        const [chat] = await tx
-          .select()
-          .from(persistentAgentChats)
-          .where(
-            and(
-              eq(persistentAgentChats.id, input.chatId),
-              eq(persistentAgentChats.visitorId, input.visitorId)
-            )
-          )
-          .limit(1);
-
-        if (!chat) {
-          throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
-        }
-
-        if (input.messages.length > 0) {
-          await tx
-            .insert(persistentAgentMessages)
-            .values(
-              input.messages.map((message) => ({
-                attachments: [],
-                chatId: input.chatId,
-                createdAt: readMessageCreatedAt(message, now),
-                messageId: message.id,
-                parts: message.parts,
-                role: message.role,
-              }))
-            )
-            .onConflictDoNothing({
-              target: [
-                persistentAgentMessages.chatId,
-                persistentAgentMessages.messageId,
-              ],
-            });
-        }
-
-        await tx
-          .update(persistentAgentChats)
-          .set({
-            activeStreamId: null,
-            updatedAt: now,
-          })
-          .where(eq(persistentAgentChats.id, input.chatId));
-      });
-    },
-    async setActiveStream(input: {
-      activeStreamId: string | null;
-      chatId: string;
-      visitorId: string;
-    }) {
-      const { database, persistentAgentChats } =
-        await loadPersistentAgentDatabase();
-      const rows = await database
-        .update(persistentAgentChats)
-        .set({
-          activeStreamId: input.activeStreamId,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(persistentAgentChats.id, input.chatId),
-            eq(persistentAgentChats.visitorId, input.visitorId)
-          )
+async function loadPersistentAgentChatSession(
+  chatId: string,
+  visitorId: string
+): Promise<PersistentAgentChatSession | null> {
+  try {
+    const { database, persistentAgentChats, persistentAgentMessages } =
+      await loadPersistentAgentDatabase();
+    const [chat] = await database
+      .select()
+      .from(persistentAgentChats)
+      .where(
+        and(
+          eq(persistentAgentChats.id, chatId),
+          eq(persistentAgentChats.visitorId, visitorId)
         )
-        .returning({ id: persistentAgentChats.id });
+      )
+      .limit(1);
 
-      if (rows.length === 0) {
-        throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
-      }
-    },
-    async deleteMessagesAfterMessage(input: {
-      chatId: string;
-      messageId: string;
-      visitorId: string;
-    }) {
-      const { database, persistentAgentChats, persistentAgentMessages } =
-        await loadPersistentAgentDatabase();
+    if (!chat) {
+      return null;
+    }
 
-      const [targetMessage] = await database
-        .select({
-          createdAt: persistentAgentMessages.createdAt,
-        })
-        .from(persistentAgentMessages)
-        .innerJoin(
-          persistentAgentChats,
-          eq(persistentAgentMessages.chatId, persistentAgentChats.id)
-        )
-        .where(
-          and(
-            eq(persistentAgentMessages.chatId, input.chatId),
-            eq(persistentAgentMessages.messageId, input.messageId),
-            eq(persistentAgentChats.visitorId, input.visitorId)
-          )
-        )
-        .limit(1);
+    const rows = await database
+      .select()
+      .from(persistentAgentMessages)
+      .where(eq(persistentAgentMessages.chatId, chatId))
+      .orderBy(asc(persistentAgentMessages.createdAt));
 
-      if (!targetMessage) {
-        throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
-      }
+    return {
+      chat: normalizeChatRecord(chat),
+      messages: rows.map(toUiMessage),
+    };
+  } catch (error) {
+    if (isInvalidPersistentAgentChatIdError(error)) {
+      return null;
+    }
 
-      const deletedRows = await database
-        .delete(persistentAgentMessages)
-        .where(
-          and(
-            eq(persistentAgentMessages.chatId, input.chatId),
-            gt(persistentAgentMessages.createdAt, targetMessage.createdAt)
-          )
-        )
-        .returning({ messageId: persistentAgentMessages.messageId });
+    throw error;
+  }
+}
 
-      await database
+async function savePersistentAgentIncomingUserMessage(
+  input: SaveIncomingUserMessageInput
+) {
+  const { database, persistentAgentChats, persistentAgentMessages } =
+    await loadPersistentAgentDatabase();
+  const now = new Date();
+  const title = buildChatTitle(input.message);
+
+  await database.transaction(async (tx) => {
+    const [existingChat] = await tx
+      .select()
+      .from(persistentAgentChats)
+      .where(eq(persistentAgentChats.id, input.chatId))
+      .limit(1);
+
+    if (existingChat && existingChat.visitorId !== input.visitorId) {
+      throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
+    }
+
+    if (existingChat) {
+      await tx
         .update(persistentAgentChats)
         .set({
           activeStreamId: null,
-          updatedAt: new Date(),
+          title:
+            existingChat.title === "New chat" && title !== "New chat"
+              ? title
+              : existingChat.title,
+          updatedAt: now,
         })
-        .where(
-          and(
-            eq(persistentAgentChats.id, input.chatId),
-            eq(persistentAgentChats.visitorId, input.visitorId)
-          )
-        );
+        .where(eq(persistentAgentChats.id, input.chatId));
+    } else {
+      await tx.insert(persistentAgentChats).values({
+        activeStreamId: null,
+        id: input.chatId,
+        title,
+        updatedAt: now,
+        visitorId: input.visitorId,
+      });
+    }
 
-      return {
-        deletedCount: deletedRows.length,
-      };
-    },
-    async cleanupExpiredChats(input?: { now?: Date }) {
-      const { database, persistentAgentChats } =
-        await loadPersistentAgentDatabase();
-      const now = input?.now ?? new Date();
-      const expiresBefore = new Date(
-        now.getTime() -
-          persistentAgentCleanupRetentionDays * 24 * 60 * 60 * 1000
-      );
-      const expiredChats = await database
-        .select({ id: persistentAgentChats.id })
-        .from(persistentAgentChats)
-        .where(lt(persistentAgentChats.updatedAt, expiresBefore));
+    await tx
+      .insert(persistentAgentMessages)
+      .values({
+        attachments: [],
+        chatId: input.chatId,
+        createdAt: readMessageCreatedAt(input.message, now),
+        messageId: input.message.id,
+        parts: input.message.parts,
+        role: input.message.role,
+      })
+      .onConflictDoUpdate({
+        set: {
+          parts: input.message.parts,
+          role: input.message.role,
+        },
+        target: [
+          persistentAgentMessages.chatId,
+          persistentAgentMessages.messageId,
+        ],
+      });
+  });
+}
 
-      if (expiredChats.length === 0) {
-        return {
-          deletedChats: 0,
-          expiresBefore: expiresBefore.toISOString(),
-        };
-      }
+async function savePersistentAgentFinishedMessages(
+  input: SaveFinishedMessagesInput
+) {
+  const { database, persistentAgentChats, persistentAgentMessages } =
+    await loadPersistentAgentDatabase();
+  const now = new Date();
 
-      const deletedChats = await database
-        .delete(persistentAgentChats)
-        .where(lt(persistentAgentChats.updatedAt, expiresBefore))
-        .returning({ id: persistentAgentChats.id });
+  await database.transaction(async (tx) => {
+    const [chat] = await tx
+      .select()
+      .from(persistentAgentChats)
+      .where(
+        and(
+          eq(persistentAgentChats.id, input.chatId),
+          eq(persistentAgentChats.visitorId, input.visitorId)
+        )
+      )
+      .limit(1);
 
-      return {
-        deletedChats: deletedChats.length,
-        expiresBefore: expiresBefore.toISOString(),
-      };
-    },
+    if (!chat) {
+      throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
+    }
+
+    if (input.messages.length > 0) {
+      await tx
+        .insert(persistentAgentMessages)
+        .values(
+          input.messages.map((message) => ({
+            attachments: [],
+            chatId: input.chatId,
+            createdAt: readMessageCreatedAt(message, now),
+            messageId: message.id,
+            parts: message.parts,
+            role: message.role,
+          }))
+        )
+        .onConflictDoNothing({
+          target: [
+            persistentAgentMessages.chatId,
+            persistentAgentMessages.messageId,
+          ],
+        });
+    }
+
+    await tx
+      .update(persistentAgentChats)
+      .set({
+        activeStreamId: null,
+        updatedAt: now,
+      })
+      .where(eq(persistentAgentChats.id, input.chatId));
+  });
+}
+
+async function setPersistentAgentActiveStream(input: SetActiveStreamInput) {
+  const { database, persistentAgentChats } =
+    await loadPersistentAgentDatabase();
+  const rows = await database
+    .update(persistentAgentChats)
+    .set({
+      activeStreamId: input.activeStreamId,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(persistentAgentChats.id, input.chatId),
+        eq(persistentAgentChats.visitorId, input.visitorId)
+      )
+    )
+    .returning({ id: persistentAgentChats.id });
+
+  if (rows.length === 0) {
+    throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
+  }
+}
+
+async function deletePersistentAgentMessagesAfterMessage(
+  input: DeleteMessagesAfterMessageInput
+) {
+  const { database, persistentAgentChats, persistentAgentMessages } =
+    await loadPersistentAgentDatabase();
+
+  const [targetMessage] = await database
+    .select({
+      createdAt: persistentAgentMessages.createdAt,
+    })
+    .from(persistentAgentMessages)
+    .innerJoin(
+      persistentAgentChats,
+      eq(persistentAgentMessages.chatId, persistentAgentChats.id)
+    )
+    .where(
+      and(
+        eq(persistentAgentMessages.chatId, input.chatId),
+        eq(persistentAgentMessages.messageId, input.messageId),
+        eq(persistentAgentChats.visitorId, input.visitorId)
+      )
+    )
+    .limit(1);
+
+  if (!targetMessage) {
+    throw new Error(getPersistentAgentChatNotFoundError(input.chatId));
+  }
+
+  const deletedRows = await database
+    .delete(persistentAgentMessages)
+    .where(
+      and(
+        eq(persistentAgentMessages.chatId, input.chatId),
+        gt(persistentAgentMessages.createdAt, targetMessage.createdAt)
+      )
+    )
+    .returning({ messageId: persistentAgentMessages.messageId });
+
+  await database
+    .update(persistentAgentChats)
+    .set({
+      activeStreamId: null,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(persistentAgentChats.id, input.chatId),
+        eq(persistentAgentChats.visitorId, input.visitorId)
+      )
+    );
+
+  return {
+    deletedCount: deletedRows.length,
+  };
+}
+
+async function cleanupExpiredPersistentAgentChats(input?: { now?: Date }) {
+  const { database, persistentAgentChats } =
+    await loadPersistentAgentDatabase();
+  const now = input?.now ?? new Date();
+  const expiresBefore = new Date(
+    now.getTime() - persistentAgentCleanupRetentionDays * 24 * 60 * 60 * 1000
+  );
+  const expiredChats = await database
+    .select({ id: persistentAgentChats.id })
+    .from(persistentAgentChats)
+    .where(lt(persistentAgentChats.updatedAt, expiresBefore));
+
+  if (expiredChats.length === 0) {
+    return {
+      deletedChats: 0,
+      expiresBefore: expiresBefore.toISOString(),
+    };
+  }
+
+  const deletedChats = await database
+    .delete(persistentAgentChats)
+    .where(lt(persistentAgentChats.updatedAt, expiresBefore))
+    .returning({ id: persistentAgentChats.id });
+
+  return {
+    deletedChats: deletedChats.length,
+    expiresBefore: expiresBefore.toISOString(),
+  };
+}
+
+export function createPersistentAgentChatStore() {
+  return {
+    cleanupExpiredChats: cleanupExpiredPersistentAgentChats,
+    deleteMessagesAfterMessage: deletePersistentAgentMessagesAfterMessage,
+    listChatsForVisitor: listPersistentAgentChatsForVisitor,
+    loadChatSession: loadPersistentAgentChatSession,
+    saveFinishedMessages: savePersistentAgentFinishedMessages,
+    saveIncomingUserMessage: savePersistentAgentIncomingUserMessage,
+    setActiveStream: setPersistentAgentActiveStream,
   };
 }

@@ -95,44 +95,44 @@ function createAssistantMessage(): UIMessage {
   };
 }
 
-describe("persistent agent runtime", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    aiMockState.responseOptions = null;
-    aiMockState.streamText.mockReset();
-    resumableStreamFactoryState.createResumableStreamContext.mockReset();
-    redisState.Redis.mockReset();
-    resumableStreamState.createNewResumableStream.mockReset();
-    resumableStreamState.resumeExistingStream.mockReset();
-    storeState.cleanupExpiredChats.mockReset();
-    storeState.deleteMessagesAfterMessage.mockReset();
-    storeState.listChatsForVisitor.mockReset();
-    storeState.loadChatSession.mockReset();
-    storeState.saveFinishedMessages.mockReset();
-    storeState.saveIncomingUserMessage.mockReset();
-    storeState.setActiveStream.mockReset();
+beforeEach(() => {
+  vi.resetModules();
+  aiMockState.responseOptions = null;
+  aiMockState.streamText.mockReset();
+  resumableStreamFactoryState.createResumableStreamContext.mockReset();
+  redisState.Redis.mockReset();
+  resumableStreamState.createNewResumableStream.mockReset();
+  resumableStreamState.resumeExistingStream.mockReset();
+  storeState.cleanupExpiredChats.mockReset();
+  storeState.deleteMessagesAfterMessage.mockReset();
+  storeState.listChatsForVisitor.mockReset();
+  storeState.loadChatSession.mockReset();
+  storeState.saveFinishedMessages.mockReset();
+  storeState.saveIncomingUserMessage.mockReset();
+  storeState.setActiveStream.mockReset();
 
-    aiMockState.streamText.mockReturnValue({
-      toUIMessageStreamResponse(options: typeof aiMockState.responseOptions) {
-        aiMockState.responseOptions = options;
-        return Response.json({ ok: true });
-      },
-    });
-    storeState.loadChatSession.mockResolvedValue(null);
-    storeState.deleteMessagesAfterMessage.mockResolvedValue({
-      deletedCount: 0,
-    });
-    storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
-    storeState.saveFinishedMessages.mockResolvedValue(undefined);
-    storeState.setActiveStream.mockResolvedValue(undefined);
-    redisState.Redis.mockImplementation(function MockRedis() {
-      return {};
-    });
-    resumableStreamFactoryState.createResumableStreamContext.mockReturnValue(
-      resumableStreamState
-    );
+  aiMockState.streamText.mockReturnValue({
+    toUIMessageStreamResponse(options: typeof aiMockState.responseOptions) {
+      aiMockState.responseOptions = options;
+      return Response.json({ ok: true });
+    },
   });
+  storeState.loadChatSession.mockResolvedValue(null);
+  storeState.deleteMessagesAfterMessage.mockResolvedValue({
+    deletedCount: 0,
+  });
+  storeState.saveIncomingUserMessage.mockResolvedValue(undefined);
+  storeState.saveFinishedMessages.mockResolvedValue(undefined);
+  storeState.setActiveStream.mockResolvedValue(undefined);
+  redisState.Redis.mockImplementation(function MockRedis() {
+    return {};
+  });
+  resumableStreamFactoryState.createResumableStreamContext.mockReturnValue(
+    resumableStreamState
+  );
+});
 
+describe("persistent agent runtime setup", () => {
   it("reports setup requirements when gateway, database, or redis config is missing", async () => {
     const { getPersistentAgentRuntimeState } = await importRuntimeModule();
 
@@ -170,7 +170,9 @@ describe("persistent agent runtime", () => {
     expect(response.status).toBe(400);
     expect(storeState.saveIncomingUserMessage).not.toHaveBeenCalled();
   });
+});
 
+describe("persistent agent chat request handling", () => {
   it("persists route-backed chat turns and exposes server-side message id generation", async () => {
     const { handlePersistentAgentChatRequest } = await importRuntimeModule();
     const userMessage = createUserMessage();
@@ -290,7 +292,9 @@ describe("persistent agent runtime", () => {
       userMessage,
     ]);
   });
+});
 
+describe("persistent agent resumable streams", () => {
   it("reuses a module-level resumable stream context across chat turns", async () => {
     const { handlePersistentAgentChatRequest } = await importRuntimeModule();
     const userMessage = createUserMessage();
@@ -379,7 +383,9 @@ describe("persistent agent runtime", () => {
 
     expect(response.status).toBe(204);
   });
+});
 
+describe("persistent agent session recovery", () => {
   it("returns the persisted session snapshot for resume recovery", async () => {
     const { handlePersistentAgentSessionRequest } = await importRuntimeModule();
     storeState.loadChatSession.mockResolvedValue({

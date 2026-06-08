@@ -39,6 +39,38 @@
   },
   "overrides": [
     {
+      "includes": ["apps/web/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noExcessiveLinesPerFile": {
+              "level": "error",
+              "options": {
+                "maxLines": 500,
+                "skipBlankLines": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/features/**/*.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": {
+              "level": "error",
+              "options": {
+                "maxLines": 150,
+                "skipBlankLines": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/env.ts", "**/keys.ts"],
       "linter": {
         "rules": {

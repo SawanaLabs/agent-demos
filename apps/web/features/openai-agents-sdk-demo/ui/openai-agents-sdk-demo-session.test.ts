@@ -14,7 +14,7 @@ import {
   shouldRenderOpenAiAgentsSdkDemoReasoning,
 } from "./openai-agents-sdk-demo-session";
 
-describe("openai agents sdk demo message projection", () => {
+describe("openai agents sdk demo visible content projection", () => {
   it("projects reasoning and explicit source-url parts as visible assistant content", () => {
     const message: UIMessage = {
       id: "a1",
@@ -94,7 +94,9 @@ describe("openai agents sdk demo message projection", () => {
       },
     ]);
   });
+});
 
+describe("openai agents sdk demo tool projection", () => {
   it("marks hosted tool calls as completed once the assistant turn has settled", () => {
     const [part] = getOpenAiAgentsSdkDemoToolParts({
       id: "a1",
@@ -170,7 +172,9 @@ describe("openai agents sdk demo message projection", () => {
       },
     ]);
   });
+});
 
+describe("openai agents sdk demo approval reasoning projection", () => {
   it("hides responded approval reasoning when the resumed assistant turn has its own reasoning", () => {
     const approvalMessage: UIMessage = {
       id: "a1",
@@ -248,7 +252,9 @@ describe("openai agents sdk demo message projection", () => {
       true
     );
   });
+});
 
+describe("openai agents sdk demo failed turn recovery projection", () => {
   it("keeps failed trailing user input out of recoverable chat history", () => {
     const messages: UIMessage[] = [
       {

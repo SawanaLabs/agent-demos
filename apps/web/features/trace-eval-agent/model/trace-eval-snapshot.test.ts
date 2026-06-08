@@ -178,7 +178,9 @@ describe("buildTraceEvalSnapshot", () => {
       "token-budget"
     );
   });
+});
 
+describe("buildTraceEvalSnapshot source projection", () => {
   it("skips non-research chat prompts", () => {
     const messages: UIMessage[] = [
       {

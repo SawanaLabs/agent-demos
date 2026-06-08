@@ -67,6 +67,15 @@ interface UltraChatbotAgentRequestBody {
   trigger?: RouteBackedChatRequestTrigger;
 }
 
+interface UltraChatbotAgentChatInput {
+  id: string;
+  message: UIMessage;
+  messageId?: string;
+  selectedChatModel: string;
+  selectedVisibilityType: "private" | "public";
+  trigger?: RouteBackedChatRequestTrigger;
+}
+
 export interface UltraChatbotAgentRuntimeState {
   chatModel: string;
   isChatAvailable: boolean;
@@ -114,7 +123,7 @@ export function getUltraChatbotAgentRuntimeState(
   };
 }
 
-function readRequestBody(body: unknown) {
+function readRequestBody(body: unknown): UltraChatbotAgentChatInput {
   const {
     id,
     message,
@@ -151,6 +160,33 @@ function readRequestBody(body: unknown) {
     selectedVisibilityType,
     trigger,
   };
+}
+
+async function readChatRequestInput(
+  request: Request
+): Promise<Response | UltraChatbotAgentChatInput> {
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      {
+        error: "Expected a valid JSON request body.",
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
+    return readRequestBody(body);
+  } catch (error) {
+    if (error instanceof Error && error.message === invalidRequestBodyError) {
+      return Response.json({ error: error.message }, { status: 400 });
+    }
+
+    throw error;
+  }
 }
 
 function hasUnsupportedAttachment(message: UIMessage) {
@@ -245,36 +281,10 @@ export async function handleUltraChatbotAgentChatRequest(
     );
   }
 
-  let body: unknown;
+  const input = await readChatRequestInput(request);
 
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json(
-      {
-        error: "Expected a valid JSON request body.",
-      },
-      { status: 400 }
-    );
-  }
-
-  let input: {
-    id: string;
-    message: UIMessage;
-    messageId?: string;
-    selectedChatModel: string;
-    selectedVisibilityType: "private" | "public";
-    trigger?: RouteBackedChatRequestTrigger;
-  };
-
-  try {
-    input = readRequestBody(body);
-  } catch (error) {
-    if (error instanceof Error && error.message === invalidRequestBodyError) {
-      return Response.json({ error: error.message }, { status: 400 });
-    }
-
-    throw error;
+  if (input instanceof Response) {
+    return input;
   }
 
   if (!isUltraChatbotAgentModelId(input.selectedChatModel)) {

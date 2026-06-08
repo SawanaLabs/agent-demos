@@ -84,58 +84,58 @@ const messages = [
 ];
 const snapshot = buildTraceEvalSnapshot(messages, false);
 
-describe("evaluateTraceEvalRun", () => {
-  beforeEach(() => {
-    createAiGatewayMock.mockReset();
-    generateTextMock.mockReset();
-    getAiGatewayConfigMock.mockReset();
-    getAiGatewaySetupStateMock.mockReset();
-    outputObjectMock.mockReset();
-    streamTextMock.mockReset();
+beforeEach(() => {
+  createAiGatewayMock.mockReset();
+  generateTextMock.mockReset();
+  getAiGatewayConfigMock.mockReset();
+  getAiGatewaySetupStateMock.mockReset();
+  outputObjectMock.mockReset();
+  streamTextMock.mockReset();
 
-    createAiGatewayMock.mockReturnValue(
-      vi.fn((modelId: string) => `gateway-model:${modelId}`)
-    );
-    getAiGatewayConfigMock.mockReturnValue({
-      apiKey: "test-key",
+  createAiGatewayMock.mockReturnValue(
+    vi.fn((modelId: string) => `gateway-model:${modelId}`)
+  );
+  getAiGatewayConfigMock.mockReturnValue({
+    apiKey: "test-key",
+    baseURL: "https://ai-gateway.example/v3/ai",
+    chatModel: "openai/gpt-5-mini",
+  });
+  getAiGatewaySetupStateMock.mockReturnValue({
+    config: {
       baseURL: "https://ai-gateway.example/v3/ai",
       chatModel: "openai/gpt-5-mini",
-    });
-    getAiGatewaySetupStateMock.mockReturnValue({
-      config: {
-        baseURL: "https://ai-gateway.example/v3/ai",
-        chatModel: "openai/gpt-5-mini",
-      },
-      isReady: true,
-      issues: [],
-      nodeVersion: "v25.0.0",
-    });
-    outputObjectMock.mockReturnValue("judge-output-schema");
-    generateTextMock.mockResolvedValue({
-      output: {
-        action: "ready",
-        dimensions: [
-          {
-            id: "answer-usefulness",
-            rationale: "The answer is too thin for the prompt.",
-            score: 0.35,
-            title: "Answer usefulness",
-          },
-        ],
-        overallScore: 0.32,
-        rationale:
-          "The run skipped required search and did not provide source evidence.",
-        summary: "The answer should be rerun with web search.",
-      },
-    });
-    streamTextMock.mockReturnValue({
-      textStream: (function* () {
-        yield '{"summary":"Structured';
-        yield ' judge output","overallScore":0.92,"rationale":"Useful and grounded.","dimensions":[{"id":"answer-usefulness","title":"Answer usefulness","score":0.95,"rationale":"Useful."}],"action":"ready"}';
-      })(),
-    });
+    },
+    isReady: true,
+    issues: [],
+    nodeVersion: "v25.0.0",
   });
+  outputObjectMock.mockReturnValue("judge-output-schema");
+  generateTextMock.mockResolvedValue({
+    output: {
+      action: "ready",
+      dimensions: [
+        {
+          id: "answer-usefulness",
+          rationale: "The answer is too thin for the prompt.",
+          score: 0.35,
+          title: "Answer usefulness",
+        },
+      ],
+      overallScore: 0.32,
+      rationale:
+        "The run skipped required search and did not provide source evidence.",
+      summary: "The answer should be rerun with web search.",
+    },
+  });
+  streamTextMock.mockReturnValue({
+    textStream: (function* () {
+      yield '{"summary":"Structured';
+      yield ' judge output","overallScore":0.92,"rationale":"Useful and grounded.","dimensions":[{"id":"answer-usefulness","title":"Answer usefulness","score":0.95,"rationale":"Useful."}],"action":"ready"}';
+    })(),
+  });
+});
 
+describe("evaluateTraceEvalRun", () => {
   it("runs the LLM judge with answer, trace, usage, and deterministic failures", async () => {
     const result = await evaluateTraceEvalRun(snapshot, {
       AI_GATEWAY_API_KEY: "test-key",
@@ -174,7 +174,9 @@ describe("evaluateTraceEvalRun", () => {
       overallScore: 0.32,
     });
   });
+});
 
+describe("trace eval evaluation routes", () => {
   it("handles evaluation requests through a JSON API response", async () => {
     const response = await handleTraceEvalAgentEvaluationRequest(
       new Request("https://example.test/api/demos/trace-eval-agent/evaluate", {
@@ -291,7 +293,9 @@ describe("evaluateTraceEvalRun", () => {
         "Trace eval judge requires a completed conversation with a user prompt and assistant answer.",
     });
   });
+});
 
+describe("trace eval evaluation edge cases", () => {
   it("keeps structurally valid low-quality runs on the revision path", async () => {
     const userMessage = messages[0];
     const assistantMessage = messages[1];

@@ -51,7 +51,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
       const response = await originalFetch(...args);
       const path = getRequestPath(args[0]);
 
-      if (response.status === 429 && path?.startsWith("/api/demos/")) {
+      if (response.status === 429 && shouldHandleSiteUsageLimitPath(path)) {
         void response
           .clone()
           .json()
@@ -311,6 +311,12 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+export function shouldHandleSiteUsageLimitPath(path: string | null) {
+  return (
+    path?.startsWith("/api/demos/") || path === "/api/project-guide-companion"
   );
 }
 

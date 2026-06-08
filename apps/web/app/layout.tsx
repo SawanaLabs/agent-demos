@@ -3,6 +3,7 @@ import { Geist, JetBrains_Mono } from "next/font/google";
 import "@workspace/ui/globals.css";
 import { cn } from "@workspace/ui/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ProjectGuideCompanion } from "@/features/project-guide-companion/ui/project-guide-companion";
 import { SiteUsageGateProvider } from "@/features/site-usage-gate/ui/site-usage-gate-provider";
 
 const fontSans = Geist({
@@ -33,7 +34,10 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <SiteUsageGateProvider>{children}</SiteUsageGateProvider>
+          <SiteUsageGateProvider>
+            {children}
+            <ProjectGuideCompanion />
+          </SiteUsageGateProvider>
         </ThemeProvider>
       </body>
     </html>

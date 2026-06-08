@@ -156,6 +156,10 @@ _Avoid_: Anonymous user, temporary user
 A **Visitor Owner** scoped to the published demo website as a whole, used for ownership decisions that apply across multiple **Agent Demos**.
 _Avoid_: Per-demo visitor, registry consumer, authenticated user
 
+**Project Guide Companion**:
+A site-owned chatbot companion that exposes Project Docs MCP-style document Q&A for durable project knowledge.
+_Avoid_: Agent Demo, Demo Catalog Entry, registry item
+
 **Hosted LangGraph Service Key**:
 A server-only shared secret that lets the LangGraph Agent Demo's frontend route call the separately deployed Python LangGraph backend through `x-api-key`.
 _Avoid_: User API key, model provider key, public token
@@ -195,6 +199,7 @@ _Avoid_: User API key, model provider key, public token
 - The first **Ultra Chatbot Agent** release should use a **Visitor Owner** while keeping the **Owner** concept clear enough to support authenticated ownership later.
 - A **Site Visitor Owner** may interact with multiple **Agent Demos** on the published demo website.
 - A **Site Visitor Owner** stays outside any **Agent Demo** **Copy Boundary** and should not be distributed through the registry.
+- A **Project Guide Companion** belongs to the published demo website, stays outside **Agent Demo** **Copy Boundaries**, and should not appear as a **Demo Catalog Entry**.
 - The **Hosted LangGraph Service Key** protects the service-to-service boundary between the LangGraph Agent Demo's frontend route and its hosted Python backend.
 
 ## RAG Chatbot Direction

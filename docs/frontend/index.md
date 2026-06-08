@@ -23,6 +23,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Memory & Persistence Agent](./customer-memory-agent.md): Batch 6 rules for shared demo accounts, visitor-private sandbox threads, and cookie-scoped memory persistence.
 - [Persistent Agent](./persistent-agent.md): Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams.
 - [Homepage Gallery](./homepage-gallery.md): Product-facing homepage shape for presenting agent demos.
+- [Project Guide Companion](./project-guide-companion.md): Site-owned companion chatbot boundary, page visibility policy, and project-docs answer source.
 - [Loop Agent](./loop-agent.md): Stable UX and reasoning-display conventions for the support triage loop demo.
 - [LangGraph Agent](./langgraph-agent.md): Stable integration conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo.
 - [MCP Agent](./mcp-agent.md): Stable source-core and UX conventions for the MCP Runtime Doctor Agent demo.

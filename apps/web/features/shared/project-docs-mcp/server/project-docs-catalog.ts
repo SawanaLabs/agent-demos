@@ -39,6 +39,7 @@ const excludedFrontendDocSlugs = new Set([
   "agent-demo-structure",
   "ai-sdk-recipes-checklist",
   "homepage-gallery",
+  "project-guide-companion",
   "registry-sync",
   "shadcn-registry-distribution",
   "ultra-chatbot-agent-source-checklist",

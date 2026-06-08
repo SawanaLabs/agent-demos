@@ -272,227 +272,261 @@ async function getMemoryForMutation(
   return row;
 }
 
+type CreateMemoryInput = Parameters<
+  CustomerMemoryMemoryPersistence["createMemory"]
+>[0];
+type DeleteMemoryInput = Parameters<
+  CustomerMemoryMemoryPersistence["deleteMemory"]
+>[0];
+type ListCustomerMemoriesInput = Parameters<
+  CustomerMemoryMemoryPersistence["listVisibleMemoriesForCustomer"]
+>[0];
+type MarkMemoryAccessedInput = Parameters<
+  CustomerMemoryMemoryPersistence["markMemoryAccessed"]
+>[0];
+type UpdateMemoryInput = Parameters<
+  CustomerMemoryMemoryPersistence["updateMemory"]
+>[0];
+
+function createTransactionModule(
+  databaseModule: CustomerMemoryDatabaseModule,
+  transaction: unknown
+): CustomerMemoryDatabaseModule {
+  return {
+    ...databaseModule,
+    database: transaction as CustomerMemoryDatabaseModule["database"],
+  };
+}
+
+async function createDatabaseMemory(
+  input: CreateMemoryInput
+): Promise<CustomerMemoryRecord> {
+  const databaseModule = await loadCustomerMemoryAgentDatabase();
+  let savedMemory: CustomerMemoryRecord | null = null;
+
+  await databaseModule.database.transaction(async (transaction) => {
+    const [row] = await transaction
+      .insert(databaseModule.customerMemoryMemories)
+      .values({
+        category: input.category,
+        content: input.content,
+        customerId: input.customerId,
+        metadata: input.metadata ?? null,
+        sourceMessageId: input.sourceMessageId ?? null,
+        threadId: input.threadId ?? null,
+        title: input.title ?? null,
+        visitorId: input.visitorId,
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error("Failed to save a customer memory.");
+    }
+
+    await insertMemoryEvent(
+      {
+        afterContent: row.content,
+        beforeContent: null,
+        customerId: row.customerId,
+        memoryId: row.id,
+        metadata: normalizeMetadata(row.metadata),
+        operation: "add",
+        reason: input.reason ?? null,
+        sourceMessageId: row.sourceMessageId,
+        threadId: row.threadId,
+        visitorId: row.visitorId,
+      },
+      createTransactionModule(databaseModule, transaction)
+    );
+    savedMemory = normalizeMemoryRecord(row);
+  });
+
+  if (!savedMemory) {
+    throw new Error("Failed to save a customer memory.");
+  }
+
+  return savedMemory;
+}
+
+async function deleteDatabaseMemory(input: DeleteMemoryInput): Promise<void> {
+  const databaseModule = await loadCustomerMemoryAgentDatabase();
+
+  await databaseModule.database.transaction(async (transaction) => {
+    const transactionModule = createTransactionModule(
+      databaseModule,
+      transaction
+    );
+    const current = await getMemoryForMutation(input, transactionModule);
+    await transaction
+      .update(databaseModule.customerMemoryMemories)
+      .set({ status: "deleted", updatedAt: new Date() })
+      .where(
+        and(
+          eq(databaseModule.customerMemoryMemories.id, input.memoryId),
+          eq(
+            databaseModule.customerMemoryMemories.customerId,
+            input.customerId
+          ),
+          eq(databaseModule.customerMemoryMemories.visitorId, input.visitorId)
+        )
+      );
+
+    await insertMemoryEvent(
+      {
+        afterContent: null,
+        beforeContent: current.content,
+        customerId: current.customerId,
+        memoryId: current.id,
+        metadata: normalizeMetadata(current.metadata),
+        operation: "delete",
+        reason: input.reason ?? null,
+        sourceMessageId: input.sourceMessageId ?? current.sourceMessageId,
+        threadId: current.threadId,
+        visitorId: current.visitorId,
+      },
+      transactionModule
+    );
+  });
+}
+
+async function listDatabaseEventsForCustomer(
+  input: ListCustomerMemoriesInput
+): Promise<CustomerMemoryEventRecord[]> {
+  const { customerMemoryEvents, database } =
+    await loadCustomerMemoryAgentDatabase();
+  const rows = await database
+    .select()
+    .from(customerMemoryEvents)
+    .where(
+      and(
+        eq(customerMemoryEvents.customerId, input.customerId),
+        eq(customerMemoryEvents.visitorId, input.visitorId)
+      )
+    )
+    .orderBy(desc(customerMemoryEvents.createdAt));
+
+  return rows.map(normalizeEventRecord);
+}
+
+async function listDatabaseVisibleMemoriesForCustomer(
+  input: ListCustomerMemoriesInput
+): Promise<CustomerMemoryRecord[]> {
+  const { customerMemoryMemories, database } =
+    await loadCustomerMemoryAgentDatabase();
+  const rows = await database
+    .select()
+    .from(customerMemoryMemories)
+    .where(
+      and(
+        eq(customerMemoryMemories.customerId, input.customerId),
+        eq(customerMemoryMemories.visitorId, input.visitorId),
+        ne(customerMemoryMemories.status, "deleted")
+      )
+    )
+    .orderBy(desc(customerMemoryMemories.updatedAt));
+
+  return rows.map(normalizeMemoryRecord);
+}
+
+async function markDatabaseMemoryAccessed(
+  input: MarkMemoryAccessedInput
+): Promise<void> {
+  if (input.memoryIds.length === 0) {
+    return;
+  }
+
+  const { customerMemoryMemories, database } =
+    await loadCustomerMemoryAgentDatabase();
+  await database
+    .update(customerMemoryMemories)
+    .set({
+      accessCount: sql`${customerMemoryMemories.accessCount} + 1`,
+      lastAccessedAt: new Date(),
+    })
+    .where(
+      and(
+        inArray(customerMemoryMemories.id, input.memoryIds),
+        eq(customerMemoryMemories.customerId, input.customerId),
+        eq(customerMemoryMemories.visitorId, input.visitorId),
+        ne(customerMemoryMemories.status, "deleted")
+      )
+    );
+}
+
+async function updateDatabaseMemory(
+  input: UpdateMemoryInput
+): Promise<CustomerMemoryRecord> {
+  const databaseModule = await loadCustomerMemoryAgentDatabase();
+  let savedMemory: CustomerMemoryRecord | null = null;
+
+  await databaseModule.database.transaction(async (transaction) => {
+    const transactionModule = createTransactionModule(
+      databaseModule,
+      transaction
+    );
+    const current = await getMemoryForMutation(input, transactionModule);
+    const [row] = await transaction
+      .update(databaseModule.customerMemoryMemories)
+      .set({
+        category: input.category ?? current.category,
+        content: input.content,
+        metadata: input.metadata ?? current.metadata,
+        sourceMessageId: input.sourceMessageId ?? current.sourceMessageId,
+        status: "updated",
+        title: input.title ?? current.title,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(databaseModule.customerMemoryMemories.id, input.memoryId),
+          eq(
+            databaseModule.customerMemoryMemories.customerId,
+            input.customerId
+          ),
+          eq(databaseModule.customerMemoryMemories.visitorId, input.visitorId)
+        )
+      )
+      .returning();
+
+    if (!row) {
+      throw new Error(`Failed to update customer memory ${input.memoryId}.`);
+    }
+
+    await insertMemoryEvent(
+      {
+        afterContent: row.content,
+        beforeContent: current.content,
+        customerId: row.customerId,
+        memoryId: row.id,
+        metadata: normalizeMetadata(row.metadata),
+        operation: "update",
+        reason: input.reason ?? null,
+        sourceMessageId: row.sourceMessageId,
+        threadId: row.threadId,
+        visitorId: row.visitorId,
+      },
+      transactionModule
+    );
+    savedMemory = normalizeMemoryRecord(row);
+  });
+
+  if (!savedMemory) {
+    throw new Error(`Failed to update customer memory ${input.memoryId}.`);
+  }
+
+  return savedMemory;
+}
+
 function createDatabaseBackedPersistence(): CustomerMemoryMemoryPersistence {
   return {
-    async createMemory(input) {
-      const databaseModule = await loadCustomerMemoryAgentDatabase();
-      let savedMemory: CustomerMemoryRecord | null = null;
-
-      await databaseModule.database.transaction(async (transaction) => {
-        const [row] = await transaction
-          .insert(databaseModule.customerMemoryMemories)
-          .values({
-            category: input.category,
-            content: input.content,
-            customerId: input.customerId,
-            metadata: input.metadata ?? null,
-            sourceMessageId: input.sourceMessageId ?? null,
-            threadId: input.threadId ?? null,
-            title: input.title ?? null,
-            visitorId: input.visitorId,
-          })
-          .returning();
-
-        if (!row) {
-          throw new Error("Failed to save a customer memory.");
-        }
-
-        await insertMemoryEvent(
-          {
-            afterContent: row.content,
-            beforeContent: null,
-            customerId: row.customerId,
-            memoryId: row.id,
-            metadata: normalizeMetadata(row.metadata),
-            operation: "add",
-            reason: input.reason ?? null,
-            sourceMessageId: row.sourceMessageId,
-            threadId: row.threadId,
-            visitorId: row.visitorId,
-          },
-          {
-            ...databaseModule,
-            database: transaction as unknown as typeof databaseModule.database,
-          }
-        );
-
-        savedMemory = normalizeMemoryRecord(row);
-      });
-
-      if (!savedMemory) {
-        throw new Error("Failed to save a customer memory.");
-      }
-
-      return savedMemory;
-    },
-    async deleteMemory(input) {
-      const databaseModule = await loadCustomerMemoryAgentDatabase();
-
-      await databaseModule.database.transaction(async (transaction) => {
-        const transactionModule = {
-          ...databaseModule,
-          database: transaction as unknown as typeof databaseModule.database,
-        };
-        const current = await getMemoryForMutation(input, transactionModule);
-        await transaction
-          .update(databaseModule.customerMemoryMemories)
-          .set({ status: "deleted", updatedAt: new Date() })
-          .where(
-            and(
-              eq(databaseModule.customerMemoryMemories.id, input.memoryId),
-              eq(
-                databaseModule.customerMemoryMemories.customerId,
-                input.customerId
-              ),
-              eq(
-                databaseModule.customerMemoryMemories.visitorId,
-                input.visitorId
-              )
-            )
-          );
-
-        await insertMemoryEvent(
-          {
-            afterContent: null,
-            beforeContent: current.content,
-            customerId: current.customerId,
-            memoryId: current.id,
-            metadata: normalizeMetadata(current.metadata),
-            operation: "delete",
-            reason: input.reason ?? null,
-            sourceMessageId: input.sourceMessageId ?? current.sourceMessageId,
-            threadId: current.threadId,
-            visitorId: current.visitorId,
-          },
-          transactionModule
-        );
-      });
-    },
-    async listEventsForCustomer(input) {
-      const { customerMemoryEvents, database } =
-        await loadCustomerMemoryAgentDatabase();
-      const rows = await database
-        .select()
-        .from(customerMemoryEvents)
-        .where(
-          and(
-            eq(customerMemoryEvents.customerId, input.customerId),
-            eq(customerMemoryEvents.visitorId, input.visitorId)
-          )
-        )
-        .orderBy(desc(customerMemoryEvents.createdAt));
-
-      return rows.map(normalizeEventRecord);
-    },
-    async listVisibleMemoriesForCustomer(input) {
-      const { customerMemoryMemories, database } =
-        await loadCustomerMemoryAgentDatabase();
-      const rows = await database
-        .select()
-        .from(customerMemoryMemories)
-        .where(
-          and(
-            eq(customerMemoryMemories.customerId, input.customerId),
-            eq(customerMemoryMemories.visitorId, input.visitorId),
-            ne(customerMemoryMemories.status, "deleted")
-          )
-        )
-        .orderBy(desc(customerMemoryMemories.updatedAt));
-
-      return rows.map(normalizeMemoryRecord);
-    },
-    async markMemoryAccessed(input) {
-      if (input.memoryIds.length === 0) {
-        return;
-      }
-
-      const { customerMemoryMemories, database } =
-        await loadCustomerMemoryAgentDatabase();
-      await database
-        .update(customerMemoryMemories)
-        .set({
-          accessCount: sql`${customerMemoryMemories.accessCount} + 1`,
-          lastAccessedAt: new Date(),
-        })
-        .where(
-          and(
-            inArray(customerMemoryMemories.id, input.memoryIds),
-            eq(customerMemoryMemories.customerId, input.customerId),
-            eq(customerMemoryMemories.visitorId, input.visitorId),
-            ne(customerMemoryMemories.status, "deleted")
-          )
-        );
-    },
-    async recordEvent(input) {
-      return insertMemoryEvent(input, await loadCustomerMemoryAgentDatabase());
-    },
-    async updateMemory(input) {
-      const databaseModule = await loadCustomerMemoryAgentDatabase();
-      let savedMemory: CustomerMemoryRecord | null = null;
-
-      await databaseModule.database.transaction(async (transaction) => {
-        const transactionModule = {
-          ...databaseModule,
-          database: transaction as unknown as typeof databaseModule.database,
-        };
-        const current = await getMemoryForMutation(input, transactionModule);
-        const [row] = await transaction
-          .update(databaseModule.customerMemoryMemories)
-          .set({
-            category: input.category ?? current.category,
-            content: input.content,
-            metadata: input.metadata ?? current.metadata,
-            sourceMessageId: input.sourceMessageId ?? current.sourceMessageId,
-            status: "updated",
-            title: input.title ?? current.title,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(databaseModule.customerMemoryMemories.id, input.memoryId),
-              eq(
-                databaseModule.customerMemoryMemories.customerId,
-                input.customerId
-              ),
-              eq(
-                databaseModule.customerMemoryMemories.visitorId,
-                input.visitorId
-              )
-            )
-          )
-          .returning();
-
-        if (!row) {
-          throw new Error(
-            `Failed to update customer memory ${input.memoryId}.`
-          );
-        }
-
-        await insertMemoryEvent(
-          {
-            afterContent: row.content,
-            beforeContent: current.content,
-            customerId: row.customerId,
-            memoryId: row.id,
-            metadata: normalizeMetadata(row.metadata),
-            operation: "update",
-            reason: input.reason ?? null,
-            sourceMessageId: row.sourceMessageId,
-            threadId: row.threadId,
-            visitorId: row.visitorId,
-          },
-          transactionModule
-        );
-
-        savedMemory = normalizeMemoryRecord(row);
-      });
-
-      if (!savedMemory) {
-        throw new Error(`Failed to update customer memory ${input.memoryId}.`);
-      }
-
-      return savedMemory;
-    },
+    createMemory: createDatabaseMemory,
+    deleteMemory: deleteDatabaseMemory,
+    listEventsForCustomer: listDatabaseEventsForCustomer,
+    listVisibleMemoriesForCustomer: listDatabaseVisibleMemoriesForCustomer,
+    markMemoryAccessed: markDatabaseMemoryAccessed,
+    recordEvent: async (input) =>
+      insertMemoryEvent(input, await loadCustomerMemoryAgentDatabase()),
+    updateMemory: updateDatabaseMemory,
   };
 }
 

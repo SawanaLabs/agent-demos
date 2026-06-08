@@ -2,6 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
+import type { UltraChatbotAgentChatRecord } from "../server/chat-store";
 import { UltraChatbotAgentHistoryItem } from "./ultra-chatbot-agent-history-item";
 
 vi.mock("next/link", () => ({
@@ -36,17 +37,33 @@ function getOpeningTagBeforeText(
   return markup.slice(tagStart, tagEnd);
 }
 
+function createChatRecord(
+  input: Partial<UltraChatbotAgentChatRecord> = {}
+): UltraChatbotAgentChatRecord {
+  return {
+    activeStreamId: null,
+    capabilities: {
+      sandboxEnabled: false,
+    },
+    createdAt: "2026-06-07T03:00:00.000Z",
+    id: "chat-1",
+    selectedChatModel: "openai/gpt-4.1-mini",
+    title: "Test chat",
+    updatedAt: "2026-06-07T03:35:00.000Z",
+    visibility: "private",
+    visitorId: "visitor-1",
+    ...input,
+  };
+}
+
 describe("UltraChatbotAgentHistoryItem", () => {
   it("lets long chat titles shrink and wrap inside the mobile history column", () => {
     const title = "Draft a launch brief for a developer-facing AI feature.";
     const markup = renderToStaticMarkup(
       <UltraChatbotAgentHistoryItem
-        chat={{
-          id: "chat-1",
+        chat={createChatRecord({
           title,
-          updatedAt: "2026-06-07T03:35:00.000Z",
-          visibility: "private",
-        }}
+        })}
         isActive={true}
       />
     );

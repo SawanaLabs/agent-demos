@@ -8,12 +8,12 @@ vi.mock("bash-tool", () => ({
   experimental_createSkillTool: createSkillToolMock,
 }));
 
-describe("createSkillsAgentOfficialTools", () => {
-  beforeEach(() => {
-    createBashToolMock.mockReset();
-    createSkillToolMock.mockReset();
-  });
+beforeEach(() => {
+  createBashToolMock.mockReset();
+  createSkillToolMock.mockReset();
+});
 
+describe("createSkillsAgentOfficialTools toolkit assembly", () => {
   it("builds the skills-agent tool suite from the official bash-tool package", async () => {
     createSkillToolMock.mockResolvedValue({
       files: {
@@ -101,7 +101,9 @@ describe("createSkillsAgentOfficialTools", () => {
       ])
     );
   });
+});
 
+describe("createSkillsAgentOfficialTools skill aliases", () => {
   it("normalizes skill aliases before loading and executing the official skill tool", async () => {
     const officialExecute = vi.fn().mockResolvedValue({
       skill: {
@@ -178,7 +180,9 @@ describe("createSkillsAgentOfficialTools", () => {
       skillName: "skill-creator",
     });
   });
+});
 
+describe("createSkillsAgentOfficialTools sandbox skills", () => {
   it("loads a skill created inside the sandbox after the official skill snapshot", async () => {
     const officialExecute = vi.fn().mockResolvedValue({
       error: 'Skill "word-skill" not found. Available skills: skill-creator',

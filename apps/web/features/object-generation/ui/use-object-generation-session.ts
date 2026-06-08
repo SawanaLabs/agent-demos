@@ -41,6 +41,73 @@ export interface ObjectGenerationSessionController {
   submitReview: (text: string) => Promise<void>;
 }
 
+function useObjectGenerationSessionRefs() {
+  return {
+    activeEntryIdRef: useRef<string | null>(null),
+    entriesRef: useRef<ReviewThreadEntry[]>([]),
+    latestObjectRef: useRef<DeepPartial<ObjectGenerationResult> | undefined>(
+      undefined
+    ),
+    pendingAttachmentsRef: useRef<PendingReviewAttachment[]>([]),
+  };
+}
+
+function useSyncObjectGenerationSessionRefs(
+  refs: ReturnType<typeof useObjectGenerationSessionRefs>,
+  input: {
+    activeEntryId: string | null;
+    entries: ReviewThreadEntry[];
+    object: DeepPartial<ObjectGenerationResult> | undefined;
+    pendingAttachments: PendingReviewAttachment[];
+  }
+) {
+  useEffect(() => {
+    refs.pendingAttachmentsRef.current = input.pendingAttachments;
+  }, [input.pendingAttachments, refs.pendingAttachmentsRef]);
+
+  useEffect(() => {
+    refs.entriesRef.current = input.entries;
+  }, [input.entries, refs.entriesRef]);
+
+  useEffect(() => {
+    refs.activeEntryIdRef.current = input.activeEntryId;
+  }, [input.activeEntryId, refs.activeEntryIdRef]);
+
+  useEffect(() => {
+    refs.latestObjectRef.current = input.object;
+  }, [input.object, refs.latestObjectRef]);
+
+  useEffect(
+    () => () => {
+      for (const url of collectReviewPreviewUrls(
+        refs.pendingAttachmentsRef.current,
+        refs.entriesRef.current
+      )) {
+        URL.revokeObjectURL(url);
+      }
+    },
+    [refs.entriesRef, refs.pendingAttachmentsRef]
+  );
+}
+
+function useDisplayReviewThreadEntries(input: {
+  activeEntryId: string | null;
+  entries: ReviewThreadEntry[];
+  isLoading: boolean;
+  object: DeepPartial<ObjectGenerationResult> | undefined;
+}) {
+  return useMemo(
+    () =>
+      toDisplayReviewThreadEntries(
+        input.entries,
+        input.activeEntryId,
+        input.isLoading,
+        input.object
+      ),
+    [input.entries, input.activeEntryId, input.isLoading, input.object]
+  );
+}
+
 export function useObjectGenerationSession(): ObjectGenerationSessionController {
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingReviewAttachment[]
@@ -49,12 +116,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
   const [entries, setEntries] = useState<ReviewThreadEntry[]>([]);
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
   const [inputResetKey, setInputResetKey] = useState(0);
-  const pendingAttachmentsRef = useRef<PendingReviewAttachment[]>([]);
-  const entriesRef = useRef<ReviewThreadEntry[]>([]);
-  const latestObjectRef = useRef<
-    DeepPartial<ObjectGenerationResult> | undefined
-  >(undefined);
-  const activeEntryIdRef = useRef<string | null>(null);
+  const refs = useObjectGenerationSessionRefs();
 
   const { clear, error, isLoading, object, stop, submit } = useObject<
     typeof objectGenerationResultSchema,
@@ -66,7 +128,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
   >({
     api: "/api/demos/object-generation",
     onError(streamError) {
-      const entryId = activeEntryIdRef.current;
+      const entryId = refs.activeEntryIdRef.current;
 
       if (!entryId) {
         return;
@@ -77,23 +139,23 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
           current,
           entryId,
           streamError.message,
-          latestObjectRef.current
+          refs.latestObjectRef.current
         )
       );
       setActiveEntryId(null);
     },
     async onFinish({ error: finishError, object: finalObject }) {
-      const entryId = activeEntryIdRef.current;
+      const entryId = refs.activeEntryIdRef.current;
 
       if (!entryId) {
         return;
       }
 
-      const currentEntry = entriesRef.current.find(
+      const currentEntry = refs.entriesRef.current.find(
         (entry) => entry.id === entryId
       );
       const result =
-        finalObject ?? latestObjectRef.current ?? currentEntry?.result;
+        finalObject ?? refs.latestObjectRef.current ?? currentEntry?.result;
 
       setEntries((current) =>
         current.map((entry) =>
@@ -112,33 +174,19 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
     schema: objectGenerationResultSchema,
   });
 
-  useEffect(() => {
-    pendingAttachmentsRef.current = pendingAttachments;
-  }, [pendingAttachments]);
+  useSyncObjectGenerationSessionRefs(refs, {
+    activeEntryId,
+    entries,
+    object,
+    pendingAttachments,
+  });
 
-  useEffect(() => {
-    entriesRef.current = entries;
-  }, [entries]);
-
-  useEffect(() => {
-    activeEntryIdRef.current = activeEntryId;
-  }, [activeEntryId]);
-
-  useEffect(() => {
-    latestObjectRef.current = object;
-  }, [object]);
-
-  useEffect(
-    () => () => {
-      for (const url of collectReviewPreviewUrls(
-        pendingAttachmentsRef.current,
-        entriesRef.current
-      )) {
-        URL.revokeObjectURL(url);
-      }
-    },
-    []
-  );
+  const displayEntries = useDisplayReviewThreadEntries({
+    activeEntryId,
+    entries,
+    isLoading,
+    object,
+  });
 
   function removePendingAttachment(attachmentId: string) {
     setPendingAttachments((current) => {
@@ -190,7 +238,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
         }),
       ]);
       setActiveEntryId(entryId);
-      latestObjectRef.current = undefined;
+      refs.latestObjectRef.current = undefined;
       submit({
         attachments: requestAttachments,
         prompt,
@@ -207,7 +255,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
   }
 
   function stopReview() {
-    const entryId = activeEntryIdRef.current;
+    const entryId = refs.activeEntryIdRef.current;
 
     stop();
 
@@ -216,7 +264,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
     }
 
     setEntries((current) =>
-      stopReviewThreadEntry(current, entryId, latestObjectRef.current)
+      stopReviewThreadEntry(current, entryId, refs.latestObjectRef.current)
     );
     setActiveEntryId(null);
   }
@@ -229,7 +277,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
     clear();
     setEntries((current) => restartReviewThreadEntry(current, entry.id));
     setActiveEntryId(entry.id);
-    latestObjectRef.current = undefined;
+    refs.latestObjectRef.current = undefined;
     submit({
       attachments: entry.requestAttachments,
       prompt: entry.prompt,
@@ -238,11 +286,7 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
 
   return {
     composerError,
-    entries: useMemo(
-      () =>
-        toDisplayReviewThreadEntries(entries, activeEntryId, isLoading, object),
-      [entries, activeEntryId, isLoading, object]
-    ),
+    entries: displayEntries,
     hasMessages: entries.length > 0,
     inputResetKey,
     isLoading,

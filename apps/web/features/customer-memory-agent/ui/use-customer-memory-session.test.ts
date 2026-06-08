@@ -5,7 +5,7 @@ import { customerMemoryProfiles } from "../customer-profiles";
 import {
   resolveCustomerMemorySessionMessages,
   shouldApplyCustomerMemorySessionRefresh,
-} from "./use-customer-memory-session";
+} from "./use-customer-memory-session-runtime";
 
 function getTestCustomerMemoryProfile() {
   const profile = customerMemoryProfiles[0];

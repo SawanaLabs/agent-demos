@@ -4,12 +4,13 @@ import { describe, expect, it } from "vitest";
 import { customerMemoryProfiles } from "../customer-profiles";
 import {
   buildCustomerMemorySessionViewState,
+  getCustomerMemoryCompactionControlState,
   getCustomerMemoryPendingCompaction,
   getLatestCustomerMemoryPrompt,
   removeEmptyCustomerMemoryAssistantMessages,
 } from "./customer-memory-session";
 
-describe("customer-memory session helpers", () => {
+describe("customer-memory session view state", () => {
   it("reads the latest non-empty user prompt from a thread", () => {
     expect(
       getLatestCustomerMemoryPrompt([
@@ -127,36 +128,71 @@ describe("customer-memory session helpers", () => {
       threadCount: 1,
     });
   });
+});
 
+describe("customer-memory session compaction state", () => {
   it("reports pending compaction only when a loading thread crosses a new compaction target", () => {
     expect(
       getCustomerMemoryPendingCompaction({
-        compactionThreshold: 3,
+        compactionThreshold: 20,
         isSessionLoading: true,
         latestCompactionMessageCount: null,
-        messageCount: 4,
+        messageCount: 20,
       })
-    ).toEqual({ messageCount: 2 });
+    ).toEqual({ messageCount: 18 });
 
     expect(
       getCustomerMemoryPendingCompaction({
-        compactionThreshold: 3,
+        compactionThreshold: 20,
         isSessionLoading: true,
-        latestCompactionMessageCount: 2,
-        messageCount: 4,
+        latestCompactionMessageCount: 18,
+        messageCount: 37,
       })
     ).toBeNull();
 
     expect(
       getCustomerMemoryPendingCompaction({
-        compactionThreshold: 3,
+        compactionThreshold: 20,
         isSessionLoading: false,
         latestCompactionMessageCount: null,
-        messageCount: 4,
+        messageCount: 20,
       })
     ).toBeNull();
   });
 
+  it("builds manual compaction control state from uncompacted message count", () => {
+    expect(
+      getCustomerMemoryCompactionControlState({
+        compactionThreshold: 20,
+        latestCompactionMessageCount: null,
+        messageCount: 2,
+      })
+    ).toMatchObject({
+      canCompactManually: false,
+      compactableMessageCount: 0,
+      progressRatio: 0.1,
+      remainingUntilAutomaticCompact: 18,
+      uncompactedMessageCount: 2,
+    });
+
+    expect(
+      getCustomerMemoryCompactionControlState({
+        compactionThreshold: 20,
+        latestCompactionMessageCount: 18,
+        messageCount: 21,
+      })
+    ).toMatchObject({
+      canCompactManually: true,
+      compactableMessageCount: 1,
+      progressRatio: 0.15,
+      remainingUntilAutomaticCompact: 17,
+      targetMessageCount: 19,
+      uncompactedMessageCount: 3,
+    });
+  });
+});
+
+describe("customer-memory session message cleanup", () => {
   it("removes empty assistant messages from retry cleanup without touching tool-only turns", () => {
     const messages: UIMessage[] = [
       {

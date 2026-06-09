@@ -10,7 +10,7 @@ const missingGatewaySetupPattern = /AI_GATEWAY_API_KEY/i;
 describe("customer memory runtime", () => {
   it("reports setup requirements when gateway or database config is missing", () => {
     expect(getCustomerMemoryRuntimeState({})).toMatchObject({
-      compactionThreshold: 3,
+      compactionThreshold: 20,
       isChatAvailable: false,
       setupMessage: expect.stringMatching(missingGatewaySetupPattern),
       statusLabel: "Setup required",
@@ -25,7 +25,7 @@ describe("customer memory runtime", () => {
       })
     ).toMatchObject({
       chatModel: expect.any(String),
-      compactionThreshold: 3,
+      compactionThreshold: 20,
       isChatAvailable: true,
       setupMessage: null,
       statusLabel: "Ready",

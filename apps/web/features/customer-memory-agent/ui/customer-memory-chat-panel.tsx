@@ -43,6 +43,7 @@ import type { ChatStatus, UIMessage } from "ai";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import type { CustomerMemorySessionData } from "../session-data";
+import { CustomerMemoryManualCompactAction } from "./customer-memory-manual-compact-action";
 import {
   getCustomerMemoryMessageText,
   getCustomerMemoryPendingCompaction,
@@ -165,10 +166,12 @@ interface CustomerMemoryChatPanelProps {
   compactionThreshold: number;
   isBusy: boolean;
   isChatAvailable: boolean;
+  isCompactingContext: boolean;
   isReadonlyAccount: boolean;
   isReady: boolean;
   isSessionLoading: boolean;
   messages: UIMessage[];
+  onCompactContext: () => Promise<void>;
   onRegenerateLastTurn: () => Promise<void>;
   onSendPrompt: (text: string) => Promise<void>;
   onStopChat: () => void;
@@ -185,10 +188,12 @@ export function CustomerMemoryChatPanel({
   compactionThreshold,
   isBusy,
   isChatAvailable,
+  isCompactingContext,
   isReadonlyAccount,
   isReady,
   isSessionLoading,
   messages,
+  onCompactContext,
   samplePrompts,
   session,
   sessionErrorMessage,
@@ -217,11 +222,17 @@ export function CustomerMemoryChatPanel({
       />
       <CustomerMemoryComposer
         chatModel={chatModel}
+        compactionThreshold={compactionThreshold}
         isBusy={isBusy}
+        isCompactingContext={isCompactingContext}
         isReadonlyAccount={isReadonlyAccount}
         isReady={isReady}
         isSessionLoading={isSessionLoading}
+        latestCompactionMessageCount={
+          session?.latestCompaction?.messageCount ?? null
+        }
         messages={messages}
+        onCompactContext={onCompactContext}
         onRegenerateLastTurn={onRegenerateLastTurn}
         onSendPrompt={onSendPrompt}
         onStopChat={onStopChat}
@@ -412,29 +423,41 @@ function CustomerMemoryContextCheckpoint({
 
 function CustomerMemoryComposer({
   chatModel,
+  compactionThreshold,
   isBusy,
+  isCompactingContext,
   isReadonlyAccount,
   isReady,
   isSessionLoading,
+  latestCompactionMessageCount,
   messages,
   samplePrompts,
   status,
+  onCompactContext,
   onRegenerateLastTurn,
   onSendPrompt,
   onStopChat,
 }: {
   chatModel: string;
+  compactionThreshold: number;
   isBusy: boolean;
+  isCompactingContext: boolean;
   isReadonlyAccount: boolean;
   isReady: boolean;
   isSessionLoading: boolean;
+  latestCompactionMessageCount: number | null;
   messages: UIMessage[];
   samplePrompts: string[];
   status: ChatStatus;
+  onCompactContext: () => Promise<void>;
   onRegenerateLastTurn: () => Promise<void>;
   onSendPrompt: (text: string) => Promise<void>;
   onStopChat: () => void;
 }) {
+  const compactionMessageCount = messages.filter(
+    hasCustomerMemoryMessageContent
+  ).length;
+
   return (
     <div className="border-foreground/10 border-t px-4 py-4">
       <div className="mx-auto w-full max-w-3xl space-y-3">
@@ -446,7 +469,11 @@ function CustomerMemoryComposer({
           <PromptInputBody>
             <PromptInputTextarea
               disabled={
-                !isReady || isBusy || isSessionLoading || isReadonlyAccount
+                !isReady ||
+                isBusy ||
+                isCompactingContext ||
+                isSessionLoading ||
+                isReadonlyAccount
               }
               placeholder={
                 isReadonlyAccount
@@ -462,6 +489,17 @@ function CustomerMemoryComposer({
               <Badge variant="outline">{chatModel}</Badge>
             </div>
             <div className="flex items-center gap-2">
+              <CustomerMemoryManualCompactAction
+                compactionThreshold={compactionThreshold}
+                isBusy={isBusy}
+                isCompactingContext={isCompactingContext}
+                isReadonlyAccount={isReadonlyAccount}
+                isReady={isReady}
+                isSessionLoading={isSessionLoading}
+                latestCompactionMessageCount={latestCompactionMessageCount}
+                messageCount={compactionMessageCount}
+                onCompactContext={onCompactContext}
+              />
               {isBusy ? (
                 <Button
                   onClick={onStopChat}
@@ -475,7 +513,7 @@ function CustomerMemoryComposer({
               ) : null}
               {messages.length > 0 ? (
                 <Button
-                  disabled={isReadonlyAccount}
+                  disabled={isCompactingContext || isReadonlyAccount}
                   onClick={() => {
                     onRegenerateLastTurn();
                   }}
@@ -488,7 +526,9 @@ function CustomerMemoryComposer({
                 </Button>
               ) : null}
               <PromptInputSubmit
-                disabled={!isReady || isBusy || isReadonlyAccount}
+                disabled={
+                  !isReady || isBusy || isCompactingContext || isReadonlyAccount
+                }
                 status={status}
               />
             </div>
@@ -501,7 +541,11 @@ function CustomerMemoryComposer({
               <Button
                 className="max-w-full justify-start text-left"
                 disabled={
-                  !isReady || isBusy || isSessionLoading || isReadonlyAccount
+                  !isReady ||
+                  isBusy ||
+                  isCompactingContext ||
+                  isSessionLoading ||
+                  isReadonlyAccount
                 }
                 key={prompt}
                 onClick={() => {

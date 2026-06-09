@@ -27,29 +27,57 @@ export function getCustomerMemoryPendingCompaction(input: {
   messageCount: number;
   recentWindow?: number;
 }) {
-  if (
-    !input.isSessionLoading ||
-    input.messageCount < input.compactionThreshold
-  ) {
+  if (!input.isSessionLoading) {
     return null;
   }
 
-  const recentWindow = input.recentWindow ?? customerMemoryRecentMessageWindow;
-  const targetMessageCount = input.messageCount - recentWindow;
-
-  if (targetMessageCount <= 0) {
-    return null;
-  }
+  const controlState = getCustomerMemoryCompactionControlState(input);
 
   if (
-    input.latestCompactionMessageCount !== null &&
-    input.latestCompactionMessageCount >= targetMessageCount
+    controlState.uncompactedMessageCount < input.compactionThreshold ||
+    controlState.targetMessageCount === null
   ) {
     return null;
   }
 
   return {
-    messageCount: targetMessageCount,
+    messageCount: controlState.targetMessageCount,
+  };
+}
+
+export function getCustomerMemoryCompactionControlState(input: {
+  compactionThreshold: number;
+  latestCompactionMessageCount: number | null;
+  messageCount: number;
+  recentWindow?: number;
+}) {
+  const recentWindow = input.recentWindow ?? customerMemoryRecentMessageWindow;
+  const latestCompactionMessageCount = input.latestCompactionMessageCount ?? 0;
+  const uncompactedMessageCount = Math.max(
+    0,
+    input.messageCount - latestCompactionMessageCount
+  );
+  const targetMessageCount = input.messageCount - recentWindow;
+  const compactableMessageCount = Math.max(
+    0,
+    targetMessageCount - latestCompactionMessageCount
+  );
+  const normalizedTargetMessageCount =
+    compactableMessageCount > 0 ? targetMessageCount : null;
+
+  return {
+    canCompactManually: compactableMessageCount > 0,
+    compactableMessageCount,
+    progressRatio:
+      input.compactionThreshold > 0
+        ? Math.min(uncompactedMessageCount / input.compactionThreshold, 1)
+        : 0,
+    remainingUntilAutomaticCompact: Math.max(
+      0,
+      input.compactionThreshold - uncompactedMessageCount
+    ),
+    targetMessageCount: normalizedTargetMessageCount,
+    uncompactedMessageCount,
   };
 }
 

@@ -8,7 +8,7 @@ import {
   getCustomerMemoryAgentEnv,
 } from "./env";
 
-export const customerMemoryCompactionThreshold = 3;
+export const customerMemoryCompactionThreshold = 20;
 export const customerMemoryRecentMessageWindow = 2;
 
 const compactionInstructions = [
@@ -85,8 +85,14 @@ export function getCustomerMemoryCompactionTargetMessageCount(input: {
 }) {
   const recentWindow = input.recentWindow ?? customerMemoryRecentMessageWindow;
   const threshold = input.threshold ?? customerMemoryCompactionThreshold;
+  const latestCompactionMessageCount =
+    input.latestCompaction?.messageCount ?? 0;
+  const uncompactedMessageCount = Math.max(
+    0,
+    input.messageCount - latestCompactionMessageCount
+  );
 
-  if (input.messageCount < threshold) {
+  if (uncompactedMessageCount < threshold) {
     return null;
   }
 
@@ -96,10 +102,24 @@ export function getCustomerMemoryCompactionTargetMessageCount(input: {
     return null;
   }
 
-  if (
-    input.latestCompaction &&
-    input.latestCompaction.messageCount >= targetCount
-  ) {
+  if (latestCompactionMessageCount >= targetCount) {
+    return null;
+  }
+
+  return targetCount;
+}
+
+export function getCustomerMemoryManualCompactionTargetMessageCount(input: {
+  latestCompaction: CustomerMemoryCompactionRecord | null;
+  messageCount: number;
+  recentWindow?: number;
+}) {
+  const recentWindow = input.recentWindow ?? customerMemoryRecentMessageWindow;
+  const latestCompactionMessageCount =
+    input.latestCompaction?.messageCount ?? 0;
+  const targetCount = input.messageCount - recentWindow;
+
+  if (targetCount <= 0 || latestCompactionMessageCount >= targetCount) {
     return null;
   }
 

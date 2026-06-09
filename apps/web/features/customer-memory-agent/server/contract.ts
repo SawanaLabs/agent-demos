@@ -15,6 +15,11 @@ interface CustomerMemoryChatRequestBody {
   threadId?: string;
 }
 
+interface CustomerMemoryThreadRequestBody {
+  customerId?: string;
+  threadId?: string;
+}
+
 function readNonEmptyString(value: unknown, errorMessage: string) {
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new Error(errorMessage);
@@ -76,5 +81,15 @@ export async function readCustomerMemoryThreadCreateRequest(body: unknown) {
 
   return {
     customerId: readNonEmptyString(customerId, invalidCustomerIdError),
+  };
+}
+
+export async function readCustomerMemoryThreadRequest(body: unknown) {
+  const { customerId, threadId } = (body ??
+    {}) as CustomerMemoryThreadRequestBody;
+
+  return {
+    customerId: readNonEmptyString(customerId, invalidCustomerIdError),
+    threadId: readNonEmptyString(threadId, invalidThreadIdError),
   };
 }

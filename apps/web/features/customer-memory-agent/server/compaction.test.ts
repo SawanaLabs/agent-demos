@@ -5,6 +5,7 @@ import {
   buildCustomerMemoryCompactionInput,
   generateCustomerMemoryCompactionSummary,
   getCustomerMemoryCompactionTargetMessageCount,
+  getCustomerMemoryManualCompactionTargetMessageCount,
 } from "./compaction";
 
 vi.mock("ai", () => ({
@@ -49,32 +50,74 @@ function createMessages(): UIMessage[] {
   ];
 }
 
-describe("customer memory compaction", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-  it("returns no compaction target before the message threshold is reached", () => {
+describe("customer memory compaction targets", () => {
+  it("returns no automatic compaction target before twenty uncompacted messages exist", () => {
     expect(
       getCustomerMemoryCompactionTargetMessageCount({
         latestCompaction: null,
-        messageCount: 2,
+        messageCount: 19,
       })
     ).toBeNull();
   });
 
-  it("returns the older window size once the threshold is crossed", () => {
+  it("returns the older window size once twenty uncompacted messages exist", () => {
     expect(
       getCustomerMemoryCompactionTargetMessageCount({
+        latestCompaction: null,
+        messageCount: 20,
+      })
+    ).toBe(18);
+  });
+
+  it("counts automatic compaction from the latest compaction boundary", () => {
+    expect(
+      getCustomerMemoryCompactionTargetMessageCount({
+        latestCompaction: {
+          createdAt: "2026-05-23T02:00:01.000Z",
+          id: "compaction-1",
+          messageCount: 18,
+          summary: "Older context already compacted.",
+          threadId: "thread-1",
+        },
+        messageCount: 37,
+      })
+    ).toBeNull();
+
+    expect(
+      getCustomerMemoryCompactionTargetMessageCount({
+        latestCompaction: {
+          createdAt: "2026-05-23T02:00:01.000Z",
+          id: "compaction-1",
+          messageCount: 18,
+          summary: "Older context already compacted.",
+          threadId: "thread-1",
+        },
+        messageCount: 38,
+      })
+    ).toBe(36);
+  });
+
+  it("returns a manual compaction target only when older uncompacted context exists", () => {
+    expect(
+      getCustomerMemoryManualCompactionTargetMessageCount({
+        latestCompaction: null,
+        messageCount: 2,
+      })
+    ).toBeNull();
+
+    expect(
+      getCustomerMemoryManualCompactionTargetMessageCount({
         latestCompaction: null,
         messageCount: 3,
       })
     ).toBe(1);
-  });
 
-  it("returns no target when the latest compaction already covers the older window", () => {
     expect(
-      getCustomerMemoryCompactionTargetMessageCount({
+      getCustomerMemoryManualCompactionTargetMessageCount({
         latestCompaction: {
           createdAt: "2026-05-23T02:00:01.000Z",
           id: "compaction-1",
@@ -86,7 +129,9 @@ describe("customer memory compaction", () => {
       })
     ).toBeNull();
   });
+});
 
+describe("customer memory compaction input", () => {
   it("builds the next handoff window from the previous handoff and only newly compactable messages", () => {
     const input = buildCustomerMemoryCompactionInput({
       latestCompaction: {
@@ -121,7 +166,9 @@ describe("customer memory compaction", () => {
       expect.objectContaining({ id: "assistant-1" }),
     ]);
   });
+});
 
+describe("customer memory compaction summary", () => {
   it("formats a handoff compaction from the previous handoff and new transcript window", async () => {
     vi.mocked(generateText).mockResolvedValue({
       text: "  ## Current customer state\nAcme needs executive-ready launch notes.  ",

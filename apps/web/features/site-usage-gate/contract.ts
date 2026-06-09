@@ -1,6 +1,7 @@
 export const siteUsageLimitErrorCode = "SITE_USAGE_LIMIT_EXCEEDED";
 
 export type SiteUsageGateAction =
+  | "compact_context"
   | "edit_message"
   | "evaluate"
   | "generate_suggestion"

@@ -53,10 +53,12 @@ export function CustomerMemoryAgentWorkspace({
         compactionThreshold={compactionThreshold}
         isBusy={controller.isBusy}
         isChatAvailable={isChatAvailable}
+        isCompactingContext={controller.isCompactingContext}
         isReadonlyAccount={controller.isReadonlyAccount}
         isReady={controller.isReady}
         isSessionLoading={controller.isSessionLoading}
         messages={controller.messages}
+        onCompactContext={controller.compactContext}
         onRegenerateLastTurn={controller.regenerateLastTurn}
         onSendPrompt={controller.sendPrompt}
         onStopChat={controller.stopChat}

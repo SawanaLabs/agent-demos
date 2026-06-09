@@ -95,6 +95,36 @@ export async function createCustomerMemoryThread(customerId: string) {
   return (await response.json()) as CustomerMemorySessionData;
 }
 
+export async function compactCustomerMemoryThread(input: {
+  customerId: string;
+  threadId: string;
+}) {
+  const response = await fetch("/api/demos/customer-memory-agent/compact", {
+    body: JSON.stringify(input),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as {
+      error?: string;
+      message?: string;
+    } | null;
+
+    throw new Error(
+      payload?.error ||
+        payload?.message ||
+        "Failed to compact the customer-memory context."
+    );
+  }
+
+  return response.json() as Promise<{
+    compaction: CustomerMemorySessionData["latestCompaction"];
+  }>;
+}
+
 export function getDefaultCustomerMemorySelection(): CustomerMemorySelection {
   return {
     customerId: customerMemoryProfiles[0]?.id ?? "acme-co",

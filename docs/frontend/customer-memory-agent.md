@@ -1,7 +1,7 @@
 ---
 title: Memory & Persistence Agent
 description: Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo.
-updateAt: 2026-06-01
+updateAt: 2026-06-09
 ---
 
 # Memory & Persistence Agent
@@ -18,8 +18,9 @@ updateAt: 2026-06-01
 - **Customer memory record**: The current durable fact, constraint, preference, risk, or follow-up that the agent keeps for one customer account and visitor scope.
 - **Memory lifecycle event**: An audit event for a memory add, update, delete, recall hit, compaction capture, or noop decision. Events explain why a memory changed without turning the memory panel into an append-only note pile.
 - **Persistent thread**: The saved chat conversation for one customer-memory session, including messages that can be restored across page loads or later visits.
-- **Handoff compaction**: A server-generated handoff note that replaces older thread context once the message-count threshold is crossed, carrying forward previous handoff state plus newly compactable messages.
-- **Compaction threshold**: The message-count limit that triggers handoff generation in the first implementation. Keep this count-based for now so the demo stays easy to test and debug.
+- **Handoff compaction**: A server-generated handoff note that replaces older thread context once the automatic message-count threshold is crossed or the user triggers manual compaction, carrying forward previous handoff state plus newly compactable messages.
+- **Compaction threshold**: The uncompacted message-count limit that triggers automatic handoff generation in the first implementation. The current threshold is 20 messages after the latest compaction boundary. Keep this count-based for now so the demo stays easy to test and debug.
+- **Manual context compaction**: A composer action that runs the same handoff generation and persistence flow before the automatic threshold, available only when more than two uncompacted messages exist so the latest two messages stay in live context.
 - **Shared demo account**: A read-only customer account whose canonical threads, saved memories, and handoff compaction are shared across every visitor.
 - **Visitor-private sandbox**: The writable fourth account. Its threads and saved memories are isolated by a cookie-scoped `visitorId`.
 - **Visitor ID**: The anonymous browser identity stored in the `cm_visitor_id` HTTP-only cookie. This demo does not model a separate user table.
@@ -46,7 +47,8 @@ updateAt: 2026-06-01
 - First-version compaction uses handoff only. Do not add semantic recall inside the compaction path.
 - When a previous handoff exists, the next compaction should merge that handoff with only the newly compactable message window. Avoid re-summarizing messages that are already covered by the previous handoff.
 - If semantic recall is added later, keep it attached to customer memory retrieval, not to handoff compaction generation.
-- The first compaction trigger is a message-count threshold, not token-usage thresholds. Message-count triggering is the current debugging and demo contract.
+- Automatic compaction triggers every 20 newly uncompacted messages after the latest compaction boundary, not from total lifetime messages. Message-count triggering is the current debugging and demo contract.
+- Manual compaction should share the automatic handoff flow and save a normal compaction record. It may compact even a short thread, but only when the thread has more than two uncompacted messages.
 - Shared demo accounts should seed one canonical thread plus durable memory records into Postgres when the database is empty. Keep that bootstrap logic in a dedicated server module so the session loader stays shallow.
 - The current cleanup contract runs on Vercel Cron at `0 20 * * *` UTC, which maps to 04:00 Asia/Shanghai. It deletes visitor-private threads whose `updatedAt` is older than three days, then removes their derived memory records, memory events, and cascaded embeddings.
 - UI should make three surfaces visible: current thread, saved customer memories, and the latest handoff compaction.
@@ -54,7 +56,8 @@ updateAt: 2026-06-01
 - The first complete workspace should be three-pane: account and thread selection on the left, the persistent chat thread in the middle, and saved memories plus the latest handoff compaction on the right.
 - The customer picker should label the first three accounts as read-only demos and the fourth account as a sandbox. While switching accounts or threads, show skeleton loading states instead of blank empty states.
 - Assistant thinking states should use the AI Elements shimmer treatment with concise product language such as `Thinking…`.
-- Context compaction should be visible inside the conversation timeline. Show a shimmer checkpoint while compaction is pending, then keep a completed checkpoint divider after the compacted message window.
+- Context compaction should be visible inside the conversation timeline. Show a shimmer checkpoint while automatic compaction is pending, then keep a completed checkpoint divider after the compacted message window.
+- The composer toolbar should expose manual context compaction as a right-side action before retry and submit. The control should show count-based progress toward automatic compaction, explain its current state in a tooltip, and use a confirmation dialog before sending the manual compact request.
 - The first TDD slice should start with persistent thread storage and restoration. Memory writes and compaction should layer on top of that base.
 
 ## Known UX Debt

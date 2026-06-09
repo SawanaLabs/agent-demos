@@ -1,11 +1,16 @@
 import type { UIMessage } from "ai";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { customerMemoryProfiles } from "../customer-profiles";
 import {
+  compactCustomerMemoryThread,
   resolveCustomerMemorySessionMessages,
   shouldApplyCustomerMemorySessionRefresh,
 } from "./use-customer-memory-session-runtime";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 function getTestCustomerMemoryProfile() {
   const profile = customerMemoryProfiles[0];
@@ -152,5 +157,29 @@ describe("customer-memory session sync", () => {
         },
       })
     ).toEqual(persistedMessages);
+  });
+});
+
+describe("customer-memory manual compaction transport", () => {
+  it("uses usage-gate message payloads for compact errors", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({ message: "Daily demo usage limit reached." }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 429,
+          }
+        )
+      )
+    );
+
+    await expect(
+      compactCustomerMemoryThread({
+        customerId: "demo-sandbox",
+        threadId: "thread-1",
+      })
+    ).rejects.toThrow("Daily demo usage limit reached.");
   });
 });

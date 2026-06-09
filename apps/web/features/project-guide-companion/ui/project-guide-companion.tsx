@@ -289,7 +289,7 @@ interface ProjectGuideCompanionPanelProps {
   surface: ProjectGuideCompanionSurface;
 }
 
-function ProjectGuideCompanionPanel({
+export function ProjectGuideCompanionPanel({
   canSend,
   error,
   input,
@@ -306,7 +306,7 @@ function ProjectGuideCompanionPanel({
   return (
     <section
       aria-label="Project guide companion"
-      className="fixed inset-x-0 bottom-0 z-50 flex max-h-[82svh] min-h-[520px] flex-col border-border border-t bg-background shadow-2xl sm:inset-auto sm:right-4 sm:bottom-4 sm:h-[min(70vh,640px)] sm:w-[400px] sm:border"
+      className="fixed inset-x-0 bottom-0 z-50 flex h-[min(82svh,620px)] min-h-0 flex-col overflow-hidden border-border border-t bg-background shadow-2xl sm:inset-auto sm:right-4 sm:bottom-4 sm:h-[min(70vh,640px)] sm:w-[400px] sm:border"
     >
       <ProjectGuideCompanionPanelHeader
         error={error}
@@ -316,7 +316,10 @@ function ProjectGuideCompanionPanel({
         surface={surface}
       />
       <Conversation className="min-h-0 flex-1">
-        <ConversationContent className="gap-4 px-3 py-3">
+        <ConversationContent
+          className="gap-4 px-3 py-3"
+          scrollClassName="overflow-y-auto overscroll-contain touch-pan-y"
+        >
           {messages.length > 0 ? (
             <ProjectGuideCompanionMessageList
               isBusy={isBusy}
@@ -330,7 +333,7 @@ function ProjectGuideCompanionPanel({
             </div>
           ) : null}
         </ConversationContent>
-        <ConversationScrollButton className="bottom-3" />
+        <ProjectGuideCompanionScrollButton />
       </Conversation>
       <div className="border-border border-t p-3">
         {messages.length === 0 ? (
@@ -360,6 +363,16 @@ function ProjectGuideCompanionPanel({
         </PromptInput>
       </div>
     </section>
+  );
+}
+
+export function ProjectGuideCompanionScrollButton() {
+  return (
+    <ConversationScrollButton
+      aria-label="Scroll companion conversation to bottom"
+      className="bottom-3 z-10"
+      title="Scroll to bottom"
+    />
   );
 }
 

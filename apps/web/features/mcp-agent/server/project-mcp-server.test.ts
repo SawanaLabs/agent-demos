@@ -42,4 +42,23 @@ describe("project docs MCP server", () => {
       },
     });
   });
+
+  it("exposes the project source search tool through MCP", async () => {
+    const response = await handleProjectDocsMcpRequest(
+      mcpRequest("tools/list")
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      id: 1,
+      jsonrpc: "2.0",
+      result: {
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            name: "search_project_sources",
+          }),
+        ]),
+      },
+    });
+  });
 });

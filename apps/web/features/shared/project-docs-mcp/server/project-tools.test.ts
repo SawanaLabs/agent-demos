@@ -4,6 +4,7 @@ import {
   listDemoCatalogForMcp,
   readDemoDocsForMcp,
   searchProjectDocsForMcp,
+  searchProjectSourcesForMcp,
 } from "./project-tools";
 
 describe("project docs MCP search", () => {
@@ -37,6 +38,46 @@ describe("project docs MCP search", () => {
     expect(
       result.matches.some((match) =>
         `${match.path} ${match.text}`.toLowerCase().includes("ultra")
+      )
+    ).toBe(true);
+  });
+
+  it("searches allowlisted project source files without generated or private paths", async () => {
+    const result = await searchProjectSourcesForMcp({
+      limit: 20,
+      query: "createProjectDocsMcpServer",
+    });
+
+    expect(result.matches).toContainEqual(
+      expect.objectContaining({
+        path: "apps/web/features/shared/project-docs-mcp/server/project-mcp-server.ts",
+      })
+    );
+    expect(
+      result.matches.every((match) =>
+        [
+          "apps/web/features/",
+          "apps/web/app/",
+          "packages/",
+          "apps/langgraph-agent-api/",
+        ].some((root) => match.path.startsWith(root))
+      )
+    ).toBe(true);
+    expect(
+      result.matches.every(
+        (match) =>
+          !(match.path.includes("/public/r/") || match.path.includes(".env"))
+      )
+    ).toBe(true);
+
+    const generatedResult = await searchProjectSourcesForMcp({
+      limit: 20,
+      query: "_journal",
+    });
+
+    expect(
+      generatedResult.matches.every(
+        (match) => !match.path.startsWith("packages/database/drizzle/meta/")
       )
     ).toBe(true);
   });

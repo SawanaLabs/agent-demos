@@ -12,6 +12,7 @@ import {
   listDemoCatalogForMcp,
   readDemoDocsForMcp,
   searchProjectDocsForMcp,
+  searchProjectSourcesForMcp,
 } from "./project-tools";
 
 const jsonText = (value: unknown) => ({
@@ -32,7 +33,7 @@ export function createProjectDocsMcpServer() {
     },
     {
       instructions:
-        "Use these tools for repository docs, demo catalog, and AI SDK recipes checklist questions.",
+        "Use these tools for repository docs, demo catalog, source search, and AI SDK recipes checklist questions.",
     }
   );
 
@@ -73,6 +74,20 @@ export function createProjectDocsMcpServer() {
     },
     async ({ limit, query }) =>
       jsonText(await searchProjectDocsForMcp({ limit, query }))
+  );
+
+  server.registerTool(
+    "search_project_sources",
+    {
+      description:
+        "Search allowlisted project source files for line-level matches.",
+      inputSchema: {
+        limit: z.number().int().min(1).max(30).optional(),
+        query: z.string().min(1),
+      },
+    },
+    async ({ limit, query }) =>
+      jsonText(await searchProjectSourcesForMcp({ limit, query }))
   );
 
   return server;

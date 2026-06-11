@@ -1,7 +1,7 @@
 ---
 title: MCP Agent
 description: Stable source-core and UX conventions for the MCP Runtime Doctor Agent demo.
-updateAt: 2026-05-24
+updateAt: 2026-06-11
 ---
 
 # MCP Agent
@@ -13,7 +13,7 @@ updateAt: 2026-05-24
 
 ## Domain Language
 
-- **Project Docs MCP**: Built-in HTTP MCP server that exposes repository docs, demo catalog metadata, and the AI SDK recipes checklist.
+- **Project Docs MCP**: Built-in HTTP MCP server that exposes repository docs, allowlisted repository source search, demo catalog metadata, and the AI SDK recipes checklist.
 - **Next.js Runtime MCP**: Optional stdio MCP server powered by `next-devtools-mcp` for local route, log, and runtime diagnostics.
 - **Namespaced MCP tool**: A tool exposed to the model with a server prefix such as `project__read_demo_docs` or `nextjs__get_errors`.
 
@@ -31,6 +31,7 @@ updateAt: 2026-05-24
 - Keep the `/demos/mcp-agent` page dynamically rendered so setup state is read from the runtime environment that the chat API route uses. Do not let build-time env snapshots disable a runtime-ready deployment.
 - When MCP agent setup is unavailable, disable every chat-turn entry path, including the composer, submit button, sample prompts, and retry. UI handlers should also guard against sending while setup is unavailable or a turn is already busy.
 - Project Docs MCP tools should read durable docs from `docs/` and feature-local `README.md` files rather than scraping rendered pages.
+- Project Docs MCP source search should stay read-only and allowlisted to `apps/web/features/**`, `apps/web/app/**`, `packages/**`, and `apps/langgraph-agent-api/**`. Keep generated, build, dependency, hidden, and private paths out of tool results.
 - The first suggestions should cover both scenes without a mode label: project docs review, Next.js runtime diagnostics, and checklist-driven demo planning.
 
 ## Update Triggers

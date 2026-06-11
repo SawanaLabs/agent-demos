@@ -10,6 +10,7 @@ import {
   type ProjectDemoStatus,
   type ProjectDocsCatalogEntry,
 } from "./project-docs-catalog";
+import { listProjectSourceSearchPaths } from "./project-source-catalog";
 
 export interface ProjectDocFile {
   content: string;
@@ -33,6 +34,17 @@ interface ScoredProjectDocSearchMatch extends ProjectDocSearchMatch {
   score: number;
 }
 
+export interface ProjectSourceSearchMatch {
+  line: number;
+  path: string;
+  text: string;
+}
+
+interface ScoredProjectSourceSearchMatch extends ProjectSourceSearchMatch {
+  order: number;
+  score: number;
+}
+
 export const projectMcpToolDefinitions = [
   {
     description:
@@ -48,6 +60,11 @@ export const projectMcpToolDefinitions = [
     description:
       "Search the project docs system for concise line-level matches.",
     name: "search_project_docs",
+  },
+  {
+    description:
+      "Search allowlisted project source files in apps/web/features, apps/web/app, packages, and apps/langgraph-agent-api.",
+    name: "search_project_sources",
   },
 ] as const;
 
@@ -256,6 +273,74 @@ export async function searchProjectDocsForMcp({
           path: file.path,
           score,
           text: line.trim(),
+        });
+        order += 1;
+      }
+    });
+  }
+
+  return {
+    matches: matches
+      .sort(
+        (left, right) => right.score - left.score || left.order - right.order
+      )
+      .slice(0, limit)
+      .map(({ line, path: matchPath, text }) => ({
+        line,
+        path: matchPath,
+        text,
+      })),
+    query,
+  };
+}
+
+export async function searchProjectSourcesForMcp({
+  limit = 12,
+  query,
+}: {
+  limit?: number;
+  query: string;
+}) {
+  const normalizedQuery = normalizeSearchText(query.trim());
+
+  if (!normalizedQuery) {
+    throw new Error("Expected a non-empty source search query.");
+  }
+
+  const tokens = getSearchTokens(query);
+  const matches: ScoredProjectSourceSearchMatch[] = [];
+  const root = findProjectRoot();
+  const sourceSearchPaths = await listProjectSourceSearchPaths(root);
+  let order = 0;
+
+  for (const sourcePath of sourceSearchPaths) {
+    const file = await readRepoFile(sourcePath, root);
+
+    if (!file) {
+      continue;
+    }
+
+    file.content.split("\n").forEach((line, index) => {
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine) {
+        return;
+      }
+
+      const score = scoreSearchLine({
+        line: trimmedLine,
+        normalizedQuery,
+        path: file.path,
+        tokens,
+      });
+
+      if (score > 0) {
+        matches.push({
+          line: index + 1,
+          order,
+          path: file.path,
+          score,
+          text: trimmedLine,
         });
         order += 1;
       }

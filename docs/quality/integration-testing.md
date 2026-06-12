@@ -1,7 +1,7 @@
 ---
 title: Integration Testing
 description: General conventions for repository integration tests, including Vercel Sandbox-backed contract tests.
-updateAt: 2026-06-04
+updateAt: 2026-06-12
 ---
 
 # Integration Testing
@@ -28,6 +28,7 @@ updateAt: 2026-06-04
 ## Current Subdomain Docs
 
 - Keep unit tests and integration tests separate. Normal quality gates should keep running fast tests by default; provider-backed tests should require explicit opt-in.
+- Default test commands must not discover `*.integration.test.ts` files. The web app's default Vitest config excludes those specs; `apps/web/vitest.integration.config.ts` is the only Vitest config that includes them.
 - Treat integration tests as complements to unit tests. If behavior can be fully verified with a unit or narrow module contract test, keep it there; integration tests should add evidence that unit tests cannot provide, such as real provider auth, sandbox lifecycle, file I/O, command execution, or cross-process behavior.
 - Use Vitest for server-side integration tests unless the test must verify browser behavior. The current integration config is `apps/web/vitest.integration.config.ts`, and it includes only `features/**/*.integration.test.ts`.
 - Integration tests should fail early with explicit setup errors. Do not silently skip a provider-backed test after the integration command has been explicitly requested.
@@ -75,6 +76,7 @@ updateAt: 2026-06-04
 
 - Run the provider-backed integration suite from the repo root with `pnpm test:integration:sandbox`.
 - Run it from `apps/web` with `pnpm test:integration:sandbox`.
+- Run default local unit and contract tests from the repo root with `pnpm test` or `pnpm test:unit`; these commands exclude provider-backed integration specs.
 - The explicit sandbox command sources root and app `.env`, `.env.local`, and `.env.development.local` files, then sets `VERCEL_SANDBOX_INTEGRATION=1` before running Vitest.
 - The lower-level form still works from either location with `VERCEL_SANDBOX_INTEGRATION=1 pnpm test:integration`.
 - Running the integration command without `VERCEL_SANDBOX_INTEGRATION=1` is expected to fail fast before creating any sandbox.

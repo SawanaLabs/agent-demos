@@ -1,26 +1,16 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { configDefaults, defineConfig } from "vitest/config";
+import { configDefaults, defineConfig, mergeConfig } from "vitest/config";
+import baseConfig from "./vitest.base.config";
 
-const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
-
-export default defineConfig({
-  oxc: {
-    jsx: {
-      importSource: "react",
-      runtime: "automatic",
+export default mergeConfig(
+  baseConfig,
+  defineConfig({
+    test: {
+      exclude: [
+        ...configDefaults.exclude,
+        "**/*.integration.test.ts",
+        "features/demo-catalog/registry-availability.test.mjs",
+      ],
+      testTimeout: 30_000,
     },
-  },
-  resolve: {
-    alias: {
-      "@": currentDirectory,
-    },
-  },
-  test: {
-    environment: "node",
-    exclude: [
-      ...configDefaults.exclude,
-      "features/demo-catalog/registry-availability.test.mjs",
-    ],
-  },
-});
+  })
+);

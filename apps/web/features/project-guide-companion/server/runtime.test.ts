@@ -29,7 +29,7 @@ describe("project guide companion runtime", () => {
         AI_GATEWAY_API_KEY: "test-key",
       })
     ).toMatchObject({
-      chatModel: "openai/gpt-4.1-mini",
+      chatModel: "zai/glm-5",
       isChatAvailable: true,
       statusLabel: "Ready",
     });
@@ -78,6 +78,7 @@ describe("project guide companion runtime", () => {
               text: "What is this project?",
             }),
           ],
+          selectedChatModel: "openai/gpt-5-mini",
         }),
         method: "POST",
       }),
@@ -95,8 +96,34 @@ describe("project guide companion runtime", () => {
       [expect.objectContaining({ id: "fresh" })],
       expect.objectContaining({
         AI_GATEWAY_API_KEY: "test-key",
-      })
+      }),
+      "openai/gpt-5-mini"
     );
     await expect(response.json()).resolves.toEqual({ ids: ["fresh"] });
+  });
+
+  it("rejects unsupported selected companion models", async () => {
+    const streamProjectGuideCompanion = vi.fn();
+    const response = await handleProjectGuideCompanionRequest(
+      new Request("http://localhost/api/project-guide-companion", {
+        body: JSON.stringify({
+          messages: [],
+          selectedChatModel: "deepseek/deepseek-v4-flash",
+        }),
+        method: "POST",
+      }),
+      {
+        AI_GATEWAY_API_KEY: "test-key",
+      },
+      {
+        streamProjectGuideCompanion,
+      }
+    );
+
+    expect(response.status).toBe(400);
+    expect(streamProjectGuideCompanion).not.toHaveBeenCalled();
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringMatching(/Unsupported selectedChatModel/i),
+    });
   });
 });

@@ -1,7 +1,7 @@
 ---
 title: Project Guide Companion
 description: Site-owned companion chatbot boundary, page visibility policy, session history policy, and Project Docs MCP answer surface.
-updateAt: 2026-06-08
+updateAt: 2026-06-12
 ---
 
 # Project Guide Companion
@@ -50,6 +50,7 @@ updateAt: 2026-06-08
 - Keep the companion implementation in its own feature slice, currently `apps/web/features/project-guide-companion`, so it can evolve independently from homepage gallery code and demo workspace code.
 - Use durable project knowledge as the answer source, especially `CONTEXT.md`, `docs/`, demo catalog metadata, and feature README files.
 - Directly mirror the existing Project Docs MCP document function as the first capability boundary: list demo catalog entries, read durable docs for a demo slug, and search the project docs system for line-level matches.
+- Treat Project Docs MCP and repository-source access as agent-only access. The visitor can receive that evidence only through the **Project Guide Companion**, so answers should translate retrieved evidence into a direct response and use file paths as citations or next steps.
 - Treat homepage greetings and visible starter prompts as **Companion Suggestions** only. They should help visitors start with project-introduction questions, but they must not narrow what the companion can answer from Project Docs MCP evidence.
 - Prefer the existing Project Docs MCP read/search/list capability as the first retrieval path. Do not require Vercel Sandbox for project-docs answers.
 - Do not route companion API calls through `/api/demos/*`; the companion should not be counted or classified as a demo route. The first route is `/api/project-guide-companion`.
@@ -76,6 +77,7 @@ updateAt: 2026-06-08
 - The **Companion Context Window** length is 30 minutes. The visible transcript may stay available until the browser tab session ends, but only the 30-minute window should be sent as model context.
 - The model replay projection should keep user text, assistant answer text, and useful source summaries, while excluding raw MCP JSON and expanded tool payloads from history context.
 - Provide a clear-history affordance inside the companion panel so visitors can discard tab-local context when the conversation drifts or the browser is shared.
+- Expose a compact model selector in the composer footer. The default model is `zai/glm-5`, with `openai/gpt-4.1-mini` and `openai/gpt-5-mini` as selectable alternatives.
 - Render Project Docs MCP tool use with a custom **Companion Tool Line**, not the full `mcp-agent` workspace `Tool` card.
 - While a docs tool is running, show a single shimmering line such as a searching/reading status rather than an expanded parameter panel.
 - After a docs tool completes, collapse the trace into a source-oriented line that names the relevant file paths, demo titles, or match count.
@@ -89,3 +91,4 @@ updateAt: 2026-06-08
 - Update this file when the companion's page visibility policy changes.
 - Update this file when the companion becomes registry-distributed, demo-cataloged, or tied to a different project knowledge source.
 - Update this file when the companion changes persistence carrier, context-window length, or client/server history ownership.
+- Update this file when the companion default model or selectable model set changes.

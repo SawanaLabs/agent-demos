@@ -23,12 +23,18 @@ describe("vercel sandbox integration test command", () => {
       readJsonFile(path.join(repoRoot, "apps/web/package.json")),
     ]);
 
+    expect(rootPackage.scripts.test).toBe("pnpm test:unit");
+    expect(rootPackage.scripts["test:unit"]).toBe(
+      "pnpm --dir apps/web test:unit && node --test scripts/registry-sync/registry-projection.test.mjs && pnpm registry:catalog:check"
+    );
     expect(rootPackage.scripts["test:integration"]).toBe(
       "pnpm --dir apps/web test:integration"
     );
     expect(rootPackage.scripts["test:integration:sandbox"]).toBe(
       "pnpm --dir apps/web test:integration:sandbox"
     );
+    expect(webPackage.scripts.test).toBe("pnpm test:unit");
+    expect(webPackage.scripts["test:unit"]).toBe("vitest run");
     expect(webPackage.scripts["test:integration"]).toBe(
       "../../scripts/test/run-web-integration.sh"
     );
@@ -51,5 +57,21 @@ describe("vercel sandbox integration test command", () => {
     await expect(
       execFileAsync("bash", ["-n", runnerPath])
     ).resolves.toBeTruthy();
+  });
+
+  it("keeps provider-backed integration specs out of the default vitest config", async () => {
+    const [unitConfig, integrationConfig] = await Promise.all([
+      readFile(path.join(repoRoot, "apps/web/vitest.config.ts"), "utf-8"),
+      readFile(
+        path.join(repoRoot, "apps/web/vitest.integration.config.ts"),
+        "utf-8"
+      ),
+    ]);
+
+    expect(unitConfig).toContain('"**/*.integration.test.ts"');
+    expect(integrationConfig).toContain(
+      'include: ["features/**/*.integration.test.ts"]'
+    );
+    expect(integrationConfig).toContain("exclude: [...configDefaults.exclude]");
   });
 });

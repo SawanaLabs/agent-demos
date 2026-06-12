@@ -1,33 +1,24 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-interface PageModule {
-  dynamic?: string;
-}
-
-interface TestImportMeta extends ImportMeta {
-  glob<TModule>(pattern: string): Record<string, () => Promise<TModule>>;
-}
-
-const pageModules = (import.meta as TestImportMeta).glob<PageModule>(
-  "./*/page.tsx"
-);
-const demoSlugs = Object.keys(pageModules)
-  .map((path) => path.match(/^\.\/(?<slug>[^/]+)\/page\.tsx$/)?.groups?.slug)
-  .filter((slug): slug is string => Boolean(slug))
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
+const demoSlugs = readdirSync(currentDirectory, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .filter((slug) => existsSync(path.join(currentDirectory, slug, "page.tsx")))
   .sort();
 
 describe("demo page rendering", () => {
   it.each(
     demoSlugs
-  )("%s renders dynamically so setup state matches runtime configuration", async (slug) => {
-    const loadPageModule = pageModules[`./${slug}/page.tsx`];
+  )("%s renders dynamically so setup state matches runtime configuration", (slug) => {
+    const pageSource = readFileSync(
+      path.join(currentDirectory, slug, "page.tsx"),
+      "utf-8"
+    );
 
-    if (!loadPageModule) {
-      throw new Error(`Missing page module for demo slug "${slug}".`);
-    }
-
-    const pageModule = await loadPageModule();
-
-    expect(pageModule.dynamic).toBe("force-dynamic");
-  }, 20_000);
+    expect(pageSource).toMatch(/export const dynamic = "force-dynamic";/);
+  });
 });

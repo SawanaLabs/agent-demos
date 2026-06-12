@@ -16,6 +16,7 @@ import {
   readDemoDocsForMcp,
   searchProjectDocsForMcp,
 } from "@/features/shared/project-docs-mcp/server/project-tools";
+import { resolveProjectGuideCompanionModelId } from "../model-catalog";
 import {
   createProjectGuideCompanionGateway,
   getProjectGuideCompanionConfig,
@@ -23,10 +24,11 @@ import {
   type ProjectGuideCompanionEnv,
 } from "./env";
 
-const projectGuideCompanionSystemPrompt = [
+export const projectGuideCompanionSystemPrompt = [
   "You are the Project Guide Companion for this AI SDK 6 AI Elements demos website.",
   "Help visitors understand the project, choose demos to inspect, and find relevant implementation or docs paths.",
   "Use the project docs tools for grounded answers. Do not invent repository facts when the tools do not provide evidence.",
+  "The visitor cannot directly read your MCP tool results or local repository files. You have project-docs access on their behalf, so translate retrieved evidence into the answer and use paths as citations or next steps.",
   "Keep answers concise, technical, and friendly. Mention source paths or demo titles when they matter.",
   "The visible companion history is browser-session context from the visitor and may be stale or incomplete.",
 ].join(" ");
@@ -64,10 +66,15 @@ function createProjectGuideCompanionTools() {
 
 export async function streamProjectGuideCompanion(
   messages: UIMessage[],
-  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv()
+  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv(),
+  selectedChatModel?: string
 ) {
   const gateway = createProjectGuideCompanionGateway(env);
-  const { chatModel } = getProjectGuideCompanionConfig(env);
+  const { chatModel: configuredChatModel } =
+    getProjectGuideCompanionConfig(env);
+  const chatModel = resolveProjectGuideCompanionModelId(
+    selectedChatModel ?? configuredChatModel
+  );
   const result = streamText({
     messages: await convertToModelMessages(messages),
     model: gateway(chatModel),

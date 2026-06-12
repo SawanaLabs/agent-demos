@@ -1,7 +1,19 @@
+import {
+  Conversation,
+  ConversationContent,
+} from "@workspace/ui/components/ai-elements/conversation";
 import type { UIMessage } from "ai";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import {
+  findProjectGuideCompanionModel,
+  getProjectGuideCompanionDefaultModel,
+} from "../model-catalog";
+import {
+  ProjectGuideCompanionPanel,
+  ProjectGuideCompanionScrollButton,
+} from "./project-guide-companion-panel";
 
 vi.mock("@ai-sdk/react", () => ({
   useChat: () => ({
@@ -36,6 +48,49 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("@workspace/ui/components/ai-elements/model-selector", () => ({
+  ModelSelector: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ModelSelectorContent: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ModelSelectorEmpty: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ModelSelectorGroup: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ModelSelectorInput: ({ placeholder }: { placeholder?: string }) => (
+    <input placeholder={placeholder} />
+  ),
+  ModelSelectorItem: ({
+    children,
+    onSelect,
+    value,
+  }: {
+    children: ReactNode;
+    onSelect?: () => void;
+    value?: string;
+  }) => (
+    <button data-value={value} onClick={onSelect} type="button">
+      {children}
+    </button>
+  ),
+  ModelSelectorList: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  ModelSelectorLogo: ({ provider }: { provider: string }) => (
+    <span data-provider={provider} />
+  ),
+  ModelSelectorName: ({ children }: { children: ReactNode }) => (
+    <span>{children}</span>
+  ),
+  ModelSelectorTrigger: ({ children }: { children: ReactNode }) => (
+    <button type="button">{children}</button>
+  ),
+}));
+
 const messages: UIMessage[] = [
   {
     id: "message-1",
@@ -50,24 +105,35 @@ const messages: UIMessage[] = [
 ];
 
 describe("ProjectGuideCompanionPanel", () => {
-  it("keeps mobile conversation scrolling inside the drawer", async () => {
-    const { ProjectGuideCompanionPanel } = await import(
-      "./project-guide-companion"
-    );
+  function loadPanelModelProps() {
+    const selectedChatModel = getProjectGuideCompanionDefaultModel();
+
+    return {
+      isModelSelectorOpen: false,
+      onModelChange: () => undefined,
+      onModelSelectorOpenChange: () => undefined,
+      selectedChatModel,
+      selectedModel: findProjectGuideCompanionModel(selectedChatModel),
+    };
+  }
+
+  it("keeps mobile conversation scrolling inside the drawer", () => {
+    const modelProps = loadPanelModelProps();
     const markup = renderToStaticMarkup(
       <ProjectGuideCompanionPanel
         canSend={false}
         error={undefined}
         input=""
         isBusy={false}
+        launcherLabel="Project compass"
         messages={messages}
         onClearHistory={() => undefined}
         onClose={() => undefined}
         onInputChange={() => undefined}
         onSendMessage={() => undefined}
         onStop={() => undefined}
+        {...modelProps}
         status="ready"
-        surface="home"
       />
     );
 
@@ -78,13 +144,31 @@ describe("ProjectGuideCompanionPanel", () => {
     expect(markup).toContain("touch-pan-y");
   });
 
-  it("exposes the companion scroll-to-bottom affordance when the conversation is away from bottom", async () => {
-    const { Conversation, ConversationContent } = await import(
-      "@workspace/ui/components/ai-elements/conversation"
+  it("shows the selected model in the composer footer", () => {
+    const modelProps = loadPanelModelProps();
+    const markup = renderToStaticMarkup(
+      <ProjectGuideCompanionPanel
+        canSend={false}
+        error={undefined}
+        input=""
+        isBusy={false}
+        launcherLabel="Project compass"
+        messages={messages}
+        onClearHistory={() => undefined}
+        onClose={() => undefined}
+        onInputChange={() => undefined}
+        onSendMessage={() => undefined}
+        onStop={() => undefined}
+        {...modelProps}
+        status="ready"
+      />
     );
-    const { ProjectGuideCompanionScrollButton } = await import(
-      "./project-guide-companion"
-    );
+
+    expect(markup).toContain("GLM-5");
+    expect(markup).not.toContain(">Project docs</span>");
+  });
+
+  it("exposes the companion scroll-to-bottom affordance when the conversation is away from bottom", () => {
     const markup = renderToStaticMarkup(
       <Conversation initial={false}>
         <ConversationContent>Earlier messages</ConversationContent>

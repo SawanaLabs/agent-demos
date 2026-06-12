@@ -1,6 +1,10 @@
 import { type UIMessage, validateUIMessages } from "ai";
 
 import { prepareProjectGuideCompanionContextMessages } from "../message-history";
+import {
+  getProjectGuideCompanionAllowedModelIds,
+  isProjectGuideCompanionModelId,
+} from "../model-catalog";
 import { streamProjectGuideCompanion } from "./chat";
 import {
   getProjectGuideCompanionEnv,
@@ -10,13 +14,20 @@ import {
 
 interface ProjectGuideCompanionRequestBody {
   messages?: UIMessage[];
+  selectedChatModel?: unknown;
+}
+
+interface ProjectGuideCompanionRequestPayload {
+  messages: UIMessage[];
+  selectedChatModel?: string;
 }
 
 interface ProjectGuideCompanionRuntimeDependencies {
   clock: () => Date;
   streamProjectGuideCompanion: (
     messages: UIMessage[],
-    env: ProjectGuideCompanionEnv
+    env: ProjectGuideCompanionEnv,
+    selectedChatModel?: string
   ) => Promise<Response> | Response;
 }
 
@@ -29,9 +40,26 @@ export interface ProjectGuideCompanionRuntimeState {
 }
 
 const invalidMessagesError = 'Expected a JSON body with a "messages" array.';
+const invalidSelectedChatModelError =
+  'Expected "selectedChatModel" to be a supported model id string.';
 const invalidUiMessagesError =
   'Expected each "messages" entry to match the UIMessage format.';
 const malformedJsonError = "Expected a valid JSON request body.";
+
+function buildUnsupportedSelectedChatModelError(selectedChatModel: string) {
+  return `Unsupported selectedChatModel "${selectedChatModel}". Expected one of: ${getProjectGuideCompanionAllowedModelIds().join(", ")}.`;
+}
+
+function isRequestValidationError(error: Error) {
+  return (
+    [
+      invalidMessagesError,
+      invalidSelectedChatModelError,
+      invalidUiMessagesError,
+    ].includes(error.message) ||
+    error.message.startsWith("Unsupported selectedChatModel")
+  );
+}
 
 export function getProjectGuideCompanionRuntimeState(
   env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv()
@@ -47,15 +75,35 @@ export function getProjectGuideCompanionRuntimeState(
   };
 }
 
-async function readProjectGuideCompanionMessages(body: unknown) {
-  const { messages } = (body ?? {}) as ProjectGuideCompanionRequestBody;
+async function readProjectGuideCompanionPayload(
+  body: unknown
+): Promise<ProjectGuideCompanionRequestPayload> {
+  const { messages, selectedChatModel } = (body ??
+    {}) as ProjectGuideCompanionRequestBody;
 
   if (!Array.isArray(messages)) {
     throw new Error(invalidMessagesError);
   }
 
+  if (
+    selectedChatModel !== undefined &&
+    typeof selectedChatModel !== "string"
+  ) {
+    throw new Error(invalidSelectedChatModelError);
+  }
+
+  if (
+    typeof selectedChatModel === "string" &&
+    !isProjectGuideCompanionModelId(selectedChatModel)
+  ) {
+    throw new Error(buildUnsupportedSelectedChatModelError(selectedChatModel));
+  }
+
   try {
-    return await validateUIMessages({ messages });
+    return {
+      messages: await validateUIMessages({ messages }),
+      selectedChatModel,
+    };
   } catch {
     throw new Error(invalidUiMessagesError);
   }
@@ -77,19 +125,16 @@ export async function handleProjectGuideCompanionRequest(
     );
   }
 
-  let messages: UIMessage[];
+  let payload: ProjectGuideCompanionRequestPayload;
 
   try {
-    messages = await readProjectGuideCompanionMessages(await request.json());
+    payload = await readProjectGuideCompanionPayload(await request.json());
   } catch (error) {
     if (error instanceof SyntaxError) {
       return Response.json({ error: malformedJsonError }, { status: 400 });
     }
 
-    if (
-      error instanceof Error &&
-      [invalidMessagesError, invalidUiMessagesError].includes(error.message)
-    ) {
+    if (error instanceof Error && isRequestValidationError(error)) {
       return Response.json({ error: error.message }, { status: 400 });
     }
 
@@ -99,9 +144,9 @@ export async function handleProjectGuideCompanionRequest(
   const stream =
     dependencies.streamProjectGuideCompanion ?? streamProjectGuideCompanion;
   const contextMessages = prepareProjectGuideCompanionContextMessages({
-    messages,
+    messages: payload.messages,
     now: dependencies.clock?.() ?? new Date(),
   });
 
-  return stream(contextMessages, env);
+  return stream(contextMessages, env, payload.selectedChatModel);
 }

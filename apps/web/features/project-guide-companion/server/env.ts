@@ -7,9 +7,8 @@ import {
   createAiGatewayFromContract,
   readAiGatewayContractConfig,
 } from "@/features/shared/ai-gateway/server/contract";
+import { DEFAULT_PROJECT_GUIDE_COMPANION_MODEL } from "../model-catalog";
 import { getProjectGuideCompanionAppEnv } from "./env-source";
-
-export const DEFAULT_PROJECT_GUIDE_COMPANION_MODEL = "openai/gpt-4.1-mini";
 
 export type ProjectGuideCompanionEnv = AiGatewayEnvRecord;
 

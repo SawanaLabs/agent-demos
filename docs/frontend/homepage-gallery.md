@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-06-08
+updateAt: 2026-06-16
 ---
 
 # Homepage Gallery
@@ -38,7 +38,7 @@ updateAt: 2026-06-08
 - Avoid readable words inside the ASCII gallery visual body by default; reserve that space for rare brand wordmarks or stylized letterforms when a demo needs a stronger identity cue, such as the OpenAI Agents SDK Demo.
 - Structural symbols such as braces, brackets, cursors, dots, connector lines, and terminal-like marks are allowed inside the ASCII gallery visual body.
 - Replace the existing process-step boxes with a fixed 16:9 monospace region when the card needs a stronger product-metaphor image.
-- Use Foundation Chat, RAG Chatbot, Multi-Modal Chatbot, Object Generation, Memory & Persistence Agent, Persistent & Resume Agent, Streaming Chat Shell, Loop Agent, Skills Builder Agent, Sandbox Workspace Agent, MCP Runtime Doctor Agent, OpenAI Agents SDK Demo, and Trace and Eval Agent as the first accepted ASCII gallery visual pilots; keep other demos on the migration step-box rendering until their ASCII compositions are discussed and accepted one by one.
+- All current ready demos use ASCII gallery visuals from feature-local `demo-meta.ts`: Foundation Chat, RAG Chatbot, Multi-Modal Chatbot, Object Generation, Generative UI, Memory & Persistence Agent, Persistent & Resume Agent, Streaming Chat Shell, Loop Agent, LangGraph Agent, Skills Builder Agent, Sandbox Workspace Agent, MCP Runtime Doctor Agent, OpenAI Agents SDK Demo, Trace and Eval Agent, and Ultra Chatbot Agent.
 - Do not preserve step boxes as a long-term fallback once every demo has an ASCII gallery visual, because they weaken the visual metaphor and make the catalog model harder to understand.
 - Keep each ASCII gallery visual tied to the demo's agent behavior, such as a textless chat-surface silhouette for a foundation chat demo, instead of generic decoration.
 - Do not make the homepage a generic personal portfolio or a long documentation index.

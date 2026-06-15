@@ -1,7 +1,7 @@
 ---
 title: Trace and Eval Agent
-description: Stable research-agent, trace-panel, and eval-pipeline conventions for the trace-eval-agent demo.
-updateAt: 2026-06-03
+description: Stable research-agent, product trace-panel, and eval-pipeline conventions for the trace-eval-agent demo.
+updateAt: 2026-06-12
 ---
 
 # Trace and Eval Agent
@@ -11,14 +11,16 @@ updateAt: 2026-06-03
 - Covers the `trace-eval-agent` demo under `apps/web/features/trace-eval-agent`.
 - Covers the live research workflow, the lower trace/eval surface, and the right-side meta panel.
 - Covers the message metadata contract and single-run record that feed trace/eval scoring.
-- Covers the copyable production contract for trace, token usage, deterministic eval, and LLM-as-judge eval.
+- Covers the copyable product-level contract for trace, token usage, deterministic eval, and LLM-as-judge eval.
+- Does not cover a complete production observability backend, exported trace store, or external trace/eval provider integration.
 
 ## Business Positioning
 
-- The primary audience is developers building production agent products who want a copyable trace and eval foundation.
+- The primary audience is developers building agent products who want a copyable user-facing trace and eval foundation.
 - Treat future developers copying this demo into their own projects as the main user. The intended copy unit is all demo-related code, including the feature module, thin route/API entries, core tests, setup-error handling, and local docs.
 - Hold this demo to the same standard as `skills-agent`: preserve the official AI SDK source core first, then productize around it.
-- Treat this demo as a production-ready reference slice: another team should be able to copy it, adapt the research scenario, replace the rubric, and build their own trace/eval system without redesigning the architecture.
+- Treat this demo as a production-oriented product reference slice: another team should be able to copy it, adapt the research scenario, replace the rubric, and build their own user-facing trace/eval surface without redesigning the architecture.
+- Do not present the current implementation as a full production observability stack. It has real AI SDK generation, tool, source, usage, and eval plumbing, but it does not configure a Next.js/OpenTelemetry exporter, external observability provider, persisted trace store, or long-term trace retention.
 - The demo's product claim is that agent quality can be surfaced inside the user-facing workspace, not only in backend observability tools. The visible trace/eval panel is part of the product experience.
 - The research-agent scenario is the carrier use case. Keep implementation choices reusable for other agent domains, including support, review, workflow, and internal operations agents.
 - Treat the chat agent as the primary product surface. Trace and eval are passive observers layered onto the agent run, and they must not degrade normal chat behavior.
@@ -28,7 +30,9 @@ updateAt: 2026-06-03
 
 ## Domain Language
 
-- **Session trace**: The execution summary derived from the current `UIMessage[]`, including request, model run, search tool usage, sources, and usage metrics.
+- **Session trace**: The product-facing execution summary derived from the current `UIMessage[]`, including request, model run, search tool usage, sources, and usage metrics.
+- **Production observability trace**: An exported trace/span record collected through OpenTelemetry, OpenAI Agents SDK tracing, AI Gateway observability, or a provider such as Langfuse, Braintrust, Laminar, or Sentry. This demo does not currently ship this backend layer for `trace-eval-agent`.
+- **Offline trajectory trace**: A persisted agent-harness execution log such as DeepSWE / mini-swe-agent ATIF `trajectory.json`, where one task rollout contains many ordered steps, tool calls, observations, return codes, token/cost metrics, and raw citations for later audit. This is a different artifact class from the in-app session trace.
 - **Single run**: One user turn plus the assistant result generated for that turn. This is the primary trace/eval unit for the demo. Session-level views may aggregate runs later, but they must not redefine the single-run contract.
 - **Agent run record**: The normalized single-run payload derived from agent output and metadata. It is the only input contract that deterministic gate and LLM judge should consume.
 - **Run outcome**: The eval-orchestrator classification for one run: `evaluated`, `skipped`, or `failed-run`. This classification decides whether judge work starts and what the UI should render.
@@ -58,6 +62,12 @@ updateAt: 2026-06-03
 - Preserve these official source-core references before changing architecture: AI SDK Telemetry (`https://ai-sdk.dev/docs/ai-sdk-core/telemetry`), Track Agent Token Usage (`https://ai-sdk.dev/cookbook/next/track-agent-token-usage`), AI SDK structured outputs (`https://ai-sdk.dev/docs/ai-sdk-core/generating-structured-data`), AI SDK Testing (`https://ai-sdk.dev/docs/ai-sdk-core/testing`), OpenAI web search (`https://ai-sdk.dev/providers/ai-sdk-providers/openai#web-search`), and AI Elements reasoning/tool/sources/test-results components.
 - `apps/web/features/trace-eval-agent/server/chat.ts` must use the official OpenAI `web_search` tool through the AI Gateway OpenAI-compatible endpoint. Do not replace it with a custom search wrapper unless the repo deliberately changes the source core.
 - `apps/web/features/trace-eval-agent/server/chat.ts` currently uses AI SDK `streamText` plus `toUIMessageStreamResponse()` for the research loop. Keep this shape unless the upstream AI SDK guidance for built-in search tools changes.
+- `apps/web/features/trace-eval-agent/server/chat.ts` and `server/evaluation.ts` use AI SDK `experimental_telemetry` with `functionId`, metadata, and `recordInputs` / `recordOutputs`. Per AI SDK docs this is the OpenTelemetry-backed source-core hook, but the repository currently has no `instrumentation.ts`, `@vercel/otel`, OTLP exporter, or provider integration that exports those spans.
+- Treat the visible trace panel as a UI-derived observer projection, not as the same artifact as OpenTelemetry spans. The panel is built from `UIMessage[]`, assistant `messageMetadata`, tool parts, source parts, and token usage, then normalized through `trace-eval-run-record.ts` and `trace-eval-snapshot.ts`.
+- Do not copy an offline trajectory schema such as DeepSWE / mini-swe-agent ATIF directly into this UI trace contract. A local DeepSWE sample inspected on 2026-06-12 used `schema_version: ATIF-v1.7` with a top-level `agent`, `steps`, and `final_metrics`; one rollout can contain hundreds of harness steps, each with raw `tool_calls`, parsed `observation.results`, shell return codes, token/cost metrics, and citation-friendly step ids. That shape is appropriate for offline review packets, timeline generation, fragility annotation, and corpus-level eval research. The current demo's trace is intentionally smaller: request, model run, selected search tool calls, sources, usage, deterministic checks, and judge result for the latest product run.
+- If this demo later adds a persisted trace store, keep three layers explicit: UI session snapshot for the product panel, exported observability spans for operations, and optional offline trajectory/event rows for audit or research. Do not overload one JSON shape to serve all three.
+- Keep the distinction between `trace-eval-agent` and `openai-agents-sdk-demo`: `openai-agents-sdk-demo/server/tracing.ts` uses OpenAI Agents SDK tracing fields such as `workflowName`, `traceId`, `groupId`, `traceMetadata`, `tracingDisabled`, `traceIncludeSensitiveData`, and optional tracing API key override. That official Agents SDK trace path is not the `trace-eval-agent` session-trace implementation.
+- If production observability is added later, add an explicit exporter boundary instead of overloading the UI snapshot. Acceptable next layers include Next.js OpenTelemetry setup, an AI SDK observability provider, persisted `run` / `trace` / `eval` tables, or a dedicated OpenAI Agents SDK tracing integration for demos that run through `@openai/agents`.
 - `apps/web/features/trace-eval-agent/model/trace-eval-chat-history.ts` owns the replay-safe chat projection before `convertToModelMessages()`. Replay only safe user/system content plus assistant final-answer text. Do not replay `reasoning`, `tool-*`, or `source-*` parts into the next model turn.
 - `apps/web/features/trace-eval-agent/server/chat.ts` must stream both reasoning and sources to the client with `sendReasoning: true` and `sendSources: true`.
 - Keep the research loop bounded for interactive UX. The current contract uses `stopWhen: stepCountIs(20)`, low reasoning effort, low text verbosity, and prompt-level guidance that caps the agent at two `web_search` calls per answer.

@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
 description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
-updateAt: 2026-05-25
+updateAt: 2026-06-12
 ---
 
 # AI SDK Recipes Checklist
@@ -16,6 +16,8 @@ updateAt: 2026-05-25
 - Batch 8 docs checked on 2026-05-24: AI SDK Telemetry and DevTools are still experimental; DevTools is local-development only; AI SDK Testing exposes `ai/test` mocks for deterministic core tests; Observability Integrations is a provider matrix for later exporter work.
 - Batch 6.5 persistence docs checked on 2026-05-25: AI SDK UI Message Persistence covers `createChat`, `/chat/[id]`, `useChat({ id, messages })`, server validation, and `toUIMessageStreamResponse({ onFinish })`; AI SDK UI Resume Streams and `useChat` expose the later live-stream reconnect path through `resume` / `resumeStream`.
 - Batch 8 trace/eval docs refreshed on 2026-05-25: OpenAI provider docs expose `openai.tools.webSearch`; the Track Agent Token Usage cookbook uses `messageMetadata` for usage; AI SDK structured outputs use `generateText` with `Output.object`; AI Elements provides reasoning, tool, sources, and test-results primitives for the UI surface.
+- Batch 8 trace/eval boundary refreshed on 2026-06-12: AI SDK Telemetry remains the OpenTelemetry-backed source-core hook through `experimental_telemetry`, but `trace-eval-agent` currently ships a UI-derived trace/eval surface without a Next.js/OpenTelemetry exporter, external observability provider, persisted trace store, or long-term trace retention.
+- Batch 9 Generative UI docs refreshed on 2026-06-15: AI SDK UI Generative User Interfaces uses model-called tools as UI component contracts, with frontend rendering driven by `UIMessage.parts` `tool-*` states and outputs. The first demo uses OpenAI hosted `web_search` only as optional grounding before rendering comparison or recommendation components.
 - OpenAI Agents SDK ultra-demo sources checked on 2026-05-24: the TypeScript SDK docs are current under `https://openai.github.io/openai-agents-js/`, the official AI SDK UI bridge reference remains `https://openai.github.io/openai-agents-js/extensions/ai-sdk/`, and AI Gateway's OpenAI-compatible Responses API docs remain under `https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-compat/responses`.
 - Do not treat stale copied URLs, canary routes, versioned preview routes, or `main` branch snippets as current without re-verifying the matching stable public recipe page.
 - Use the stable public Recipes URL as the authority. `content/cookbook/**/*.mdx` paths below are source lookup aliases only and must be verified against the matching stable public route before implementation.
@@ -231,8 +233,8 @@ updateAt: 2026-05-25
 
 - [x] Track agent token usage. `trace-eval-agent` carries total usage through AI SDK `messageMetadata`, shows it in the trace, and passes it into the judge context.
 - [x] Trace and Eval Agent.
-  - [x] Treat the full demo-related code as the copied production reference, using `skills-agent` as the standard for official source-core fidelity.
-  - [x] Show a local trace for run, steps, tool calls, token usage, latency, finish reason, and errors.
+  - [x] Treat the full demo-related code as the copied product-level trace/eval reference, using `skills-agent` as the standard for official source-core fidelity.
+  - [x] Show a UI-derived local trace for run, steps, tool calls, token usage, latency, finish reason, and errors.
   - [x] Run fixed eval scenarios with deterministic checks before adding external eval SaaS: expected path, visible evidence, refusal/error behavior, and final answer shape.
   - [x] Add an LLM-as-judge eval pipeline: structured rubric, score, rationale, and recommended action derived from prompt, answer, sources, tool trace, deterministic checks, and token usage.
   - [x] Score both final-answer quality and full-run quality. Keep deterministic gate failures visible beside the judge result.
@@ -257,6 +259,13 @@ updateAt: 2026-05-25
 - [x] Clear setup errors for missing `AI_GATEWAY_API_KEY`.
 - [ ] Refresh the OpenAI Agents SDK TypeScript docs and examples before each ultra implementation lane.
 - [ ] Refactor backend into SDK-first modules: `agents`, `runner`, `state`, `stream`, and capability lanes.
+
+### Batch 9 - Generative UI
+
+- [x] Render visual interface in chat. `generative-ui` renders comparison and recommendation components from AI SDK UI tool parts.
+- [x] Stream updates to visual interfaces. The workspace renders pending tool states before `output-available`.
+- [x] Record token usage after streaming UI. The runtime carries `totalUsage` through `messageMetadata`.
+- [ ] RSC examples only if they fit the repository direction.
 - [ ] Replace lossy text-only transcript replay with a continuation strategy based on `history`, `session`, `RunState`, `lastResponseId`, or an explicit combination chosen per lane.
 - [ ] Preserve and display core result surfaces: `finalOutput`, `newItems`, `interruptions`, `state`, `history`, `lastAgent` / `activeAgent`, `lastResponseId`, `runContext`, usage, and trace metadata.
 - [ ] Add tools lane: local function tools, visible calls/results, tool errors, and tool guardrails where useful.

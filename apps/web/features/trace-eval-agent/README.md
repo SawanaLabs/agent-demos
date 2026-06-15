@@ -1,6 +1,8 @@
 # Trace and Eval Agent
 
-Business purpose: provide a production-ready, copyable trace and eval agent demo for developers building agent products. The intended copy unit is all demo-related code: feature module, thin route/API entries, setup-error handling, core tests, and local docs. A downstream team should be able to copy it, adapt the research scenario, replace the rubric, and build their own user-facing trace/eval system with limited rewiring.
+Business purpose: provide a production-oriented, copyable trace and eval agent demo for developers building agent products. The intended copy unit is all demo-related code: feature module, thin route/API entries, setup-error handling, core tests, and local docs. A downstream team should be able to copy it, adapt the research scenario, replace the rubric, and build their own user-facing trace/eval surface with limited rewiring.
+
+Boundary: this is not a complete production observability backend. The demo uses real AI SDK `streamText`, `experimental_telemetry`, tool/source streaming, token usage metadata, deterministic checks, and an LLM-as-judge pipeline, but it does not configure a Next.js/OpenTelemetry exporter, external tracing provider, persisted trace store, or long-term trace retention.
 
 What this demo does:
 
@@ -19,6 +21,7 @@ What this demo does:
 Production contract:
 
 - Preserve the official AI SDK source core: `streamText`, `experimental_telemetry`, `messageMetadata`, AI SDK Testing mocks, and the OpenAI `web_search` tool.
+- Treat the visible trace panel as a UI-derived observer projection from `UIMessage[]`, assistant metadata, tool parts, source parts, and usage. It is not the same artifact as exported OpenTelemetry spans.
 - Keep deterministic eval checks as the first quality gate.
 - Keep the architecture one-way: `agent runtime -> AgentRunRecord -> deterministic gate / judge -> eval UI`.
 - Treat trace/eval as a passive observer. It must not rewrite agent message history or block normal chat just because a run is skipped or fails evaluation.

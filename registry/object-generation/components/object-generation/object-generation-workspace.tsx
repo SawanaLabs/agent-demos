@@ -96,8 +96,8 @@ export function ObjectGenerationWorkspace({
   );
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
+    <div className="grid min-h-[70svh] grid-cols-[minmax(0,1fr)] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="flex min-h-[70svh] min-w-0 flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isReviewAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}
@@ -267,7 +267,9 @@ export function ObjectGenerationWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {samplePrompts.map((prompt) => (
                   <Button
-                    className={cn("max-w-full justify-start text-left")}
+                    className={cn(
+                      "h-auto min-h-7 min-w-0 max-w-full shrink justify-start whitespace-normal py-1.5 text-left leading-5 [overflow-wrap:anywhere]"
+                    )}
                     disabled={!isReviewAvailable || isLoading}
                     key={prompt}
                     onClick={() => submitReview(prompt)}
@@ -284,7 +286,7 @@ export function ObjectGenerationWorkspace({
         </div>
       </section>
 
-      <aside className="grid content-start gap-4 border border-foreground/10 bg-background px-4 py-4 lg:min-h-0 lg:overflow-y-auto">
+      <aside className="grid min-w-0 content-start gap-4 border border-foreground/10 bg-background px-4 py-4 lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
             Runtime

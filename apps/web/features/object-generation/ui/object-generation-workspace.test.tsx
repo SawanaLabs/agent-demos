@@ -11,43 +11,52 @@ vi.mock("./use-object-generation-session", () => ({
   useObjectGenerationSession: mockUseObjectGenerationSession,
 }));
 
+function createObjectGenerationSessionController(
+  overrides: Partial<ObjectGenerationSessionController> = {}
+): ObjectGenerationSessionController {
+  return {
+    appendFiles: vi.fn(),
+    composerError: null,
+    entries: [
+      {
+        attachments: [],
+        errorMessage: null,
+        id: "entry-1",
+        isActive: false,
+        liveResult: {
+          decision: "needs_review",
+          riskScore: 68,
+          summary: "Pricing claims need review.",
+        },
+        liveStatus: "ready",
+        prompt: "Review this pricing page.",
+        requestAttachments: [],
+        result: {
+          decision: "needs_review",
+          riskScore: 68,
+          summary: "Pricing claims need review.",
+        },
+        status: "ready",
+      },
+    ],
+    hasMessages: true,
+    inputResetKey: 0,
+    isLoading: false,
+    pendingAttachments: [],
+    removePendingAttachment: vi.fn(),
+    retryReview: vi.fn(),
+    stopReview: vi.fn(),
+    streamErrorMessage: null,
+    submitReview: vi.fn(),
+    ...overrides,
+  };
+}
+
 describe("ObjectGenerationWorkspace", () => {
   beforeEach(() => {
-    mockUseObjectGenerationSession.mockReturnValue({
-      appendFiles: vi.fn(),
-      composerError: null,
-      entries: [
-        {
-          attachments: [],
-          errorMessage: null,
-          id: "entry-1",
-          isActive: false,
-          liveResult: {
-            decision: "needs_review",
-            riskScore: 68,
-            summary: "Pricing claims need review.",
-          },
-          liveStatus: "ready",
-          prompt: "Review this pricing page.",
-          requestAttachments: [],
-          result: {
-            decision: "needs_review",
-            riskScore: 68,
-            summary: "Pricing claims need review.",
-          },
-          status: "ready",
-        },
-      ],
-      hasMessages: true,
-      inputResetKey: 0,
-      isLoading: false,
-      pendingAttachments: [],
-      removePendingAttachment: vi.fn(),
-      retryReview: vi.fn(),
-      stopReview: vi.fn(),
-      streamErrorMessage: null,
-      submitReview: vi.fn(),
-    });
+    mockUseObjectGenerationSession.mockReturnValue(
+      createObjectGenerationSessionController()
+    );
   });
 
   it("labels the completed-run action as a new regeneration, not an audit replay", () => {
@@ -66,5 +75,31 @@ describe("ObjectGenerationWorkspace", () => {
       "Runs the same request again and generates a new result."
     );
     expect(markup).not.toContain("Replay generation");
+  });
+
+  it("keeps empty-state sample prompts from defining the mobile viewport width", () => {
+    mockUseObjectGenerationSession.mockReturnValue(
+      createObjectGenerationSessionController({
+        entries: [],
+        hasMessages: false,
+      })
+    );
+
+    const markup = renderToStaticMarkup(
+      <ObjectGenerationWorkspace
+        acceptedMediaTypes={["application/pdf", "image/*"]}
+        chatModel="gpt-5-mini"
+        isReviewAvailable
+        nodeVersion="v24.0.0"
+        setupMessage={null}
+      />
+    );
+
+    expect(markup).toContain("grid-cols-[minmax(0,1fr)]");
+    expect(markup).toContain("whitespace-normal");
+    expect(markup).toContain("[overflow-wrap:anywhere]");
+    expect(markup).toContain(
+      "Turn the attached assets into a structured moderation object"
+    );
   });
 });

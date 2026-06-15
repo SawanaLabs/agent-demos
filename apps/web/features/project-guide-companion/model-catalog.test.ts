@@ -11,5 +11,8 @@ describe("project guide companion model catalog", () => {
     expect(
       getProjectGuideCompanionModelCatalog().map((model) => model.id)
     ).toEqual(["zai/glm-5", "openai/gpt-4.1-mini", "openai/gpt-5-mini"]);
+    expect(
+      getProjectGuideCompanionModelCatalog().map((model) => model.kind)
+    ).toEqual(["chat", "chat", "reasoning"]);
   });
 });

@@ -57,10 +57,7 @@ export function ProjectGuideCompanionModelSelector({
                 <ModelSelectorLogo provider={model.provider} />
                 <ModelSelectorName>{model.name}</ModelSelectorName>
                 <span className="text-muted-foreground text-xs">
-                  {model.expectedLatency} latency
-                </span>
-                <span className="text-muted-foreground text-xs">
-                  {model.costProfile} cost
+                  {model.kind}
                 </span>
               </ModelSelectorItem>
             ))}

@@ -168,6 +168,32 @@ describe("ProjectGuideCompanionPanel", () => {
     expect(markup).not.toContain(">Project docs</span>");
   });
 
+  it("labels selector options by model purpose instead of latency or cost", () => {
+    const modelProps = loadPanelModelProps();
+    const markup = renderToStaticMarkup(
+      <ProjectGuideCompanionPanel
+        canSend={false}
+        error={undefined}
+        input=""
+        isBusy={false}
+        launcherLabel="Project compass"
+        messages={messages}
+        onClearHistory={() => undefined}
+        onClose={() => undefined}
+        onInputChange={() => undefined}
+        onSendMessage={() => undefined}
+        onStop={() => undefined}
+        {...modelProps}
+        status="ready"
+      />
+    );
+
+    expect(markup).toContain("chat");
+    expect(markup).toContain("reasoning");
+    expect(markup).not.toContain("latency");
+    expect(markup).not.toContain("cost");
+  });
+
   it("exposes the companion scroll-to-bottom affordance when the conversation is away from bottom", () => {
     const markup = renderToStaticMarkup(
       <Conversation initial={false}>

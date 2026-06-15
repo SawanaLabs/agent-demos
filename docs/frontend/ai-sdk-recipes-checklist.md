@@ -1,7 +1,7 @@
 ---
 title: AI SDK Recipes Checklist
 description: Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos.
-updateAt: 2026-06-12
+updateAt: 2026-06-16
 ---
 
 # AI SDK Recipes Checklist
@@ -32,7 +32,7 @@ updateAt: 2026-06-12
 - `apps/web/app/page.tsx` is now the Demo Gallery. The catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.
 - Existing project docs already define the default copy boundary: `apps/web/features/<demo-slug>` plus thin route/API entries under `apps/web/app`.
 - `packages/database` now exports the RAG demo schema from `packages/database/src/schemas/rag-chatbot.ts` and remains the shared Drizzle/Neon workspace package.
-- Current ready demos on `main`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `streaming-chat-shell`, `content-review`, `customer-memory-agent`, `loop-agent`, `skills-agent`, `sandbox-agent`, and `mcp-agent`.
+- Current ready demos on `main`, from feature-local `demo-meta.ts`: `foundation-chat`, `rag-chatbot`, `multimodal-chatbot`, `object-generation`, `generative-ui`, `customer-memory-agent`, `persistent-agent`, `streaming-chat-shell`, `loop-agent`, `langgraph-agent`, `skills-agent`, `sandbox-agent`, `mcp-agent`, `openai-agents-sdk-demo`, `trace-eval-agent`, and `ultra-chatbot-agent`.
 
 ## Non-Negotiable Workflow
 

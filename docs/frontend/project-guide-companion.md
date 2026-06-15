@@ -1,7 +1,7 @@
 ---
 title: Project Guide Companion
-description: Site-owned companion chatbot boundary, page visibility policy, session history policy, and Project Docs MCP answer surface.
-updateAt: 2026-06-12
+description: Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface.
+updateAt: 2026-06-16
 ---
 
 # Project Guide Companion
@@ -13,6 +13,7 @@ updateAt: 2026-06-12
 - Covers the boundary that keeps the companion outside Agent Demo copy boundaries and shadcn registry distribution.
 - Covers the relationship between companion suggestions and the broader Project Docs MCP answer surface.
 - Covers the browser-session conversation history policy for companion context replay.
+- Covers the compact model selector and how model options are presented to visitors.
 
 ## Domain Language
 
@@ -78,6 +79,7 @@ updateAt: 2026-06-12
 - The model replay projection should keep user text, assistant answer text, and useful source summaries, while excluding raw MCP JSON and expanded tool payloads from history context.
 - Provide a clear-history affordance inside the companion panel so visitors can discard tab-local context when the conversation drifts or the browser is shared.
 - Expose a compact model selector in the composer footer. The default model is `zai/glm-5`, with `openai/gpt-4.1-mini` and `openai/gpt-5-mini` as selectable alternatives.
+- Label selector options by model purpose, currently `chat` or `reasoning`, rather than latency or cost claims. Use measured performance or billing evidence before exposing those dimensions in the UI.
 - Render Project Docs MCP tool use with a custom **Companion Tool Line**, not the full `mcp-agent` workspace `Tool` card.
 - While a docs tool is running, show a single shimmering line such as a searching/reading status rather than an expanded parameter panel.
 - After a docs tool completes, collapse the trace into a source-oriented line that names the relevant file paths, demo titles, or match count.
@@ -92,3 +94,4 @@ updateAt: 2026-06-12
 - Update this file when the companion becomes registry-distributed, demo-cataloged, or tied to a different project knowledge source.
 - Update this file when the companion changes persistence carrier, context-window length, or client/server history ownership.
 - Update this file when the companion default model or selectable model set changes.
+- Update this file when model selector labeling changes.

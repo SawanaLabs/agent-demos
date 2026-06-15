@@ -1,14 +1,14 @@
 ---
 title: OpenAI Agents SDK Demo
 description: Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway.
-updateAt: 2026-06-03
+updateAt: 2026-06-16
 ---
 
 # OpenAI Agents SDK Demo
 
 ## Scope
 
-- Covers the `openai-agents-sdk-demo` roadmap entry under `apps/web/features`.
+- Covers the `openai-agents-sdk-demo` ready demo under `apps/web/features`.
 - Covers the ultra version target: a complete OpenAI Agents SDK TypeScript **Agent Demo** that can be copied as one coherent feature slice.
 - Covers the product expectation that all OpenAI Agents SDK capabilities relevant to this demo live inside this one demo, without splitting capability families into separate demos.
 - Covers the backend orchestration boundary, the AI SDK UI bridge, AI Gateway transport, run state, approvals, sessions, tracing, and the frontend surfaces needed to show them.

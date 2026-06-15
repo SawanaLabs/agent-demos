@@ -7,6 +7,7 @@
     "registry/rag-chatbot/registry.json",
     "registry/multimodal-chatbot/registry.json",
     "registry/object-generation/registry.json",
+    "registry/generative-ui/registry.json",
     "registry/customer-memory-agent/registry.json",
     "registry/streaming-chat-shell/registry.json",
     "registry/loop-agent/registry.json",

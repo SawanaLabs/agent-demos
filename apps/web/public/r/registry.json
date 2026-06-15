@@ -452,6 +452,150 @@
       "type": "registry:block"
     },
     {
+      "name": "generative-ui",
+      "title": "Generative UI",
+      "description": "A production-ready AI SDK UI generative interface demo with OpenAI hosted web search and model-selected React components.",
+      "dependencies": [
+        "@ai-sdk/openai",
+        "@ai-sdk/react",
+        "@base-ui/react",
+        "ai",
+        "class-variance-authority",
+        "lucide-react",
+        "zod"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "separator",
+        "table",
+        "textarea",
+        "tooltip",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json",
+        "https://elements.ai-sdk.dev/api/registry/tool.json"
+      ],
+      "files": [
+        {
+          "path": "registry/generative-ui/app/demos/generative-ui/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/generative-ui/page.tsx"
+        },
+        {
+          "path": "registry/generative-ui/app/api/demos/generative-ui/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/generative-ui/route.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/generative-ui-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/generative-ui/generative-ui-screen.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/generative-ui-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/generative-ui/generative-ui-workspace.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/feature-comparison-matrix.tsx",
+          "type": "registry:component",
+          "target": "@components/generative-ui/feature-comparison-matrix.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/plan-recommendation-card.tsx",
+          "type": "registry:component",
+          "target": "@components/generative-ui/plan-recommendation-card.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/message-parts.ts",
+          "type": "registry:component",
+          "target": "@components/generative-ui/message-parts.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/partial-rendering.tsx",
+          "type": "registry:component",
+          "target": "@components/generative-ui/partial-rendering.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/generative-ui/use-generative-ui-chat.ts",
+          "type": "registry:component",
+          "target": "@components/generative-ui/use-generative-ui-chat.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/demo-chat/use-demo-chat.ts",
+          "type": "registry:component",
+          "target": "@components/demo-chat/use-demo-chat.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/generative-ui/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/ui-contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/ui-contract.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/env-source.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/env.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/model.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/model.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/chat.ts"
+        },
+        {
+          "path": "registry/generative-ui/lib/generative-ui/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/generative-ui/runtime.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "GENERATIVE_UI_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs a chat route, AI SDK UI message rendering, OpenAI hosted web search through AI Gateway, and two custom tool-output components for comparison and recommendation outputs.",
+      "type": "registry:block"
+    },
+    {
       "name": "customer-memory-agent",
       "title": "Memory & Persistence Agent",
       "description": "A support workspace with in-memory default persistence, optional Postgres storage, explicit saved memories, retrieval, and compaction checkpoints.",

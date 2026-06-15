@@ -5,6 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { customerMemoryAgentDemoMeta } from "../customer-memory-agent/demo-meta.ts";
 import { foundationChatDemoMeta } from "../foundation-chat/demo-meta.ts";
+import { generativeUiDemoMeta } from "../generative-ui/demo-meta.ts";
 import { langGraphAgentDemoMeta } from "../langgraph-agent/demo-meta.ts";
 import { loopAgentDemoMeta } from "../loop-agent/demo-meta.ts";
 import { mcpAgentDemoMeta } from "../mcp-agent/demo-meta.ts";
@@ -35,6 +36,7 @@ const currentDemoCatalogEntries = [
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
   objectGenerationDemoMeta,
+  generativeUiDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,
@@ -55,7 +57,7 @@ test("current registry manifest classifies every ready catalog demo", () => {
   });
 
   assert.equal(availability.mainlineRegistryDemo.slug, "foundation-chat");
-  assert.equal(availability.publicRegistryDemos.length, 15);
+  assert.equal(availability.publicRegistryDemos.length, 16);
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),

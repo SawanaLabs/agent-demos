@@ -52,6 +52,14 @@ _Avoid_: Header documentation, onboarding page
 The reusable agent behavior category demonstrated by an **Agent Demo**.
 _Avoid_: Tag, topic
 
+**Generative UI Agent Demo**:
+An **Agent Demo** whose primary pattern is model-selected interface rendering inside the conversation.
+_Avoid_: Generic agent demo, web search agent demo
+
+**Streaming Generative UI**:
+A **Generative UI Agent Demo** behavior where a selected interface incrementally materializes inside the assistant message as its structured content becomes available, then settles into a final component.
+_Avoid_: Loading state, progress indicator
+
 **Agent Scenario Coverage**:
 The product-facing grouping that shows how the demo set spans practical agent application scenarios through multiple **Agent Patterns** and concrete **Agent Demos**.
 _Avoid_: Exhaustive agent taxonomy, feature checklist
@@ -175,6 +183,8 @@ _Avoid_: User API key, model provider key, public token
 - An **Agent Demo** has one primary **Demo Workspace**.
 - A **Demo Workspace** may show an **Empty State Explanation** before interaction begins.
 - An **Agent Demo** demonstrates exactly one primary **Agent Pattern**.
+- A **Generative UI Agent Demo** demonstrates the `generative-ui` **Agent Pattern**.
+- **Streaming Generative UI** belongs to a **Generative UI Agent Demo** when the selected interface itself changes shape as the answer content becomes available.
 - **Agent Scenario Coverage** groups multiple **Agent Patterns** through representative **Agent Demos**.
 - A **Demo Catalog Entry** is written primarily for a **Technical Evaluator**.
 - A **Registry Consumer** installs an **Agent Demo** by following its **Copy Boundary** into a compatible project.

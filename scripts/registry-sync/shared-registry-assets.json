@@ -27,6 +27,7 @@
       "name": "demo-breadcrumb",
       "demos": [
         "foundation-chat",
+        "generative-ui",
         "langgraph-agent",
         "openai-agents-sdk-demo",
         "ultra-chatbot-agent"
@@ -51,6 +52,7 @@
       "name": "demo-workspace-shell",
       "demos": [
         "foundation-chat",
+        "generative-ui",
         "langgraph-agent",
         "openai-agents-sdk-demo",
         "ultra-chatbot-agent"
@@ -78,13 +80,18 @@
     },
     {
       "name": "demo-chat-controller",
-      "demos": ["foundation-chat", "openai-agents-sdk-demo"],
+      "demos": ["foundation-chat", "generative-ui", "openai-agents-sdk-demo"],
       "source": "apps/web/features/shared/chat/ui/use-demo-chat.ts",
       "target": "components/demo-chat/use-demo-chat.ts"
     },
     {
       "name": "conversation-error-message",
-      "demos": ["foundation-chat", "langgraph-agent", "ultra-chatbot-agent"],
+      "demos": [
+        "foundation-chat",
+        "generative-ui",
+        "langgraph-agent",
+        "ultra-chatbot-agent"
+      ],
       "source": "apps/web/features/shared/chat/ui/conversation-error-message.tsx",
       "target": "components/demo-chat/conversation-error-message.tsx",
       "transforms": [

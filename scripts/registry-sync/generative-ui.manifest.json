@@ -1,0 +1,255 @@
+{
+  "demo": "generative-ui",
+  "entries": [
+    {
+      "source": "apps/web/features/generative-ui/ui/generative-ui-screen.tsx",
+      "target": "registry/generative-ui/components/generative-ui/generative-ui-screen.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/tooltip\";",
+          "to": "from \"@/components/ui/tooltip\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/components/demo-workspace-shell\";",
+          "to": "from \"@/components/demo-workspace-shell\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/generative-ui/server/runtime\";",
+          "to": "from \"@/lib/generative-ui/runtime\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/generative-ui/ui/generative-ui-workspace\";",
+          "to": "from \"@/components/generative-ui/generative-ui-workspace\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/generative-ui/"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/generative-ui-workspace.tsx",
+      "target": "registry/generative-ui/components/generative-ui/generative-ui-workspace.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/conversation\";",
+          "to": "from \"@/components/ai-elements/conversation\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/message\";",
+          "to": "from \"@/components/ai-elements/message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/prompt-input\";",
+          "to": "from \"@/components/ai-elements/prompt-input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/reasoning\";",
+          "to": "from \"@/components/ai-elements/reasoning\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/sources\";",
+          "to": "from \"@/components/ai-elements/sources\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/tool\";",
+          "to": "from \"@/components/ai-elements/tool\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/separator\";",
+          "to": "from \"@/components/ui/separator\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/shared/chat/ui/conversation-error-message\";",
+          "to": "from \"@/components/demo-chat/conversation-error-message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./feature-comparison-matrix\";",
+          "to": "from \"@/components/generative-ui/feature-comparison-matrix\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./message-parts\";",
+          "to": "from \"@/components/generative-ui/message-parts\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./plan-recommendation-card\";",
+          "to": "from \"@/components/generative-ui/plan-recommendation-card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./use-generative-ui-chat\";",
+          "to": "from \"@/components/generative-ui/use-generative-ui-chat\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/generative-ui/",
+        "@/features/shared/"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/feature-comparison-matrix.tsx",
+      "target": "registry/generative-ui/components/generative-ui/feature-comparison-matrix.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/table\";",
+          "to": "from \"@/components/ui/table\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../model/ui-contract\";",
+          "to": "from \"@/lib/generative-ui/ui-contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/generative-ui/"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/plan-recommendation-card.tsx",
+      "target": "registry/generative-ui/components/generative-ui/plan-recommendation-card.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../model/ui-contract\";",
+          "to": "from \"@/lib/generative-ui/ui-contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/generative-ui/"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/message-parts.ts",
+      "target": "registry/generative-ui/components/generative-ui/message-parts.ts",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/tool\";",
+          "to": "from \"@/components/ai-elements/tool\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/generative-ui/"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/partial-rendering.tsx",
+      "target": "registry/generative-ui/components/generative-ui/partial-rendering.tsx"
+    },
+    {
+      "source": "apps/web/features/generative-ui/ui/use-generative-ui-chat.ts",
+      "target": "registry/generative-ui/components/generative-ui/use-generative-ui-chat.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/chat/ui/use-demo-chat\";",
+          "to": "from \"@/components/demo-chat/use-demo-chat\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/features/shared/"]
+    },
+    {
+      "source": "apps/web/features/generative-ui/model/ui-contract.ts",
+      "target": "registry/generative-ui/lib/generative-ui/ui-contract.ts"
+    },
+    {
+      "source": "apps/web/features/generative-ui/server/chat.ts",
+      "target": "registry/generative-ui/lib/generative-ui/chat.ts",
+      "transforms": [
+        {
+          "from": "from \"../model/ui-contract\";",
+          "to": "from \"@/lib/generative-ui/ui-contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/features/generative-ui/"]
+    },
+    {
+      "source": "apps/web/features/generative-ui/server/runtime.ts",
+      "target": "registry/generative-ui/lib/generative-ui/runtime.ts"
+    },
+    {
+      "source": "apps/web/features/generative-ui/server/env-source.ts",
+      "target": "registry/generative-ui/lib/generative-ui/env-source.ts",
+      "transforms": [
+        {
+          "from": "import { env as appEnv } from \"@/env\";\n\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "export function getGenerativeUiAppEnv() {\n  return appEnv;\n}\n",
+          "to": "export function getGenerativeUiAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+    },
+    {
+      "source": "apps/web/features/generative-ui/server/env.ts",
+      "target": "registry/generative-ui/lib/generative-ui/env.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/ai-gateway/server/contract\";",
+          "to": "from \"@/lib/ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/shared/",
+        "@/env",
+        "appEnv"
+      ]
+    },
+    {
+      "source": "apps/web/features/generative-ui/server/model.ts",
+      "target": "registry/generative-ui/lib/generative-ui/model.ts"
+    }
+  ]
+}

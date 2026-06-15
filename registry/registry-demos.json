@@ -35,6 +35,13 @@
       "setup": "AI Gateway only. Keep the route model aligned with the structured output schema."
     },
     {
+      "slug": "generative-ui",
+      "title": "Generative UI",
+      "registryPath": "registry/generative-ui/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway only. Uses OpenAI hosted web_search through the Gateway plus local UI tools for comparison and recommendation components."
+    },
+    {
       "slug": "customer-memory-agent",
       "title": "Memory & Persistence Agent",
       "registryPath": "registry/customer-memory-agent/registry.json",

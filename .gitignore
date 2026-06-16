@@ -17,6 +17,7 @@ node_modules
 coverage
 __pycache__/
 .langgraph_api/
+.observability/
 /.tmp/
 tmp/
 

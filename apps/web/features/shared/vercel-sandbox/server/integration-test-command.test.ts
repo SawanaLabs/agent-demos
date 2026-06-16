@@ -25,7 +25,7 @@ describe("vercel sandbox integration test command", () => {
 
     expect(rootPackage.scripts.test).toBe("pnpm test:unit");
     expect(rootPackage.scripts["test:unit"]).toBe(
-      "pnpm --dir apps/web test:unit && node --test scripts/registry-sync/registry-projection.test.mjs && pnpm registry:catalog:check"
+      "pnpm --dir apps/web test:unit && node --test scripts/registry-sync/registry-projection.test.mjs scripts/observability/keys.test.mjs scripts/observability/worktree-stack.test.mjs && pnpm registry:catalog:check"
     );
     expect(rootPackage.scripts["test:integration"]).toBe(
       "pnpm --dir apps/web test:integration"

@@ -71,7 +71,7 @@
       }
     },
     {
-      "includes": ["**/env.ts", "**/keys.ts"],
+      "includes": ["**/env.ts", "**/keys.ts", "**/keys.mjs"],
       "linter": {
         "rules": {
           "style": {

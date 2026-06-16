@@ -21,10 +21,14 @@ function createAppEnv() {
     ],
     server: {
       NODE_ENV: z.enum(["development", "production", "test"]).optional(),
+      VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
+      VERCEL_TARGET_ENV: z.string().trim().min(1).optional(),
     },
     client: {},
     runtimeEnv: {
       NODE_ENV: process.env.NODE_ENV,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      VERCEL_TARGET_ENV: process.env.VERCEL_TARGET_ENV,
     },
   });
 }

@@ -90,9 +90,11 @@ describe("web Turbo environment contract", () => {
     expect(config.tasks?.build?.passThroughEnv).toEqual(
       expect.arrayContaining([
         "CRON_SECRET",
+        "VERCEL_ENV",
         "VERCEL_SANDBOX_INTEGRATION",
         "VERCEL_OIDC_TOKEN",
         "VERCEL_PROJECT_ID",
+        "VERCEL_TARGET_ENV",
         "VERCEL_TEAM_ID",
         "VERCEL_TOKEN",
       ])

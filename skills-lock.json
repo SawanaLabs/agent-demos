@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "alertmanager-query": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/query/skills/alertmanager-query/SKILL.md",
+      "computedHash": "039eb7e1c1bae034718c63c18bb88d02cf468c3937341b0d85166896957a9603"
+    },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -13,11 +19,23 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ef32aea0a8fab9b365ff9e08a95f8d353e20ca21ea46ec2e73587c86dd341351"
     },
+    "investigating-with-observability": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/diagnostics/skills/investigating-with-observability/SKILL.md",
+      "computedHash": "ef013707e0080509c7ffcb4877de8c5a0f1deb8fe8a46d6544b1c6bc00bbdc71"
+    },
     "project-docs-system": {
       "source": "multicul-silver-wolf/agent-docs-system-skill",
       "sourceType": "github",
       "skillPath": "skills/project-docs-system/SKILL.md",
       "computedHash": "f7fb9728ec5bac730ec5a224b2cf7bff5c2b8f73325df17666fa1ba846947b30"
+    },
+    "stream-aggregation-helper": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/diagnostics/skills/stream-aggregation-helper/SKILL.md",
+      "computedHash": "e59b3de9f3b0625ebc760c5f6d9cbf49f399eb7fcd22485f45c95d759bd94af6"
     },
     "tdd": {
       "source": "mattpocock/skills",
@@ -36,6 +54,42 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/to-prd/SKILL.md",
       "computedHash": "a6d6d475f1d01c201937fa0c306e55b7056b02023ad615bc92f57514e831dd31"
+    },
+    "victorialogs-query": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/query/skills/victorialogs-query/SKILL.md",
+      "computedHash": "eda343d87db7d46ab13e0c5d5236b8bd76d5daebb6add00694152845aea4fb6f"
+    },
+    "victoriametrics-cardinality-analysis": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/diagnostics/skills/victoriametrics-cardinality-analysis/SKILL.md",
+      "computedHash": "9147f773e0ef6a50b0fa3f69dc9d576bebfce498eebb5ea3ff6392bd0d0de53d"
+    },
+    "victoriametrics-query": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/query/skills/victoriametrics-query/SKILL.md",
+      "computedHash": "2f9da1ec6b007ad12a450c8d3957282057e81d319e853baa2044d9510a16628e"
+    },
+    "victoriametrics-unused-metrics-analysis": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/diagnostics/skills/victoriametrics-unused-metrics-analysis/SKILL.md",
+      "computedHash": "d723a4fd877b5cb16efc3b50de7a8321078efc235e2116bf9a5e1684959e191d"
+    },
+    "victoriatraces-query": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/query/skills/victoriatraces-query/SKILL.md",
+      "computedHash": "a1afc1c001479092be5cbf278829d3f142b0d28536d109553050850246cd2d00"
+    },
+    "vm-trace-analyzer": {
+      "source": "VictoriaMetrics/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/diagnostics/skills/vm-trace-analyzer/SKILL.md",
+      "computedHash": "c887db6fde4e89945d4de928592743235d68b95c11dea06a885bacdc3d1aa967"
     }
   }
 }

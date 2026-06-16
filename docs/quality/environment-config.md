@@ -14,7 +14,7 @@ updateAt: 2026-06-02
 
 ## Current Subdomain Docs
 
-- Use a `keys.ts` plus `env.ts` pair for environment-variable management.
+- Use a `keys.ts` plus `env.ts` pair for TypeScript environment-variable management. Node ESM lifecycle scripts that run directly with `node` may use a sibling `keys.mjs` contract module when they cannot import TypeScript at runtime.
 - `keys.ts` is the only place allowed to read `process.env` directly. It owns `createEnv(...)`, `zod` validation, defaults, and `runtimeEnv`.
 - `env.ts` owns the public interface for the rest of the codebase. It exports setup-state helpers, config readers, and explicit error helpers that feature code can call.
 - Feature code should import `env.ts` or `@/env` and pass those typed objects through public function parameters. Route handlers, runtime modules, model helpers, and chat helpers should not read `process.env` directly.
@@ -34,6 +34,7 @@ updateAt: 2026-06-02
 - `apps/web/turbo.json` owns the web app's Turborepo deployment env classification. Keep `env` for variables that affect `next build` output or demo setup/readiness rendering, and keep `passThroughEnv` for runtime-only secrets that must be available to server routes without entering the build cache hash.
 - AI Gateway, database, Redis, Blob, LangGraph, and native OpenAI model selection variables are build-output inputs for `web#build` because demo pages can render setup/readiness state from them.
 - Cron and Vercel Sandbox credential variables are runtime-only pass-through inputs for `web#build`. Do not put `VERCEL_OIDC_TOKEN` or the `VERCEL_TOKEN` credential trio into build hash inputs unless the build output intentionally depends on those values.
+- `VERCEL_ENV` and `VERCEL_TARGET_ENV` are runtime-only pass-through inputs for `web#build`. The development observability harness reads them at runtime to fail closed outside local development without making deployment context part of the build cache key.
 - Demo pages under `apps/web/app/demos/*/page.tsx` should export `dynamic = "force-dynamic"` so setup/readiness state reflects the current deployment runtime instead of a static build snapshot. `apps/web/app/demos/page-rendering-contract.test.ts` enforces this for all demo workspaces.
 - When adding a new web environment contract, update the matching `keys.ts`, `apps/web/env.ts`, `apps/web/turbo.json`, and the narrow contract tests in the same change.
 

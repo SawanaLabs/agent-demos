@@ -8,6 +8,23 @@ import {
 } from "./project-tools";
 
 describe("project docs MCP search", () => {
+  it("surfaces the Generative UI demo through the generative-ui pattern filter", async () => {
+    const demos = await listDemoCatalogForMcp({
+      pattern: "generative-ui",
+      status: "ready",
+    });
+
+    expect(demos).toContainEqual(
+      expect.objectContaining({
+        href: "/demos/generative-ui",
+        pattern: "generative-ui",
+        slug: "generative-ui",
+        status: "ready",
+        title: "Generative UI",
+      })
+    );
+  });
+
   it("keeps the project guide companion searchable but outside the demo catalog", async () => {
     const demos = await listDemoCatalogForMcp();
     const searchResult = await searchProjectDocsForMcp({

@@ -70,6 +70,10 @@ function humanizeSlug(slug: string) {
 }
 
 function inferPattern(slug: string): ProjectDemoPattern {
+  if (slug.includes("generative-ui")) {
+    return "generative-ui";
+  }
+
   if (slug.includes("mcp")) {
     return "mcp";
   }

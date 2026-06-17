@@ -27,6 +27,20 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("homepage demo gallery", () => {
+  it("highlights Generative UI as a recommended lightweight demo", async () => {
+    const { default: Page } = await import("./page");
+    const markup = renderToStaticMarkup(<Page />);
+    const recommendIndex = markup.indexOf("Start here");
+    const generativeUiIndex = markup.indexOf("Generative UI", recommendIndex);
+    const readyDemosIndex = markup.indexOf("Interactive now");
+
+    expect(recommendIndex).toBeGreaterThanOrEqual(0);
+    expect(generativeUiIndex).toBeGreaterThan(recommendIndex);
+    expect(generativeUiIndex).toBeLessThan(readyDemosIndex);
+    expect(markup).toContain('href="/demos/generative-ui"');
+    expect(markup).toContain("4 highlighted demos");
+  });
+
   it("renders the random demo action before the GitHub link", async () => {
     const { default: Page } = await import("./page");
     const markup = renderToStaticMarkup(<Page />);

@@ -45,10 +45,14 @@ const recommendedDemoRanks = [
   },
   {
     rankLabel: "Number Two",
-    slug: "langgraph-agent",
+    slug: "generative-ui",
   },
   {
     rankLabel: "Number Three",
+    slug: "langgraph-agent",
+  },
+  {
+    rankLabel: "Number Four",
     slug: "openai-agents-sdk-demo",
   },
 ] as const;
@@ -302,7 +306,7 @@ export default function Page() {
                 {recommendedDemoEntries.length} highlighted demos
               </p>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {recommendedDemoEntries.map(({ demo, rankLabel }) => (
                 <DemoGalleryCard
                   demo={demo}

@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-06-02
+updateAt: 2026-07-01
 ---
 
 # Agent Demo Structure
@@ -21,6 +21,7 @@ updateAt: 2026-06-02
 - **Demo UI component**: A feature-local component built from UI primitives for one agent demo's experience.
 - **Demo metadata module**: A feature-local `demo-meta.ts` file that exposes the canonical catalog and documentation metadata for one agent demo.
 - **Demo Workspace Shell**: The shared screen chrome in `apps/web/components/demo-workspace-shell.tsx` that owns the repeated Agent Demo page frame, breadcrumb, title, summary, badges, and workspace slot.
+- **Demo Loading Shell**: The shared route fallback in `apps/web/components/demo-loading-screen.tsx` that composes **Demo Workspace Shell** with `@workspace/ui/components/skeleton` for Agent Demo `loading.tsx` files.
 - **Demo Chat Controller Module**: The shared client hook and helpers in `apps/web/features/shared/chat/ui/use-demo-chat.ts` that own the repeated AI SDK `Chat`, `DefaultChatTransport`, `useChat`, `hasMessages`, and `isBusy` wiring for ordinary demo chat workspaces.
 - **Conversation Error Message Module**: The shared client component and retry hook in `apps/web/features/shared/chat/ui/conversation-error-message.tsx` that render transient AI SDK generation errors inside a conversation without writing them to persisted chat history.
 - **Route-backed Chat Replay Module**: The shared server helper in `apps/web/features/shared/chat/server/route-backed-chat-replay.ts` that maps AI SDK `trigger` and `messageId` metadata into the persisted-history replay window for route-backed chats.
@@ -52,6 +53,10 @@ updateAt: 2026-06-02
 - Shape each demo page primarily as an operable application workspace.
 - Use the **Demo Workspace Shell** for implemented Agent Demo screens instead of copying the same `main`, breadcrumb, heading, summary, badge rail, and workspace wrapper in every feature slice.
 - Keep feature-specific workspace implementation under `apps/web/features/<demo-slug>/ui`; the **Demo Workspace Shell** should own only the repeated screen chrome and workspace slot.
+- Keep `apps/web/app/demos/<demo-slug>/loading.tsx` beside each ready demo `page.tsx`. Loading files should stay thin, import the matching feature `demo-meta.ts`, and render **Demo Loading Shell** through `DemoRouteLoadingScreen`.
+- Keep dynamic conversation route loading files, such as `apps/web/app/demos/<demo-slug>/[id]/loading.tsx`, parameter-free and generic because Next.js loading components do not receive route params.
+- Use route-level `loading.tsx` for the default segment fallback, then add local `<Suspense fallback={...}>` skeletons only around independently streaming server subtrees.
+- Loading UI for demo routes must use `@workspace/ui/components/skeleton` and shared page shell components instead of bespoke spinners or one-off page chrome.
 - For synced registry demos that use the **Demo Workspace Shell**, project `apps/web/components/demo-workspace-shell.tsx` through `scripts/registry-sync/shared-registry-assets.json` with an explicit `demos` list, and list the projected `components/demo-workspace-shell.tsx` file in the demo-owned registry item.
 - Use the **Demo Chat Controller Module** for ordinary AI SDK chat demos whose client runtime only needs an endpoint-backed `DefaultChatTransport` or a custom `Chat` factory. Keep feature-local hooks focused on the demo endpoint and custom chat factory details.
 - Use the **Conversation Error Message Module** instead of feature-local send-error banners when an AI SDK chat demo needs a user-visible error in the conversation. Keep this error transient: it may render beside the AI SDK messages in the client conversation UI, but it must not be inserted into the persisted `UIMessage` table or sent back to the model as history.
@@ -93,4 +98,4 @@ updateAt: 2026-06-02
 - Update this file when the feature-slice layout changes.
 - Update this file when a new shared UI primitive boundary appears in `packages/ui`.
 - Update this file when a demo's copy boundary changes or shadcn registry distribution rules become concrete.
-- Update this file when **Demo Workspace Shell**, **Demo Chat Controller Module**, **Visitor Owner Route Module**, or **Metered Demo Route Module** rules change.
+- Update this file when **Demo Workspace Shell**, **Demo Loading Shell**, **Demo Chat Controller Module**, **Visitor Owner Route Module**, or **Metered Demo Route Module** rules change.

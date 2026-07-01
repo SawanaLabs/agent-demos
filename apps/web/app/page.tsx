@@ -177,11 +177,7 @@ function DemoGalleryCard({
   );
 
   if (demo.status === "ready") {
-    return (
-      <Link href={demo.href} prefetch={false}>
-        {card}
-      </Link>
-    );
+    return <Link href={demo.href}>{card}</Link>;
   }
 
   return <div>{card}</div>;

@@ -221,7 +221,6 @@ function SelectedDemoCard({
       aria-label={`Open ${destination.title} demo`}
       className="block outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
       href={destination.href}
-      prefetch={false}
     >
       <Card
         className="cursor-pointer border border-foreground/10 bg-background transition-colors hover:border-foreground/30"
@@ -280,6 +279,12 @@ export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
       setStatus("selected");
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedDestination) {
+      router.prefetch(selectedDestination.href);
+    }
+  }, [router, selectedDestination]);
 
   useEffect(() => {
     if (!(isOpen && status === "spinning")) {

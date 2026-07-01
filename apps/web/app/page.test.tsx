@@ -70,13 +70,13 @@ describe("homepage demo gallery", () => {
     expect(githubLink).toContain('target="_blank"');
   });
 
-  it("disables viewport prefetching for ready demo card links", async () => {
+  it("keeps default prefetching for ready demo card links", async () => {
     const { default: Page } = await import("./page");
     const markup = renderToStaticMarkup(<Page />);
     const ultraCardLink = markup.match(
       /<a[^>]+href="\/demos\/ultra-chatbot-agent"[^>]*>/
     )?.[0];
 
-    expect(ultraCardLink).toContain('data-prefetch="false"');
+    expect(ultraCardLink).toContain('data-prefetch="undefined"');
   });
 });

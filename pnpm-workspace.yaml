@@ -1,3 +1,10 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  '@mongodb-js/zstd': true
+  core-js-pure: true
+  esbuild: true
+  msw: true
+  node-liblzma: true
+  sharp: true

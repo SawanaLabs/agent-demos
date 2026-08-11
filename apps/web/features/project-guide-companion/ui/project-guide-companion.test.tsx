@@ -10,6 +10,7 @@ import {
   findProjectGuideCompanionModel,
   getProjectGuideCompanionDefaultModel,
 } from "../model-catalog";
+import { ProjectGuideCompanionLauncher } from "./project-guide-companion";
 import {
   ProjectGuideCompanionPanel,
   ProjectGuideCompanionScrollButton,
@@ -103,6 +104,34 @@ const messages: UIMessage[] = [
     role: "assistant",
   },
 ];
+
+describe("ProjectGuideCompanionLauncher", () => {
+  function renderLauncher(showReveal: boolean) {
+    return renderToStaticMarkup(
+      <ProjectGuideCompanionLauncher
+        onDismissReveal={() => undefined}
+        onOpen={() => undefined}
+        showReveal={showReveal}
+        surface="home"
+      />
+    );
+  }
+
+  it("keeps the Ask AI label visible from the tablet breakpoint upward", () => {
+    const markup = renderLauncher(false);
+
+    expect(markup).toContain("Ask AI");
+    expect(markup).toContain("hidden sm:inline");
+  });
+
+  it("shows the Ask AI label on mobile only while the first-session reveal is visible", () => {
+    const revealedMarkup = renderLauncher(true);
+    const collapsedMarkup = renderLauncher(false);
+
+    expect(revealedMarkup).toContain("inline sm:inline");
+    expect(collapsedMarkup).toContain("hidden sm:inline");
+  });
+});
 
 describe("ProjectGuideCompanionPanel", () => {
   function loadPanelModelProps() {

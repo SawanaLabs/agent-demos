@@ -58,6 +58,7 @@ updateAt: 2026-06-16
 - Companion model-backed turns still consume the existing **Site Usage Gate** allowance. The usage dialog should watch `429` responses from `/api/project-guide-companion` in addition to `/api/demos/*`.
 - Homepage strategy: show the companion prominently enough to greet first-time visitors and invite them to understand the project.
 - On the homepage, default to a fixed bottom-right **Companion Compass** plus one short **Companion Reveal**. Open the chat panel only after the visitor clicks or taps.
+- Keep `Ask AI` visible beside the **Companion Compass** on tablet and desktop launchers. On mobile, show `Ask AI` only while the first-session **Companion Reveal** is visible; dismissing that reveal collapses the launcher back to the compass icon.
 - Do not rewrite the homepage into a chatbot-first landing page for the first version. The **Demo Gallery** remains the primary homepage structure.
 - On desktop, open the companion as a bottom-right floating panel around 380-420px wide with a maximum height near 70vh.
 - On mobile, open the companion as a bottom drawer so the chat remains usable on narrow screens.

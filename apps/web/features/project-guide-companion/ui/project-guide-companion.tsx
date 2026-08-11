@@ -280,7 +280,7 @@ export function ProjectGuideCompanion() {
   );
 }
 
-function ProjectGuideCompanionLauncher({
+export function ProjectGuideCompanionLauncher({
   onDismissReveal,
   onOpen,
   showReveal,
@@ -317,14 +317,17 @@ function ProjectGuideCompanionLauncher({
       <Button
         aria-label="Open project guide companion"
         className={cn(
-          "fixed right-3 bottom-3 z-50 shadow-lg sm:right-4 sm:bottom-4",
-          surface === "demo" ? "size-10" : "size-12"
+          "fixed right-3 bottom-3 z-50 gap-2 px-3 shadow-lg sm:right-4 sm:bottom-4",
+          surface === "demo" ? "h-10" : "h-12"
         )}
         onClick={onOpen}
         title="Open Project Compass"
         type="button"
       >
         <Compass className={surface === "demo" ? "size-4" : "size-5"} />
+        <span className={cn(showReveal ? "inline" : "hidden", "sm:inline")}>
+          Ask AI
+        </span>
       </Button>
     </>
   );

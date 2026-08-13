@@ -74,9 +74,9 @@ export function UltraChatbotAgentDiffView({
           <div
             className={cn(
               "grid grid-cols-[3rem_1fr] gap-3 border-foreground/5 border-b px-3 py-2 last:border-b-0",
-              line.kind === "added" && "bg-emerald-500/10",
-              line.kind === "changed" && "bg-amber-500/10",
-              line.kind === "removed" && "bg-rose-500/10"
+              line.kind === "added" && "bg-status-success-500/10",
+              line.kind === "changed" && "bg-status-warning-500/10",
+              line.kind === "removed" && "bg-status-danger-500/10"
             )}
             key={`${index}-${line.kind}`}
           >

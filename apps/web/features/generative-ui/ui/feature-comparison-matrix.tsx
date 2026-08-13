@@ -53,11 +53,12 @@ const ratingLabels: Record<string, string> = {
 };
 
 const ratingClassNames: Record<string, string> = {
-  best: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  best: "border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300",
   mixed:
-    "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  strong: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  weak: "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+    "border-status-warning-500/30 bg-status-warning-500/10 text-status-warning-700 dark:text-status-warning-300",
+  strong:
+    "border-status-info-500/30 bg-status-info-500/10 text-status-info-700 dark:text-status-info-300",
+  weak: "border-status-danger-500/30 bg-status-danger-500/10 text-status-danger-700 dark:text-status-danger-300",
 };
 
 function isFeatureComparisonOutput(

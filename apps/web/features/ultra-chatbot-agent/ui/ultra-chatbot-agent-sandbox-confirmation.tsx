@@ -55,7 +55,7 @@ export function UltraChatbotAgentSandboxConfirmation({
   return (
     <Confirmation
       approval={approval}
-      className="border-amber-500/30 bg-amber-500/5"
+      className="border-status-warning-500/30 bg-status-warning-500/5"
       state={part.state}
     >
       <ConfirmationTitle>Enable sandbox for this chat?</ConfirmationTitle>

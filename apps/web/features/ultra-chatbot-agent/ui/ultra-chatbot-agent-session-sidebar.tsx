@@ -245,7 +245,7 @@ function UltraChatbotAgentSandboxPanel({
           </p>
         </div>
         {chatMeta.capabilities.sandboxEnabled ? (
-          <CheckCircleIcon className="mt-0.5 size-4 text-emerald-500" />
+          <CheckCircleIcon className="mt-0.5 size-4 text-status-success-500" />
         ) : null}
       </div>
       <p className="mt-2 text-muted-foreground text-xs/relaxed">

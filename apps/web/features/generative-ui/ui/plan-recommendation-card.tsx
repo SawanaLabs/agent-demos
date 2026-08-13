@@ -165,9 +165,9 @@ function renderRecommendationContent(
           </div>
           <Badge variant="outline">{getBadgeLabel(renderState)}</Badge>
         </div>
-        <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+        <div className="rounded-md border border-status-success-500/20 bg-status-success-500/5 p-3">
           <div className="flex items-start gap-2">
-            <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+            <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-status-success-600" />
             <div className="w-full space-y-1">
               <p className="font-medium">
                 {recommendedName ?? <SkeletonLine className="w-40" />}

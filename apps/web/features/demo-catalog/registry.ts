@@ -77,41 +77,44 @@ export const demoGalleryVisualClasses: Record<
 > = {
   amber: {
     ascii:
-      "border-amber-500/25 bg-amber-500/5 text-amber-700 dark:text-amber-300",
-    panel: "border-amber-500/20 bg-amber-500/10",
-    pill: "bg-amber-500/15 text-amber-700",
+      "border-status-warning-500/25 bg-status-warning-500/5 text-status-warning-700 dark:text-status-warning-300",
+    panel: "border-status-warning-500/20 bg-status-warning-500/10",
+    pill: "bg-status-warning-500/15 text-status-warning-700",
   },
   cyan: {
-    ascii: "border-cyan-500/25 bg-cyan-500/5 text-cyan-700 dark:text-cyan-300",
-    panel: "border-cyan-500/20 bg-cyan-500/10",
-    pill: "bg-cyan-500/15 text-cyan-700",
+    ascii:
+      "border-status-info-500/25 bg-status-info-500/5 text-status-info-700 dark:text-status-info-300",
+    panel: "border-status-info-500/20 bg-status-info-500/10",
+    pill: "bg-status-info-500/15 text-status-info-700",
   },
   emerald: {
     ascii:
-      "border-emerald-500/25 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300",
-    panel: "border-emerald-500/20 bg-emerald-500/10",
-    pill: "bg-emerald-500/15 text-emerald-700",
+      "border-status-success-500/25 bg-status-success-500/5 text-status-success-700 dark:text-status-success-300",
+    panel: "border-status-success-500/20 bg-status-success-500/10",
+    pill: "bg-status-success-500/15 text-status-success-700",
   },
   indigo: {
     ascii:
-      "border-indigo-500/25 bg-indigo-500/5 text-indigo-700 dark:text-indigo-300",
-    panel: "border-indigo-500/20 bg-indigo-500/10",
-    pill: "bg-indigo-500/15 text-indigo-700",
+      "border-status-info-500/25 bg-status-info-500/5 text-status-info-700 dark:text-status-info-300",
+    panel: "border-status-info-500/20 bg-status-info-500/10",
+    pill: "bg-status-info-500/15 text-status-info-700",
   },
   rose: {
-    ascii: "border-rose-500/25 bg-rose-500/5 text-rose-700 dark:text-rose-300",
-    panel: "border-rose-500/20 bg-rose-500/10",
-    pill: "bg-rose-500/15 text-rose-700",
+    ascii:
+      "border-status-danger-500/25 bg-status-danger-500/5 text-status-danger-700 dark:text-status-danger-300",
+    panel: "border-status-danger-500/20 bg-status-danger-500/10",
+    pill: "bg-status-danger-500/15 text-status-danger-700",
   },
   sky: {
-    ascii: "border-sky-500/25 bg-sky-500/5 text-sky-700 dark:text-sky-300",
-    panel: "border-sky-500/20 bg-sky-500/10",
-    pill: "bg-sky-500/15 text-sky-700",
+    ascii:
+      "border-status-info-500/25 bg-status-info-500/5 text-status-info-700 dark:text-status-info-300",
+    panel: "border-status-info-500/20 bg-status-info-500/10",
+    pill: "bg-status-info-500/15 text-status-info-700",
   },
   violet: {
     ascii:
-      "border-violet-500/25 bg-violet-500/5 text-violet-700 dark:text-violet-300",
-    panel: "border-violet-500/20 bg-violet-500/10",
-    pill: "bg-violet-500/15 text-violet-700",
+      "border-status-info-500/25 bg-status-info-500/5 text-status-info-700 dark:text-status-info-300",
+    panel: "border-status-info-500/20 bg-status-info-500/10",
+    pill: "bg-status-info-500/15 text-status-info-700",
   },
 };

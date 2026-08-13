@@ -431,7 +431,7 @@ function getHelpfulButtonIcon(
   }
 
   return plan.currentVote === true ? (
-    <ThumbsUpIcon className="size-3.5 text-emerald-500" />
+    <ThumbsUpIcon className="size-3.5 text-status-success-500" />
   ) : (
     <ThumbsUpIcon className="size-3.5" />
   );
@@ -445,7 +445,7 @@ function getNeedsWorkButtonIcon(
   }
 
   return plan.currentVote === false ? (
-    <ThumbsDownIcon className="size-3.5 text-rose-500" />
+    <ThumbsDownIcon className="size-3.5 text-status-danger-500" />
   ) : (
     <ThumbsDownIcon className="size-3.5" />
   );

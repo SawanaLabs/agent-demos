@@ -1,0 +1,20 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  or {
+    JsStringLiteralExpression(),
+    JsTemplateChunkElement(),
+    JsxString()
+  } as $literal where {
+    $literal <: or {
+      r".*(?:^|[^A-Za-z0-9_-])(?:bg|text|border(?:-[trblxyse])?|outline|ring(?:-offset)?|shadow|drop-shadow|inset-shadow|inset-ring|fill|stroke|from|via|to|decoration|caret|accent|divide|placeholder)-(?:black|white|(?:red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone|mauve|olive|mist|taupe)-(?:50|100|200|300|400|500|600|700|800|900|950))(?:/[^\s\"']+)?(?:[^A-Za-z0-9_/-]|$).*",
+      r".*(?:^|[^A-Za-z0-9_-])(?:bg|text|border(?:-[trblxyse])?|outline|ring(?:-offset)?|shadow|drop-shadow|inset-shadow|inset-ring|fill|stroke|from|via|to|decoration|caret|accent|divide|placeholder)-\[[^\s\"']*(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color)\()[^\s\"']*\].*"
+    },
+    register_diagnostic(span=$literal, message="Use a semantic color token from the shared theme instead of a hardcoded color.", severity="error")
+  },
+  JsPropertyObjectMember() as $member where {
+    $member <: r".*(?:[\"']--[A-Za-z0-9-]+[\"']|(?:color|background|backgroundColor|borderColor|outlineColor|boxShadow|textShadow|fill|stroke))\s*:\s*[\"'][^\"']*(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color)\().*",
+    register_diagnostic(span=$member, message="Use a semantic color token from the shared theme instead of a hardcoded color.", severity="error")
+  }
+}

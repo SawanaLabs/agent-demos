@@ -20,7 +20,7 @@ function ThemeToggle() {
   return (
     <Button
       aria-label={`Switch to ${isDark ? "light" : "dark"} theme`}
-      className="fixed right-4 bottom-20 z-40 shadow-sm"
+      className="fixed top-4 right-4 z-40 shadow-sm"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       size="icon"
       title={`Switch to ${isDark ? "light" : "dark"} theme`}

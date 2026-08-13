@@ -139,6 +139,18 @@ test("allows CSS token composition", () => {
   assert.deepEqual(diagnostics, []);
 });
 
+test("allows hashes and color-like text in non-color CSS values", () => {
+  const diagnostics = lintSource({
+    extension: "css",
+    source: `.example::before {
+  content: "#fff rgb(0 0 0)";
+  background-image: url("/asset.svg#fff");
+}`,
+  });
+
+  assert.deepEqual(diagnostics, []);
+});
+
 test("allows literals in the shared token source", () => {
   const diagnostics = lintPath(
     resolve(repositoryRoot, "packages/ui/src/styles/globals.css")

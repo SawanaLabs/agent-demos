@@ -69,11 +69,11 @@ function getVoicePanelStatusLabel(status: VoiceConnectionStatus) {
 
 function getVoicePanelStatusClassName(status: VoiceConnectionStatus) {
   if (status === "connected") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    return "border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300";
   }
 
   if (status === "connecting") {
-    return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
+    return "border-status-warning-500/30 bg-status-warning-500/10 text-status-warning-700 dark:text-status-warning-300";
   }
 
   if (status === "error") {
@@ -401,7 +401,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
 
   const providerStatusClassName =
     voiceProfile.browserTransport.status === "configured"
-      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      ? "border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300"
       : "border-destructive/30 bg-destructive/10 text-destructive";
   const detailsSummary = getOpenAiAgentsSdkDemoVoicePrimarySummary({
     connectionStatus,
@@ -437,7 +437,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
               </Badge>
               {pendingApproval ? (
                 <Badge
-                  className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                  className="border-status-warning-500/30 bg-status-warning-500/10 text-status-warning-700 dark:text-status-warning-300"
                   variant="outline"
                 >
                   Approval pending
@@ -682,7 +682,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   ))}
                 </div>
                 {pendingApproval ? (
-                  <div className="space-y-2 border border-amber-500/30 bg-amber-500/10 px-3 py-3">
+                  <div className="space-y-2 border border-status-warning-500/30 bg-status-warning-500/10 px-3 py-3">
                     <p className="font-medium text-sm">
                       Pending approval: {pendingApproval.toolName}
                     </p>

@@ -214,7 +214,7 @@ export function TraceEvalAgentEvalPanel({
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-foreground/10">
                 <div
-                  className="h-full bg-blue-600 transition-[width] duration-300"
+                  className="h-full bg-status-info-600 transition-[width] duration-300"
                   style={{
                     width: `${Math.max(6, Math.round(getJudgeProgressValue(judge) * 100))}%`,
                   }}

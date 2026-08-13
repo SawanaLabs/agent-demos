@@ -1,0 +1,7 @@
+engine biome(1.0)
+language css
+
+CssDeclarationWithSemicolon() as $declaration where {
+  $declaration <: r".*(?:#[0-9a-fA-F]{3,8}|(?:rgb|hsl|hwb|lab|lch|oklab|oklch|color)\s*\().*",
+  register_diagnostic(span=$declaration, message="Use a semantic color token from the shared theme instead of a color literal.", severity="error")
+}

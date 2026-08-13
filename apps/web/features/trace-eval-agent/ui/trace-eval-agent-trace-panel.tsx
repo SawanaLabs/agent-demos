@@ -19,10 +19,10 @@ import type { TraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import type { TraceEvalSnapshot } from "../model/trace-eval-snapshot";
 
 const traceStatusStyles = {
-  failed: "text-red-600",
-  passed: "text-green-600",
+  failed: "text-status-danger-600",
+  passed: "text-status-success-600",
   pending: "text-muted-foreground",
-  running: "text-blue-600",
+  running: "text-status-info-600",
 } as const;
 
 const traceStatusIcons = {
@@ -57,7 +57,7 @@ export function TraceEvalAgentTracePanel({
           <TaskContent>
             <TaskItem className="space-y-1">
               <div className="flex items-start gap-2">
-                <XCircleIcon className="mt-0.5 size-4 shrink-0 text-red-600" />
+                <XCircleIcon className="mt-0.5 size-4 shrink-0 text-status-danger-600" />
                 <div className="min-w-0">
                   <p className="font-medium text-foreground text-sm">
                     Run failed before trace evaluation

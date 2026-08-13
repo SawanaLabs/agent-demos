@@ -7,7 +7,7 @@
     "ultracite/biome/react"
   ],
   "files": {
-    "includes": ["!registry"]
+    "includes": ["!registry", "!.hermes"]
   },
   "linter": {
     "domains": {
@@ -38,6 +38,18 @@
     }
   },
   "overrides": [
+    {
+      "includes": [
+        "apps/web/**",
+        "packages/ui/src/components/**",
+        "!packages/ui/src/components/ai-elements/**"
+      ],
+      "plugins": ["./scripts/biome/no-color-literals-js.grit"]
+    },
+    {
+      "includes": ["**/*.css", "!packages/ui/src/styles/globals.css"],
+      "plugins": ["./scripts/biome/no-color-literals-css.grit"]
+    },
     {
       "includes": ["apps/web/**/*.{ts,tsx}"],
       "linter": {

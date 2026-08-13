@@ -53,7 +53,7 @@ export function getStatusClassName(
     status === "ready" ||
     status === "used-this-run"
   ) {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    return "border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300";
   }
 
   if (status === "blocked") {
@@ -67,7 +67,7 @@ export function getToolAvailabilityClassName(
   availability: OpenAiAgentsSdkDemoToolCatalogEntry["availability"]
 ) {
   if (availability === "configured") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    return "border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300";
   }
 
   if (availability === "provider-blocked") {

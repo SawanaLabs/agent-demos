@@ -1,6 +1,6 @@
 ---
 name: project-docs-system
-description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including repository DOCS, domain DOCS, docs index files, domain index files, subdomain docs, and lightweight decision records. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain two-level docs maps, add or update project conventions, capture durable non-obvious practices, preserve scoped decisions, or sync AGENTS.md docs-system rules.
+description: Bootstrap, audit, or maintain a repository-specific project docs system centered on `AGENTS.md` and `docs/`, including repository DOCS, domain DOCS, docs index files, domain index files, subdomain docs, and lightweight decision records. Use for any agent (such as Codex, Claude Code, and OpenClaw) when it needs to initialize docs files, maintain indexed docs maps, add or update project conventions, capture durable non-obvious practices, preserve scoped decisions, or sync AGENTS.md docs-system rules.
 ---
 
 # Project Docs System
@@ -19,17 +19,19 @@ This docs system borrows from Domain-Driven Design: organize durable knowledge a
    - Treat `docs/` as initialized only when compatible `docs/DOCS.md` (Project Knowledge Protocol) and `docs/index.md` files exist.
    - Detect whether the repository already has a docs convention and preserve it when possible.
 
-2. Use the canonical layout in [references/docs-layout.md](./references/docs-layout.md).
+2. Use the starter layout in [references/docs-layout.md](./references/docs-layout.md).
    - Create or maintain the core files.
    - Keep file roles distinct.
    - Reuse the standard frontmatter keys and section layout.
    - When creating a new leaf doc, copy the structure in [references/subdomain-doc-template.md](./references/subdomain-doc-template.md).
+   - Allow deeper docs scopes when they are useful and indexed.
+   - Treat non-Markdown resource directories under `docs/` as outside docs layout validation.
 
 3. Sort knowledge before writing.
    - Put cross-domain language, collaboration conventions, and boundary principles in `docs/DOCS.md`.
    - Put domain-level language, conventions, and boundary principles shared by multiple subdomain docs in `docs/<domain>/DOCS.md`.
    - Put domain navigation in `docs/<domain>/index.md`.
-   - Put stable subdomain knowledge in `docs/<domain>/<subdomain>.md`.
+   - Put stable subdomain knowledge in `docs/<domain>/<subdomain>.md` by default, or in a deeper indexed scope when the project needs another grouping level.
    - Add a `## Domain Language` section only when a docs file depends on confirmed project-specific terms.
    - Add a `## Decision Records` section only when a decision is hard to reverse, surprising without context, and the result of a real trade-off.
    - Do not store short-lived debugging notes or one-off session details.
@@ -49,7 +51,8 @@ This repository maintains project-specific knowledge and conventions in `docs/`;
 
 5. Keep maps complete.
    - When adding a first-level domain, create both `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
-   - When adding, renaming, merging, or removing `docs/<domain>/<subdomain>.md` files, update `docs/<domain>/index.md` in the same change.
+   - When adding, renaming, merging, or removing Markdown docs files, update the nearest parent `index.md` in the same change.
+   - When adding, renaming, merging, or removing a child docs directory, update the nearest parent `index.md` with the child `index.md` link in the same change.
    - When adding, renaming, merging, or removing first-level domains, update `docs/index.md` in the same change.
 
 6. Update docs during normal work, not as an afterthought.
@@ -72,8 +75,8 @@ This repository maintains project-specific knowledge and conventions in `docs/`;
 
 - Confirm the core docs files exist and are linked together.
 - Confirm every docs document starts with frontmatter.
-- Confirm every first-level domain has `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
-- Confirm `docs/index.md` covers every first-level domain.
-- Confirm each `docs/<domain>/index.md` covers every `docs/<domain>/<subdomain>.md` file.
+- Confirm every first-level Markdown docs domain has `docs/<domain>/DOCS.md` and `docs/<domain>/index.md`.
+- Confirm `docs/index.md` covers every first-level Markdown docs domain.
+- Confirm each docs scope `index.md` covers its direct Markdown docs files and child docs scope indexes.
 - When shell access is available, run the bundled [scripts/verify-docs-system.sh](./scripts/verify-docs-system.sh) with the target repo root or `docs/` directory to verify the docs structure.
 - Summarize what was created or updated and why.

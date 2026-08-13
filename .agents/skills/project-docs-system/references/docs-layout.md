@@ -1,6 +1,6 @@
 # Docs Layout
 
-## Canonical File Set
+## Starter File Set
 
 Use this layout when bootstrapping or repairing a project docs system:
 
@@ -22,6 +22,8 @@ Use this layout when bootstrapping or repairing a project docs system:
 - `docs/<domain>/<subdomain>.md`
   - Store durable knowledge that only applies to one subdomain.
   - Store subdomain-specific decision records in an optional `## Decision Records` section.
+
+This is the default starter shape for small and medium projects. Larger projects may add deeper docs scopes such as `docs/application/homepage/replication.md` when each docs directory has an `index.md` that maps direct Markdown files and child docs directories. Directories that only contain non-Markdown resources, such as images, are outside docs layout validation. Deeper scopes may add `DOCS.md` only when that scope has shared protocol or language worth preserving.
 
 ## AGENTS Rules Block
 
@@ -114,8 +116,8 @@ Store domain-level language, conventions, boundary principles, and decision reco
 Include:
 
 - a short usage note for that domain
-- one entry per `docs/<domain>/<subdomain>.md`
-- when to consult each subdomain doc
+- one entry per direct `docs/<domain>/<subdomain>.md` file or child docs scope
+- when to consult each subdomain doc or child docs scope
 
 Use this minimal map template:
 
@@ -185,7 +187,8 @@ Use this decision rule before writing:
 - If a decision record is needed, put it in the docs file matching the decision scope.
 - If it maps first-level navigation, put it in `docs/index.md`.
 - If it maps second-level navigation, put it in `docs/<domain>/index.md`.
-- If it only matters for one subdomain, put it in `docs/<domain>/<subdomain>.md`.
+- If it maps a deeper docs scope, put it in that scope's `index.md`.
+- If it only matters for one subdomain, put it in `docs/<domain>/<subdomain>.md` or a deeper indexed docs file when the project needs that grouping.
 - If it is too temporary to help future work, do not store it.
 
 ## Update Triggers
@@ -197,9 +200,9 @@ Update the relevant docs file when:
 - a new module, route, feature, or workflow becomes important enough to remember
 - an existing domain or subdomain changes ownership, structure, or boundaries
 
-Also update map files whenever docs files change:
+Also update map files whenever docs files or docs directories change:
 
-- Update `docs/<domain>/index.md` when its subdomain files change.
+- Update the nearest parent `index.md` when its direct docs files or child docs directories change.
 - Update `docs/index.md` when first-level domains change.
 
 ## Verification Helper

@@ -12,6 +12,7 @@ EOF
 
 error_count=0
 warning_count=0
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
 
 error() {
   printf 'ERROR: %s\n' "$*" >&2
@@ -34,6 +35,65 @@ contains_required_link() {
   file="$1"
   needle="$2"
   [ -f "$file" ] && grep -Fq "$needle" "$file"
+}
+
+has_markdown_tree() {
+  dir="$1"
+  [ -n "$(find "$dir" -type f -name '*.md' ! -path '*/.*/*' -print | sed -n '1p')" ]
+}
+
+verify_index_covers_scope() {
+  scope_dir="$1"
+  index_file="$scope_dir/index.md"
+
+  if [ ! -f "$index_file" ]; then
+    error "missing docs index: $index_file"
+    return
+  fi
+
+  while IFS= read -r leaf_doc; do
+    leaf_name="$(basename "$leaf_doc")"
+    case "$leaf_name" in
+      index.md|DOCS.md) continue ;;
+    esac
+
+    if ! contains_required_link "$index_file" "$leaf_name"; then
+      error "$index_file does not link direct docs file: $leaf_name"
+    fi
+  done < <(find "$scope_dir" -maxdepth 1 -type f -name '*.md' -print | sort)
+
+  while IFS= read -r child_dir; do
+    child_name="$(basename "$child_dir")"
+    case "$child_name" in
+      .*) continue ;;
+    esac
+
+    if ! has_markdown_tree "$child_dir"; then
+      continue
+    fi
+
+    if ! contains_required_link "$index_file" "$child_name/index.md"; then
+      error "$index_file does not link child docs index: $child_name/index.md"
+    fi
+  done < <(find "$scope_dir" -mindepth 1 -maxdepth 1 -type d -print | sort)
+}
+
+verify_docs_scope_recursive() {
+  scope_dir="$1"
+
+  if ! has_markdown_tree "$scope_dir"; then
+    return
+  fi
+
+  verify_index_covers_scope "$scope_dir"
+
+  while IFS= read -r child_dir; do
+    child_name="$(basename "$child_dir")"
+    case "$child_name" in
+      .*) continue ;;
+    esac
+    verify_docs_scope_recursive "$child_dir"
+  done < <(find "$scope_dir" -mindepth 1 -maxdepth 1 -type d -print | sort)
 }
 
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
@@ -109,36 +169,27 @@ while IFS= read -r domain_dir; do
     .*) continue ;;
   esac
 
-  domain_index="$domain_dir/index.md"
   domain_docs="$domain_dir/DOCS.md"
 
-  if [ ! -f "$domain_index" ]; then
-    error "missing domain index: $domain_index"
+  if ! has_markdown_tree "$domain_dir"; then
+    continue
   fi
 
   if [ ! -f "$domain_docs" ]; then
     error "missing domain DOCS protocol: $domain_docs"
   fi
-
-  if [ -f "$docs_dir/index.md" ] && ! contains_required_link "$docs_dir/index.md" "$domain/index.md"; then
-    error "docs/index.md does not link domain index: $domain/index.md"
-  fi
-
-  while IFS= read -r nested_dir; do
-    warn "nested docs directory is outside the two-level layout: $nested_dir"
-  done < <(find "$domain_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -print | sort)
-
-  while IFS= read -r leaf_doc; do
-    leaf_name="$(basename "$leaf_doc")"
-    case "$leaf_name" in
-      index.md|DOCS.md) continue ;;
-    esac
-
-    if [ -f "$domain_index" ] && ! contains_required_link "$domain_index" "$leaf_name"; then
-      error "$domain/index.md does not link subdomain doc: $leaf_name"
-    fi
-  done < <(find "$domain_dir" -maxdepth 1 -type f -name '*.md' -print | sort)
 done < <(find "$docs_dir" -mindepth 1 -maxdepth 1 -type d -print | sort)
+
+verify_docs_scope_recursive "$docs_dir"
+
+if [ "$error_count" -eq 0 ]; then
+  catalog_script="$script_dir/update-docs-catalog.sh"
+  if [ ! -x "$catalog_script" ]; then
+    error "missing executable docs catalog updater: $catalog_script"
+  elif ! "$catalog_script" --check "$target_abs"; then
+    error "generated docs catalog check failed"
+  fi
+fi
 
 if [ "$error_count" -gt 0 ]; then
   printf 'Docs system verification failed: %d error(s), %d warning(s).\n' "$error_count" "$warning_count" >&2

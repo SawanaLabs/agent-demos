@@ -20,6 +20,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [AI SDK Recipes Checklist](./ai-sdk-recipes-checklist.md): Working checklist for converting AI SDK Recipes, guide, and docs examples into portable Agent Demos.
 - [Agent Demo Structure](./agent-demo-structure.md): Copy-boundary layout for independent full-stack agent demos.
 - [Generative UI](./generative-ui.md): Stable source-core and UX conventions for model-selected UI components rendered from AI SDK UI tool parts.
+- [Minimal Chat Agent](./minimal-chat-agent.md): Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output.
 - [Image Workflow Agent](./image-workflow-agent.md): Stable app-side conventions for the workflow canvas demo with graph-sync, manual run routing, and mobile chat fallback.
 - [RAG Chatbot](./rag-chatbot.md): Stable source-core, indexing, retrieval, and grounded-answer conventions for the RAG Chatbot demo.
 - [Memory & Persistence Agent](./customer-memory-agent.md): Batch 6 rules for shared demo accounts, visitor-private sandbox threads, and cookie-scoped memory persistence.

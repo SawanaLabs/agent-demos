@@ -47,6 +47,13 @@
       "setup": "AI Gateway only. Uses OpenAI hosted web_search through the Gateway plus local UI tools for comparison and recommendation components."
     },
     {
+      "slug": "minimal-chat-agent",
+      "title": "Minimal Chat Agent",
+      "registryPath": "registry/minimal-chat-agent/registry.json",
+      "publicRegistry": true,
+      "setup": "AI Gateway with an openai/* chat model. Uses OpenAI hosted web_search, public GitHub REST lookup, and questionnaire-driven human tool output."
+    },
+    {
       "slug": "customer-memory-agent",
       "title": "Memory & Persistence Agent",
       "registryPath": "registry/customer-memory-agent/registry.json",

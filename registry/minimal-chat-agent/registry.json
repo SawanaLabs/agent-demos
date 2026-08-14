@@ -1,0 +1,143 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "minimal-chat-agent",
+      "type": "registry:block",
+      "title": "Minimal Chat Agent",
+      "description": "A source-backed minimal AI SDK agent with OpenAI hosted web search, public GitHub repository lookup, and questionnaire-driven human-in-the-loop tool output.",
+      "dependencies": [
+        "@ai-sdk/openai@^3.0.65",
+        "@ai-sdk/react@^3.0.190",
+        "@base-ui/react",
+        "ai@^6.0.188",
+        "class-variance-authority",
+        "lucide-react",
+        "zod@^4.4.3"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "input",
+        "separator",
+        "textarea",
+        "tooltip",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json"
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "files": [
+        {
+          "path": "app/demos/minimal-chat-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/minimal-chat-agent/page.tsx"
+        },
+        {
+          "path": "app/api/demos/minimal-chat-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/minimal-chat-agent/route.ts"
+        },
+        {
+          "path": "components/minimal-chat-agent/minimal-chat-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/minimal-chat-agent-screen.tsx"
+        },
+        {
+          "path": "components/minimal-chat-agent/minimal-chat-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/minimal-chat-agent-workspace.tsx"
+        },
+        {
+          "path": "components/minimal-chat-agent/ask-user-card.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/ask-user-card.tsx"
+        },
+        {
+          "path": "components/minimal-chat-agent/ask-user-state.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/ask-user-state.ts"
+        },
+        {
+          "path": "components/minimal-chat-agent/message-parts.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/message-parts.ts"
+        },
+        {
+          "path": "components/minimal-chat-agent/use-minimal-chat-agent.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/use-minimal-chat-agent.ts"
+        },
+        {
+          "path": "components/demo-chat/use-demo-chat.ts",
+          "type": "registry:component",
+          "target": "@components/demo-chat/use-demo-chat.ts"
+        },
+        {
+          "path": "components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
+          "path": "components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/types.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/types.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/env-source.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/env.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/tools.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/chat.ts"
+        },
+        {
+          "path": "lib/minimal-chat-agent/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/runtime.ts"
+        }
+      ],
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs a minimal tool-calling chat route with OpenAI hosted web search, public GitHub lookup, and a questionnaire that returns human answers into the same agent loop. Add authentication and rate limiting before exposing the consumer route publicly."
+    }
+  ]
+}

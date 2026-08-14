@@ -596,6 +596,144 @@
       "type": "registry:block"
     },
     {
+      "name": "minimal-chat-agent",
+      "title": "Minimal Chat Agent",
+      "description": "A source-backed minimal AI SDK agent with OpenAI hosted web search, public GitHub repository lookup, and questionnaire-driven human-in-the-loop tool output.",
+      "dependencies": [
+        "@ai-sdk/openai@^3.0.65",
+        "@ai-sdk/react@^3.0.190",
+        "@base-ui/react",
+        "ai@^6.0.188",
+        "class-variance-authority",
+        "lucide-react",
+        "zod@^4.4.3"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "input",
+        "separator",
+        "textarea",
+        "tooltip",
+        "https://elements.ai-sdk.dev/api/registry/conversation.json",
+        "https://elements.ai-sdk.dev/api/registry/message.json",
+        "https://elements.ai-sdk.dev/api/registry/reasoning.json",
+        "https://elements.ai-sdk.dev/api/registry/sources.json"
+      ],
+      "files": [
+        {
+          "path": "registry/minimal-chat-agent/app/demos/minimal-chat-agent/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/minimal-chat-agent/page.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/app/api/demos/minimal-chat-agent/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/minimal-chat-agent/route.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/minimal-chat-agent-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/minimal-chat-agent-screen.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/minimal-chat-agent-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/minimal-chat-agent-workspace.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/ask-user-card.tsx",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/ask-user-card.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/ask-user-state.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/ask-user-state.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/message-parts.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/message-parts.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/minimal-chat-agent/use-minimal-chat-agent.ts",
+          "type": "registry:component",
+          "target": "@components/minimal-chat-agent/use-minimal-chat-agent.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-chat/use-demo-chat.ts",
+          "type": "registry:component",
+          "target": "@components/demo-chat/use-demo-chat.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-chat/conversation-error-message.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-chat/conversation-error-message.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/ai-elements/prompt-input.tsx",
+          "type": "registry:component",
+          "target": "@components/ai-elements/prompt-input.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/types.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/types.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/env-source.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/env.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/tools.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/tools.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/chat.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/chat.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/minimal-chat-agent/runtime.ts"
+        }
+      ],
+      "envVars": {
+        "AI_GATEWAY_API_KEY": "",
+        "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
+        "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
+      },
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs a minimal tool-calling chat route with OpenAI hosted web search, public GitHub lookup, and a questionnaire that returns human answers into the same agent loop. Add authentication and rate limiting before exposing the consumer route publicly.",
+      "type": "registry:block"
+    },
+    {
       "name": "customer-memory-agent",
       "title": "Memory & Persistence Agent",
       "description": "A support workspace with in-memory default persistence, optional Postgres storage, explicit saved memories, retrieval, and compaction checkpoints.",

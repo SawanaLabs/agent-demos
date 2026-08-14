@@ -10,6 +10,7 @@ import { imageWorkflowAgentDemoMeta } from "../image-workflow-agent/demo-meta.ts
 import { langGraphAgentDemoMeta } from "../langgraph-agent/demo-meta.ts";
 import { loopAgentDemoMeta } from "../loop-agent/demo-meta.ts";
 import { mcpAgentDemoMeta } from "../mcp-agent/demo-meta.ts";
+import { minimalChatAgentDemoMeta } from "../minimal-chat-agent/demo-meta.ts";
 import { multimodalChatbotDemoMeta } from "../multimodal-chatbot/demo-meta.ts";
 import { objectGenerationDemoMeta } from "../object-generation/demo-meta.ts";
 import { openAiAgentsSdkDemoMeta } from "../openai-agents-sdk-demo/demo-meta.ts";
@@ -38,6 +39,7 @@ const currentDemoCatalogEntries = [
   multimodalChatbotDemoMeta,
   objectGenerationDemoMeta,
   generativeUiDemoMeta,
+  minimalChatAgentDemoMeta,
   imageWorkflowAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
@@ -59,7 +61,7 @@ test("current registry manifest classifies every ready catalog demo", () => {
   });
 
   assert.equal(availability.mainlineRegistryDemo.slug, "foundation-chat");
-  assert.equal(availability.publicRegistryDemos.length, 16);
+  assert.equal(availability.publicRegistryDemos.length, 17);
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),

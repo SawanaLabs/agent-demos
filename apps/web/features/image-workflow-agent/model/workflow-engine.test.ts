@@ -7,6 +7,21 @@ import {
 } from "./workflow-engine";
 
 describe("image workflow engine", () => {
+  it("starts with separated generator and result nodes", () => {
+    const graph = createDefaultWorkflowGraph();
+
+    expect(graph.nodes).toMatchObject([
+      {
+        id: "generator-1",
+        position: { x: 240, y: 180 },
+      },
+      {
+        id: "result-1",
+        position: { x: 640, y: 180 },
+      },
+    ]);
+  });
+
   it("builds a runnable text-to-image plan after the generator prompt changes", () => {
     const graph = createDefaultWorkflowGraph();
     const updated = applyWorkflowCommand(graph, {

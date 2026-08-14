@@ -91,7 +91,7 @@ export function createDefaultWorkflowGraph(): WorkflowGraph {
         id: "result-1",
         kind: "image-result",
         position: {
-          x: 560,
+          x: 640,
           y: 180,
         },
       },

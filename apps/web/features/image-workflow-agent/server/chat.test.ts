@@ -58,6 +58,9 @@ describe("image workflow agent chat", () => {
     const request = streamTextMock.mock.calls[0]?.[0];
     expect(request?.system).toContain('"revision":0');
     expect(request?.system).toContain('"id":"generator-1"');
+    expect(request?.system).toContain(
+      "Do not send null placeholders from other node kinds"
+    );
     expect(streamTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
         model: "chat-model:openai/gpt-5-mini",
@@ -232,9 +235,22 @@ describe("image workflow agent chat", () => {
     const updated = await updateNodeTool.execute({
       nodeId: "generator-1",
       patch: {
+        activeRunId: null,
+        errorMessage: null,
+        image: null,
         prompt: "A stark editorial portrait",
       },
     });
+
+    await expect(
+      updateNodeTool.execute({
+        nodeId: "generator-1",
+        patch: {
+          activeRunId: "forged-run",
+          prompt: "This invalid lifecycle field must still be rejected",
+        },
+      })
+    ).rejects.toThrowError('Workflow patch is invalid for node "generator-1".');
 
     const connected = await connectNodesTool.execute({
       sourceNodeId: "reference-1",

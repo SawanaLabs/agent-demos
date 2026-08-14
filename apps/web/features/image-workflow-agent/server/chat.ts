@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import {
   applyWorkflowCommand,
+  type UpdateNodeCommand,
   type WorkflowCommand,
   type WorkflowGraph,
   type WorkflowNode,
@@ -26,6 +27,8 @@ import { executeImageWorkflowGraph } from "./runtime";
 const systemPrompt = [
   "You are the Image Workflow Agent.",
   "Use tools to mutate the workflow graph instead of describing graph edits abstractly.",
+  "For updateNode, send only prompt/aspectRatio for image-generator nodes or label/image for reference-image nodes.",
+  "Do not send null placeholders from other node kinds.",
   "Run the workflow when the graph is ready and the user asks for image generation or editing.",
   "Keep normal prose concise and do not repeat full graph state in plain text.",
 ].join(" ");
@@ -200,6 +203,28 @@ function createModelWorkflowContext(graph: WorkflowGraph) {
   );
 }
 
+function normalizeGeneratorPatch(
+  graph: WorkflowGraph,
+  nodeId: string,
+  patch: UpdateNodeCommand["patch"]
+) {
+  const targetNode = graph.nodes.find((node) => node.id === nodeId);
+
+  if (targetNode?.kind !== "image-generator") {
+    return patch;
+  }
+
+  const normalizedPatch: Record<string, unknown> = { ...patch };
+
+  for (const field of ["activeRunId", "errorMessage", "image"] as const) {
+    if (normalizedPatch[field] === null) {
+      delete normalizedPatch[field];
+    }
+  }
+
+  return normalizedPatch as UpdateNodeCommand["patch"];
+}
+
 export async function generateImageWorkflowAgentResponse(
   messages: UIMessage[],
   graph: WorkflowGraph,
@@ -226,13 +251,13 @@ export async function generateImageWorkflowAgentResponse(
   }
 
   function applyCommand(
-    createCommand: (revision: number) => WorkflowCommand,
+    createCommand: (revision: number, graph: WorkflowGraph) => WorkflowCommand,
     createSummary: (graph: WorkflowGraph) => string
   ) {
     return serializeWorkflowOperation(() => {
       currentGraph = applyWorkflowCommand(
         currentGraph,
-        createCommand(currentGraph.revision)
+        createCommand(currentGraph.revision, currentGraph)
       );
 
       return createWorkflowToolOutput(
@@ -294,10 +319,10 @@ export async function generateImageWorkflowAgentResponse(
         description: "Update a workflow node with a validated patch.",
         execute: ({ nodeId, patch }) =>
           applyCommand(
-            (expectedRevision) => ({
+            (expectedRevision, graphSnapshot) => ({
               expectedRevision,
               nodeId,
-              patch,
+              patch: normalizeGeneratorPatch(graphSnapshot, nodeId, patch),
               type: "update-node",
             }),
             () => `Updated node ${nodeId}.`

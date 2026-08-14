@@ -8,6 +8,7 @@ import type {
 } from "@/features/demo-catalog/types";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
 import { generativeUiDemoMeta } from "@/features/generative-ui/demo-meta";
+import { imageWorkflowAgentDemoMeta } from "@/features/image-workflow-agent/demo-meta";
 import { langGraphAgentDemoMeta } from "@/features/langgraph-agent/demo-meta";
 import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
 import { mcpAgentDemoMeta } from "@/features/mcp-agent/demo-meta";
@@ -42,6 +43,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   multimodalChatbotDemoMeta,
   objectGenerationDemoMeta,
   generativeUiDemoMeta,
+  imageWorkflowAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,

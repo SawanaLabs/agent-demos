@@ -5,6 +5,7 @@
     "build": {
       "env": [
         "AI_GATEWAY_*",
+        "AI_GATEWAY_IMAGE_MODEL",
         "DATABASE_URL",
         "REDIS_URL",
         "BLOB_READ_WRITE_TOKEN",

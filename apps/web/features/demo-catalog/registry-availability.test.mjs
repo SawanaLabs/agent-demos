@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { customerMemoryAgentDemoMeta } from "../customer-memory-agent/demo-meta.ts";
 import { foundationChatDemoMeta } from "../foundation-chat/demo-meta.ts";
 import { generativeUiDemoMeta } from "../generative-ui/demo-meta.ts";
+import { imageWorkflowAgentDemoMeta } from "../image-workflow-agent/demo-meta.ts";
 import { langGraphAgentDemoMeta } from "../langgraph-agent/demo-meta.ts";
 import { loopAgentDemoMeta } from "../loop-agent/demo-meta.ts";
 import { mcpAgentDemoMeta } from "../mcp-agent/demo-meta.ts";
@@ -37,6 +38,7 @@ const currentDemoCatalogEntries = [
   multimodalChatbotDemoMeta,
   objectGenerationDemoMeta,
   generativeUiDemoMeta,
+  imageWorkflowAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,
@@ -61,7 +63,7 @@ test("current registry manifest classifies every ready catalog demo", () => {
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),
-    []
+    ["image-workflow-agent"]
   );
 });
 

@@ -3,7 +3,12 @@
   "homepage": "https://github.com/SawanaLabs/agent-demos",
   "namespace": "@agent-demos",
   "productionDomain": "agent-demos.hsawana9.com",
-  "omittedReadyDemos": [],
+  "omittedReadyDemos": [
+    {
+      "slug": "image-workflow-agent",
+      "reason": "The MVP is app-only for now and does not expose a registry export boundary yet."
+    }
+  ],
   "demos": [
     {
       "slug": "foundation-chat",

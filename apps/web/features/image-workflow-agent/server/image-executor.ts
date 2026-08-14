@@ -82,6 +82,11 @@ export async function executeImageWorkflowRunPlan(
         },
       ],
       model: gateway.languageModel(plan.imageModel),
+      providerOptions: {
+        google: {
+          responseModalities: ["TEXT", "IMAGE"],
+        },
+      },
     });
     const firstImage = result.files.find((file) =>
       file.mediaType.startsWith("image/")

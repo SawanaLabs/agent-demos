@@ -63,6 +63,11 @@ describe("image workflow execution adapter", () => {
         },
       ],
       model: "language-model:google/gemini-3.1-flash-lite-image",
+      providerOptions: {
+        google: {
+          responseModalities: ["TEXT", "IMAGE"],
+        },
+      },
     });
   });
 

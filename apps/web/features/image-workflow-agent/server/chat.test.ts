@@ -299,5 +299,30 @@ describe("image workflow agent chat", () => {
         status: "succeeded",
       },
     });
+
+    const concurrentRun = runWorkflowTool.execute({});
+    const concurrentUpdate = updateNodeTool.execute({
+      nodeId: "generator-1",
+      patch: {
+        prompt: "Preserve this edit after the in-flight run",
+      },
+    });
+
+    await Promise.all([concurrentRun, concurrentUpdate]);
+    await runWorkflowTool.execute({});
+
+    expect(executeWorkflowGraphMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        nodes: expect.arrayContaining([
+          expect.objectContaining({
+            data: expect.objectContaining({
+              prompt: "Preserve this edit after the in-flight run",
+            }),
+            id: "generator-1",
+          }),
+        ]),
+      }),
+      { AI_GATEWAY_API_KEY: "test-key" }
+    );
   });
 });

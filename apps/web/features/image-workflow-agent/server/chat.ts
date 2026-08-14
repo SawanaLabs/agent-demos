@@ -213,11 +213,33 @@ export async function generateImageWorkflowAgentResponse(
   const config = readImageWorkflowAgentConfig(env);
   const gateway = dependencies.createGateway(env);
   let currentGraph = graph;
+  let workflowOperation = Promise.resolve();
 
-  async function applyCommand(command: WorkflowCommand, summary: string) {
-    currentGraph = applyWorkflowCommand(currentGraph, command);
+  function serializeWorkflowOperation<T>(operation: () => Promise<T> | T) {
+    const result = workflowOperation.then(operation, operation);
+    workflowOperation = result.then(
+      () => undefined,
+      () => undefined
+    );
 
-    return createWorkflowToolOutput(currentGraph, summary);
+    return result;
+  }
+
+  function applyCommand(
+    createCommand: (revision: number) => WorkflowCommand,
+    createSummary: (graph: WorkflowGraph) => string
+  ) {
+    return serializeWorkflowOperation(() => {
+      currentGraph = applyWorkflowCommand(
+        currentGraph,
+        createCommand(currentGraph.revision)
+      );
+
+      return createWorkflowToolOutput(
+        currentGraph,
+        createSummary(currentGraph)
+      );
+    });
   }
 
   return dependencies.streamText({
@@ -233,12 +255,13 @@ export async function generateImageWorkflowAgentResponse(
           "Replace the entire workflow graph with a validated graph.",
         execute: ({ graph: nextGraph }) =>
           applyCommand(
-            {
-              expectedRevision: currentGraph.revision,
+            (expectedRevision) => ({
+              expectedRevision,
               graph: nextGraph,
               type: "replace-workflow",
-            },
-            `Replaced the workflow graph at revision ${currentGraph.revision + 1}.`
+            }),
+            (updatedGraph) =>
+              `Replaced the workflow graph at revision ${updatedGraph.revision}.`
           ),
         inputSchema: z.object({
           graph: imageWorkflowGraphSchema,
@@ -252,12 +275,12 @@ export async function generateImageWorkflowAgentResponse(
         description: "Add a workflow node.",
         execute: ({ node }) =>
           applyCommand(
-            {
-              expectedRevision: currentGraph.revision,
+            (expectedRevision) => ({
+              expectedRevision,
               node,
               type: "add-node",
-            },
-            `Added node ${node.id}.`
+            }),
+            () => `Added node ${node.id}.`
           ),
         inputSchema: z.object({
           node: nodeSchema,
@@ -271,13 +294,13 @@ export async function generateImageWorkflowAgentResponse(
         description: "Update a workflow node with a validated patch.",
         execute: ({ nodeId, patch }) =>
           applyCommand(
-            {
-              expectedRevision: currentGraph.revision,
+            (expectedRevision) => ({
+              expectedRevision,
               nodeId,
               patch,
               type: "update-node",
-            },
-            `Updated node ${nodeId}.`
+            }),
+            () => `Updated node ${nodeId}.`
           ),
         inputSchema: z.object({
           nodeId: z.string(),
@@ -292,13 +315,13 @@ export async function generateImageWorkflowAgentResponse(
         description: "Connect two workflow nodes.",
         execute: ({ sourceNodeId, targetNodeId }) =>
           applyCommand(
-            {
-              expectedRevision: currentGraph.revision,
+            (expectedRevision) => ({
+              expectedRevision,
               sourceNodeId,
               targetNodeId,
               type: "connect-nodes",
-            },
-            `Connected ${sourceNodeId} to ${targetNodeId}.`
+            }),
+            () => `Connected ${sourceNodeId} to ${targetNodeId}.`
           ),
         inputSchema: z.object({
           sourceNodeId: z.string(),
@@ -312,25 +335,26 @@ export async function generateImageWorkflowAgentResponse(
       runWorkflow: tool({
         description:
           "Run the current workflow and attach the generated result image.",
-        execute: async () => {
-          currentGraph = await dependencies.executeWorkflowGraph(
-            currentGraph,
-            env
-          );
-          const resultNode = currentGraph.nodes.find(
-            (node) => node.kind === "image-result"
-          );
-          const succeeded = resultNode?.data.status === "succeeded";
+        execute: () =>
+          serializeWorkflowOperation(async () => {
+            currentGraph = await dependencies.executeWorkflowGraph(
+              currentGraph,
+              env
+            );
+            const resultNode = currentGraph.nodes.find(
+              (node) => node.kind === "image-result"
+            );
+            const succeeded = resultNode?.data.status === "succeeded";
 
-          return createWorkflowToolOutput(
-            currentGraph,
-            succeeded
-              ? `Ran the workflow successfully and updated ${resultNode.id}.`
-              : `Workflow run failed: ${resultNode?.data.errorMessage ?? "Unknown error."}`,
-            resultNode?.data.image ?? null,
-            "workflow-run"
-          );
-        },
+            return createWorkflowToolOutput(
+              currentGraph,
+              succeeded
+                ? `Ran the workflow successfully and updated ${resultNode.id}.`
+                : `Workflow run failed: ${resultNode?.data.errorMessage ?? "Unknown error."}`,
+              resultNode?.data.image ?? null,
+              "workflow-run"
+            );
+          }),
         inputSchema: z.object({}).passthrough(),
         toModelOutput: ({ output }) => ({
           type: "text",

@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { createDefaultWorkflowGraph } from "../model/workflow-engine";
 import {
+  applyWorkflowNodeChanges,
   getLatestWorkflowGraph,
   getWorkflowToolDisplayOutput,
-  hasGraphChangingNodeChange,
 } from "./image-workflow-agent-model";
 
 describe("image workflow agent UI model", () => {
@@ -73,35 +73,42 @@ describe("image workflow agent UI model", () => {
     );
   });
 
-  it("ignores React Flow bookkeeping without swallowing drag position changes", () => {
+  it("updates the controlled graph during and after a node drag", () => {
+    const graph = createDefaultWorkflowGraph();
+    const draggingGraph = applyWorkflowNodeChanges(graph, [
+      {
+        dragging: true,
+        id: "generator-1",
+        position: { x: 20, y: 40 },
+        type: "position",
+      },
+    ]);
+    const committedGraph = applyWorkflowNodeChanges(draggingGraph, [
+      {
+        dragging: false,
+        id: "generator-1",
+        position: { x: 80, y: 120 },
+        type: "position",
+      },
+    ]);
+
     expect(
-      hasGraphChangingNodeChange([
+      draggingGraph.nodes.find((node) => node.id === "generator-1")
+    ).toMatchObject({ position: { x: 20, y: 40 } });
+    expect(
+      committedGraph.nodes.find((node) => node.id === "generator-1")
+    ).toMatchObject({ position: { x: 80, y: 120 } });
+    expect(committedGraph.revision).toBe(graph.revision + 2);
+  });
+
+  it("returns the same graph for React Flow bookkeeping changes", () => {
+    const graph = createDefaultWorkflowGraph();
+
+    expect(
+      applyWorkflowNodeChanges(graph, [
         { id: "generator-1", type: "dimensions" },
         { id: "generator-1", selected: true, type: "select" },
       ])
-    ).toBe(false);
-    expect(
-      hasGraphChangingNodeChange([
-        {
-          dragging: true,
-          id: "generator-1",
-          position: { x: 20, y: 40 },
-          type: "position",
-        },
-      ])
-    ).toBe(true);
-    expect(
-      hasGraphChangingNodeChange([
-        {
-          dragging: false,
-          id: "generator-1",
-          position: { x: 20, y: 40 },
-          type: "position",
-        },
-      ])
-    ).toBe(true);
-    expect(
-      hasGraphChangingNodeChange([{ id: "reference-1", type: "remove" }])
-    ).toBe(true);
+    ).toBe(graph);
   });
 });

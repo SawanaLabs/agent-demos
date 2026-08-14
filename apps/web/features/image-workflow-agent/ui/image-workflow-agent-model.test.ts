@@ -4,6 +4,7 @@ import { createDefaultWorkflowGraph } from "../model/workflow-engine";
 import {
   getLatestWorkflowGraph,
   getWorkflowToolDisplayOutput,
+  hasGraphChangingNodeChange,
 } from "./image-workflow-agent-model";
 
 describe("image workflow agent UI model", () => {
@@ -70,5 +71,37 @@ describe("image workflow agent UI model", () => {
     expect(JSON.stringify(getWorkflowToolDisplayOutput(output))).not.toContain(
       "c2Vuc2l0aXZlLWltYWdl"
     );
+  });
+
+  it("ignores React Flow bookkeeping without swallowing drag position changes", () => {
+    expect(
+      hasGraphChangingNodeChange([
+        { id: "generator-1", type: "dimensions" },
+        { id: "generator-1", selected: true, type: "select" },
+      ])
+    ).toBe(false);
+    expect(
+      hasGraphChangingNodeChange([
+        {
+          dragging: true,
+          id: "generator-1",
+          position: { x: 20, y: 40 },
+          type: "position",
+        },
+      ])
+    ).toBe(true);
+    expect(
+      hasGraphChangingNodeChange([
+        {
+          dragging: false,
+          id: "generator-1",
+          position: { x: 20, y: 40 },
+          type: "position",
+        },
+      ])
+    ).toBe(true);
+    expect(
+      hasGraphChangingNodeChange([{ id: "reference-1", type: "remove" }])
+    ).toBe(true);
   });
 });

@@ -31,6 +31,7 @@ import {
 } from "@workspace/ui/components/ai-elements/tool";
 import { Badge } from "@workspace/ui/components/badge";
 import { type ChatStatus, isToolUIPart, type UIMessage } from "ai";
+import { LoaderCircleIcon } from "lucide-react";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 import type { ImageResultNode } from "../model/workflow-engine";
@@ -93,6 +94,31 @@ function WorkflowMessage({
   );
 }
 
+function ManualRunProgress() {
+  return (
+    <Message from="assistant">
+      <MessageContent
+        aria-live="polite"
+        className="max-w-3xl border border-border bg-muted/30 px-4 py-3"
+        role="status"
+      >
+        <div className="flex items-start gap-3">
+          <LoaderCircleIcon
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground"
+          />
+          <div>
+            <p className="font-medium text-sm">Generating image</p>
+            <p className="mt-1 text-muted-foreground text-xs/relaxed">
+              Running the current workflow. This can take a moment.
+            </p>
+          </div>
+        </div>
+      </MessageContent>
+    </Message>
+  );
+}
+
 function SetupGuidance({
   setupState,
 }: {
@@ -126,6 +152,7 @@ export interface ImageWorkflowAgentChatRailProps {
   hasMessages: boolean;
   isBusy: boolean;
   isChatAvailable: boolean;
+  isManualRunPending: boolean;
   manualError: string | null;
   messageStatus: ChatStatus;
   messages: UIMessage[];
@@ -134,7 +161,7 @@ export interface ImageWorkflowAgentChatRailProps {
   onSuggestionClick: (text: string) => Promise<void>;
   resultNode: ImageResultNode;
   setupState: ImageWorkflowAgentSetupState;
-  status: "error" | "ready" | "setup required" | "streaming";
+  status: "error" | "generating" | "ready" | "setup required" | "streaming";
   suggestions: readonly string[];
 }
 
@@ -143,6 +170,7 @@ export function ImageWorkflowAgentChatRail({
   hasMessages,
   isBusy,
   isChatAvailable,
+  isManualRunPending,
   manualError,
   messages,
   messageStatus,
@@ -171,15 +199,16 @@ export function ImageWorkflowAgentChatRail({
 
       <Conversation className="min-h-0">
         <ConversationContent className="gap-5 p-4">
-          {hasMessages ? (
-            messages.map((message, index) => (
-              <WorkflowMessage
-                isStreaming={isBusy && index === messages.length - 1}
-                key={message.id}
-                message={message}
-              />
-            ))
-          ) : (
+          {hasMessages
+            ? messages.map((message, index) => (
+                <WorkflowMessage
+                  isStreaming={isBusy && index === messages.length - 1}
+                  key={message.id}
+                  message={message}
+                />
+              ))
+            : null}
+          {hasMessages || isManualRunPending ? null : (
             <ConversationEmptyState
               description={
                 isChatAvailable
@@ -189,6 +218,7 @@ export function ImageWorkflowAgentChatRail({
               title={isChatAvailable ? "Chat is ready" : "Chat unavailable"}
             />
           )}
+          {isManualRunPending ? <ManualRunProgress /> : null}
           {chatError ? (
             <ConversationErrorMessage
               error={chatError}
@@ -196,7 +226,7 @@ export function ImageWorkflowAgentChatRail({
               onRetry={onRetryChatError}
             />
           ) : null}
-          {manualError ? (
+          {manualError && !isManualRunPending ? (
             <ConversationErrorMessage
               error={manualError}
               title="Workflow action failed"

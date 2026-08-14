@@ -20,15 +20,23 @@ export function ImageWorkflowAgentWorkspace({
   const referenceNode = getReferenceImageNode(controller.graph);
   const resultNode = getImageResultNode(controller.graph);
   const hasReference = Boolean(referenceNode);
-  let status: "error" | "ready" | "setup required" | "streaming" =
-    setupState.isReady ? "ready" : "setup required";
+  let status:
+    | "error"
+    | "generating"
+    | "ready"
+    | "setup required"
+    | "streaming" = setupState.isReady ? "ready" : "setup required";
 
   if (controller.error || controller.manualError) {
     status = "error";
   }
 
-  if (controller.isBusy) {
+  if (controller.isChatStreaming) {
     status = "streaming";
+  }
+
+  if (controller.isManualRunPending) {
+    status = "generating";
   }
 
   return (
@@ -80,6 +88,7 @@ export function ImageWorkflowAgentWorkspace({
             hasMessages={controller.hasMessages}
             isBusy={controller.isBusy}
             isChatAvailable={setupState.isReady}
+            isManualRunPending={controller.isManualRunPending}
             manualError={controller.manualError}
             messageStatus={controller.status}
             messages={controller.messages}

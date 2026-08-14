@@ -30,6 +30,7 @@ import {
   getImageResultNode,
   getLatestWorkflowGraph,
   getReferenceImageNode,
+  hasGraphChangingNodeChange,
   imageWorkflowAgentSuggestions,
 } from "./image-workflow-agent-model";
 
@@ -169,6 +170,10 @@ function useWorkflowEditingActions(mutateGraph: GraphMutator) {
 
   const handleNodesChange = useCallback(
     (changes: WorkflowNodeChange[]) => {
+      if (!hasGraphChangingNodeChange(changes)) {
+        return;
+      }
+
       mutateGraph((currentGraph) => {
         let nextGraph = currentGraph;
 

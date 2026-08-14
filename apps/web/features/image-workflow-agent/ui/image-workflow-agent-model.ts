@@ -47,6 +47,24 @@ function isWorkflowGraph(value: unknown): value is WorkflowGraph {
   );
 }
 
+interface WorkflowNodeChangeLike {
+  dragging?: boolean;
+  id?: string;
+  position?: unknown;
+  selected?: boolean;
+  type: string;
+}
+
+export function hasGraphChangingNodeChange(
+  changes: readonly WorkflowNodeChangeLike[]
+) {
+  return changes.some(
+    (change) =>
+      change.type === "remove" ||
+      (change.type === "position" && Boolean(change.position))
+  );
+}
+
 export function getWorkflowMessageText(message: UIMessage) {
   return message.parts
     .filter((part) => part.type === "text")

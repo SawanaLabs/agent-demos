@@ -23,6 +23,7 @@ updateAt: 2026-08-14
 - Keep all feature-local UI under `apps/web/features/image-workflow-agent/ui`.
 - Keep the page entry at `apps/web/app/demos/image-workflow-agent/page.tsx` thin and server-only; it should read `getImageWorkflowAgentSetupState()` and pass that state into the workspace.
 - The desktop workspace uses a 70/30 split: canvas on the left, chat rail on the right.
+- Keep workflow revision, mode, and run status in a compact canvas status panel. Put manual workflow actions in the bottom-center floating toolbar so canvas state and actions remain distinct.
 - Mobile hides the canvas entirely and shows chat, tool activity, and the latest result card in one column.
 - All manual graph mutations must go through `applyWorkflowCommand`; do not mutate nodes or edges ad hoc in React state.
 - React Flow node moves and deletions must map back into workflow commands so revision checks stay real.

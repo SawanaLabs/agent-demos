@@ -1,9 +1,5 @@
 "use client";
 
-import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
-import { Separator } from "@workspace/ui/components/separator";
-
 import type { ImageWorkflowAgentSetupState } from "../server/env";
 import { ImageWorkflowAgentCanvas } from "./image-workflow-agent-canvas";
 import { ImageWorkflowAgentChatRail } from "./image-workflow-agent-chat-rail";
@@ -23,6 +19,7 @@ export function ImageWorkflowAgentWorkspace({
   });
   const referenceNode = getReferenceImageNode(controller.graph);
   const resultNode = getImageResultNode(controller.graph);
+  const hasReference = Boolean(referenceNode);
   let status: "error" | "ready" | "setup required" | "streaming" =
     setupState.isReady ? "ready" : "setup required";
 
@@ -35,51 +32,26 @@ export function ImageWorkflowAgentWorkspace({
   }
 
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-col gap-0 lg:gap-4">
-      <div className="hidden flex-wrap items-center justify-between gap-3 border border-foreground/10 bg-background px-4 py-3 lg:flex">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">Revision {controller.graph.revision}</Badge>
-          <Badge variant="outline">
-            {referenceNode ? "Reference attached" : "Prompt only"}
-          </Badge>
-          <Badge variant="outline">{resultNode.data.status}</Badge>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            disabled={controller.isGraphLocked || Boolean(referenceNode)}
-            onClick={controller.addReferenceNode}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Add reference
-          </Button>
-          <Button
-            disabled={controller.isGraphLocked}
-            onClick={controller.resetWorkflow}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Reset
-          </Button>
-          <Separator className="hidden h-6 md:block" orientation="vertical" />
-          <Button
-            disabled={controller.isGraphLocked || !setupState.isReady}
-            onClick={() => {
-              void controller.runWorkflow();
-            }}
-            size="sm"
-            type="button"
-          >
-            Run workflow
-          </Button>
-        </div>
-      </div>
-
+    <section className="flex h-full min-h-0 min-w-0 flex-col">
       <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(22rem,3fr)]">
         <div className="hidden min-h-0 lg:block">
           <ImageWorkflowAgentCanvas
+            controls={{
+              canAddReference: !(controller.isGraphLocked || hasReference),
+              canReset: !controller.isGraphLocked,
+              canRun: !controller.isGraphLocked && setupState.isReady,
+              hasReference,
+              isRunning:
+                controller.isManualRunPending ||
+                resultNode.data.status === "running",
+              onAddReference: controller.addReferenceNode,
+              onReset: controller.resetWorkflow,
+              onRun: () => {
+                void controller.runWorkflow();
+              },
+              resultStatus: resultNode.data.status,
+              revision: controller.graph.revision,
+            }}
             disabled={controller.isGraphLocked}
             graph={controller.graph}
             imageModel={setupState.config.imageModel}

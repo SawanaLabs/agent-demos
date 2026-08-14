@@ -7,6 +7,10 @@ import type { ComponentProps } from "react";
 
 import type { WorkflowGraph } from "../model/workflow-engine";
 import {
+  ImageWorkflowAgentCanvasControls,
+  type ImageWorkflowAgentCanvasControlsProps,
+} from "./image-workflow-agent-canvas-controls";
+import {
   getImageGeneratorNode,
   getImageResultNode,
   getReferenceImageNode,
@@ -69,6 +73,7 @@ interface ReactFlowNodeBase {
 }
 
 export interface ImageWorkflowAgentCanvasProps {
+  controls: ImageWorkflowAgentCanvasControlsProps;
   disabled: boolean;
   graph: WorkflowGraph;
   imageModel: string;
@@ -187,12 +192,8 @@ export function ImageWorkflowAgentCanvas(props: ImageWorkflowAgentCanvasProps) {
           className="!left-4 !bottom-4 !top-auto"
           position="bottom-left"
         />
+        <ImageWorkflowAgentCanvasControls {...props.controls} />
       </Canvas>
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-4">
-        <div className="rounded-full border border-border bg-background/90 px-3 py-1.5 text-muted-foreground text-xs backdrop-blur">
-          Drag nodes, connect the chain, then run manually or through chat.
-        </div>
-      </div>
     </div>
   );
 }

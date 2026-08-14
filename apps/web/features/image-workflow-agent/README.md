@@ -20,6 +20,8 @@ image-workflow-agent/
     image-executor.test.ts
   ui/
     image-workflow-agent-canvas.tsx
+    image-workflow-agent-canvas-controls.tsx
+    image-workflow-agent-canvas-controls.test.tsx
     image-workflow-agent-chat-rail.tsx
     image-workflow-agent-mobile-result.tsx
     image-workflow-agent-model.test.ts

@@ -2,6 +2,6 @@ engine biome(1.0)
 language css
 
 CssDeclarationWithSemicolon() as $declaration where {
-  $declaration <: r".*(?:#[0-9a-fA-F]{3,8}|(?:rgb|hsl|hwb|lab|lch|oklab|oklch|color)\s*\().*",
+  $declaration <: r"\s*(?:--[A-Za-z0-9-]+|color|background(?:-color)?|border(?:-[A-Za-z-]+)?-color|outline-color|box-shadow|text-shadow|fill|stroke|caret-color|accent-color|text-decoration-color)\s*:.*(?:#[0-9a-fA-F]{3,8}|(?:rgb|hsl|hwb|lab|lch|oklab|oklch|color)\s*\().*",
   register_diagnostic(span=$declaration, message="Use a semantic color token from the shared theme instead of a color literal.", severity="error")
 }

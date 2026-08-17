@@ -27,6 +27,7 @@ export const openAiAgentsSdkDemoMeta: DemoCatalogEntry = {
   summary:
     "An official OpenAI Agents SDK backend bridged into the existing AI SDK UI workspace without rewriting the agent runtime into repo-local orchestration.",
   pattern: "foundation",
+  publishedAt: "2026-05-25T15:52:47+08:00",
   status: "ready",
   source: "OpenAI Agents SDK guides and official AI SDK UI bridge example",
   href: "/demos/openai-agents-sdk-demo",

@@ -2,11 +2,70 @@ import { describe, expect, it } from "vitest";
 
 import {
   demoCatalogEntries,
+  getLatestReadyDemoCatalogEntries,
+  latestReadyDemoCatalogEntries,
   readyDemoCatalogEntries,
   roadmapDemoCatalogEntries,
 } from "./registry";
 
 const readableWordPattern = /[A-Za-z]{2,}/;
+
+describe("latest ready demo catalog group", () => {
+  it("selects the four newest releases in descending order", () => {
+    const baseEntry = readyDemoCatalogEntries[0];
+
+    if (!baseEntry) {
+      throw new Error("Expected at least one ready demo catalog entry");
+    }
+    const releases = (
+      [
+        ["oldest", "2026-01-01T00:00:00Z"],
+        ["second", "2026-01-02T00:00:00Z"],
+        ["third", "2026-01-03T00:00:00Z"],
+        ["fourth", "2026-01-04T00:00:00Z"],
+        ["newest", "2026-01-05T00:00:00Z"],
+      ] as const
+    ).map(([slug, publishedAt]) => ({
+      ...baseEntry,
+      publishedAt,
+      slug,
+    }));
+
+    expect(
+      getLatestReadyDemoCatalogEntries(releases).map((entry) => entry.slug)
+    ).toEqual(["newest", "fourth", "third", "second"]);
+  });
+
+  it("matches the current catalog's four newest releases", () => {
+    expect(latestReadyDemoCatalogEntries).toEqual(
+      getLatestReadyDemoCatalogEntries(readyDemoCatalogEntries)
+    );
+  });
+
+  it("rejects malformed publication timestamps", () => {
+    const baseEntry = readyDemoCatalogEntries[0];
+
+    if (!baseEntry) {
+      throw new Error("Expected at least one ready demo catalog entry");
+    }
+    const releases = [
+      {
+        ...baseEntry,
+        publishedAt: "2026-01-01T00:00:00Z",
+        slug: "valid-release",
+      },
+      {
+        ...baseEntry,
+        publishedAt: "2026-02-30T00:00:00Z",
+        slug: "invalid-release",
+      },
+    ];
+
+    expect(() => getLatestReadyDemoCatalogEntries(releases)).toThrow(
+      "Invalid publishedAt for demo: invalid-release"
+    );
+  });
+});
 
 describe("demo catalog registry", () => {
   it("aggregates one demo catalog entry per demo slug", () => {

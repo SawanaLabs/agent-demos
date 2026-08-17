@@ -35,6 +35,7 @@ interface DemoCatalogEntryBase {
 
 export interface ReadyDemoCatalogEntry extends DemoCatalogEntryBase {
   href: `/demos/${string}`;
+  publishedAt: string;
   status: "ready";
 }
 

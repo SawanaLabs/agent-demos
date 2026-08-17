@@ -16,6 +16,7 @@ export const minimalChatAgentDemoMeta: DemoCatalogEntry = {
   pattern: "tools",
   slug: "minimal-chat-agent",
   source: "shadcn-ui/chatbot-template",
+  publishedAt: "2026-08-15T00:16:50+08:00",
   status: "ready",
   summary:
     "A small tool-calling chat agent with provider-native web search, public GitHub repository lookup, and a questionnaire that returns human answers into the same agent loop.",

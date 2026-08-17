@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-06-17
+updateAt: 2026-08-17
 ---
 
 # Homepage Gallery
@@ -25,8 +25,10 @@ updateAt: 2026-06-17
 - Present each ready agent demo as an active gallery card.
 - Disable viewport-driven Next.js prefetching on ready demo gallery card links. Demo routes can be heavy and mobile weak networks should not spend initial bandwidth preloading multiple demo route payloads before the visitor chooses one.
 - Give ready demo gallery card links inline pending feedback, such as `Opening...`, so mobile visitors get immediate confirmation when a client-side route transition waits on route payloads.
+- Present a compact `New` section above `Recommend` with exactly the four most recently published ready demos.
+- Derive `New` from each feature-local `demo-meta.ts` `publishedAt` value, newest first, so publishing a new ready demo automatically rotates the group without changing the full gallery's curated order.
+- Keep `New` and recommended cards on the same `Gallery card` component, four-column desktop grid behavior, badges, visual framing, and interaction model as each other; the only recommendation-specific affordance should be a small top-right rank badge such as `Number One`.
 - Present a compact `Recommend` section above `Interactive now` when a small number of ready demos should be highlighted without removing them from the full ready gallery.
-- Keep recommended cards on the same `Gallery card` component, grid behavior, badges, visual framing, and interaction model as `Interactive now`; the only extra affordance should be a small top-right rank badge such as `Number One`.
 - The current recommended ready demos are Ultra Chatbot Agent, Generative UI, LangGraph Agent, and OpenAI Agents SDK Demo. Keep Generative UI in this group while it is the lightweight topic-specific answer for evaluators asking about model-selected UI components.
 - Present roadmap demos as visible but non-active roadmap cards.
 - The homepage catalog derives ready and roadmap groups from feature-local `demo-meta.ts` files.

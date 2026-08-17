@@ -41,6 +41,40 @@ describe("homepage demo gallery", () => {
     expect(markup).toContain("4 highlighted demos");
   });
 
+  it("shows the four newest ready demos above recommendations", async () => {
+    const { default: Page } = await import("./page");
+    const markup = renderToStaticMarkup(<Page />);
+    const newIndex = markup.indexOf("Latest additions");
+    const recommendIndex = markup.indexOf("Start here");
+    const newSectionMarkup = markup.slice(newIndex, recommendIndex);
+    const latestDemoHrefs = [
+      "/demos/minimal-chat-agent",
+      "/demos/image-workflow-agent",
+      "/demos/generative-ui",
+      "/demos/langgraph-agent",
+    ];
+
+    expect(newIndex).toBeGreaterThanOrEqual(0);
+    expect(newIndex).toBeLessThan(recommendIndex);
+    expect(newSectionMarkup).toContain("4 newest demos");
+
+    let previousIndex = -1;
+    for (const href of latestDemoHrefs) {
+      const hrefIndex = newSectionMarkup.indexOf(`href="${href}"`);
+      expect(hrefIndex).toBeGreaterThan(previousIndex);
+      previousIndex = hrefIndex;
+    }
+  });
+
+  it("stacks gallery section summaries below headings on mobile", async () => {
+    const { default: Page } = await import("./page");
+    const markup = renderToStaticMarkup(<Page />);
+    const responsiveHeadingPattern =
+      /class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4"/g;
+
+    expect(markup.match(responsiveHeadingPattern)).toHaveLength(3);
+  });
+
   it("renders the random demo action before the GitHub link", async () => {
     const { default: Page } = await import("./page");
     const markup = renderToStaticMarkup(<Page />);

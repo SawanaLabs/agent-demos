@@ -27,6 +27,7 @@ export const persistentAgentDemoMeta: DemoCatalogEntry = {
   pattern: "foundation",
   slug: "persistent-agent",
   source: "AI SDK UI message persistence and resume streams",
+  publishedAt: "2026-05-25T16:29:09+08:00",
   status: "ready",
   summary:
     "A URL-backed agent chat that persists messages in Postgres, isolates visitors with an HTTP-only cookie, and resumes live streams after refresh.",

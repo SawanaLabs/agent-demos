@@ -28,6 +28,7 @@ export const mcpAgentDemoMeta: DemoCatalogEntry = {
   summary:
     "An AI SDK ToolLoopAgent that discovers MCP tools from project docs and a local Next.js runtime, then answers repo and runtime questions through namespaced tool calls.",
   pattern: "mcp",
+  publishedAt: "2026-05-24T17:34:09+08:00",
   status: "ready",
   href: "/demos/mcp-agent",
   source: "AI SDK MCP tools and Next.js dev MCP guide",

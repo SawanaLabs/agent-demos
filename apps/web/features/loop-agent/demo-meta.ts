@@ -28,6 +28,7 @@ export const loopAgentDemoMeta: DemoCatalogEntry = {
   summary:
     "A support triage agent that shows parallel context lookup, dependent SLA checks, human approval, visible tool state, and bounded loop control.",
   pattern: "loop",
+  publishedAt: "2026-05-22T00:35:40+08:00",
   status: "ready",
   source: "AI SDK 6 stable tool-calling, loop-control, and HITL recipes",
   href: "/demos/loop-agent",

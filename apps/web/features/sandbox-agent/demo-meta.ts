@@ -29,6 +29,7 @@ export const sandboxAgentDemoMeta: DemoCatalogEntry = {
   summary:
     "A persistent Vercel Sandbox workspace that lets the agent generate frontend files, run commands, and publish a live preview.",
   pattern: "sandbox",
+  publishedAt: "2026-05-22T00:35:40+08:00",
   status: "ready",
   source: "Sandbox workspace and live preview batch",
 };

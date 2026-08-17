@@ -26,6 +26,7 @@ import {
   type WorkflowReferenceImage,
 } from "../model/workflow-engine";
 import {
+  applyWorkflowNodeChanges,
   createReferenceImageNode,
   getImageResultNode,
   getLatestWorkflowGraph,
@@ -174,34 +175,9 @@ function useWorkflowEditingActions(mutateGraph: GraphMutator) {
         return;
       }
 
-      mutateGraph((currentGraph) => {
-        let nextGraph = currentGraph;
-
-        for (const change of changes) {
-          if (change.type === "remove") {
-            nextGraph = applyWorkflowCommand(nextGraph, {
-              expectedRevision: nextGraph.revision,
-              nodeId: change.id,
-              type: "delete-node",
-            });
-          }
-
-          if (
-            change.type === "position" &&
-            change.position &&
-            change.dragging === false
-          ) {
-            nextGraph = applyWorkflowCommand(nextGraph, {
-              expectedRevision: nextGraph.revision,
-              nodeId: change.id,
-              position: change.position,
-              type: "move-node",
-            });
-          }
-        }
-
-        return nextGraph;
-      });
+      mutateGraph((currentGraph) =>
+        applyWorkflowNodeChanges(currentGraph, changes)
+      );
     },
     [mutateGraph]
   );

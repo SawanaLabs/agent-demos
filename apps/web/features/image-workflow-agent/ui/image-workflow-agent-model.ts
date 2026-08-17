@@ -2,11 +2,13 @@
 
 import { isToolUIPart, type UIMessage } from "ai";
 
-import type {
-  ImageGeneratorNode,
-  ImageResultNode,
-  ReferenceImageNode,
-  WorkflowGraph,
+import {
+  applyWorkflowCommand,
+  type ImageGeneratorNode,
+  type ImageResultNode,
+  type ReferenceImageNode,
+  type WorkflowGraph,
+  type WorkflowPosition,
 } from "../model/workflow-engine";
 
 export const imageWorkflowAgentSuggestions = [
@@ -50,7 +52,7 @@ function isWorkflowGraph(value: unknown): value is WorkflowGraph {
 interface WorkflowNodeChangeLike {
   dragging?: boolean;
   id?: string;
-  position?: unknown;
+  position?: WorkflowPosition;
   selected?: boolean;
   type: string;
 }
@@ -63,6 +65,34 @@ export function hasGraphChangingNodeChange(
       change.type === "remove" ||
       (change.type === "position" && Boolean(change.position))
   );
+}
+
+export function applyWorkflowNodeChanges(
+  graph: WorkflowGraph,
+  changes: readonly WorkflowNodeChangeLike[]
+) {
+  let nextGraph = graph;
+
+  for (const change of changes) {
+    if (change.type === "remove" && change.id) {
+      nextGraph = applyWorkflowCommand(nextGraph, {
+        expectedRevision: nextGraph.revision,
+        nodeId: change.id,
+        type: "delete-node",
+      });
+    }
+
+    if (change.type === "position" && change.id && change.position) {
+      nextGraph = applyWorkflowCommand(nextGraph, {
+        expectedRevision: nextGraph.revision,
+        nodeId: change.id,
+        position: change.position,
+        type: "move-node",
+      });
+    }
+  }
+
+  return nextGraph;
 }
 
 export function getWorkflowMessageText(message: UIMessage) {

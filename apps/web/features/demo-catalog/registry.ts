@@ -64,6 +64,45 @@ export const readyDemoCatalogEntries: ReadyDemoCatalogEntry[] =
     (entry): entry is ReadyDemoCatalogEntry => entry.status === "ready"
   );
 
+const latestReadyDemoCount = 4;
+const publishedAtPattern =
+  /^([1-9]\d{3})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{3})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/;
+
+function parsePublishedAt(entry: ReadyDemoCatalogEntry) {
+  const match = publishedAtPattern.exec(entry.publishedAt);
+  const year = Number(match?.[1]);
+  const month = Number(match?.[2]);
+  const day = Number(match?.[3]);
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+  const publishedAt = Date.parse(entry.publishedAt);
+
+  if (
+    !match ||
+    calendarDate.getUTCFullYear() !== year ||
+    calendarDate.getUTCMonth() !== month - 1 ||
+    calendarDate.getUTCDate() !== day ||
+    !Number.isFinite(publishedAt)
+  ) {
+    throw new Error(`Invalid publishedAt for demo: ${entry.slug}`);
+  }
+
+  return publishedAt;
+}
+
+export function getLatestReadyDemoCatalogEntries(
+  entries: ReadyDemoCatalogEntry[]
+) {
+  return entries
+    .map((entry) => ({ entry, publishedAt: parsePublishedAt(entry) }))
+    .sort((first, second) => second.publishedAt - first.publishedAt)
+    .slice(0, latestReadyDemoCount)
+    .map(({ entry }) => entry);
+}
+
+export const latestReadyDemoCatalogEntries = getLatestReadyDemoCatalogEntries(
+  readyDemoCatalogEntries
+);
+
 export const roadmapDemoCatalogEntries: RoadmapDemoCatalogEntry[] =
   demoCatalogEntries.filter(
     (entry): entry is RoadmapDemoCatalogEntry => entry.status === "roadmap"

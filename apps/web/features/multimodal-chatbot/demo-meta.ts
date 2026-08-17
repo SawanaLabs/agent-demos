@@ -28,6 +28,7 @@ export const multimodalChatbotDemoMeta: DemoCatalogEntry = {
   summary:
     "Chat over user-provided images and PDFs in a single turn, preserving the official AI SDK multimodal guide with a productized workspace.",
   pattern: "multimodal",
+  publishedAt: "2026-05-22T20:08:13+08:00",
   status: "ready",
   source: "AI SDK 6 stable multimodal guide",
   href: "/demos/multimodal-chatbot",

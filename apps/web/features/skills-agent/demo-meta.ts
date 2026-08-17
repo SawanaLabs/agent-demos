@@ -29,6 +29,7 @@ export const skillsAgentDemoMeta: DemoCatalogEntry = {
   summary:
     "A sandbox-backed ToolLoopAgent that loads repo-local skills on demand, pressures a rough idea into durable context, and drafts reusable SKILL.md artifacts.",
   pattern: "skills",
+  publishedAt: "2026-05-22T00:35:40+08:00",
   status: "ready",
   href: "/demos/skills-agent",
   source: "AI SDK Add Skills to Your Agent guide",

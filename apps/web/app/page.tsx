@@ -21,6 +21,7 @@ import {
   demoCatalogEntries,
   demoGalleryVisualClasses,
   demoPatternLabels,
+  latestReadyDemoCatalogEntries,
   readyDemoCatalogEntries,
   roadmapDemoCatalogEntries,
 } from "@/features/demo-catalog/registry";
@@ -291,7 +292,26 @@ export default function Page() {
 
         <section className="space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
+                  New
+                </p>
+                <h2 className="mt-1 font-medium text-xl">Latest additions</h2>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                {latestReadyDemoCatalogEntries.length} newest demos
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {latestReadyDemoCatalogEntries.map((demo) => (
+                <DemoGalleryCard demo={demo} key={demo.slug} />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
                   Recommend
@@ -314,7 +334,7 @@ export default function Page() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
                   Ready demos

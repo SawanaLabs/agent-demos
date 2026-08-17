@@ -28,6 +28,7 @@ export const streamingChatShellDemoMeta: DemoCatalogEntry = {
   summary:
     "A developer-facing chat runtime shell that demonstrates shared useChat state, feature-local request metadata, and a replayable SSE trace.",
   pattern: "foundation",
+  publishedAt: "2026-05-22T23:27:16+08:00",
   status: "ready",
   source: "AI SDK 6 chat and streaming runtime recipes",
   href: "/demos/streaming-chat-shell",

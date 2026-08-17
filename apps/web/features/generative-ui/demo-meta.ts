@@ -25,6 +25,7 @@ export const generativeUiDemoMeta: DemoCatalogEntry = {
   pattern: "generative-ui",
   slug: "generative-ui",
   source: "AI SDK UI Generative User Interfaces guide",
+  publishedAt: "2026-06-15T23:22:26+08:00",
   status: "ready",
   summary:
     "A chat workspace where the model can use hosted web search when recency matters, then choose a comparison matrix or recommendation card as the primary UI output.",

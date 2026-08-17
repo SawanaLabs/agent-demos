@@ -1,0 +1,260 @@
+{
+  "demo": "minimal-chat-agent",
+  "entries": [
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/minimal-chat-agent-screen.tsx",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/minimal-chat-agent-screen.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/tooltip\";",
+          "to": "from \"@/components/ui/tooltip\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/components/demo-workspace-shell\";",
+          "to": "from \"@/components/demo-workspace-shell\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../server/runtime\";",
+          "to": "from \"@/lib/minimal-chat-agent/runtime\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./minimal-chat-agent-workspace\";",
+          "to": "from \"@/components/minimal-chat-agent/minimal-chat-agent-workspace\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/minimal-chat-agent/"
+      ]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/minimal-chat-agent-workspace.tsx",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/minimal-chat-agent-workspace.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/conversation\";",
+          "to": "from \"@/components/ai-elements/conversation\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/message\";",
+          "to": "from \"@/components/ai-elements/message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/prompt-input\";",
+          "to": "from \"@/components/ai-elements/prompt-input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/reasoning\";",
+          "to": "from \"@/components/ai-elements/reasoning\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/sources\";",
+          "to": "from \"@/components/ai-elements/sources\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/card\";",
+          "to": "from \"@/components/ui/card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/separator\";",
+          "to": "from \"@/components/ui/separator\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/lib/utils\";",
+          "to": "from \"@/lib/utils\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@/features/shared/chat/ui/conversation-error-message\";",
+          "to": "from \"@/components/demo-chat/conversation-error-message\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../server/tools\";",
+          "to": "from \"@/lib/minimal-chat-agent/tools\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./ask-user-card\";",
+          "to": "from \"@/components/minimal-chat-agent/ask-user-card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./message-parts\";",
+          "to": "from \"@/components/minimal-chat-agent/message-parts\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./use-minimal-chat-agent\";",
+          "to": "from \"@/components/minimal-chat-agent/use-minimal-chat-agent\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/minimal-chat-agent/",
+        "@/features/shared/"
+      ]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/ask-user-card.tsx",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/ask-user-card.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/badge\";",
+          "to": "from \"@/components/ui/badge\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/card\";",
+          "to": "from \"@/components/ui/card\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/input\";",
+          "to": "from \"@/components/ui/input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../server/tools\";",
+          "to": "from \"@/lib/minimal-chat-agent/tools\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"./ask-user-state\";",
+          "to": "from \"@/components/minimal-chat-agent/ask-user-state\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/minimal-chat-agent/"
+      ]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/ask-user-state.ts",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/ask-user-state.ts",
+      "transforms": [
+        {
+          "from": "from \"../server/tools\";",
+          "to": "from \"@/lib/minimal-chat-agent/tools\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/features/minimal-chat-agent/"]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/message-parts.ts",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/message-parts.ts",
+      "transforms": [
+        {
+          "from": "from \"../server/tools\";",
+          "to": "from \"@/lib/minimal-chat-agent/tools\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../types\";",
+          "to": "from \"@/lib/minimal-chat-agent/types\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/features/minimal-chat-agent/"]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/ui/use-minimal-chat-agent.ts",
+      "target": "registry/minimal-chat-agent/components/minimal-chat-agent/use-minimal-chat-agent.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/chat/ui/use-demo-chat\";",
+          "to": "from \"@/components/demo-chat/use-demo-chat\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../types\";",
+          "to": "from \"@/lib/minimal-chat-agent/types\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@/features/minimal-chat-agent/",
+        "@/features/shared/"
+      ]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/types.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/types.ts"
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/server/chat.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/chat.ts"
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/server/runtime.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/runtime.ts"
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/server/tools.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/tools.ts"
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/server/env-source.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/env-source.ts",
+      "transforms": [
+        {
+          "from": "import { env as appEnv } from \"@/env\";\n\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "export function getMinimalChatAgentAppEnv() {\n  return appEnv;\n}\n",
+          "to": "export function getMinimalChatAgentAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+    },
+    {
+      "source": "apps/web/features/minimal-chat-agent/server/env.ts",
+      "target": "registry/minimal-chat-agent/lib/minimal-chat-agent/env.ts",
+      "transforms": [
+        {
+          "from": "from \"@/features/shared/ai-gateway/server/contract\";",
+          "to": "from \"@/lib/ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/shared/",
+        "@/env",
+        "appEnv"
+      ]
+    }
+  ]
+}

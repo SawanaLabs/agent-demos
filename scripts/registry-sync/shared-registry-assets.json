@@ -29,6 +29,7 @@
         "foundation-chat",
         "generative-ui",
         "langgraph-agent",
+        "minimal-chat-agent",
         "openai-agents-sdk-demo",
         "ultra-chatbot-agent"
       ],
@@ -54,6 +55,7 @@
         "foundation-chat",
         "generative-ui",
         "langgraph-agent",
+        "minimal-chat-agent",
         "openai-agents-sdk-demo",
         "ultra-chatbot-agent"
       ],
@@ -80,7 +82,12 @@
     },
     {
       "name": "demo-chat-controller",
-      "demos": ["foundation-chat", "generative-ui", "openai-agents-sdk-demo"],
+      "demos": [
+        "foundation-chat",
+        "generative-ui",
+        "minimal-chat-agent",
+        "openai-agents-sdk-demo"
+      ],
       "source": "apps/web/features/shared/chat/ui/use-demo-chat.ts",
       "target": "components/demo-chat/use-demo-chat.ts"
     },
@@ -90,6 +97,7 @@
         "foundation-chat",
         "generative-ui",
         "langgraph-agent",
+        "minimal-chat-agent",
         "ultra-chatbot-agent"
       ],
       "source": "apps/web/features/shared/chat/ui/conversation-error-message.tsx",

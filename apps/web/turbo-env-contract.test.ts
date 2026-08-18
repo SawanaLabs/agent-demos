@@ -79,7 +79,12 @@ describe("web Turbo environment contract", () => {
         "REDIS_URL",
         "BLOB_READ_WRITE_TOKEN",
         "LANGGRAPH_AGENT_*",
+        "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+        "NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID",
+        "NODE_ENV",
         "OPENAI_API_KEY",
+        "VERCEL",
+        "VERCEL_ENV",
       ])
     );
   });
@@ -90,7 +95,6 @@ describe("web Turbo environment contract", () => {
     expect(config.tasks?.build?.passThroughEnv).toEqual(
       expect.arrayContaining([
         "CRON_SECRET",
-        "VERCEL_ENV",
         "VERCEL_SANDBOX_INTEGRATION",
         "VERCEL_OIDC_TOKEN",
         "VERCEL_PROJECT_ID",
@@ -99,6 +103,7 @@ describe("web Turbo environment contract", () => {
         "VERCEL_TOKEN",
       ])
     );
+    expect(config.tasks?.build?.passThroughEnv).not.toContain("VERCEL");
   });
 
   it("classifies every web feature key contract env var", () => {

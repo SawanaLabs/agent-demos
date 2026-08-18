@@ -4,7 +4,10 @@ import "@workspace/ui/globals.css";
 import { cn } from "@workspace/ui/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { env } from "@/env";
 import { ProjectGuideCompanion } from "@/features/project-guide-companion/ui/project-guide-companion";
+import { readSiteAnalyticsConfig } from "@/features/site-analytics/server/config";
+import { SiteAnalyticsRoot } from "@/features/site-analytics/ui/site-analytics-root";
 import { SiteUsageGateProvider } from "@/features/site-usage-gate/ui/site-usage-gate-provider";
 
 const fontSans = Geist({
@@ -22,6 +25,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const analyticsConfig = readSiteAnalyticsConfig({
+    isVercel: env.VERCEL === "1",
+    nodeEnvironment: env.NODE_ENV,
+    previewMeasurementId: env.NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID,
+    productionMeasurementId: env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    vercelEnvironment: env.VERCEL_ENV,
+  });
+
   return (
     <html
       className={cn(
@@ -34,13 +45,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider>
-          <SiteUsageGateProvider>
-            {children}
-            <ThemeToggle />
-            <ProjectGuideCompanion />
-          </SiteUsageGateProvider>
-        </ThemeProvider>
+        <SiteAnalyticsRoot config={analyticsConfig}>
+          <ThemeProvider>
+            <SiteUsageGateProvider>
+              {children}
+              <ThemeToggle />
+              <ProjectGuideCompanion />
+            </SiteUsageGateProvider>
+          </ThemeProvider>
+        </SiteAnalyticsRoot>
       </body>
     </html>
   );

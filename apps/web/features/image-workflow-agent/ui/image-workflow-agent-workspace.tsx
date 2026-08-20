@@ -1,5 +1,6 @@
 "use client";
 
+import type { ImageWorkflowProductTelemetry } from "../model/telemetry";
 import type { ImageWorkflowAgentSetupState } from "../server/env";
 import { ImageWorkflowAgentCanvas } from "./image-workflow-agent-canvas";
 import { ImageWorkflowAgentChatRail } from "./image-workflow-agent-chat-rail";
@@ -10,12 +11,15 @@ import {
 import { useImageWorkflowAgent } from "./use-image-workflow-agent";
 
 export function ImageWorkflowAgentWorkspace({
+  productTelemetry,
   setupState,
 }: {
+  productTelemetry?: ImageWorkflowProductTelemetry;
   setupState: ImageWorkflowAgentSetupState;
 }) {
   const controller = useImageWorkflowAgent({
     isChatAvailable: setupState.isReady,
+    productTelemetry,
   });
   const referenceNode = getReferenceImageNode(controller.graph);
   const resultNode = getImageResultNode(controller.graph);
@@ -69,16 +73,26 @@ export function ImageWorkflowAgentWorkspace({
               controller.updateNode(nodeId, { aspectRatio: value })
             }
             onGeneratorPromptChange={(nodeId, value) =>
-              controller.updateNode(nodeId, { prompt: value })
+              controller.updateNode(
+                nodeId,
+                { prompt: value },
+                { trackModification: false }
+              )
             }
+            onGeneratorPromptCommit={controller.trackManualWorkflowModification}
             onNodesChange={controller.handleNodesChange}
             onReferenceImageClear={(nodeId) =>
               controller.updateNode(nodeId, { image: null })
             }
             onReferenceImageUpload={controller.uploadReferenceImage}
             onReferenceLabelChange={(nodeId, value) =>
-              controller.updateNode(nodeId, { label: value })
+              controller.updateNode(
+                nodeId,
+                { label: value },
+                { trackModification: false }
+              )
             }
+            onReferenceLabelCommit={controller.trackManualWorkflowModification}
           />
         </div>
 

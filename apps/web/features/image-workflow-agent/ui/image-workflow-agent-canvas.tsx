@@ -53,6 +53,7 @@ interface ReferenceNodeData extends ReactFlowNodeBase {
   node: NonNullable<ReturnType<typeof getReferenceImageNode>>;
   onClearImage: () => void;
   onDelete: () => void;
+  onLabelCommit: () => void;
   onUpdateLabel: (value: string) => void;
   onUpload: (fileList: FileList | null) => Promise<void> | void;
 }
@@ -62,6 +63,7 @@ interface GeneratorNodeData extends ReactFlowNodeBase {
   node: ReturnType<typeof getImageGeneratorNode>;
   onAspectRatioChange: (value: "1:1" | "16:9" | "9:16") => void;
   onPromptChange: (value: string) => void;
+  onPromptCommit: () => void;
 }
 
 interface ResultNodeData extends ReactFlowNodeBase {
@@ -87,6 +89,7 @@ export interface ImageWorkflowAgentCanvasProps {
     value: "1:1" | "16:9" | "9:16"
   ) => void;
   onGeneratorPromptChange: (nodeId: string, value: string) => void;
+  onGeneratorPromptCommit: () => void;
   onNodesChange: (changes: CanvasNodeChanges) => void;
   onReferenceImageClear: (nodeId: string) => void;
   onReferenceImageUpload: (
@@ -94,6 +97,7 @@ export interface ImageWorkflowAgentCanvasProps {
     fileList: FileList | null
   ) => Promise<void>;
   onReferenceLabelChange: (nodeId: string, value: string) => void;
+  onReferenceLabelCommit: () => void;
 }
 
 function toFlowNodes(
@@ -116,6 +120,7 @@ function toFlowNodes(
           input.onGeneratorAspectRatioChange(generatorNode.id, value),
         onPromptChange: (value) =>
           input.onGeneratorPromptChange(generatorNode.id, value),
+        onPromptCommit: input.onGeneratorPromptCommit,
       } satisfies GeneratorNodeData,
       deletable: false,
       draggable: !input.disabled,
@@ -143,6 +148,7 @@ function toFlowNodes(
         node: referenceNode,
         onClearImage: () => input.onReferenceImageClear(referenceNode.id),
         onDelete: () => input.onDeleteReferenceNode(referenceNode.id),
+        onLabelCommit: input.onReferenceLabelCommit,
         onUpdateLabel: (value) =>
           input.onReferenceLabelChange(referenceNode.id, value),
         onUpload: (fileList) =>

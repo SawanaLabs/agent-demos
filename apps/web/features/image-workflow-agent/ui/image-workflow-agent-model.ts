@@ -1,7 +1,10 @@
 "use client";
 
 import { isToolUIPart, type UIMessage } from "ai";
-
+import {
+  type ImageWorkflowAcceptedAction,
+  normalizeImageWorkflowAcceptedAction,
+} from "../model/telemetry";
 import {
   applyWorkflowCommand,
   type ImageGeneratorNode,
@@ -19,6 +22,7 @@ export const imageWorkflowAgentSuggestions = [
 ] as const;
 
 interface WorkflowToolOutput {
+  acceptedAction?: unknown;
   graph: WorkflowGraph;
   summary?: string;
 }
@@ -57,6 +61,15 @@ interface WorkflowNodeChangeLike {
   type: string;
 }
 
+export function commitAcceptedWorkflowGraph(
+  graphRef: { current: WorkflowGraph },
+  acceptedGraph: WorkflowGraph,
+  commit: (graph: WorkflowGraph) => void
+) {
+  graphRef.current = acceptedGraph;
+  commit(acceptedGraph);
+}
+
 export function hasGraphChangingNodeChange(
   changes: readonly WorkflowNodeChangeLike[]
 ) {
@@ -65,6 +78,24 @@ export function hasGraphChangingNodeChange(
       change.type === "remove" ||
       (change.type === "position" && Boolean(change.position))
   );
+}
+
+export function shouldTrackWorkflowNodeChanges(
+  changes: readonly WorkflowNodeChangeLike[]
+) {
+  return changes.some(
+    (change) =>
+      change.type === "remove" ||
+      (change.type === "position" &&
+        Boolean(change.position) &&
+        change.dragging === false)
+  );
+}
+
+export function shouldTrackWorkflowNodePatch(
+  patch: Readonly<Record<string, unknown>>
+) {
+  return !Object.hasOwn(patch, "image");
 }
 
 export function applyWorkflowNodeChanges(
@@ -125,6 +156,39 @@ export function getLatestWorkflowGraph(messages: UIMessage[]) {
   }
 
   return latestGraph;
+}
+
+export function getUnconsumedWorkflowActions(
+  messages: UIMessage[],
+  consumedIds: ReadonlySet<string>
+): Array<{ action: ImageWorkflowAcceptedAction; id: string }> {
+  const actions: Array<{ action: ImageWorkflowAcceptedAction; id: string }> =
+    [];
+
+  for (const message of messages) {
+    for (const part of message.parts) {
+      if (!isToolUIPart(part) || part.state !== "output-available") {
+        continue;
+      }
+
+      const id = `${message.id}:${part.toolCallId}`;
+
+      if (consumedIds.has(id)) {
+        continue;
+      }
+
+      const output = part.output as WorkflowToolOutput | undefined;
+      const action = normalizeImageWorkflowAcceptedAction(
+        output?.acceptedAction
+      );
+
+      if (action?.source === "agent") {
+        actions.push({ action, id });
+      }
+    }
+  }
+
+  return actions;
 }
 
 export function getReferenceImageNode(graph: WorkflowGraph) {

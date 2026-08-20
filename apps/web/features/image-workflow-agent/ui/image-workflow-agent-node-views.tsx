@@ -35,6 +35,7 @@ interface ReferenceImageNodeViewProps {
   node: ReferenceImageNode;
   onClearImage: () => void;
   onDelete: () => void;
+  onLabelCommit: () => void;
   onUpdateLabel: (label: string) => void;
   onUpload: (fileList: FileList | null) => Promise<void> | void;
 }
@@ -44,11 +45,13 @@ export function ReferenceImageNodeView({
   node,
   onDelete,
   onUpload,
+  onLabelCommit,
   onUpdateLabel,
   onClearImage,
 }: ReferenceImageNodeViewProps) {
   const image = node.data.image;
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const labelAtFocus = useRef(node.data.label);
 
   return (
     <Node className="w-[20rem]" handles={{ source: true, target: false }}>
@@ -75,7 +78,15 @@ export function ReferenceImageNodeView({
           <Input
             disabled={disabled}
             id={`${node.id}-label`}
+            onBlur={(event) => {
+              if (event.target.value !== labelAtFocus.current) {
+                onLabelCommit();
+              }
+            }}
             onChange={(event) => onUpdateLabel(event.target.value)}
+            onFocus={(event) => {
+              labelAtFocus.current = event.target.value;
+            }}
             value={node.data.label}
           />
         </div>
@@ -147,6 +158,7 @@ interface ImageGeneratorNodeViewProps {
     value: ImageGeneratorNode["data"]["aspectRatio"]
   ) => void;
   onPromptChange: (value: string) => void;
+  onPromptCommit: () => void;
 }
 
 export function ImageGeneratorNodeView({
@@ -155,7 +167,10 @@ export function ImageGeneratorNodeView({
   node,
   onAspectRatioChange,
   onPromptChange,
+  onPromptCommit,
 }: ImageGeneratorNodeViewProps) {
+  const promptAtFocus = useRef(node.data.prompt);
+
   return (
     <Node className="w-[22rem]" handles={{ source: true, target: true }}>
       <NodeHeader>
@@ -197,7 +212,15 @@ export function ImageGeneratorNodeView({
           <Textarea
             disabled={disabled}
             id={`${node.id}-prompt`}
+            onBlur={(event) => {
+              if (event.target.value !== promptAtFocus.current) {
+                onPromptCommit();
+              }
+            }}
             onChange={(event) => onPromptChange(event.target.value)}
+            onFocus={(event) => {
+              promptAtFocus.current = event.target.value;
+            }}
             placeholder="Describe the image to generate or the edit to apply."
             value={node.data.prompt}
           />

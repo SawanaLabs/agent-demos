@@ -12,10 +12,16 @@ import {
   executeImageWorkflowRunPlan,
   ImageWorkflowExecutionError,
 } from "./image-executor";
+import {
+  type ImageWorkflowTelemetryObserver,
+  reportImageWorkflowFailure,
+} from "./telemetry";
 
 interface ImageWorkflowRuntimeDependencies {
-  executePlan: typeof executeImageWorkflowRunPlan;
-  randomUUID: () => string;
+  executePlan?: typeof executeImageWorkflowRunPlan;
+  now?: () => number;
+  observer?: ImageWorkflowTelemetryObserver;
+  randomUUID?: () => string;
 }
 
 async function executePlanWithNetworkRetry(
@@ -37,19 +43,32 @@ async function executePlanWithNetworkRetry(
   }
 }
 
+function publicRunFailureMessage(error: unknown): string {
+  if (!(error instanceof ImageWorkflowExecutionError)) {
+    return "Workflow run failed.";
+  }
+
+  if (error.code === "network") {
+    return "Image generation network request failed.";
+  }
+
+  return "Image generation provider request failed.";
+}
+
 export async function executeImageWorkflowGraph(
   graph: WorkflowGraph,
   env: ImageWorkflowAgentEnv = getImageWorkflowAgentEnv(),
-  dependencies: ImageWorkflowRuntimeDependencies = {
-    executePlan: executeImageWorkflowRunPlan,
-    randomUUID: () => crypto.randomUUID(),
-  }
+  dependencies: ImageWorkflowRuntimeDependencies = {}
 ): Promise<WorkflowGraph> {
+  const executePlan = dependencies.executePlan ?? executeImageWorkflowRunPlan;
+  const randomUUID = dependencies.randomUUID ?? (() => crypto.randomUUID());
   const config = readImageWorkflowAgentConfig(env);
   const plan = buildWorkflowRunPlan(graph, {
     imageModel: config.imageModel,
   });
-  const runId = dependencies.randomUUID();
+  const runId = randomUUID();
+  const now = dependencies.now ?? Date.now;
+  const startedAt = now();
   let currentGraph = applyWorkflowCommand(graph, {
     expectedRevision: graph.revision,
     nodeId: plan.resultNodeId,
@@ -58,11 +77,7 @@ export async function executeImageWorkflowGraph(
   });
 
   try {
-    const image = await executePlanWithNetworkRetry(
-      plan,
-      env,
-      dependencies.executePlan
-    );
+    const image = await executePlanWithNetworkRetry(plan, env, executePlan);
 
     currentGraph = applyWorkflowCommand(currentGraph, {
       expectedRevision: currentGraph.revision,
@@ -72,13 +87,20 @@ export async function executeImageWorkflowGraph(
       type: "run-success",
     });
   } catch (error) {
+    const isExecutionFailure = error instanceof ImageWorkflowExecutionError;
+
     currentGraph = applyWorkflowCommand(currentGraph, {
-      errorMessage:
-        error instanceof Error ? error.message : "Workflow run failed.",
+      errorMessage: publicRunFailureMessage(error),
       expectedRevision: currentGraph.revision,
       nodeId: plan.resultNodeId,
       runId,
       type: "run-failure",
+    });
+    reportImageWorkflowFailure(dependencies.observer, {
+      durationMs: Math.max(0, now() - startedAt),
+      failureCategory: isExecutionFailure ? "provider" : "runtime",
+      operation: "workflow_run",
+      retryable: isExecutionFailure && error.code === "network",
     });
   }
 

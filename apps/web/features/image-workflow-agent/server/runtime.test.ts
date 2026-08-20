@@ -49,25 +49,45 @@ describe("image workflow runtime", () => {
     });
   });
 
-  it("returns a failed graph for provider errors", async () => {
+  it("reports a final provider failure once without forwarding the error", async () => {
+    const onFailure = vi.fn();
+    const now = vi.fn().mockReturnValueOnce(1000).mockReturnValueOnce(1450);
     const graph = await executeImageWorkflowGraph(
       createRunnableGraph(),
       { AI_GATEWAY_API_KEY: "test-key" },
       {
         executePlan: vi
           .fn()
-          .mockRejectedValue(new Error("Provider unavailable.")),
+          .mockRejectedValue(
+            new ImageWorkflowExecutionError(
+              "provider",
+              "Private provider response."
+            )
+          ),
+        now,
+        observer: { onFailure },
         randomUUID: () => "run-1",
       }
     );
     const result = graph.nodes.find((node) => node.kind === "image-result");
 
+    expect(onFailure).toHaveBeenCalledOnce();
+    expect(onFailure).toHaveBeenCalledWith({
+      durationMs: 450,
+      failureCategory: "provider",
+      operation: "workflow_run",
+      retryable: false,
+    });
+    expect(JSON.stringify(onFailure.mock.calls)).not.toContain(
+      "Private provider response."
+    );
     expect(graph.revision).toBe(3);
     expect(result?.data).toMatchObject({
       activeRunId: null,
-      errorMessage: "Provider unavailable.",
+      errorMessage: "Image generation provider request failed.",
       image: null,
       status: "failed",
     });
+    expect(JSON.stringify(graph)).not.toContain("Private provider response.");
   });
 });

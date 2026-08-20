@@ -143,6 +143,94 @@ describe("image workflow agent chat", () => {
     ]);
   });
 
+  it("reports a provider failure once when chat startup rejects", async () => {
+    const onFailure = vi.fn();
+    const now = vi.fn().mockReturnValueOnce(100).mockReturnValueOnce(350);
+
+    await expect(
+      generateImageWorkflowAgentResponse(
+        [
+          {
+            id: "m1",
+            parts: [{ text: "Generate an image.", type: "text" }],
+            role: "user",
+          },
+        ],
+        createDefaultWorkflowGraph(),
+        { AI_GATEWAY_API_KEY: "test-key" },
+        {
+          createGateway: () => ({ languageModel: () => "chat-model" }) as never,
+          executeWorkflowGraph: vi.fn(),
+          now,
+          observer: { onFailure },
+          streamText: vi
+            .fn()
+            .mockRejectedValue(new Error("Private provider response.")),
+        }
+      )
+    ).rejects.toThrowError("Image workflow chat provider failed.");
+
+    expect(onFailure).toHaveBeenCalledOnce();
+    expect(onFailure).toHaveBeenCalledWith({
+      durationMs: 250,
+      failureCategory: "provider",
+      operation: "chat",
+      retryable: false,
+    });
+    expect(JSON.stringify(onFailure.mock.calls)).not.toContain(
+      "Private provider response."
+    );
+  });
+
+  it("keeps expected runnable validation out of runtime error logging", async () => {
+    const observer = { onFailure: vi.fn() };
+    const streamTextMock = vi.fn().mockResolvedValue({ text: "done" });
+    const baseGraph = createDefaultWorkflowGraph();
+    const invalidGraph = applyWorkflowCommand(baseGraph, {
+      expectedRevision: baseGraph.revision,
+      nodeId: "generator-1",
+      patch: { prompt: "" },
+      type: "update-node",
+    });
+
+    await generateImageWorkflowAgentResponse(
+      [
+        {
+          id: "m1",
+          parts: [{ text: "Run it.", type: "text" }],
+          role: "user",
+        },
+      ],
+      invalidGraph,
+      { AI_GATEWAY_API_KEY: "test-key" },
+      {
+        createGateway: () => ({ languageModel: () => "chat-model" }) as never,
+        observer,
+        streamText: streamTextMock,
+      }
+    );
+
+    const toolSet = streamTextMock.mock.calls[0]?.[0]?.tools as Record<
+      string,
+      {
+        execute: (input: never) => unknown;
+      }
+    >;
+    const validationFailure = await Promise.resolve(
+      toolSet.runWorkflow?.execute({} as never)
+    ).catch((error: unknown) => error);
+
+    expect(validationFailure).toBeInstanceOf(Error);
+    expect((validationFailure as Error).message).toBe(
+      "Image generator prompt is required."
+    );
+    streamTextMock.mock.calls[0]?.[0]?.onError?.({
+      error: validationFailure,
+    });
+    expect(observer.onFailure).not.toHaveBeenCalled();
+  });
+
+  // biome-ignore lint/complexity/noExcessiveLinesPerFunction: one request-scoped tool lifecycle keeps cross-tool serialization and telemetry assertions together.
   it("mutates a request-scoped graph through addNode and runWorkflow", async () => {
     const executeWorkflowGraphMock = vi.fn(
       async (graph: WorkflowGraph): Promise<WorkflowGraph> => {
@@ -166,6 +254,7 @@ describe("image workflow agent chat", () => {
       }
     );
     const streamTextMock = vi.fn().mockResolvedValue({ text: "done" });
+    const observer = { onFailure: vi.fn() };
 
     await generateImageWorkflowAgentResponse(
       [
@@ -185,6 +274,7 @@ describe("image workflow agent chat", () => {
             languageModel: () => "chat-model",
           }) as never,
         executeWorkflowGraph: executeWorkflowGraphMock,
+        observer,
         streamText: streamTextMock,
       }
     );
@@ -242,7 +332,7 @@ describe("image workflow agent chat", () => {
       },
     });
 
-    await expect(
+    const toolFailure = await Promise.resolve(
       updateNodeTool.execute({
         nodeId: "generator-1",
         patch: {
@@ -250,7 +340,25 @@ describe("image workflow agent chat", () => {
           prompt: "This invalid lifecycle field must still be rejected",
         },
       })
-    ).rejects.toThrowError('Workflow patch is invalid for node "generator-1".');
+    ).catch((error: unknown) => error);
+    expect(toolFailure).toBeInstanceOf(Error);
+    expect((toolFailure as Error).message).toBe(
+      'Workflow patch is invalid for node "generator-1".'
+    );
+    expect(observer.onFailure).toHaveBeenCalledOnce();
+    expect(observer.onFailure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        failureCategory: "tool",
+        operation: "tool_call",
+        retryable: false,
+      })
+    );
+
+    const streamOnError = streamTextMock.mock.calls[0]?.[0]?.onError;
+    expect(streamOnError).toBeTypeOf("function");
+    streamOnError?.({ error: toolFailure });
+    streamOnError?.({ error: toolFailure });
+    expect(observer.onFailure).toHaveBeenCalledOnce();
 
     const connected = await connectNodesTool.execute({
       sourceNodeId: "reference-1",
@@ -258,6 +366,11 @@ describe("image workflow agent chat", () => {
     });
 
     const ran = (await runWorkflowTool.execute({})) as {
+      acceptedAction: {
+        action: "run_workflow";
+        hasReferenceImage: boolean;
+        source: "agent";
+      };
       graph: ReturnType<typeof createDefaultWorkflowGraph>;
       image: {
         dataUrl: string;
@@ -273,12 +386,31 @@ describe("image workflow agent chat", () => {
     });
     expect(JSON.stringify(modelOutput)).not.toContain("c3VjY2Vzcw==");
 
+    expect(added).toMatchObject({
+      acceptedAction: {
+        action: "modify_workflow",
+        source: "agent",
+      },
+    });
     expect(added.graph.revision).toBe(1);
     expect(updated).toMatchObject({
+      acceptedAction: {
+        action: "modify_workflow",
+        source: "agent",
+      },
       summary: "Updated node generator-1.",
     });
     expect(connected).toMatchObject({
+      acceptedAction: {
+        action: "modify_workflow",
+        source: "agent",
+      },
       summary: "Connected reference-1 to generator-1.",
+    });
+    expect(ran.acceptedAction).toEqual({
+      action: "run_workflow",
+      hasReferenceImage: true,
+      source: "agent",
     });
     expect(executeWorkflowGraphMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -297,7 +429,8 @@ describe("image workflow agent chat", () => {
           }),
         ]),
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { AI_GATEWAY_API_KEY: "test-key" },
+      { observer }
     );
     expect(ran.image).toEqual({
       dataUrl: "data:image/png;base64,c3VjY2Vzcw==",
@@ -338,7 +471,8 @@ describe("image workflow agent chat", () => {
           }),
         ]),
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { AI_GATEWAY_API_KEY: "test-key" },
+      { observer }
     );
   });
 });

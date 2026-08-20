@@ -1,12 +1,13 @@
 import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
 import { keys as langGraphAgent } from "@/features/langgraph-agent/server/keys";
 import { keys as aiGateway } from "@/features/shared/ai-gateway/server/keys";
 import { keys as cron } from "@/features/shared/cron/server/keys";
 import { keys as database } from "@/features/shared/database/server/keys";
 import { keys as redis } from "@/features/shared/redis/server/keys";
 import { keys as vercelBlob } from "@/features/shared/vercel-blob/server/keys";
+import { keys as vercelEnvironment } from "@/features/shared/vercel-environment/server/keys";
 import { keys as vercelSandbox } from "@/features/shared/vercel-sandbox/server/keys";
+import { keys as siteAnalytics } from "@/features/site-analytics/server/keys";
 
 function createAppEnv() {
   return createEnv({
@@ -16,20 +17,14 @@ function createAppEnv() {
       database(),
       langGraphAgent(),
       redis(),
+      siteAnalytics(),
       vercelBlob(),
+      vercelEnvironment(),
       vercelSandbox(),
     ],
-    server: {
-      NODE_ENV: z.enum(["development", "production", "test"]).optional(),
-      VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
-      VERCEL_TARGET_ENV: z.string().trim().min(1).optional(),
-    },
     client: {},
-    runtimeEnv: {
-      NODE_ENV: process.env.NODE_ENV,
-      VERCEL_ENV: process.env.VERCEL_ENV,
-      VERCEL_TARGET_ENV: process.env.VERCEL_TARGET_ENV,
-    },
+    runtimeEnv: {},
+    server: {},
   });
 }
 

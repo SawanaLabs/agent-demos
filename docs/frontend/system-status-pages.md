@@ -1,7 +1,7 @@
 ---
 title: System Status Pages
 description: Durable conventions for branded app-level error, global-error, 404, and client exception reporting surfaces.
-updateAt: 2026-06-06
+updateAt: 2026-08-17
 ---
 
 # System Status Pages
@@ -19,8 +19,9 @@ updateAt: 2026-06-06
 - Keep root `not-found`, `error`, and `global-error` copy page- or application-level. Add nested route-specific status pages only when a route group needs domain-specific wording.
 - Report only unexpected client exceptions to `/api/client-errors`, such as route error boundaries, global error boundaries, window errors, and unhandled rejections.
 - Do not report 404 pages through `/api/client-errors`. Use branded 404 UI for users, and rely on Vercel request/runtime log filters for status-code analysis.
-- `/api/client-errors` should write sanitized structured JSON to runtime logs and should not persist client exception reports in the database.
-- Keep client exception payloads small and privacy-conscious: path without query string, error message, optional digest, optional stack, source, event kind, and user-agent header are enough for the default route.
+- `/api/client-errors` should map a strict allowlist into the shared structured runtime logger and should not persist client exception reports in the database.
+- Client exception payloads may contain only a bounded event kind and bounded source. Never send or accept a digest, raw `Error`, message, stack, path, URL, query, user-agent, prompt, token, credential, or other arbitrary client text. Require same-origin JSON and reject bodies larger than 512 bytes before parsing.
+- Follow the deployed telemetry privacy contract in [Production Telemetry](../telemetry/production-telemetry.md).
 - Error-boundary Retry controls should call the boundary `reset()` and then hard reload the current URL so chunk-loading failures can recover after fresh assets become available.
 - Treat Sentry or Vercel Drains as future observability layers for longer retention, grouping, source maps, and alerting. Add them behind this boundary instead of introducing a self-managed error-log table.
 

@@ -6,10 +6,14 @@ export type ClientExceptionKind =
   | "unhandled_rejection"
   | "window_error";
 
+export type ClientExceptionSource =
+  | "app-error-boundary"
+  | "app-global-error-boundary";
+
 interface ReportClientExceptionInput {
-  error: Error & { digest?: string };
+  error: Error;
   kind: ClientExceptionKind;
-  source: string;
+  source: ClientExceptionSource;
 }
 
 const reportedClientExceptionKeys = new Set<string>();
@@ -25,7 +29,7 @@ export function reportClientException({
 
   const message = error.message || "Unknown client exception.";
   const path = window.location.pathname;
-  const reportKey = [kind, source, path, error.digest ?? "", message].join(":");
+  const reportKey = [kind, source, path, message].join(":");
 
   if (reportedClientExceptionKeys.has(reportKey)) {
     return;
@@ -34,26 +38,35 @@ export function reportClientException({
   reportedClientExceptionKeys.add(reportKey);
 
   const body = JSON.stringify({
-    digest: error.digest,
     kind,
-    message,
-    path,
     source,
-    stack: error.stack,
   });
 
-  if (navigator.sendBeacon) {
-    const blob = new Blob([body], { type: "application/json" });
-    navigator.sendBeacon("/api/client-errors", blob);
+  let beaconSent = false;
+
+  try {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "application/json" });
+      beaconSent = navigator.sendBeacon("/api/client-errors", blob);
+    }
+  } catch {
+    // Fall through to fetch without allowing telemetry to affect the app.
+  }
+
+  if (beaconSent) {
     return;
   }
 
-  fetch("/api/client-errors", {
-    body,
-    headers: {
-      "content-type": "application/json",
-    },
-    keepalive: true,
-    method: "POST",
-  }).catch(() => undefined);
+  try {
+    fetch("/api/client-errors", {
+      body,
+      headers: {
+        "content-type": "application/json",
+      },
+      keepalive: true,
+      method: "POST",
+    }).catch(() => undefined);
+  } catch {
+    // Client reporting is always best effort.
+  }
 }

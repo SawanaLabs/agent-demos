@@ -7,4 +7,5 @@ export const POST = createMeteredDemoRoute({
   action: "send_message",
   demoSlug: "object-generation",
   handler: ({ request }) => handleObjectGenerationRequest(request),
+  productAction: "generate_object",
 });

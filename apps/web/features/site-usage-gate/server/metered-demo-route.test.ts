@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/features/site-runtime-logging/server/server-logger", () => ({
+  runtimeErrorLogger: { error: vi.fn() },
+}));
+
 import {
   createMeteredDemoRouteFactory,
   type MeteredDemoRouteMeter,
+  type MeteredDemoRouteTelemetry,
 } from "./metered-demo-route";
 
 describe("metered demo route module", () => {
@@ -134,4 +140,136 @@ it("passes the server-owned message exemption to the resource meter", async () =
     { action: "send_message", demoSlug: "canvas-agent", chargeMessage: false },
     expect.any(Function)
   );
+});
+
+describe("metered demo route telemetry", () => {
+  it("marks one accepted action after a successful route response", async () => {
+    const markAcceptedAction = vi.fn();
+    const reportUnexpectedFailure = vi.fn();
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction,
+      reportUnexpectedFailure,
+    };
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest(_request, _options, handler) {
+        return handler();
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "object-generation",
+      handler: async () => Response.json({ ok: true }),
+      productAction: "generate_object",
+    });
+
+    const response = await route(
+      new Request("http://localhost/api/demos/object-generation", {
+        method: "POST",
+      }),
+      undefined
+    );
+
+    expect(response.ok).toBe(true);
+    expect(markAcceptedAction).toHaveBeenCalledOnce();
+    expect(markAcceptedAction).toHaveBeenCalledWith(response, {
+      action: "generate_object",
+      demoSlug: "object-generation",
+    });
+    expect(reportUnexpectedFailure).not.toHaveBeenCalled();
+  });
+
+  it("reports one terminal 5xx and keeps expected 4xx paths silent", async () => {
+    const markAcceptedAction = vi.fn();
+    const reportUnexpectedFailure = vi.fn();
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction,
+      reportUnexpectedFailure,
+    };
+    const responses = [
+      Response.json({ error: "invalid" }, { status: 400 }),
+      Response.json({ error: "failed" }, { status: 500 }),
+    ];
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        const response = responses.shift();
+
+        if (!response) {
+          throw new Error("Missing test response.");
+        }
+
+        return response;
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    expect(
+      (
+        await route(
+          new Request("http://localhost/api/demos/foundation-chat", {
+            method: "POST",
+          }),
+          undefined
+        )
+      ).status
+    ).toBe(400);
+    expect(reportUnexpectedFailure).not.toHaveBeenCalled();
+    expect(
+      (
+        await route(
+          new Request("http://localhost/api/demos/foundation-chat", {
+            method: "POST",
+          }),
+          undefined
+        )
+      ).status
+    ).toBe(500);
+    expect(reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).toHaveBeenCalledWith({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+    });
+    expect(markAcceptedAction).not.toHaveBeenCalled();
+  });
+
+  it("reports a thrown terminal failure once and preserves the original error", async () => {
+    const originalError = new Error("provider failed");
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction: vi.fn(),
+      reportUnexpectedFailure: vi.fn(),
+    };
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        throw originalError;
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "evaluate",
+      demoSlug: "trace-eval-agent",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    await expect(
+      route(
+        new Request("http://localhost/api/demos/trace-eval-agent/evaluate", {
+          method: "POST",
+        }),
+        undefined
+      )
+    ).rejects.toBe(originalError);
+    expect(telemetry.reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(telemetry.markAcceptedAction).not.toHaveBeenCalled();
+  });
 });

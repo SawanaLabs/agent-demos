@@ -3,12 +3,14 @@
 import { Button } from "@workspace/ui/components/button";
 import { type ReactNode, useEffect, useState } from "react";
 
+import { trackDemoAction } from "../client/browser";
 import {
   type AnalyticsConsent,
   createGoogleConsentUpdate,
   readBrowserAnalyticsConsent,
   saveBrowserAnalyticsConsent,
 } from "../client/consent";
+import { createAcceptedDemoActionFetchObserver } from "../client/fetch-observer";
 import { PrivacyChoices } from "./privacy-choices";
 
 declare global {
@@ -48,6 +50,25 @@ export function SiteAnalyticsBoundary({
 
     setChoicesOpen(storedChoice === null);
     setInitialized(true);
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const originalFetch = window.fetch;
+    const observedFetch = createAcceptedDemoActionFetchObserver({
+      fetchImplementation: originalFetch,
+      track: trackDemoAction,
+    });
+    window.fetch = observedFetch;
+
+    return () => {
+      if (window.fetch === observedFetch) {
+        window.fetch = originalFetch;
+      }
+    };
   }, [enabled]);
 
   function choose(nextChoice: AnalyticsConsent): void {

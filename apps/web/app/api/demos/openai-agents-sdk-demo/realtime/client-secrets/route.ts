@@ -8,4 +8,5 @@ export const POST = createMeteredDemoRoute({
   demoSlug: "openai-agents-sdk-demo",
   handler: ({ request }) =>
     handleOpenAiAgentsSdkDemoVoiceClientSecretRequest(request),
+  productAction: false,
 });

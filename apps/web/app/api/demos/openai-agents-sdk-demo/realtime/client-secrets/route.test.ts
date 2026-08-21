@@ -18,7 +18,7 @@ vi.mock("@/features/openai-agents-sdk-demo/server/voice-realtime", () => ({
 }));
 
 describe("OpenAI Agents SDK realtime client-secret route", () => {
-  it("meters client-secret minting as a demo message usage", async () => {
+  it("meters client-secret minting without counting it as a product message", async () => {
     const { POST } = await import("./route");
     const request = new Request(
       "http://localhost/api/demos/openai-agents-sdk-demo/realtime/client-secrets",
@@ -34,6 +34,7 @@ describe("OpenAI Agents SDK realtime client-secret route", () => {
       action: "send_message",
       demoSlug: "openai-agents-sdk-demo",
       handler: expect.any(Function),
+      productAction: false,
     });
     expect(mocks.handleClientSecretRequest).toHaveBeenCalledWith(request);
   });

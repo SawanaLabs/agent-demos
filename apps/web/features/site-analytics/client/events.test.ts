@@ -3,17 +3,50 @@ import { describe, expect, it, vi } from "vitest";
 import {
   type DemoActionEvent,
   demoActionCatalog,
-  dispatchDemoAction,
-} from "./events";
+} from "../shared/demo-action-contract";
+import { dispatchDemoAction } from "./events";
 
 describe("site analytics event contract", () => {
   it("keeps the first demo action vocabulary finite and low-cardinality", () => {
     expect(demoActionCatalog).toEqual({
+      "canvas-agent": ["send_message"],
+      "customer-memory-agent": ["compact_context", "send_message"],
+      "feedback-agent": ["send_message"],
+      "foundation-chat": ["send_message"],
+      "generative-ui": ["send_message"],
       "image-workflow-agent": [
         "modify_workflow",
         "run_workflow",
         "send_message",
       ],
+      "langgraph-agent": ["send_message"],
+      "loop-agent": ["send_message"],
+      "mcp-agent": ["send_message"],
+      "minimal-chat-agent": ["send_message"],
+      "multimodal-chatbot": ["send_message"],
+      "object-generation": ["generate_object"],
+      "openai-agents-sdk-demo": ["send_message"],
+      "persistent-agent": ["send_message"],
+      "rag-chatbot": ["send_message"],
+      "sandbox-agent": ["send_message"],
+      "skills-agent": ["send_message"],
+      "streaming-chat-shell": ["send_message"],
+      "trace-eval-agent": ["evaluate", "send_message"],
+      "ultra-chatbot-agent": ["edit_message", "send_message"],
+    });
+  });
+
+  it("dispatches a bounded route-backed action without exporting identity", () => {
+    const provider = vi.fn();
+
+    dispatchDemoAction(provider, {
+      action: "generate_object",
+      demo_slug: "object-generation",
+    });
+
+    expect(provider).toHaveBeenCalledWith("demo_action", {
+      action: "generate_object",
+      demo_slug: "object-generation",
     });
   });
 

@@ -2,7 +2,8 @@
 
 import { sendGAEvent } from "@next/third-parties/google";
 
-import { type DemoActionEvent, dispatchDemoAction } from "./events";
+import type { DemoActionEvent } from "../shared/demo-action-contract";
+import { dispatchDemoAction } from "./events";
 
 declare global {
   interface Window {

@@ -139,4 +139,6 @@ export const POST = createMeteredDemoRoute({
   action: "send_message",
   demoSlug: "image-workflow-agent",
   handler: ({ request }) => handleImageWorkflowAgentChatRequest(request),
+  productAction: false,
+  runtimeFailureHandled: true,
 });

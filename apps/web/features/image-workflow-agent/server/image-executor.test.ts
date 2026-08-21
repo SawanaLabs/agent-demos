@@ -94,32 +94,41 @@ describe("image workflow execution adapter", () => {
     ).rejects.toThrowError("Image generation completed without an image file.");
   });
 
-  it("redacts credentials from provider failures", async () => {
-    await expect(
-      executeImageWorkflowRunPlan(
-        {
-          aspectRatio: "1:1",
-          imageModel: "google/gemini-3.1-flash-lite-image",
-          prompt: "Minimal still life",
-          referenceImage: null,
-          resultNodeId: "result-1",
-          revision: 1,
-        },
-        {
-          AI_GATEWAY_API_KEY: "secret-key",
-        },
-        {
-          createGateway: () =>
-            ({
-              languageModel: () => "language-model",
-            }) as never,
-          generateText: vi
-            .fn()
-            .mockRejectedValue(new Error("provider rejected secret-key")),
-        }
-      )
-    ).rejects.toThrowError(
-      "Image generation provider error: provider rejected [redacted]"
+  it("replaces provider failures with a static public message", async () => {
+    const execution = executeImageWorkflowRunPlan(
+      {
+        aspectRatio: "1:1",
+        imageModel: "google/gemini-3.1-flash-lite-image",
+        prompt: "Minimal still life",
+        referenceImage: null,
+        resultNodeId: "result-1",
+        revision: 1,
+      },
+      {
+        AI_GATEWAY_API_KEY: "secret-key",
+      },
+      {
+        createGateway: () =>
+          ({
+            languageModel: () => "language-model",
+          }) as never,
+        generateText: vi
+          .fn()
+          .mockRejectedValue(
+            new Error(
+              "provider rejected secret-key prompt-private https://private.test"
+            )
+          ),
+      }
     );
+
+    await expect(execution).rejects.toThrowError(
+      "Image generation provider request failed."
+    );
+    await execution.catch((error: unknown) => {
+      expect(JSON.stringify(error)).not.toContain("prompt-private");
+      expect(JSON.stringify(error)).not.toContain("private.test");
+      expect(JSON.stringify(error)).not.toContain("secret-key");
+    });
   });
 });

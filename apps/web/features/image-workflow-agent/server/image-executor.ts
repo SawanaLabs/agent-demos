@@ -24,15 +24,6 @@ export interface ImageWorkflowExecutionDependencies {
   generateText: typeof generateText;
 }
 
-function sanitizeErrorMessage(message: string, env: ImageWorkflowAgentEnv) {
-  return [env.AI_GATEWAY_API_KEY, env.VERCEL_OIDC_TOKEN]
-    .filter((value): value is string => Boolean(value))
-    .reduce(
-      (nextMessage, secret) => nextMessage.split(secret).join("[redacted]"),
-      message
-    );
-}
-
 function createReferenceImagePart(plan: WorkflowRunPlan) {
   if (!plan.referenceImage) {
     return [];
@@ -108,10 +99,7 @@ export async function executeImageWorkflowRunPlan(
       throw error;
     }
 
-    const message = sanitizeErrorMessage(
-      error instanceof Error ? error.message : "Unknown image execution error.",
-      env
-    );
+    const message = error instanceof Error ? error.message : "";
     const lowered = message.toLowerCase();
 
     if (
@@ -128,7 +116,7 @@ export async function executeImageWorkflowRunPlan(
 
     throw new ImageWorkflowExecutionError(
       "provider",
-      `Image generation provider error: ${message}`
+      "Image generation provider request failed."
     );
   }
 }

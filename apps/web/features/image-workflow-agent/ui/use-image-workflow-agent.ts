@@ -9,30 +9,33 @@ import type {
   RefObject,
   SetStateAction,
 } from "react";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { convertFilesToParts } from "@/features/multimodal-chatbot/ui/convert-files-to-parts";
 import { useConversationErrorRetry } from "@/features/shared/chat/ui/conversation-error-message";
-
+import {
+  dispatchAcceptedImageWorkflowAction,
+  type ImageWorkflowProductTelemetry,
+  noopImageWorkflowProductTelemetry,
+} from "../model/telemetry";
 import {
   applyWorkflowCommand,
   createDefaultWorkflowGraph,
   type WorkflowGraph,
   type WorkflowReferenceImage,
 } from "../model/workflow-engine";
+import { getRunnableWorkflowState } from "../model/workflow-validation";
 import {
   applyWorkflowNodeChanges,
+  commitAcceptedWorkflowGraph,
   createReferenceImageNode,
   getImageResultNode,
   getLatestWorkflowGraph,
   getReferenceImageNode,
+  getUnconsumedWorkflowActions,
   hasGraphChangingNodeChange,
   imageWorkflowAgentSuggestions,
+  shouldTrackWorkflowNodeChanges,
+  shouldTrackWorkflowNodePatch,
 } from "./image-workflow-agent-model";
 
 const maxReferenceImageBytes = 4 * 1024 * 1024;
@@ -46,7 +49,8 @@ type WorkflowNodeChange = Parameters<
   NonNullable<ComponentProps<typeof Canvas>["onNodesChange"]>
 >[0][number];
 type GraphMutator = (
-  mutator: (currentGraph: WorkflowGraph) => WorkflowGraph
+  mutator: (currentGraph: WorkflowGraph) => WorkflowGraph,
+  options?: { trackModification?: boolean }
 ) => void;
 type SetManualError = Dispatch<SetStateAction<string | null>>;
 
@@ -84,16 +88,20 @@ function toReferenceImage(file: File, dataUrl: string): WorkflowReferenceImage {
 }
 
 function useGraphMutator({
+  graphRef,
   isGraphLocked,
+  productTelemetry,
   setGraph,
   setManualError,
 }: {
+  graphRef: RefObject<WorkflowGraph>;
   isGraphLocked: boolean;
+  productTelemetry: ImageWorkflowProductTelemetry;
   setGraph: Dispatch<SetStateAction<WorkflowGraph>>;
   setManualError: SetManualError;
 }) {
   return useCallback<GraphMutator>(
-    (mutator) => {
+    (mutator, mutationOptions) => {
       if (isGraphLocked) {
         setManualError(
           "Workflow is locked while the agent or manual run is still active."
@@ -102,18 +110,30 @@ function useGraphMutator({
       }
 
       setManualError(null);
-      setGraph((currentGraph) => {
-        try {
-          return mutator(currentGraph);
-        } catch (error) {
-          setManualError(
-            error instanceof Error ? error.message : "Workflow update failed."
-          );
-          return currentGraph;
+      try {
+        const currentGraph = graphRef.current;
+        const nextGraph = mutator(currentGraph);
+
+        if (nextGraph === currentGraph) {
+          return;
         }
-      });
+
+        graphRef.current = nextGraph;
+        setGraph(nextGraph);
+
+        if (mutationOptions?.trackModification !== false) {
+          productTelemetry.onAcceptedAction({
+            action: "modify_workflow",
+            source: "manual",
+          });
+        }
+      } catch (error) {
+        setManualError(
+          error instanceof Error ? error.message : "Workflow update failed."
+        );
+      }
     },
-    [isGraphLocked, setGraph, setManualError]
+    [graphRef, isGraphLocked, productTelemetry, setGraph, setManualError]
   );
 }
 
@@ -143,14 +163,23 @@ function useWorkflowEditingActions(mutateGraph: GraphMutator) {
   }, [mutateGraph]);
 
   const updateNode = useCallback(
-    (nodeId: string, patch: Record<string, unknown>) => {
-      mutateGraph((currentGraph) =>
-        applyWorkflowCommand(currentGraph, {
-          expectedRevision: currentGraph.revision,
-          nodeId,
-          patch,
-          type: "update-node",
-        })
+    (
+      nodeId: string,
+      patch: Record<string, unknown>,
+      options?: { trackModification?: boolean }
+    ) => {
+      mutateGraph(
+        (currentGraph) =>
+          applyWorkflowCommand(currentGraph, {
+            expectedRevision: currentGraph.revision,
+            nodeId,
+            patch,
+            type: "update-node",
+          }),
+        {
+          trackModification:
+            options?.trackModification ?? shouldTrackWorkflowNodePatch(patch),
+        }
       );
     },
     [mutateGraph]
@@ -175,8 +204,9 @@ function useWorkflowEditingActions(mutateGraph: GraphMutator) {
         return;
       }
 
-      mutateGraph((currentGraph) =>
-        applyWorkflowNodeChanges(currentGraph, changes)
+      mutateGraph(
+        (currentGraph) => applyWorkflowNodeChanges(currentGraph, changes),
+        { trackModification: shouldTrackWorkflowNodeChanges(changes) }
       );
     },
     [mutateGraph]
@@ -249,6 +279,7 @@ function useManualWorkflowRun({
   graphRef,
   isChatAvailable,
   isGraphLocked,
+  productTelemetry,
   setGraph,
   setIsManualRunPending,
   setManualError,
@@ -256,6 +287,7 @@ function useManualWorkflowRun({
   graphRef: RefObject<WorkflowGraph>;
   isChatAvailable: boolean;
   isGraphLocked: boolean;
+  productTelemetry: ImageWorkflowProductTelemetry;
   setGraph: Dispatch<SetStateAction<WorkflowGraph>>;
   setIsManualRunPending: Dispatch<SetStateAction<boolean>>;
   setManualError: SetManualError;
@@ -269,8 +301,9 @@ function useManualWorkflowRun({
     setManualError(null);
 
     try {
+      const submittedGraph = graphRef.current;
       const response = await fetch("/api/demos/image-workflow-agent/run", {
-        body: JSON.stringify({ graph: graphRef.current }),
+        body: JSON.stringify({ graph: submittedGraph }),
         headers: {
           "content-type": "application/json",
         },
@@ -285,8 +318,14 @@ function useManualWorkflowRun({
         throw new Error(payload.error ?? "Workflow run failed.");
       }
 
-      startTransition(() => {
-        setGraph(payload.graph as WorkflowGraph);
+      const acceptedGraph = payload.graph as WorkflowGraph;
+      commitAcceptedWorkflowGraph(graphRef, acceptedGraph, setGraph);
+      productTelemetry.onAcceptedAction({
+        action: "run_workflow",
+        hasReferenceImage: Boolean(
+          getRunnableWorkflowState(submittedGraph).referenceImage
+        ),
+        source: "manual",
       });
     } catch (error) {
       setManualError(
@@ -299,18 +338,24 @@ function useManualWorkflowRun({
     graphRef,
     isChatAvailable,
     isGraphLocked,
+    productTelemetry,
     setGraph,
     setIsManualRunPending,
     setManualError,
   ]);
 }
 
-export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
+export function useImageWorkflowAgent(options: {
+  isChatAvailable: boolean;
+  productTelemetry?: ImageWorkflowProductTelemetry;
+}) {
+  const productTelemetry =
+    options.productTelemetry ?? noopImageWorkflowProductTelemetry;
   const [graph, setGraph] = useState(createDefaultWorkflowGraph);
   const [manualError, setManualError] = useState<string | null>(null);
   const [isManualRunPending, setIsManualRunPending] = useState(false);
   const graphRef = useRef(graph);
-  graphRef.current = graph;
+  const consumedAgentActionIds = useRef(new Set<string>());
   const [chat] = useState(() =>
     createImageWorkflowChat(() => graphRef.current)
   );
@@ -325,7 +370,9 @@ export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
     status === "submitted" || status === "streaming" || isManualRunPending;
   const isGraphLocked = isBusy || resultNode.data.status === "running";
   const mutateGraph = useGraphMutator({
+    graphRef,
     isGraphLocked,
+    productTelemetry,
     setGraph,
     setManualError,
   });
@@ -338,6 +385,7 @@ export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
     graphRef,
     isChatAvailable: options.isChatAvailable,
     isGraphLocked,
+    productTelemetry,
     setGraph,
     setIsManualRunPending,
     setManualError,
@@ -346,15 +394,21 @@ export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
   useEffect(() => {
     const nextGraph = getLatestWorkflowGraph(messages);
 
+    for (const acceptedAction of getUnconsumedWorkflowActions(
+      messages,
+      consumedAgentActionIds.current
+    )) {
+      consumedAgentActionIds.current.add(acceptedAction.id);
+      productTelemetry.onAcceptedAction(acceptedAction.action);
+    }
+
     if (!nextGraph || nextGraph.revision <= graphRef.current.revision) {
       return;
     }
 
-    startTransition(() => {
-      setGraph(nextGraph);
-      setManualError(null);
-    });
-  }, [messages]);
+    commitAcceptedWorkflowGraph(graphRef, nextGraph, setGraph);
+    setManualError(null);
+  }, [messages, productTelemetry]);
 
   const sendChatMessage = useCallback(
     async (text: string) => {
@@ -365,10 +419,24 @@ export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
       }
 
       setManualError(null);
-      sendMessage({ text: trimmedText });
+      await dispatchAcceptedImageWorkflowAction(
+        {
+          action: "send_message",
+          source: "manual",
+        },
+        () => sendMessage({ text: trimmedText }),
+        productTelemetry
+      );
     },
-    [isGraphLocked, options.isChatAvailable, sendMessage]
+    [isGraphLocked, options.isChatAvailable, productTelemetry, sendMessage]
   );
+
+  const trackManualWorkflowModification = useCallback(() => {
+    productTelemetry.onAcceptedAction({
+      action: "modify_workflow",
+      source: "manual",
+    });
+  }, [productTelemetry]);
 
   return {
     ...editingActions,
@@ -387,6 +455,7 @@ export function useImageWorkflowAgent(options: { isChatAvailable: boolean }) {
     sendChatMessage,
     status,
     suggestions: imageWorkflowAgentSuggestions,
+    trackManualWorkflowModification,
     uploadReferenceImage,
   };
 }

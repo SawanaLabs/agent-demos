@@ -1,13 +1,19 @@
 import type { WorkflowGraph } from "@/features/image-workflow-agent/model/workflow-engine";
-import { assertValidWorkflowGraph } from "@/features/image-workflow-agent/model/workflow-validation";
+import {
+  assertValidWorkflowGraph,
+  getRunnableWorkflowState,
+} from "@/features/image-workflow-agent/model/workflow-validation";
 import { getImageWorkflowAgentSetupState } from "@/features/image-workflow-agent/server/env";
 import { executeImageWorkflowGraph } from "@/features/image-workflow-agent/server/runtime";
+import { reportImageWorkflowFailure } from "@/features/image-workflow-agent/server/telemetry";
+import { createImageWorkflowRuntimeObserver } from "@/features/site-runtime-logging/server/image-workflow-adapter";
 import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
 
 const invalidBodyError = 'Expected a JSON body with a "graph" object.';
 const malformedJsonError = "Expected a valid JSON request body.";
+const runtimeObserver = createImageWorkflowRuntimeObserver("manual");
 
 interface ImageWorkflowAgentRunBody {
   graph?: WorkflowGraph;
@@ -36,6 +42,7 @@ async function readRunBody(request: Request) {
 
   try {
     assertValidWorkflowGraph(body.graph);
+    getRunnableWorkflowState(body.graph);
   } catch {
     throw new Error(invalidBodyError);
   }
@@ -57,7 +64,9 @@ async function handleImageWorkflowAgentRunRequest(request: Request) {
 
   try {
     const graph = await readRunBody(request);
-    const nextGraph = await executeImageWorkflowGraph(graph);
+    const nextGraph = await executeImageWorkflowGraph(graph, undefined, {
+      observer: runtimeObserver,
+    });
 
     return Response.json({ graph: nextGraph });
   } catch (error) {
@@ -69,12 +78,14 @@ async function handleImageWorkflowAgentRunRequest(request: Request) {
       return Response.json({ error: error.message }, { status: 400 });
     }
 
-    return Response.json(
-      {
-        error: error instanceof Error ? error.message : "Workflow run failed.",
-      },
-      { status: 500 }
-    );
+    reportImageWorkflowFailure(runtimeObserver, {
+      durationMs: 0,
+      failureCategory: "runtime",
+      operation: "workflow_run",
+      retryable: false,
+    });
+
+    return Response.json({ error: "Workflow run failed." }, { status: 500 });
   }
 }
 

@@ -1,7 +1,7 @@
 ---
 title: Production Telemetry
 description: GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site.
-updateAt: 2026-08-17
+updateAt: 2026-08-20
 ---
 
 # Production Telemetry
@@ -49,7 +49,13 @@ demo_action {
 }
 ```
 
-The initial Image Workflow vocabulary is `send_message`, `run_workflow`, and `modify_workflow`. This foundation defines the catalog and best-effort browser adapter but does not yet connect concrete demo interactions; that rollout belongs to the dependent implementation tickets.
+The Image Workflow sample connects `send_message`, `run_workflow`, and `modify_workflow` through a provider-neutral accepted-action contract. The published-site wrapper maps those actions to `demo_action`; the feature module never imports GA4.
+
+- A manual message emits after the chat transport accepts `sendMessage`.
+- A manual run emits after the route accepts and returns the graph; `has_reference_image` reflects a connected image that the run plan actually used.
+- Manual add/delete/connect/reset/aspect-ratio changes emit once at their command boundary. Text fields commit on blur and React Flow positions commit at drag end, so keystrokes, drag frames, and upload-only reference changes stay silent.
+- Agent modify/run events travel in bounded tool output metadata. The browser consumes each `message.id + toolCallId` once, including across React re-renders.
+- Default graph creation, page mount, preset state, result success/failure, expected request validation, and provider failure do not emit product events.
 
 Do not add default graph initialization, drag/pan noise, prompts, image URLs, visitor IDs, dynamic labels, or arbitrary metadata.
 
@@ -62,6 +68,8 @@ Do not add default graph initialization, drag/pan noise, prompts, image URLs, vi
 - explicit low-cardinality context such as demo slug, operation, failure category, source, retryability, duration, or client error kind.
 
 The logger API does not accept an `Error`. Unknown fields and values are dropped. Identifier, clock, deployment, serialization, or sink failures are swallowed so logging cannot replace the product failure.
+
+Image Workflow exposes a provider-neutral failure observer. Host route adapters map bounded `provider`, `tool`, and `runtime` observations to the existing event catalog. A final workflow execution failure is recorded only after the failed graph is safely constructed; exhausted network retry is one terminal provider record. Chat stream failures use request-local deduplication, tool execution failures rethrow after one bounded record, and expected request/runnable validation remains unlogged. Provider messages, prompts, URLs, images, credentials, raw errors, and stacks are replaced by static public failure text before they can enter graph output or HTTP responses.
 
 `/api/client-errors` accepts only a bounded error kind and source. The browser never sends a digest, message, stack, path, URL, query, or user-agent. The route requires same-origin browser metadata and JSON, caps the body at 512 bytes while streaming, and rejects unknown fields before mapping the report into `client.runtime_failed`.
 
@@ -87,8 +95,8 @@ Sawana owns Preview acceptance and merge. In a Preview deployment configured wit
 2. Confirm the privacy choice persists and can be reopened.
 3. Confirm a denied choice does not create analytics cookies; cookieless requests remain expected under Advanced Consent Mode.
 4. Navigate representative routes and confirm expected pageviews arrive once with provider-standard page URL/referrer fields; verify the GA4 web stream's browser-history Enhanced Measurement setting when validating client-side transitions.
-5. Confirm DebugView receives only bounded `demo_action` fields after the dependent demo-instrumentation ticket lands.
-6. Trigger one controlled client-boundary failure and confirm one Vercel Runtime Logs JSON record with Preview/ref/host metadata and no sentinel prompt, URL query, token, credential, message, or stack.
+5. Trigger Image Workflow manual and agent message/modify/run actions and confirm DebugView receives each bounded `demo_action` once; verify upload-only, keystroke, drag-frame, default graph, and result outcome paths remain silent.
+6. Trigger one controlled Image Workflow provider/tool/runtime failure and confirm one Vercel Runtime Logs JSON record with Preview/ref/host metadata and no sentinel prompt, URL query, token, credential, provider message, or stack.
 7. Install or inspect a generated registry artifact and confirm no host telemetry package, environment name, event, or logger is present.
 
 ## Reference Implementation

@@ -4,6 +4,11 @@ import type { WorkflowGraph } from "@/features/image-workflow-agent/model/workfl
 import { assertValidWorkflowGraph } from "@/features/image-workflow-agent/model/workflow-validation";
 import { generateImageWorkflowAgentResponse } from "@/features/image-workflow-agent/server/chat";
 import { getImageWorkflowAgentSetupState } from "@/features/image-workflow-agent/server/env";
+import {
+  ImageWorkflowObservedFailure,
+  reportImageWorkflowFailure,
+} from "@/features/image-workflow-agent/server/telemetry";
+import { createImageWorkflowRuntimeObserver } from "@/features/site-runtime-logging/server/image-workflow-adapter";
 import { createMeteredDemoRoute } from "@/features/site-usage-gate/server/metered-demo-route";
 
 export const runtime = "nodejs";
@@ -13,6 +18,7 @@ const invalidBodyError =
 const malformedJsonError = "Expected a valid JSON request body.";
 const invalidUiMessagesError =
   'Expected each "messages" entry to match the UIMessage format.';
+const runtimeObserver = createImageWorkflowRuntimeObserver("agent");
 
 interface ImageWorkflowAgentChatRequestBody {
   graph?: WorkflowGraph;
@@ -69,7 +75,9 @@ function toUiMessageStreamResponse(result: unknown) {
     "toUIMessageStreamResponse" in result &&
     typeof result.toUIMessageStreamResponse === "function"
   ) {
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      onError: () => "Image workflow chat failed.",
+    });
   }
 
   throw new Error(
@@ -91,7 +99,12 @@ async function handleImageWorkflowAgentChatRequest(request: Request) {
 
   try {
     const { graph, messages } = await readChatRequestBody(request);
-    const result = await generateImageWorkflowAgentResponse(messages, graph);
+    const result = await generateImageWorkflowAgentResponse(
+      messages,
+      graph,
+      undefined,
+      { observer: runtimeObserver }
+    );
 
     return toUiMessageStreamResponse(result);
   } catch (error) {
@@ -106,7 +119,19 @@ async function handleImageWorkflowAgentChatRequest(request: Request) {
       return Response.json({ error: error.message }, { status: 400 });
     }
 
-    throw error;
+    if (!(error instanceof ImageWorkflowObservedFailure)) {
+      reportImageWorkflowFailure(runtimeObserver, {
+        durationMs: 0,
+        failureCategory: "runtime",
+        operation: "chat",
+        retryable: false,
+      });
+    }
+
+    return Response.json(
+      { error: "Image workflow chat failed." },
+      { status: 500 }
+    );
   }
 }
 

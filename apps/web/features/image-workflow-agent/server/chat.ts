@@ -6,7 +6,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-
+import type { ImageWorkflowAcceptedAction } from "../model/telemetry";
 import {
   applyWorkflowCommand,
   type UpdateNodeCommand,
@@ -15,6 +15,7 @@ import {
   type WorkflowNode,
   type WorkflowResultImage,
 } from "../model/workflow-engine";
+import { getRunnableWorkflowState } from "../model/workflow-validation";
 import {
   createImageWorkflowAgentGateway,
   getImageWorkflowAgentEnv,
@@ -23,6 +24,11 @@ import {
   readImageWorkflowAgentConfig,
 } from "./env";
 import { executeImageWorkflowGraph } from "./runtime";
+import {
+  ImageWorkflowObservedFailure,
+  type ImageWorkflowTelemetryObserver,
+  reportImageWorkflowFailure,
+} from "./telemetry";
 
 const systemPrompt = [
   "You are the Image Workflow Agent.",
@@ -116,6 +122,7 @@ const updatePatchSchema = z.object({
 });
 
 interface WorkflowToolOutput {
+  acceptedAction: ImageWorkflowAcceptedAction;
   graph: WorkflowGraph;
   image: WorkflowResultImage | null;
   kind: "workflow-command" | "workflow-run";
@@ -123,9 +130,11 @@ interface WorkflowToolOutput {
 }
 
 export interface ImageWorkflowAgentChatDependencies {
-  createGateway: (env: ImageWorkflowAgentEnv) => ImageWorkflowAgentGateway;
-  executeWorkflowGraph: typeof executeImageWorkflowGraph;
-  streamText: typeof streamText;
+  createGateway?: (env: ImageWorkflowAgentEnv) => ImageWorkflowAgentGateway;
+  executeWorkflowGraph?: typeof executeImageWorkflowGraph;
+  now?: () => number;
+  observer?: ImageWorkflowTelemetryObserver;
+  streamText?: typeof streamText;
 }
 
 function summarizeWorkflowToolOutput(
@@ -186,10 +195,12 @@ function prepareImageWorkflowAgentModelMessages(messages: UIMessage[]) {
 function createWorkflowToolOutput(
   graph: WorkflowGraph,
   summary: string,
+  acceptedAction: ImageWorkflowAcceptedAction,
   image: WorkflowResultImage | null = null,
   kind: WorkflowToolOutput["kind"] = "workflow-command"
 ): WorkflowToolOutput {
   return {
+    acceptedAction,
     graph,
     image,
     kind,
@@ -225,19 +236,22 @@ function normalizeGeneratorPatch(
   return normalizedPatch as UpdateNodeCommand["patch"];
 }
 
+// biome-ignore lint/complexity/noExcessiveLinesPerFunction: the request-scoped graph, serialized tool set, and telemetry dedupe must share one lifecycle.
 export async function generateImageWorkflowAgentResponse(
   messages: UIMessage[],
   graph: WorkflowGraph,
   env: ImageWorkflowAgentEnv = getImageWorkflowAgentEnv(),
-  dependencies: ImageWorkflowAgentChatDependencies = {
-    createGateway: createImageWorkflowAgentGateway,
-    executeWorkflowGraph: executeImageWorkflowGraph,
-    streamText,
-  }
+  dependencies: ImageWorkflowAgentChatDependencies = {}
 ): Promise<{ toUIMessageStreamResponse: () => Response }> {
+  const createGateway =
+    dependencies.createGateway ?? createImageWorkflowAgentGateway;
+  const executeWorkflowGraph =
+    dependencies.executeWorkflowGraph ?? executeImageWorkflowGraph;
+  const runStreamText = dependencies.streamText ?? streamText;
   const config = readImageWorkflowAgentConfig(env);
-  const gateway = dependencies.createGateway(env);
+  const gateway = createGateway(env);
   let currentGraph = graph;
+  const handledStreamErrors = new Set<unknown>();
   let workflowOperation = Promise.resolve();
 
   function serializeWorkflowOperation<T>(operation: () => Promise<T> | T) {
@@ -255,137 +269,199 @@ export async function generateImageWorkflowAgentResponse(
     createSummary: (graph: WorkflowGraph) => string
   ) {
     return serializeWorkflowOperation(() => {
-      currentGraph = applyWorkflowCommand(
-        currentGraph,
-        createCommand(currentGraph.revision, currentGraph)
-      );
+      const toolStartedAt = now();
 
-      return createWorkflowToolOutput(
-        currentGraph,
-        createSummary(currentGraph)
-      );
+      try {
+        currentGraph = applyWorkflowCommand(
+          currentGraph,
+          createCommand(currentGraph.revision, currentGraph)
+        );
+
+        return createWorkflowToolOutput(
+          currentGraph,
+          createSummary(currentGraph),
+          {
+            action: "modify_workflow",
+            source: "agent",
+          }
+        );
+      } catch (error) {
+        handledStreamErrors.add(error);
+        reportImageWorkflowFailure(dependencies.observer, {
+          durationMs: Math.max(0, now() - toolStartedAt),
+          failureCategory: "tool",
+          operation: "tool_call",
+          retryable: false,
+        });
+        throw error;
+      }
     });
   }
 
-  return dependencies.streamText({
-    messages: await convertToModelMessages(
-      prepareImageWorkflowAgentModelMessages(messages)
-    ),
-    model: gateway.languageModel(config.chatModel),
-    stopWhen: stepCountIs(6),
-    system: `${systemPrompt}\nCurrent workflow graph (image data URLs omitted): ${createModelWorkflowContext(currentGraph)}`,
-    tools: {
-      replaceWorkflow: tool({
-        description:
-          "Replace the entire workflow graph with a validated graph.",
-        execute: ({ graph: nextGraph }) =>
-          applyCommand(
-            (expectedRevision) => ({
-              expectedRevision,
-              graph: nextGraph,
-              type: "replace-workflow",
-            }),
-            (updatedGraph) =>
-              `Replaced the workflow graph at revision ${updatedGraph.revision}.`
-          ),
-        inputSchema: z.object({
-          graph: imageWorkflowGraphSchema,
-        }),
-        toModelOutput: ({ output }) => ({
-          type: "text",
-          value: output.summary,
-        }),
-      }),
-      addNode: tool({
-        description: "Add a workflow node.",
-        execute: ({ node }) =>
-          applyCommand(
-            (expectedRevision) => ({
-              expectedRevision,
-              node,
-              type: "add-node",
-            }),
-            () => `Added node ${node.id}.`
-          ),
-        inputSchema: z.object({
-          node: nodeSchema,
-        }),
-        toModelOutput: ({ output }) => ({
-          type: "text",
-          value: output.summary,
-        }),
-      }),
-      updateNode: tool({
-        description: "Update a workflow node with a validated patch.",
-        execute: ({ nodeId, patch }) =>
-          applyCommand(
-            (expectedRevision, graphSnapshot) => ({
-              expectedRevision,
-              nodeId,
-              patch: normalizeGeneratorPatch(graphSnapshot, nodeId, patch),
-              type: "update-node",
-            }),
-            () => `Updated node ${nodeId}.`
-          ),
-        inputSchema: z.object({
-          nodeId: z.string(),
-          patch: updatePatchSchema,
-        }),
-        toModelOutput: ({ output }) => ({
-          type: "text",
-          value: output.summary,
-        }),
-      }),
-      connectNodes: tool({
-        description: "Connect two workflow nodes.",
-        execute: ({ sourceNodeId, targetNodeId }) =>
-          applyCommand(
-            (expectedRevision) => ({
-              expectedRevision,
-              sourceNodeId,
-              targetNodeId,
-              type: "connect-nodes",
-            }),
-            () => `Connected ${sourceNodeId} to ${targetNodeId}.`
-          ),
-        inputSchema: z.object({
-          sourceNodeId: z.string(),
-          targetNodeId: z.string(),
-        }),
-        toModelOutput: ({ output }) => ({
-          type: "text",
-          value: output.summary,
-        }),
-      }),
-      runWorkflow: tool({
-        description:
-          "Run the current workflow and attach the generated result image.",
-        execute: () =>
-          serializeWorkflowOperation(async () => {
-            currentGraph = await dependencies.executeWorkflowGraph(
-              currentGraph,
-              env
-            );
-            const resultNode = currentGraph.nodes.find(
-              (node) => node.kind === "image-result"
-            );
-            const succeeded = resultNode?.data.status === "succeeded";
+  const now = dependencies.now ?? Date.now;
+  const startedAt = now();
+  let chatFailureReported = false;
 
-            return createWorkflowToolOutput(
-              currentGraph,
-              succeeded
-                ? `Ran the workflow successfully and updated ${resultNode.id}.`
-                : `Workflow run failed: ${resultNode?.data.errorMessage ?? "Unknown error."}`,
-              resultNode?.data.image ?? null,
-              "workflow-run"
-            );
+  function reportChatFailureOnce(event?: { readonly error: unknown }) {
+    if (handledStreamErrors.has(event?.error)) {
+      return;
+    }
+
+    if (chatFailureReported) {
+      return;
+    }
+
+    chatFailureReported = true;
+    reportImageWorkflowFailure(dependencies.observer, {
+      durationMs: Math.max(0, now() - startedAt),
+      failureCategory: "provider",
+      operation: "chat",
+      retryable: false,
+    });
+  }
+
+  try {
+    return await runStreamText({
+      messages: await convertToModelMessages(
+        prepareImageWorkflowAgentModelMessages(messages)
+      ),
+      model: gateway.languageModel(config.chatModel),
+      onError: reportChatFailureOnce,
+      stopWhen: stepCountIs(6),
+      system: `${systemPrompt}\nCurrent workflow graph (image data URLs omitted): ${createModelWorkflowContext(currentGraph)}`,
+      tools: {
+        replaceWorkflow: tool({
+          description:
+            "Replace the entire workflow graph with a validated graph.",
+          execute: ({ graph: nextGraph }) =>
+            applyCommand(
+              (expectedRevision) => ({
+                expectedRevision,
+                graph: nextGraph,
+                type: "replace-workflow",
+              }),
+              (updatedGraph) =>
+                `Replaced the workflow graph at revision ${updatedGraph.revision}.`
+            ),
+          inputSchema: z.object({
+            graph: imageWorkflowGraphSchema,
           }),
-        inputSchema: z.object({}).passthrough(),
-        toModelOutput: ({ output }) => ({
-          type: "text",
-          value: output.summary,
+          toModelOutput: ({ output }) => ({
+            type: "text",
+            value: output.summary,
+          }),
         }),
-      }),
-    },
-  });
+        addNode: tool({
+          description: "Add a workflow node.",
+          execute: ({ node }) =>
+            applyCommand(
+              (expectedRevision) => ({
+                expectedRevision,
+                node,
+                type: "add-node",
+              }),
+              () => `Added node ${node.id}.`
+            ),
+          inputSchema: z.object({
+            node: nodeSchema,
+          }),
+          toModelOutput: ({ output }) => ({
+            type: "text",
+            value: output.summary,
+          }),
+        }),
+        updateNode: tool({
+          description: "Update a workflow node with a validated patch.",
+          execute: ({ nodeId, patch }) =>
+            applyCommand(
+              (expectedRevision, graphSnapshot) => ({
+                expectedRevision,
+                nodeId,
+                patch: normalizeGeneratorPatch(graphSnapshot, nodeId, patch),
+                type: "update-node",
+              }),
+              () => `Updated node ${nodeId}.`
+            ),
+          inputSchema: z.object({
+            nodeId: z.string(),
+            patch: updatePatchSchema,
+          }),
+          toModelOutput: ({ output }) => ({
+            type: "text",
+            value: output.summary,
+          }),
+        }),
+        connectNodes: tool({
+          description: "Connect two workflow nodes.",
+          execute: ({ sourceNodeId, targetNodeId }) =>
+            applyCommand(
+              (expectedRevision) => ({
+                expectedRevision,
+                sourceNodeId,
+                targetNodeId,
+                type: "connect-nodes",
+              }),
+              () => `Connected ${sourceNodeId} to ${targetNodeId}.`
+            ),
+          inputSchema: z.object({
+            sourceNodeId: z.string(),
+            targetNodeId: z.string(),
+          }),
+          toModelOutput: ({ output }) => ({
+            type: "text",
+            value: output.summary,
+          }),
+        }),
+        runWorkflow: tool({
+          description:
+            "Run the current workflow and attach the generated result image.",
+          execute: () =>
+            serializeWorkflowOperation(async () => {
+              let hasReferenceImage: boolean;
+
+              try {
+                hasReferenceImage = Boolean(
+                  getRunnableWorkflowState(currentGraph).referenceImage
+                );
+              } catch (error) {
+                handledStreamErrors.add(error);
+                throw error;
+              }
+
+              currentGraph = await executeWorkflowGraph(currentGraph, env, {
+                observer: dependencies.observer,
+              });
+              const resultNode = currentGraph.nodes.find(
+                (node) => node.kind === "image-result"
+              );
+              const succeeded = resultNode?.data.status === "succeeded";
+
+              return createWorkflowToolOutput(
+                currentGraph,
+                succeeded
+                  ? `Ran the workflow successfully and updated ${resultNode.id}.`
+                  : `Workflow run failed: ${resultNode?.data.errorMessage ?? "Unknown error."}`,
+                {
+                  action: "run_workflow",
+                  hasReferenceImage,
+                  source: "agent",
+                },
+                resultNode?.data.image ?? null,
+                "workflow-run"
+              );
+            }),
+          inputSchema: z.object({}).passthrough(),
+          toModelOutput: ({ output }) => ({
+            type: "text",
+            value: output.summary,
+          }),
+        }),
+      },
+    });
+  } catch {
+    reportChatFailureOnce();
+    throw new ImageWorkflowObservedFailure(
+      "Image workflow chat provider failed."
+    );
+  }
 }

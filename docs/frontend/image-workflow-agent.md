@@ -1,7 +1,7 @@
 ---
 title: Image Workflow Agent
 description: Stable UI, route, and copy-boundary conventions for the image workflow canvas demo.
-updateAt: 2026-08-14
+updateAt: 2026-08-20
 ---
 
 # Image Workflow Agent
@@ -30,9 +30,14 @@ updateAt: 2026-08-14
 - The client should replace local graph state with the newest streamed graph returned by tool outputs. Do not replay local command history after the server has already returned a newer graph revision.
 - Keep metering in the app route layer with `createMeteredDemoRoute`; do not pull site usage gate modules into the feature slice.
 - Treat this demo as ready in the catalog but omitted from registry export until a portable registry boundary exists.
+- Keep Product Analytics and Runtime Error Logging host-owned. The feature exposes provider-neutral accepted-action and failure-observer contracts; only the app page/route adapters import site analytics or runtime logging.
+- Emit `send_message`, `modify_workflow`, and `run_workflow` only after accepted actions. Text edits commit on blur, node moves commit at drag end, streamed agent actions dedupe by tool call, and `has_reference_image` means the accepted run plan used the image.
+- Keep page mount, default graph, presets, keystrokes, drag frames, upload-only reference changes, result outcomes, and expected validation rejections out of custom analytics. A reference image counts only when an accepted run actually uses it.
+- Replace provider/runtime details with static public failure text. Never put provider messages, raw errors, stacks, prompts, image URLs/data, filenames, tokens, or credentials into graph failure state, tool summaries, HTTP responses, analytics, or runtime records.
 
 ## Update Triggers
 
 - Update this file when the graph-sync contract changes.
 - Update this file when the workspace layout rules change across desktop and mobile.
 - Update this file when registry-export status changes.
+- Update this file when accepted-action or failure-observer seams change.

@@ -280,6 +280,7 @@ describe("metered demo route stream telemetry", () => {
     ["tool-output-error", "tool"],
   ] as const)("reports one terminal UI %s without changing the stream", async (streamType, failureCategory) => {
     const encoder = new TextEncoder();
+    const markAcceptedAction = vi.fn();
     const reportUnexpectedFailure = vi.fn();
     const chunks = [
       'data: {"type":"start"}\n\ndata: {"ty',
@@ -304,7 +305,7 @@ describe("metered demo route stream telemetry", () => {
     const route = createMeteredDemoRouteFactory({
       meter,
       telemetry: {
-        markAcceptedAction: vi.fn(),
+        markAcceptedAction,
         reportUnexpectedFailure,
       },
     }).createMeteredDemoRoute({
@@ -321,6 +322,7 @@ describe("metered demo route stream telemetry", () => {
     );
 
     await expect(response.text()).resolves.toBe(chunks.join(""));
+    expect(markAcceptedAction).toHaveBeenCalledOnce();
     expect(reportUnexpectedFailure).toHaveBeenCalledOnce();
     expect(reportUnexpectedFailure).toHaveBeenCalledWith({
       action: "send_message",

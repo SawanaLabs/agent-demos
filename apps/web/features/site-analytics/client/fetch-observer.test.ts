@@ -17,6 +17,7 @@ describe("accepted demo action fetch observer", () => {
     const track = vi.fn();
     const observedFetch = createAcceptedDemoActionFetchObserver({
       fetchImplementation: fetchImplementation as typeof fetch,
+      origin: "http://localhost",
       track,
     });
 
@@ -54,6 +55,7 @@ describe("accepted demo action fetch observer", () => {
     });
     const observedFetch = createAcceptedDemoActionFetchObserver({
       fetchImplementation: fetchImplementation as typeof fetch,
+      origin: "http://localhost",
       track,
     });
 
@@ -75,6 +77,7 @@ describe("accepted demo action fetch observer", () => {
     );
     const observedFetch = createAcceptedDemoActionFetchObserver({
       fetchImplementation: vi.fn(async () => response) as typeof fetch,
+      origin: "http://localhost",
       track: () => {
         throw new Error("analytics unavailable");
       },
@@ -83,5 +86,27 @@ describe("accepted demo action fetch observer", () => {
     await expect(
       observedFetch("/api/demos/trace-eval-agent/evaluate")
     ).resolves.toBe(response);
+  });
+
+  it("ignores forged metadata from unrelated and cross-origin requests", async () => {
+    const response = Response.json(
+      { ok: true },
+      {
+        headers: {
+          [acceptedDemoActionHeader]: "foundation-chat:send_message",
+        },
+      }
+    );
+    const track = vi.fn();
+    const observedFetch = createAcceptedDemoActionFetchObserver({
+      fetchImplementation: vi.fn(async () => response) as typeof fetch,
+      origin: "http://localhost",
+      track,
+    });
+
+    await observedFetch("/api/client-errors");
+    await observedFetch("https://example.com/api/demos/foundation-chat");
+
+    expect(track).not.toHaveBeenCalled();
   });
 });

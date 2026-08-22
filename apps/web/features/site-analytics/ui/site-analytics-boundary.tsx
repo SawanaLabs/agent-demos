@@ -60,6 +60,7 @@ export function SiteAnalyticsBoundary({
     const originalFetch = window.fetch;
     const observedFetch = createAcceptedDemoActionFetchObserver({
       fetchImplementation: originalFetch,
+      origin: window.location.origin,
       track: trackDemoAction,
     });
     window.fetch = observedFetch;

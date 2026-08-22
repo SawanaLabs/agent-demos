@@ -41,6 +41,26 @@ describe("demo route runtime error adapter", () => {
     });
   });
 
+  it("classifies terminal streamed tool failures without provider text", () => {
+    const error = vi.fn(() => "safe-error-id");
+
+    reportDemoRouteFailure(
+      {
+        action: "send_message",
+        demoSlug: "minimal-chat-agent",
+        failureCategory: "tool",
+      },
+      { error }
+    );
+
+    expect(error).toHaveBeenCalledWith(runtimeErrorEvents.demoToolFailed, {
+      demo_slug: "minimal-chat-agent",
+      failure_category: "tool",
+      operation: "chat",
+      retryable: false,
+    });
+  });
+
   it("drops unknown demo and action values", () => {
     const error = vi.fn(() => "error-id");
 

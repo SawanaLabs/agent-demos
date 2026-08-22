@@ -36,6 +36,7 @@ export function reportDemoRouteFailure(
   input: {
     readonly action: unknown;
     readonly demoSlug: unknown;
+    readonly failureCategory?: "provider" | "tool";
   },
   logger: RuntimeLogger = runtimeErrorLogger
 ): void {
@@ -44,11 +45,21 @@ export function reportDemoRouteFailure(
   }
 
   const action = input.action as CatalogDemoAction;
-  const failureCategory = storageActions.has(action) ? "storage" : "provider";
-  const event =
-    failureCategory === "storage"
-      ? runtimeErrorEvents.demoStorageFailed
-      : runtimeErrorEvents.demoProviderFailed;
+  let failureCategory: RuntimeErrorContext["failure_category"] = "provider";
+
+  if (input.failureCategory === "tool") {
+    failureCategory = "tool";
+  } else if (storageActions.has(action)) {
+    failureCategory = "storage";
+  }
+
+  let event: RuntimeErrorEvent = runtimeErrorEvents.demoProviderFailed;
+
+  if (failureCategory === "storage") {
+    event = runtimeErrorEvents.demoStorageFailed;
+  } else if (failureCategory === "tool") {
+    event = runtimeErrorEvents.demoToolFailed;
+  }
 
   logger.error(event, {
     demo_slug: input.demoSlug,

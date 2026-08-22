@@ -76,7 +76,107 @@ export interface MeteredDemoRouteTelemetry {
   reportUnexpectedFailure(input: {
     readonly action: unknown;
     readonly demoSlug: unknown;
+    readonly failureCategory?: "provider" | "tool";
   }): void;
+}
+
+const uiMessageStreamHeader = "x-vercel-ai-ui-message-stream";
+const uiMessageStreamErrorMarkers = [
+  {
+    failureCategory: "provider" as const,
+    marker: 'data: {"type":"error",',
+  },
+  {
+    failureCategory: "tool" as const,
+    marker: 'data: {"type":"tool-output-error",',
+  },
+];
+const maximumUiMessageStreamMarkerLength = Math.max(
+  ...uiMessageStreamErrorMarkers.map(({ marker }) => marker.length)
+);
+
+function observeResponseFailures(
+  response: Response,
+  report: (failureCategory: "provider" | "tool") => void
+): Response {
+  if (!response.body) {
+    return response;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const isUiMessageStream =
+    response.headers.get(uiMessageStreamHeader) === "v1";
+  let markerTail = "";
+  let reported = false;
+
+  function reportOnce(failureCategory: "provider" | "tool") {
+    if (reported) {
+      return;
+    }
+
+    reported = true;
+
+    try {
+      report(failureCategory);
+    } catch {
+      // Runtime telemetry must never replace the product stream.
+    }
+  }
+
+  function inspectUiMessageStream(chunk: Uint8Array) {
+    if (!isUiMessageStream || reported) {
+      return;
+    }
+
+    const text = markerTail + decoder.decode(chunk, { stream: true });
+    let firstMatch:
+      | { failureCategory: "provider" | "tool"; index: number }
+      | undefined;
+
+    for (const { failureCategory, marker } of uiMessageStreamErrorMarkers) {
+      const index = text.indexOf(marker);
+
+      if (index >= 0 && (!firstMatch || index < firstMatch.index)) {
+        firstMatch = { failureCategory, index };
+      }
+    }
+
+    if (firstMatch) {
+      reportOnce(firstMatch.failureCategory);
+      return;
+    }
+
+    markerTail = text.slice(-(maximumUiMessageStreamMarkerLength - 1));
+  }
+
+  const body = new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          controller.close();
+          return;
+        }
+
+        inspectUiMessageStream(value);
+        controller.enqueue(value);
+      } catch (error) {
+        reportOnce("provider");
+        controller.error(error);
+      }
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
+
+  return new Response(body, {
+    headers: response.headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
 }
 
 const productionTelemetry: MeteredDemoRouteTelemetry = {
@@ -121,6 +221,16 @@ export function createMeteredDemoRouteFactory({
         telemetry.markAcceptedAction(response, {
           action: acceptedAction,
           demoSlug,
+        });
+      }
+
+      if (response.ok && !runtimeFailureHandled) {
+        return observeResponseFailures(response, (failureCategory) => {
+          telemetry.reportUnexpectedFailure({
+            action: observedAction,
+            demoSlug,
+            failureCategory,
+          });
         });
       }
 

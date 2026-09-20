@@ -5,7 +5,7 @@ an executable graph on an infinite canvas. Text, reference images, and generated
 images can branch and merge. The floating conversation keeps running when folded;
 its composer remains available.
 
-The toolbar exposes **生成图片**, **生成文本**, **图片素材**, **文本素材**,
+The toolbar exposes **生成图片**, **生成文本**, **图片输入**, **提示词**,
 and **输出**. Text materials pass literal prompts without model calls. Multiple
 materials can feed one generator. Image and generated text results appear as separate draggable
 cards with outgoing connections; rerunning replaces that result. A manual output

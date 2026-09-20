@@ -55,8 +55,8 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
               {
                 text: "生成文本",
                 image: "生成图片",
-                reference: "图片素材",
-                prompt: "文本素材",
+                reference: "图片输入",
+                prompt: "提示词",
                 output: "输出",
               }[node.kind]
             }

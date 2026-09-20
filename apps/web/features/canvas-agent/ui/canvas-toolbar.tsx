@@ -11,8 +11,8 @@ import type { CanvasNode } from "../model/graph";
 const entries = [
   { kind: "image", label: "生成图片", icon: SparklesIcon },
   { kind: "text", label: "生成文本", icon: SparklesIcon },
-  { kind: "reference", label: "图片素材", icon: ImageIcon },
-  { kind: "prompt", label: "文本素材", icon: FileTextIcon },
+  { kind: "reference", label: "图片输入", icon: ImageIcon },
+  { kind: "prompt", label: "提示词", icon: FileTextIcon },
   { kind: "output", label: "预览输出", icon: MonitorIcon },
 ] as const;
 

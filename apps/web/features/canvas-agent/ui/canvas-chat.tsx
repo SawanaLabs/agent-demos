@@ -95,7 +95,7 @@ export function CanvasChat({
                   搭建一个有两条图片分支的广告工作流
                 </Button>
                 <p className="text-muted-foreground text-xs">
-                  支持图片与文本生成、图片与文本素材，以及输出展示。视频、GIF
+                  支持生成图片、生成文本、图片输入、提示词和预览输出。视频、GIF
                   与深度节点尚未接入。
                 </p>
                 <Link

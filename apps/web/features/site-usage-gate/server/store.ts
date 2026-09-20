@@ -1,5 +1,6 @@
 import { normalizeSiteUsageInviteCode } from "../access-code";
-import type { ActiveAccessCodePolicy } from "./policy";
+import { creditBalance } from "./balance";
+import { type ActiveAccessCodePolicy, resolveSiteUsagePolicy } from "./policy";
 import type { SiteUsageGateStore } from "./route-wrapper";
 
 type DatabaseBoundary = Awaited<ReturnType<typeof loadDatabaseBoundary>>;
@@ -31,15 +32,91 @@ export type SiteUsageWaitlistSupportIntent = "willing_to_support";
 
 export function createDatabaseSiteUsageGateStore(): SiteUsageGateStore {
   return {
-    async createUsageEvent({ action, createdAt, demoSlug, visitorId }) {
-      const { database, siteUsageEvents } = await getDatabaseBoundary();
-
-      await database.insert(siteUsageEvents).values({
-        action,
-        createdAt,
-        demoSlug,
-        visitorId,
+    async reserveCredits({ action, createdAt, demoSlug, visitorId, units }) {
+      if (!Number.isSafeInteger(units) || units < 1) {
+        throw new Error("Credit cost must be a positive integer.");
+      }
+      const {
+        database,
+        siteUsageEvents,
+        siteUsageVisitors,
+        siteUsageAccessCodes,
+        eq,
+        and,
+        gte,
+      } = await getDatabaseBoundary();
+      return database.transaction(async (tx) => {
+        await tx
+          .insert(siteUsageVisitors)
+          .values({ id: visitorId, createdAt, updatedAt: createdAt })
+          .onConflictDoNothing();
+        // Serialize spending for this visitor across requests and server instances.
+        const [visitor] = await tx
+          .select()
+          .from(siteUsageVisitors)
+          .where(eq(siteUsageVisitors.id, visitorId))
+          .for("update");
+        const [accessCode] = visitor?.activeAccessCodeId
+          ? await tx
+              .select()
+              .from(siteUsageAccessCodes)
+              .where(eq(siteUsageAccessCodes.id, visitor.activeAccessCodeId))
+          : [];
+        const activeAccessCodePolicy = accessCode?.isEnabled
+          ? accessCode
+          : null;
+        if (activeAccessCodePolicy) {
+          assertValidAccessCodePolicy(activeAccessCodePolicy);
+        }
+        const policy = resolveSiteUsagePolicy({
+          activeAccessCodePolicy,
+          now: createdAt,
+        });
+        const events = await tx
+          .select({ createdAt: siteUsageEvents.createdAt })
+          .from(siteUsageEvents)
+          .where(
+            and(
+              eq(siteUsageEvents.visitorId, visitorId),
+              gte(siteUsageEvents.createdAt, policy.windowStartsAt)
+            )
+          );
+        const balance = creditBalance(policy, events);
+        if (balance.remainingUnits < units) {
+          setOperationResetTime(balance, events, units);
+          return { allowed: false, balance, eventIds: [] };
+        }
+        const rows = await tx
+          .insert(siteUsageEvents)
+          .values(
+            Array.from({ length: units }, () => ({
+              action,
+              createdAt,
+              demoSlug,
+              visitorId,
+            }))
+          )
+          .returning({ id: siteUsageEvents.id });
+        return {
+          allowed: true,
+          balance: {
+            ...balance,
+            remainingUnits: balance.remainingUnits - units,
+            usedUnits: balance.usedUnits + units,
+          },
+          eventIds: rows.map((row) => row.id),
+        };
       });
+    },
+    async refundCredits(eventIds) {
+      if (eventIds.length === 0) {
+        return;
+      }
+      const { database, siteUsageEvents } = await getDatabaseBoundary();
+      const { inArray } = await import("@workspace/database/drizzle");
+      await database
+        .delete(siteUsageEvents)
+        .where(inArray(siteUsageEvents.id, eventIds));
     },
     async ensureVisitor({ now, visitorId }) {
       const { database, eq, siteUsageAccessCodes, siteUsageVisitors } =
@@ -266,5 +343,23 @@ function assertValidAccessCodePolicy(policy: {
 }) {
   if (policy.allowanceUnits <= 0 || policy.windowSeconds <= 0) {
     throw new Error("Site usage access code policy must be positive.");
+  }
+}
+
+function setOperationResetTime(
+  balance: ReturnType<typeof creditBalance>,
+  events: Array<{ createdAt: Date }>,
+  units: number
+) {
+  if (balance.scope !== "access_code" || units > balance.allowanceUnits) {
+    return;
+  }
+  const expiring = events.sort(
+    (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+  )[units - balance.remainingUnits - 1];
+  if (expiring) {
+    balance.resetAt = new Date(
+      expiring.createdAt.getTime() + balance.windowSeconds * 1000
+    ).toISOString();
   }
 }

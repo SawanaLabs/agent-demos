@@ -1,6 +1,10 @@
 export const siteUsageLimitErrorCode = "SITE_USAGE_LIMIT_EXCEEDED";
 
 export type SiteUsageGateAction =
+  | "image_generation"
+  | "text_generation"
+  | "rag_search"
+  | "sandbox_start"
   | "compact_context"
   | "edit_message"
   | "evaluate"
@@ -17,10 +21,11 @@ export interface SiteUsageLimitPayload {
   message: string;
   policy: {
     allowanceUnits: number;
-    remainingUnits: 0;
+    remainingUnits: number;
     scope: SiteUsagePolicyScope;
     windowSeconds: number;
   };
+  requiredUnits?: number;
   resetAt: string;
   serverTime: string;
 }

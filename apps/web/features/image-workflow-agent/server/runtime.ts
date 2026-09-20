@@ -1,4 +1,8 @@
 import {
+  consumeResource,
+  ResourceUsageDeniedError,
+} from "@/features/shared/resource-usage/server/context";
+import {
   applyWorkflowCommand,
   buildWorkflowRunPlan,
   type WorkflowGraph,
@@ -44,6 +48,9 @@ async function executePlanWithNetworkRetry(
 }
 
 function publicRunFailureMessage(error: unknown): string {
+  if (error instanceof ResourceUsageDeniedError) {
+    return error.message;
+  }
   if (!(error instanceof ImageWorkflowExecutionError)) {
     return "Workflow run failed.";
   }
@@ -77,6 +84,7 @@ export async function executeImageWorkflowGraph(
   });
 
   try {
+    await consumeResource("image_generation");
     const image = await executePlanWithNetworkRetry(plan, env, executePlan);
 
     currentGraph = applyWorkflowCommand(currentGraph, {

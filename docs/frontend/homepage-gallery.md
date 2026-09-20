@@ -1,7 +1,7 @@
 ---
 title: Homepage Gallery
 description: Durable conventions for the homepage surface that presents agent demos.
-updateAt: 2026-08-17
+updateAt: 2026-09-21
 ---
 
 # Homepage Gallery
@@ -18,6 +18,8 @@ updateAt: 2026-08-17
 - **ASCII gallery visual**: A gallery visual body rendered as final monospace ASCII art inside a fixed 16:9 region.
 
 ## Current Subdomain Docs
+
+- Mount the site credit balance button only on the homepage action row. Its popover explains shared allowance, reset time, and resource prices; see [Site Usage Gate](./site-usage-gate.md).
 
 - Shape the homepage as a demo gallery for technical evaluators.
 - Site-level builder tools may appear in a separate callout above the demo groups. Keep them out of `demoCatalogEntries` and make the page category explicit, as with the `/tools/depth-video` entry.

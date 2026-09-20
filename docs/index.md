@@ -30,7 +30,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/customer-memory-agent.md | Memory & Persistence Agent | Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo. | 2026-06-09 |
 | ./frontend/depth-video-tool.md | Depth Video Tool | Product and runtime boundary for the browser-local depth video processor. | 2026-09-20 |
 | ./frontend/generative-ui.md | Generative UI | Stable conventions for the Generative UI Agent Demo. | 2026-06-15 |
-| ./frontend/homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-08-17 |
+| ./frontend/homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-09-21 |
 | ./frontend/image-workflow-agent.md | Image Workflow Agent | Stable UI, route, and copy-boundary conventions for the image workflow canvas demo. | 2026-08-20 |
 | ./frontend/index.md | Frontend | Navigation for Next.js app and shared UI package conventions. | 2026-06-16 |
 | ./frontend/langgraph-agent.md | LangGraph Agent | Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo. | 2026-06-04 |
@@ -45,7 +45,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/registry-sync.md | Registry Sync | Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries. | 2026-06-04 |
 | ./frontend/sandbox-agent.md | Sandbox Agent | Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo. | 2026-06-03 |
 | ./frontend/shadcn-registry-distribution.md | shadcn Registry Distribution | Durable rules for packaging Agent Demos as shadcn registry items. | 2026-06-04 |
-| ./frontend/site-usage-gate.md | Site Usage Gate | Product-language boundary for the published demo website's visitor usage limits and invitation-code upgrades. | 2026-06-03 |
+| ./frontend/site-usage-gate.md | Site Usage Gate | Visitor credit allowance, resource pricing, atomic spending, and homepage balance UI for the published demo website. | 2026-09-21 |
 | ./frontend/skills-agent.md | Skills Agent | Stable source-core, sandbox lifecycle, runtime toolchain, and UI conventions for the shipped skills-agent demo. | 2026-06-03 |
 | ./frontend/system-status-pages.md | System Status Pages | Durable conventions for branded app-level error, global-error, 404, and client exception reporting surfaces. | 2026-08-17 |
 | ./frontend/trace-eval-agent.md | Trace and Eval Agent | Stable research-agent, product trace-panel, and eval-pipeline conventions for the trace-eval-agent demo. | 2026-06-12 |

@@ -1,130 +1,71 @@
 ---
 title: Site Usage Gate
-description: Product-language boundary for the published demo website's visitor usage limits and invitation-code upgrades.
-updateAt: 2026-06-03
+description: Visitor credit allowance, resource pricing, atomic spending, and homepage balance UI for the published demo website.
+updateAt: 2026-09-21
 ---
 
 # Site Usage Gate
 
 ## Scope
 
-- Covers the site-level usage gate for the published demo website.
-- Covers the product language for visitor-scoped metering, default trial limits, and invitation-code upgrades.
-- Covers the limit dialog and support-waitlist UI shown after a visitor reaches the active allowance.
-- Covers the boundary that keeps site usage gating out of shadcn registry distribution.
+- Published-site visitor credits, invitation-code policies, and the homepage balance control.
+- Host-owned pricing stays outside registry copies. This is an application allowance; there is no checkout, purchased balance, or payment integration.
 
 ## Domain Language
 
-- **Site Usage Gate**: The published website's lightweight control point that limits model-backed demo usage for a **Site Visitor Owner**.
-  _Avoid_: Billing system, authentication system, registry feature
+- **Site Visitor Owner**: A browser identified by the `site_visitor_id` HTTP-only cookie, separate from individual demos' owner cookies.
+- **Demo Credit**: One unit of the visitor's shared recurring allowance.
+- **Usage Event**: One consumed credit, including the demo, operation, and timestamp. A five-credit operation inserts five rows in one transaction.
+- **Usage Access Code**: An operator-configured recurring allowance upgrade; visitor-facing wording is "Invite code".
 
-- **Metered Agent Turn**: A user-initiated action that asks an **Agent Demo** to generate or regenerate model-backed output and consumes one site-level usage unit.
-  _Avoid_: Token, API call, tool step, raw message row
+## Allowance and pricing
 
-- **Daily Trial Allowance**: The default site-level allowance granted to a **Site Visitor Owner** for one UTC calendar day.
-  _Avoid_: Subscription quota, billing period, rolling window
+- The default is 50 credits per UTC calendar day. Unused credits do not accumulate.
+- Existing events each count as one credit. No schema migration or history rewrite is required.
+- Prices live together in `apps/web/features/site-usage-gate/pricing.ts`:
+  - Each metered message/action or manual workflow request costs 1 credit.
+  - Each executed image generation adds 5 credits.
+  - Each executed Canvas text generation node adds 1 credit.
+  - Each RAG retrieval adds 1 credit, including retrieval through Ultra Chatbot.
+  - Each newly created shared Vercel Sandbox adds 4 credits. Reusing an existing sandbox does not incur another startup charge.
+- A message generating one image therefore costs 6 credits. Two generated images cost 11 credits. Workflow costs follow executed nodes, including internal agent tool execution.
+- Reused outputs, graph edits, material/output nodes, and GIF assembly do not add resource credits. An agent message requesting edits still incurs its message credit; a manual run still incurs its request credit.
+- Automatic provider retries inside a logical generation do not incur another resource charge. Starting a new user-requested attempt does.
+- These are application prices, not provider token or dollar accounting. Hosted search, Realtime duration, uploads, and storage do not have separate credit prices in this version; existing metered entrypoints still charge their base credit.
 
-- **Usage Access Code**: The internal domain name for an operator-provided proof string that upgrades a **Site Visitor Owner** from the default allowance to a configured usage policy. Visitor-facing UI calls it "Invite code".
-  _Avoid_: One-time top-up, marketing invite, password
+## Enforcement
 
-- **Usage Policy**: The configured recurring allowance attached to a redeemed **Usage Access Code**, such as 100 **Metered Agent Turns** every 5 hours.
-  _Avoid_: Paid tier, hard-coded plan, temporary bonus pack
+- `server/route-wrapper.ts` reserves the base credit before entering the handler. Validation/setup errors returned before streaming refund this base reservation. Resource attempts already started retain their charge.
+- `server/store.ts` locks the visitor row inside a Postgres transaction, resolves the live invitation policy, checks the current window, and inserts all credits for the operation atomically. Requests for the same visitor cannot spend the same balance concurrently.
+- Resource costs are reserved immediately before the provider call. Insufficient balance prevents that operation from starting. Provider failures after reservation retain the resource charge.
+- Operations in a workflow reserve independently. If a later node cannot be funded, completed outputs remain usable; the next expensive operation is blocked. Whole-workflow prepayment is not implemented.
+- Pre-stream denials return structured `SITE_USAGE_LIMIT_EXCEEDED` HTTP 429 with required credits, remaining credits, and reset time. Denials inside an active stream use the tool/node error path; Canvas and Image Workflow retain the credit error as user-facing node feedback.
+- The portable `shared/resource-usage/server/context.ts` execution hook uses request-scoped async context to carry an optional host observer into streamed tools. Without a host observer, demos run normally. Demos do not import site pricing, storage, or dialogs.
+- Cookie identity remains browser-scoped. Clearing cookies obtains a new allowance. Per-IP limits and a global site spending cap are not implemented.
+- `site_usage_events` retains the shared seven-day Demo Data Retention Window through the existing cleanup cron. Visitor, access-code, and waitlist tables retain their existing responsibilities.
 
-- **Usage Event**: The durable record that one **Site Visitor Owner** successfully consumed one **Metered Agent Turn**.
-  _Avoid_: Cached counter, chat message, billing invoice
+## Homepage and limit UI
 
-- **Published-Site Host Augmentation**: Site-owned route or UI wiring that applies only to this published demo website and stays outside each **Agent Demo** **Copy Boundary**.
-  _Avoid_: Demo runtime dependency, registry item feature, global middleware
+- `ui/credit-balance-button.tsx` is mounted only by `apps/web/app/page.tsx`, alongside homepage actions. No always-visible balance button appears in demo workspaces.
+- The button contains a coin icon and current balance. Its popover shows remaining/total credits, the local reset time or rolling-window explanation, prices, and generation-attempt semantics.
+- `/api/site-usage/balance` creates/reuses the visitor cookie and returns live database balance and the shared price list with `Cache-Control: private, no-store`.
+- Refresh on mount, window focus, popover open, invite-code redemption, and the next scheduled credit reset. Loading and fetch errors must not display a fabricated balance.
+- The existing app-shell limit dialog remains available across demo routes and Project Guide Companion, but opens only after a structured 429. It offers the waitlist and invite-code entry.
+- The waitlist remains separate from credit accounting. No payment is collected.
 
-- **Metered Demo Route Module**: The host-only route-entry composer in `apps/web/features/site-usage-gate/server/metered-demo-route.ts` that combines the **Site Usage Gate**, optional demo **Visitor Owner Route Module** adapter, and demo runtime handler.
-  _Avoid_: Registry runtime dependency, demo feature module, global middleware
+## Invitation policy
 
-- **Usage Limit Dialog**: A shadcn Dialog shown only after the **Site Usage Gate** rejects a **Metered Agent Turn** because the active allowance is exhausted.
-  _Avoid_: Always-visible upgrade prompt, demo-local modal, paywall
+- Codes are matched case-insensitively, and each visitor has at most one active binding. A new valid code replaces the old binding.
+- Resolve the code's enabled state and allowance live at spending time. Disabled codes return the visitor to the default daily allowance.
+- Existing configured policies are preserved. The original target was 100 credits in a rolling five-hour window; actual values come from the database.
+- Rolling-policy denial times account for the number of credits needed by the requested operation.
+- Never put live invitation codes into source, tests, docs, screenshots, or logs.
 
-- **Support Waitlist Entry**: Visitor-submitted waitlist entry from the **Usage Limit Dialog** that records whether the visitor would consider paying for more access, optionally with a message.
-  _Avoid_: Generic feedback, payment, subscription, usage event, invite-code redemption
+## Verification
 
-## Current Subdomain Docs
-
-- The first **Site Usage Gate** version is for this published demo website only. It must stay outside `registry/*` and any **Agent Demo** **Copy Boundary**.
-- **Site Usage Gate** implementation should live under `apps/web/features/site-usage-gate/*` as a **Published-Site Host Augmentation**.
-- `apps/web/app/api/demos/*` route entries may import **Site Usage Gate** server helpers to wrap model-backed demo requests for the published website.
-- Metered demo API route entries should use the **Metered Demo Route Module** rather than calling the lower-level database-backed route handler directly.
-- Visitor-owned metered routes should use `createVisitorOwnedMeteredDemoRoute` so the **Site Usage Gate** rejects exhausted visitors before demo visitor ownership is resolved, and successful responses keep both the demo visitor cookie and the site visitor cookie.
-- **Agent Demo** feature slices under `apps/web/features/<demo-slug>/` must not import **Site Usage Gate** modules.
-- Registry source files under `registry/*` must not import **Site Usage Gate** modules or include invite-code UI.
-- Demo runtime handlers should remain usable without the **Site Usage Gate** so registry copies can call the same demo behavior directly.
-- The **Usage Limit Dialog** should live in app-shell or `apps/web/features/site-usage-gate/ui` code. Do not embed invite-code redemption UI inside individual demo workspace components or demo chat hooks.
-- The **Usage Limit Dialog** should open only after a structured limit response from the **Site Usage Gate**. It should not appear preemptively while the visitor still has allowance.
-- The first dialog view should tell the visitor the active allowance is exhausted and show the reset time converted to the visitor's local time zone.
-- The reset time should come from the server response, preferably as an ISO timestamp. The client may format it with the browser locale, but should not recompute the active usage window.
-- The first dialog view's primary action should be a support-waitlist action labeled "Join waitlist", with invite-code redemption kept as the secondary path. The dismissal action should use a short English label such as "Maybe later".
-- The support-waitlist action opens a secondary view that asks whether the visitor would actually need a paid plan with higher message limits.
-- The support-waitlist secondary view should frame the paid access question as a waitlist and feedback collection flow, not as a donation or tip request.
-- The support-waitlist secondary view should include an optional message field labeled `Message (optional)` with the optional suffix visually subdued, and one primary submit action labeled "Join waitlist". Do not add a secondary dismissal button inside this secondary view; the dialog close button already provides exit.
-- The support-waitlist primary action should submit a **Support Waitlist Entry**.
-- Invite-code redemption should be a secondary path opened through a link-style button from the first dialog view.
-- The invite-code secondary view should let the visitor enter a **Usage Access Code** to upgrade future allowance. The link, title, and label should use "Invite code" for visitors while the site is English-only.
-- The invite-code secondary view should explain that a valid code upgrades the quota to 100 messages every 5 hours in the first version.
-- Visitor input for invite codes should be normalized to uppercase in the UI, and server-side redemption should treat code matching as case-insensitive.
-- Successful **Usage Access Code** redemption should refresh the visitor's effective **Usage Policy** and close or reset the **Usage Limit Dialog**. Invalid codes should show an inline error in the invite-code view.
-- **Support Waitlist Entry** should not be stored as a **Usage Event**.
-- Do not use global Next.js middleware for the first version. Metering belongs at explicit model-backed demo route entries so non-metered endpoints such as session lookup, upload, records, MCP, and history routes are not accidentally charged.
-- A **Site Visitor Owner** starts with a **Daily Trial Allowance** of 50 **Metered Agent Turns** per UTC calendar day.
-- A **Metered Agent Turn** is counted when a visitor sends a message, submits an edited message, requests generated suggestions, or resends output.
-- A **Metered Agent Turn** counts once even when the **Agent Demo** performs multiple internal model calls or tool steps.
-- Invalid request bodies, missing environment setup, and usage-gate rejections should not consume a **Metered Agent Turn**.
-- A **Usage Access Code** is an identity proof for a more generous usage class, not a one-time quota pack.
-- Redeeming a **Usage Access Code** upgrades the **Site Visitor Owner** so future usage follows the code's configured **Usage Policy**.
-- A redeemed **Usage Access Code** should resolve its **Usage Policy** live when usage is checked. Operator changes to the code's configured allowance or enabled state apply to already-upgraded **Site Visitor Owners**.
-- The first upgraded **Usage Policy** target is 100 **Metered Agent Turns** every 5 hours.
-- **Usage Access Codes** are configurable operator-owned records and may define different upper limits later.
-- Do not record live **Usage Access Code** values in docs, UI placeholders, tests, fixtures, examples, screenshots, or logs. Use synthetic examples such as `YOUR-CODE` or `DEMO-CODE`.
-- **Usage Access Codes** may be stored in operator-visible form in the first version. If a code leaks, the operator should disable or replace that code instead of treating it as a high-security secret.
-- A **Site Visitor Owner** has at most one active **Usage Access Code** binding. Redeeming a new valid code replaces the previous binding.
-- First-version usage accounting persistence should use three Postgres tables: site visitors, access codes, and usage events.
-- The site visitor record owns the current active **Usage Access Code** binding for one **Site Visitor Owner**.
-- The **Usage Access Code** record owns the operator-configured **Usage Policy**.
-- The usage-event record is the source of truth for consumed **Metered Agent Turns**. Future counters or rollups may be added only as derived caches.
-- First-version support-waitlist persistence should use a separate Postgres table named `site_usage_waitlist_entries`.
-- `site_usage_waitlist_entries` should store the **Site Visitor Owner**, triggering demo slug when available, optional visitor message, willingness-to-pay/support intent value, and creation time.
-- `site_usage_waitlist_entries` must not be read by allowance checks, usage-window calculation, or invite-code redemption.
-- Future generic feedback should use a separate feedback domain and table, for example `site_feedback_entries`, rather than reusing `site_usage_waitlist_entries`.
-- Usage events should be retained for the shared 7-day Demo Data Retention Window, aligning the usage gate with the repository's short-lived visitor-data cleanup posture.
-- The route wrapper should check active allowance before invoking a demo handler, then create the **Usage Event** only after the handler produces a successful model-backed response. Returned validation and environment errors should not consume usage.
-- Once a successful model-backed response has been created and the **Usage Event** has been recorded, provider failures, streaming failures, or tool-loop failures do not roll the usage event back.
-- First-version enforcement is best-effort and may allow small concurrent overages. Do not add transaction locks, serializable isolation, or window counter tables until real traffic proves they are needed.
-
-## Implementation Map
-
-- Host-only feature code lives in `apps/web/features/site-usage-gate/*`.
-- Database schema lives in `packages/database/src/schemas/site-usage.ts` and is applied through Drizzle migration `packages/database/drizzle/0005_lonely_preak.sql`.
-- Persistence uses `site_usage_visitors`, `site_usage_access_codes`, `site_usage_events`, and `site_usage_waitlist_entries`.
-- The visitor cookie is `site_visitor_id`. It identifies the **Site Visitor Owner** for this published website and is separate from demo-specific visitor cookies such as persistent-agent and customer-memory cookies.
-- `apps/web/features/site-usage-gate/server/route-wrapper.ts` owns the allowance check and post-success usage-event creation contract.
-- `apps/web/features/site-usage-gate/server/metered-demo-route.ts` owns host-only published-site demo route composition for model-backed route entries.
-- `apps/web/features/site-usage-gate/server/route-handler.ts` is the lower-level database-backed metering entry used by the **Metered Demo Route Module**.
-- Site visitor cookie mechanics reuse `apps/web/features/shared/visitor-owner/server/route-owner.ts`, but the **Site Visitor Owner** policy remains site-owned and separate from demo-specific visitor owners.
-- Invite-code redemption is handled by `apps/web/app/api/site-usage/access-code/route.ts`; the route name stays `access-code` because **Usage Access Code** is the internal domain term.
-- Support-waitlist submission is handled by `apps/web/app/api/site-usage/waitlist/route.ts`.
-- Usage-event cleanup is handled by `apps/web/app/api/cron/site-usage-cleanup/route.ts` and scheduled from `vercel.json` with the same UTC cadence as the other visitor-data cleanup jobs.
-- The app-shell **Usage Limit Dialog** lives in `apps/web/features/site-usage-gate/ui/site-usage-gate-provider.tsx` and is mounted from `apps/web/app/layout.tsx`.
-- The dialog opens by observing structured `SITE_USAGE_LIMIT_EXCEEDED` 429 responses from `/api/demos/*` requests. Demo workspace components and registry source do not import the site-usage UI.
-- Generated suggestions are counted through the chat turn that invokes the suggestion-generation tool. The read-only ultra-chatbot suggestions `GET` route is not wrapped.
-
-## Flagged Ambiguities
-
-- "Access code" reads too technical for visitors. Resolved: use "Invite code" in the English-only dialog while keeping **Usage Access Code** as the internal domain term for the operator-configured policy binding. Localized labels can be introduced when the site gets i18n.
-- The support-waitlist prompt can look like a donation request if it asks whether users want to "support" the app. Resolved: describe it as feedback for deciding whether to launch paid higher limits.
-- "100 turns for 5 hours" can mean a temporary pack. Resolved: after redemption, it is a recurring **Usage Policy** for that **Site Visitor Owner**.
-- "Waitlist" can sound like payment or checkout. Resolved: use **Support Waitlist Entry** for first-version willingness-to-pay collection without payment processing.
-- **Support Waitlist Entry** can look related to usage because it appears inside the **Usage Limit Dialog**. Resolved: persist it in `site_usage_waitlist_entries`, separate from **Usage Event** accounting.
-- "Feedback" can mean general product feedback, bug reports, or qualitative comments. Resolved: do not use feedback naming for the first-version waitlist table.
+- Unit contracts cover weighted operations, insufficient balance before provider execution, validation refunds, and resource charging after stream headers return.
+- `SITE_USAGE_DATABASE_INTEGRATION=1 pnpm test:integration -- features/site-usage-gate/server/store.integration.test.ts` exercises concurrent reservations and refunds against the configured database. It uses a unique synthetic visitor and deletes only its own visitor and cascading event rows.
 
 ## Update Triggers
 
-- Update this file when the default allowance changes.
-- Update this file when **Metered Agent Turn** counting rules change.
-- Update this file when invite-code redemption, policy configuration, or registry-boundary rules change.
-- Update this file when **Usage Limit Dialog** copy, actions, or support-waitlist persistence changes.
+- Update this file when prices, counted resources, reservation/refund semantics, visitor identity, or the homepage balance interface changes.

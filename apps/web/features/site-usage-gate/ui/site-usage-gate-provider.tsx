@@ -100,6 +100,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      window.dispatchEvent(new Event("site-credits-changed"));
       setIsOpen(false);
       setAccessCode("");
     } finally {
@@ -146,9 +147,9 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
           {view === "limit" && (
             <>
               <DialogHeader>
-                <DialogTitle>Usage limit reached</DialogTitle>
+                <DialogTitle>Not enough credits</DialogTitle>
                 <DialogDescription>
-                  This visitor has used the current demo quota.
+                  You do not have enough credits for this operation.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-start gap-2 border border-border bg-muted/30 p-3 text-xs">
@@ -203,8 +204,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                 </div>
                 <DialogTitle>Invite code</DialogTitle>
                 <DialogDescription>
-                  Use this code to upgrade your quota to 100 messages every 5
-                  hours.
+                  Use an invite code to upgrade your recurring credit allowance.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
@@ -258,8 +258,8 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                 </div>
                 <DialogTitle>Higher limits waitlist</DialogTitle>
                 <DialogDescription>
-                  Tell us whether you would actually need a paid plan with
-                  higher message limits.
+                  Tell us whether you would actually need a paid plan with more
+                  demo credits.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">

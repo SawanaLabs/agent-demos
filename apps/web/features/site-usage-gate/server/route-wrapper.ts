@@ -1,12 +1,15 @@
 import {
-  type SiteUsageGateAction,
-  siteUsageLimitErrorCode as siteUsageLimitErrorCodeValue,
-} from "../contract";
+  ResourceUsageDeniedError,
+  withResourceUsage,
+} from "@/features/shared/resource-usage/server/context";
 import {
-  type ActiveAccessCodePolicy,
-  checkSiteUsageLimit,
-  resolveSiteUsagePolicy,
-} from "./policy";
+  type SiteUsageGateAction,
+  type SiteUsageLimitPayload,
+  siteUsageLimitErrorCode,
+} from "../contract";
+import { messageCreditCost, resourceCreditCosts } from "../pricing";
+import type { CreditBalance } from "./balance";
+import type { ActiveAccessCodePolicy } from "./policy";
 import {
   appendSiteUsageVisitorCookie,
   createSiteUsageVisitorId,
@@ -14,35 +17,46 @@ import {
 } from "./viewer-context";
 
 export interface SiteUsageGateStore {
-  createUsageEvent(input: {
-    action: SiteUsageGateAction;
-    createdAt: Date;
-    demoSlug: string;
+  ensureVisitor(input: {
+    now: Date;
     visitorId: string;
-  }): Promise<void>;
-  ensureVisitor(input: { now: Date; visitorId: string }): Promise<{
-    activeAccessCodePolicy: ActiveAccessCodePolicy | null;
-  }>;
+  }): Promise<{ activeAccessCodePolicy: ActiveAccessCodePolicy | null }>;
   listUsageEventsSince(input: {
     now: Date;
     since: Date;
     visitorId: string;
   }): Promise<Array<{ createdAt: Date }>>;
+  refundCredits(eventIds: string[]): Promise<void>;
+  reserveCredits(input: {
+    action: SiteUsageGateAction;
+    createdAt: Date;
+    demoSlug: string;
+    visitorId: string;
+    units: number;
+  }): Promise<{ balance: CreditBalance; eventIds: string[]; allowed: boolean }>;
 }
 
 export interface SiteUsageGateOptions {
   action: SiteUsageGateAction;
   demoSlug: string;
 }
-
 export type MeteredRouteHandler = () => Promise<Response>;
-
 export interface SiteUsageGate {
   handleMeteredRequest(
     request: Request,
     options: SiteUsageGateOptions,
     handler: MeteredRouteHandler
   ): Promise<Response>;
+}
+
+class CreditLimitError extends ResourceUsageDeniedError {
+  readonly payload: SiteUsageLimitPayload;
+  constructor(payload: SiteUsageLimitPayload) {
+    super(
+      `Not enough demo credits. This operation needs ${payload.requiredUnits} credits; ${payload.policy.remainingUnits} remain. Credits refresh at ${payload.resetAt}.`
+    );
+    this.payload = payload;
+  }
 }
 
 export function createSiteUsageGate({
@@ -56,62 +70,77 @@ export function createSiteUsageGate({
 }): SiteUsageGate {
   return {
     async handleMeteredRequest(request, options, handler) {
-      const now = clock();
       const viewer = resolveSiteUsageViewerContext({
         createVisitorId,
         request,
       });
-      const visitor = await store.ensureVisitor({
-        now,
-        visitorId: viewer.visitorId,
-      });
-      const policy = resolveSiteUsagePolicy({
-        activeAccessCodePolicy: visitor.activeAccessCodePolicy,
-        now,
-      });
-      const events = await store.listUsageEventsSince({
-        now,
-        since: policy.windowStartsAt,
-        visitorId: viewer.visitorId,
-      });
-      const limitCheck = checkSiteUsageLimit({
-        events,
-        now,
-        policy,
-      });
-
-      if (!limitCheck.allowed) {
-        return Response.json(
-          {
-            action: options.action,
-            code: siteUsageLimitErrorCodeValue,
+      let denial: CreditLimitError | undefined;
+      async function reserve(action: SiteUsageGateAction, units: number) {
+        const now = clock();
+        const reservation = await store.reserveCredits({
+          ...options,
+          action,
+          units,
+          visitorId: viewer.visitorId,
+          createdAt: now,
+        });
+        if (!reservation.allowed) {
+          denial = new CreditLimitError({
+            action,
+            code: siteUsageLimitErrorCode,
             demoSlug: options.demoSlug,
-            message: "Daily demo usage limit reached.",
-            policy: {
-              allowanceUnits: policy.allowanceUnits,
-              remainingUnits: 0,
-              scope: policy.scope,
-              windowSeconds: policy.windowSeconds,
-            },
-            resetAt: limitCheck.resetAt.toISOString(),
+            message: "Not enough demo credits.",
+            requiredUnits: units,
+            policy: reservation.balance,
+            resetAt: reservation.balance.resetAt,
             serverTime: now.toISOString(),
-          },
-          { status: 429 }
+          });
+          throw denial;
+        }
+        return reservation.eventIds;
+      }
+      let baseEventIds: string[] = [];
+      let response: Response;
+      try {
+        baseEventIds = await reserve(options.action, messageCreditCost);
+        response = await withResourceUsage(async (operation) => {
+          await reserve(operation, resourceCreditCosts[operation]);
+        }, handler);
+      } catch (error) {
+        await store.refundCredits(baseEventIds);
+        if (!denial) {
+          throw error;
+        }
+        return appendSiteUsageVisitorCookie(
+          creditDenialResponse(denial, baseEventIds.length),
+          viewer
         );
       }
-
-      const response = await handler();
-
-      if (response.ok) {
-        await store.createUsageEvent({
-          action: options.action,
-          createdAt: now,
-          demoSlug: options.demoSlug,
-          visitorId: viewer.visitorId,
-        });
+      if (!response.ok) {
+        await store.refundCredits(baseEventIds);
+        if (denial) {
+          response = creditDenialResponse(denial, baseEventIds.length);
+        }
       }
-
       return appendSiteUsageVisitorCookie(response, viewer);
     },
   };
+}
+
+function creditDenialResponse(error: CreditLimitError, refundedUnits: number) {
+  const payload = error.payload;
+  return Response.json(
+    {
+      ...payload,
+      requiredUnits: (payload.requiredUnits ?? 0) + refundedUnits,
+      policy: {
+        ...payload.policy,
+        remainingUnits: Math.min(
+          payload.policy.allowanceUnits,
+          payload.policy.remainingUnits + refundedUnits
+        ),
+      },
+    },
+    { status: 429 }
+  );
 }

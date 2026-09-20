@@ -1,131 +1,136 @@
 import { describe, expect, it, vi } from "vitest";
-import { siteUsageLimitErrorCode } from "../contract";
+import { consumeResource } from "@/features/shared/resource-usage/server/context";
+import { creditBalance } from "./balance";
+import { resolveSiteUsagePolicy } from "./policy";
 import { createSiteUsageGate, type SiteUsageGateStore } from "./route-wrapper";
-import { siteUsageVisitorCookieName } from "./viewer-context";
 
 const now = new Date("2026-05-29T10:00:00.000Z");
-
-function createStore(
-  events: Date[] = [],
-  policy: { allowanceUnits: number; windowSeconds?: number } = {
-    allowanceUnits: 50,
-  }
-) {
-  const calls: string[] = [];
-  const usageEvents = [...events];
+function fixture(used = 0) {
+  const events = new Map(
+    Array.from({ length: used }, (_, i) => [`existing-${i}`, now])
+  );
   const store: SiteUsageGateStore = {
-    async createUsageEvent() {
-      calls.push("usage-event");
-      usageEvents.push(now);
-    },
     async ensureVisitor() {
+      return { activeAccessCodePolicy: null };
+    },
+    async listUsageEventsSince() {
+      return [...events.values()].map((createdAt) => ({ createdAt }));
+    },
+    async reserveCredits({ units }) {
+      const balance = creditBalance(
+        resolveSiteUsagePolicy({ now, activeAccessCodePolicy: null }),
+        [...events.values()].map((createdAt) => ({ createdAt }))
+      );
+      if (balance.remainingUnits < units) {
+        return { allowed: false, balance, eventIds: [] };
+      }
+      const eventIds = Array.from({ length: units }, () => crypto.randomUUID());
+      for (const id of eventIds) {
+        events.set(id, now);
+      }
       return {
-        activeAccessCodePolicy:
-          policy.windowSeconds === undefined
-            ? null
-            : {
-                allowanceUnits: policy.allowanceUnits,
-                windowSeconds: policy.windowSeconds,
-              },
+        allowed: true,
+        balance: { ...balance, remainingUnits: balance.remainingUnits - units },
+        eventIds,
       };
     },
-    async listUsageEventsSince({ since }) {
-      return usageEvents
-        .filter((event) => event.getTime() >= since.getTime())
-        .map((createdAt) => ({ createdAt }));
+    async refundCredits(ids) {
+      for (const id of ids) {
+        events.delete(id);
+      }
     },
   };
-
-  return { calls, store, usageEvents };
+  const gate = createSiteUsageGate({ clock: () => now, store });
+  const request = new Request("http://localhost/api/demos/canvas-agent");
+  const run = (handler: () => Promise<Response>) =>
+    gate.handleMeteredRequest(
+      request,
+      { action: "send_message", demoSlug: "canvas-agent" },
+      handler
+    );
+  return { events, run };
 }
 
-describe("site usage gate route wrapper", () => {
-  it("returns structured 429 and does not call the handler when the visitor is out of quota", async () => {
-    const { calls, store } = createStore(
-      Array.from({ length: 50 }, (_, index) => {
-        const event = new Date("2026-05-29T00:00:00.000Z");
-        event.setUTCMinutes(index);
-        return event;
-      })
-    );
-    const gate = createSiteUsageGate({ clock: () => now, store });
-    const handler = vi.fn(async () => Response.json({ ok: true }));
-
-    const response = await gate.handleMeteredRequest(
-      new Request("http://localhost/api/demos/foundation-chat", {
-        headers: {
-          cookie: `${siteUsageVisitorCookieName}=visitor-1`,
-        },
-        method: "POST",
-      }),
-      {
-        action: "send_message",
-        demoSlug: "foundation-chat",
-      },
-      handler
-    );
-
-    expect(response.status).toBe(429);
-    await expect(response.json()).resolves.toMatchObject({
-      code: siteUsageLimitErrorCode,
-      policy: {
-        allowanceUnits: 50,
-      },
-      resetAt: "2026-05-30T00:00:00.000Z",
-    });
-    expect(handler).not.toHaveBeenCalled();
-    expect(calls).toEqual([]);
-  });
-
-  it("records usage only after a successful handler response", async () => {
-    const { calls, store } = createStore();
-    const gate = createSiteUsageGate({
-      clock: () => now,
-      createVisitorId: () => "visitor-new",
-      store,
-    });
-    const handler = vi.fn(async () => {
-      calls.push("handler");
+describe("credit gate", () => {
+  it("charges 1 for a message and 5 per image in the same workflow", async () => {
+    const { events, run } = fixture();
+    await run(async () => {
+      expect(events.size).toBe(1);
+      await consumeResource("image_generation");
+      await consumeResource("image_generation");
       return Response.json({ ok: true });
     });
-
-    const response = await gate.handleMeteredRequest(
-      new Request("http://localhost/api/demos/foundation-chat", {
-        method: "POST",
-      }),
-      {
-        action: "send_message",
-        demoSlug: "foundation-chat",
-      },
-      handler
-    );
-
-    expect(response.status).toBe(200);
-    expect(calls).toEqual(["handler", "usage-event"]);
-    expect(response.headers.get("set-cookie")).toContain(
-      `${siteUsageVisitorCookieName}=visitor-new`
-    );
+    expect(events.size).toBe(11);
   });
-
-  it("does not record usage when the handler returns a validation error", async () => {
-    const { calls, store } = createStore();
-    const gate = createSiteUsageGate({ clock: () => now, store });
-
-    const response = await gate.handleMeteredRequest(
-      new Request("http://localhost/api/demos/foundation-chat", {
-        headers: {
-          cookie: `${siteUsageVisitorCookieName}=visitor-1`,
-        },
-        method: "POST",
-      }),
-      {
-        action: "send_message",
-        demoSlug: "foundation-chat",
-      },
-      async () => new Response("bad request", { status: 400 })
+  it("rejects an operation before executing it when remaining credits cannot cover its cost", async () => {
+    const { events, run } = fixture(46);
+    const provider = vi.fn();
+    const response = await run(async () => {
+      await consumeResource("image_generation");
+      provider();
+      return Response.json({ ok: true });
+    });
+    expect(response.status).toBe(429);
+    expect(provider).not.toHaveBeenCalled();
+    expect(events.size).toBe(46);
+    expect(await response.json()).toMatchObject({
+      requiredUnits: 6,
+      policy: { remainingUnits: 4 },
+      resetAt: "2026-05-30T00:00:00.000Z",
+    });
+  });
+  it("blocks exhausted visitors before entering the demo", async () => {
+    const { run } = fixture(50);
+    const handler = vi.fn();
+    expect((await run(handler)).status).toBe(429);
+    expect(handler).not.toHaveBeenCalled();
+  });
+  it("refunds invalid requests and keeps the visitor cookie", async () => {
+    const { events, run } = fixture();
+    const response = await run(
+      async () => new Response("Invalid", { status: 400 })
     );
-
-    expect(response.status).toBe(400);
-    expect(calls).toEqual([]);
+    expect(events.size).toBe(0);
+    expect(response.headers.get("set-cookie")).toContain("site_visitor_id=");
+  });
+  it("keeps charging and enforcing the budget after streaming headers have returned", async () => {
+    const { run, events } = fixture(43);
+    let proceed: () => void = () => undefined;
+    const ready = new Promise<void>((resolve) => {
+      proceed = resolve;
+    });
+    const response = await run(
+      async () =>
+        new Response(
+          new ReadableStream({
+            async start(controller) {
+              await ready;
+              await consumeResource("image_generation");
+              try {
+                await consumeResource("image_generation");
+                controller.enqueue("unexpected");
+              } catch (error) {
+                controller.enqueue(
+                  new TextEncoder().encode((error as Error).message)
+                );
+              }
+              controller.close();
+            },
+          })
+        )
+    );
+    proceed();
+    expect(await response.text()).toContain("Not enough demo credits");
+    expect(events.size).toBe(49);
+  });
+  it("charges resource prices for RAG, Sandbox and workflow text", async () => {
+    const { events, run } = fixture();
+    await run(async () => {
+      await consumeResource("rag_search");
+      await consumeResource("sandbox_start");
+      await consumeResource("text_generation");
+      return Response.json({ ok: true });
+    });
+    expect(events.size).toBe(7);
   });
 });

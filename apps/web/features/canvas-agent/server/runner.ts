@@ -1,6 +1,10 @@
 import { generateImage, generateText } from "ai";
 import sharp from "sharp";
 import {
+  consumeResource,
+  ResourceUsageDeniedError,
+} from "@/features/shared/resource-usage/server/context";
+import {
   type CanvasGraph,
   type CanvasNode,
   type CanvasOutput,
@@ -98,6 +102,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
       "16:9": "1536x864",
       "9:16": "864x1536",
     } as const;
+    await consumeResource("image_generation");
     const result = await generateImage({
       model: models.image,
       prompt: images.length ? { text, images } : text,
@@ -110,6 +115,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
       image: `data:${result.image.mediaType};base64,${result.image.base64}`,
     };
   }
+  await consumeResource("text_generation");
   const result = await generateText({
     model: models.text,
     providerOptions: CANVAS_TEXT_PROVIDER_OPTIONS,
@@ -183,10 +189,7 @@ export async function runGraph(
       if (signal?.aborted) {
         throw error;
       }
-      const message =
-        node.kind === "gif"
-          ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"
-          : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。";
+      const message = publicNodeFailure(error, node.kind);
       const failure = new CanvasNodeError(id, message, { cause: error });
       reportFailure(onFailure, failure, node.kind);
       fail(failure);
@@ -227,4 +230,13 @@ function inputError(graph: CanvasGraph, node: CanvasNode) {
     return `请填写「${node.label}」的提示词。`;
   }
   return;
+}
+
+function publicNodeFailure(error: unknown, kind: CanvasNode["kind"]) {
+  if (error instanceof ResourceUsageDeniedError) {
+    return error.message;
+  }
+  return kind === "gif"
+    ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"
+    : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。";
 }

@@ -18,21 +18,6 @@ export interface ResolvedSiteUsagePolicy {
   windowStartsAt: Date;
 }
 
-export interface SiteUsageEventSnapshot {
-  createdAt: Date;
-}
-
-export type SiteUsageLimitCheck =
-  | {
-      allowed: true;
-      remainingUnits: number;
-    }
-  | {
-      allowed: false;
-      resetAt: Date;
-      remainingUnits: 0;
-    };
-
 export function resolveSiteUsagePolicy({
   activeAccessCodePolicy,
   now,
@@ -69,46 +54,5 @@ export function resolveSiteUsagePolicy({
     scope: "default_daily",
     windowSeconds: secondsPerDay,
     windowStartsAt,
-  };
-}
-
-export function checkSiteUsageLimit({
-  events,
-  now,
-  policy,
-}: {
-  events: SiteUsageEventSnapshot[];
-  now: Date;
-  policy: ResolvedSiteUsagePolicy;
-}): SiteUsageLimitCheck {
-  if (events.length < policy.allowanceUnits) {
-    return {
-      allowed: true,
-      remainingUnits: policy.allowanceUnits - events.length,
-    };
-  }
-
-  if (policy.scope === "access_code") {
-    const [oldestEvent] = [...events].sort(
-      (left, right) => left.createdAt.getTime() - right.createdAt.getTime()
-    );
-    const resetAt = oldestEvent
-      ? new Date(
-          oldestEvent.createdAt.getTime() +
-            policy.windowSeconds * millisecondsPerSecond
-        )
-      : policy.resetAt;
-
-    return {
-      allowed: false,
-      remainingUnits: 0,
-      resetAt: resetAt > now ? resetAt : now,
-    };
-  }
-
-  return {
-    allowed: false,
-    remainingUnits: 0,
-    resetAt: policy.resetAt,
   };
 }

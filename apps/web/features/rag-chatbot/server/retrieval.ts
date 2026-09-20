@@ -1,5 +1,6 @@
 import { embed } from "ai";
 import { and, cosineDistance, desc, eq, gt, sql } from "drizzle-orm";
+import { consumeResource } from "@/features/shared/resource-usage/server/context";
 
 import {
   loadRagChatbotDatabase,
@@ -168,6 +169,7 @@ export async function findRelevantContent(
 
   await ensureKnowledgeBaseReady(env);
 
+  await consumeResource("rag_search");
   const queryEmbedding = await dependencies.generateEmbedding(
     normalizedQuery,
     env

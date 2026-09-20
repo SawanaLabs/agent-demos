@@ -4,6 +4,7 @@ import path, { posix as posixPath } from "node:path";
 import { Sandbox } from "@vercel/sandbox";
 import { env as appEnv } from "@/env";
 import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
+import { consumeResource } from "@/features/shared/resource-usage/server/context";
 import {
   getVercelSandboxSetupState,
   getVercelSandboxTokenCredentials,
@@ -218,6 +219,7 @@ export async function createVercelSandbox(
       await sandbox.update(lifecycleOptions);
       return sandbox as unknown as VercelSandboxHandle;
     } catch {
+      await consumeResource("sandbox_start");
       return (await Sandbox.create(
         baseOptions as Parameters<typeof Sandbox.create>[0]
       )) as unknown as VercelSandboxHandle;
@@ -236,6 +238,7 @@ export async function createVercelSandbox(
     await sandbox.update(lifecycleOptions);
     return sandbox as unknown as VercelSandboxHandle;
   } catch {
+    await consumeResource("sandbox_start");
     return (await Sandbox.create({
       ...baseOptions,
       projectId: tokenCredentials.projectId,

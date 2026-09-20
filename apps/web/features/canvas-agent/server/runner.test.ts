@@ -1,5 +1,9 @@
 import { generateImage, generateText } from "ai";
 import { afterEach, assert, expect, it, vi } from "vitest";
+import {
+  ResourceUsageDeniedError,
+  withResourceUsage,
+} from "@/features/shared/resource-usage/server/context";
 import { initialGraph } from "../model/graph";
 import { generateNode, runGraph } from "./runner";
 
@@ -88,4 +92,18 @@ it("uses Luna medium for text nodes and respects the configured model", async ()
       providerOptions: { openai: { reasoningEffort: "medium" } },
     });
   }
+});
+
+it("blocks image generation before the provider call when the host denies credits", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  const node = initialGraph().nodes[1];
+  assert(node);
+  const charge = vi.fn(async () => {
+    throw new ResourceUsageDeniedError("Not enough demo credits.");
+  });
+  await expect(
+    withResourceUsage(charge, () => generateNode(node, []))
+  ).rejects.toThrow("Not enough demo credits.");
+  expect(charge).toHaveBeenCalledWith("image_generation");
+  expect(generateImage).not.toHaveBeenCalled();
 });

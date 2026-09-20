@@ -32,6 +32,7 @@ import {
   registryGuideConfig,
   registryGuideUrl,
 } from "@/features/registry-guide/registry-guide-data";
+import { CreditBalanceButton } from "@/features/site-usage-gate/ui/credit-balance-button";
 
 export const metadata: Metadata = {
   description:
@@ -293,6 +294,7 @@ export default function Page() {
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <RandomDemoButton destinations={randomDemoDestinations} />
+              <CreditBalanceButton />
               <Link
                 aria-label="Open Agent Demos GitHub repository"
                 className={cn(

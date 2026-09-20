@@ -117,10 +117,10 @@ export function useCanvasNodes(
           },
         ];
       }
-      const result = graph.outputs[node.id]?.image;
+      const result = graph.outputs[node.id];
       return [
         item,
-        ...(node.kind === "image" && result
+        ...(hasResult(graph, node.id) && result
           ? [
               {
                 id: resultId(node.id),
@@ -129,7 +129,7 @@ export function useCanvasNodes(
                 deletable: false,
                 data: {
                   label: node.label,
-                  image: result,
+                  content: result,
                   busy: c.busy,
                   continueFrom: item.data.continueFrom,
                 },

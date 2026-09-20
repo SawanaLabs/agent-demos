@@ -153,7 +153,7 @@ export function createNode(
       image: "生成图片",
       reference: "图片素材",
       prompt: "文本素材",
-      output: "输出",
+      output: "预览输出",
     }[kind],
     prompt: "",
     aspectRatio: "16:9",

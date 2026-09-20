@@ -5,13 +5,14 @@ import {
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
 import { Button } from "@workspace/ui/components/button";
-import Image from "next/image";
+import type { CanvasOutput } from "../model/graph";
+import { CanvasContent } from "./canvas-content";
 import styles from "./canvas-node.module.css";
 
 export interface CanvasResultData extends Record<string, unknown> {
   busy: boolean;
+  content: CanvasOutput;
   continueFrom: () => void;
-  image: string;
   label: string;
 }
 
@@ -25,22 +26,8 @@ export function CanvasResultView({ data }: { data: CanvasResultData }) {
         <p className="font-medium text-sm">{data.label} · 生成结果</p>
       </NodeHeader>
       <NodeContent className="space-y-3">
-        <Image
-          alt={`${data.label}生成结果`}
-          className="nodrag max-h-80 w-full rounded-sm object-contain"
-          height={280}
-          src={data.image}
-          unoptimized
-          width={264}
-        />
-        <div className="flex items-center justify-between gap-2">
-          <a
-            className="nodrag text-xs underline"
-            download={`${data.label}.png`}
-            href={data.image}
-          >
-            下载图片
-          </a>
+        <CanvasContent content={data.content} label={data.label} />
+        <div className="flex justify-end">
           <Button
             className="nodrag"
             disabled={data.busy}

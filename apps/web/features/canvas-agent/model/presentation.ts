@@ -32,8 +32,9 @@ export function availableResultPosition(graph: CanvasGraph, node: CanvasNode) {
 }
 
 export const hasResult = (graph: CanvasGraph, id: string) =>
-  graph.nodes.some((node) => node.id === id && node.kind === "image") &&
-  Boolean(graph.outputs[id]?.image);
+  graph.nodes.some(
+    (node) => node.id === id && ["image", "text"].includes(node.kind)
+  ) && Boolean(graph.outputs[id]?.image || graph.outputs[id]?.text);
 
 export function presentationEdges(graph: CanvasGraph) {
   return [

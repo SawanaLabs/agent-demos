@@ -7,9 +7,10 @@ its composer remains available.
 
 The toolbar exposes **生成图片**, **生成文本**, **图片素材**, **文本素材**,
 and **输出**. Text materials pass literal prompts without model calls. Multiple
-materials can feed one generator. Image results appear as separate draggable
+materials can feed one generator. Image and generated text results appear as separate draggable
 cards with outgoing connections; rerunning replaces that result. A manual output
-node displays all connected text and images without invoking a model. It is a
+node (预览输出) displays all connected text and images without invoking a model.
+Both result cards and preview outputs offer image downloads and UTF-8 TXT downloads. It is a
 terminal display; continue workflows from the original material or result card.
 
 Start in **仅编排** to create and revise the workflow without generation. Use

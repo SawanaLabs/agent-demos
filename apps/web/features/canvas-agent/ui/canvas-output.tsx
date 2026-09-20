@@ -6,8 +6,8 @@ import {
 } from "@workspace/ui/components/ai-elements/node";
 import { Button } from "@workspace/ui/components/button";
 import { Trash2Icon } from "lucide-react";
-import Image from "next/image";
 import type { CanvasOutput } from "../model/graph";
+import { CanvasContent } from "./canvas-content";
 import styles from "./canvas-node.module.css";
 
 export interface CanvasDisplayData extends Record<string, unknown> {
@@ -43,24 +43,7 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
           data.items.map(({ id, label, content }) => (
             <section className="space-y-2 border-b pb-3 last:border-0" key={id}>
               <p className="text-muted-foreground text-xs">{label}</p>
-              {content.image ? (
-                <Image
-                  alt={label}
-                  className="nodrag max-h-72 w-full object-contain"
-                  height={240}
-                  src={content.image}
-                  unoptimized
-                  width={296}
-                />
-              ) : null}
-              {content.text ? (
-                <p className="nodrag nowheel max-h-64 overflow-y-auto whitespace-pre-wrap text-sm">
-                  {content.text}
-                </p>
-              ) : null}
-              {content.image || content.text ? null : (
-                <p className="text-muted-foreground text-xs">等待上游内容</p>
-              )}
+              <CanvasContent content={content} label={label} />
             </section>
           ))
         ) : (

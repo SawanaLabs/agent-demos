@@ -8,7 +8,7 @@ import {
   materialOutput,
   parseGraph,
 } from "../model/graph";
-import { availableResultPosition } from "../model/presentation";
+import { availableResultPosition, hasResult } from "../model/presentation";
 import { canvasModels } from "./env";
 
 export type NodeExecutor = (
@@ -123,7 +123,7 @@ export async function runGraph(
         "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
       );
     }
-    if (node.kind === "image" && graph.outputs[id]?.image) {
+    if (hasResult(graph, id)) {
       node.resultPosition = availableResultPosition(graph, node);
     }
     graph.revision += 1;

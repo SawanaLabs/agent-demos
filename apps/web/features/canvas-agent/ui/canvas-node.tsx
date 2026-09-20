@@ -38,7 +38,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
 }
 
 export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
-  const { node, output, asset, busy, active } = data;
+  const { node, asset, busy, active } = data;
   const image = asset;
   return (
     <Node
@@ -192,9 +192,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             </a>
           </div>
         ) : null}
-        {(output && node.kind !== "image") ||
-        node.kind === "prompt" ||
-        asset ? (
+        {node.kind === "prompt" || asset ? (
           <Button
             className="nodrag w-full"
             disabled={busy}
@@ -204,11 +202,6 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
           >
             用于下一步
           </Button>
-        ) : null}
-        {output?.text && node.kind !== "prompt" ? (
-          <p className="nodrag nowheel max-h-56 overflow-y-auto whitespace-pre-wrap border-t pt-3 text-sm leading-relaxed">
-            {output.text}
-          </p>
         ) : null}
       </NodeContent>
     </Node>

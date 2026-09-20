@@ -13,7 +13,7 @@ const entries = [
   { kind: "text", label: "生成文本", icon: SparklesIcon },
   { kind: "reference", label: "图片素材", icon: ImageIcon },
   { kind: "prompt", label: "文本素材", icon: FileTextIcon },
-  { kind: "output", label: "输出", icon: MonitorIcon },
+  { kind: "output", label: "预览输出", icon: MonitorIcon },
 ] as const;
 
 export function CanvasToolbar({

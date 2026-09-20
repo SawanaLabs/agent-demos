@@ -11,11 +11,12 @@ import type { CanvasOutput } from "../model/graph";
 import type { CanvasContentType } from "../model/inputs";
 import { CanvasTypeBadge } from "./canvas-badges";
 import { CanvasContent, CanvasDownloads } from "./canvas-content";
+import { type CanvasNextKind, CanvasNextStep } from "./canvas-next-step";
 import styles from "./canvas-node.module.css";
 
 export interface CanvasDisplayData extends Record<string, unknown> {
   busy: boolean;
-  continueFrom?: () => void;
+  continueFrom?: (kind: CanvasNextKind) => void;
   emptyText?: string;
   items: { id: string; label: string; content: CanvasOutput }[];
   label: string;
@@ -104,15 +105,7 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             ))}
           </div>
           {data.continueFrom ? (
-            <Button
-              className="nodrag"
-              disabled={data.busy}
-              onClick={data.continueFrom}
-              size="sm"
-              variant="outline"
-            >
-              用于下一步
-            </Button>
+            <CanvasNextStep disabled={data.busy} onSelect={data.continueFrom} />
           ) : null}
         </NodeFooter>
       ) : null}

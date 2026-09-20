@@ -2,6 +2,7 @@
 import {
   Node,
   NodeContent,
+  NodeFooter,
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
 import {
@@ -32,6 +33,7 @@ import { imageExtension } from "../model/image";
 import type { connectedInputs } from "../model/inputs";
 import { CanvasInputBadges, canvasNodeIcons } from "./canvas-badges";
 import { CanvasGifSettings } from "./canvas-gif-settings";
+import { type CanvasNextKind, CanvasNextStep } from "./canvas-next-step";
 import styles from "./canvas-node.module.css";
 import { CanvasResultCount } from "./canvas-result-count";
 
@@ -39,7 +41,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
   active: boolean;
   asset?: string;
   busy: boolean;
-  continueFrom: () => void;
+  continueFrom: (kind: CanvasNextKind) => void;
   error?: string;
   inputs: ReturnType<typeof connectedInputs>;
   node: CanvasNode;
@@ -137,18 +139,24 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             </a>
           </div>
         ) : null}
+      </NodeContent>
+      <NodeFooter className="flex justify-end">
         {node.kind === "prompt" || asset ? (
+          <CanvasNextStep disabled={busy} onSelect={data.continueFrom} />
+        ) : null}
+        {["text", "image", "gif"].includes(node.kind) ? (
           <Button
-            className="nodrag w-full"
+            className="nodrag"
             disabled={busy}
-            onClick={() => data.continueFrom()}
+            onClick={data.run}
             size="sm"
-            variant="outline"
+            variant="secondary"
           >
-            用于下一步
+            <PlayIcon className="size-3" />
+            {data.runLabel}
           </Button>
         ) : null}
-      </NodeContent>
+      </NodeFooter>
     </Node>
   );
 }
@@ -198,11 +206,7 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
           连接提示词或生成结果作为输入。文本全文参与生成，图片作为参考。
         </p>
       )}
-      {node.kind === "prompt" ? (
-        <p className="text-muted-foreground text-xs">
-          原样传给下游 · 不调用 AI
-        </p>
-      ) : (
+      {node.kind === "prompt" ? null : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CanvasResultCount data={data} />
           {node.kind === "image" ? (
@@ -229,16 +233,6 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
               </SelectContent>
             </Select>
           ) : null}
-          <Button
-            className="nodrag"
-            disabled={busy}
-            onClick={data.run}
-            size="sm"
-            variant="secondary"
-          >
-            <PlayIcon className="size-3" />
-            {data.runLabel}
-          </Button>
         </div>
       )}
     </>

@@ -1,5 +1,3 @@
-import { Button } from "@workspace/ui/components/button";
-import { PlayIcon } from "lucide-react";
 import type { CanvasNodeData } from "./canvas-node";
 
 export function CanvasGifSettings({ data }: { data: CanvasNodeData }) {
@@ -41,16 +39,6 @@ export function CanvasGifSettings({ data }: { data: CanvasNodeData }) {
           </label>
         ))}
       </div>
-      <Button
-        className="nodrag w-full"
-        disabled={data.busy}
-        onClick={data.run}
-        size="sm"
-        variant="secondary"
-      >
-        <PlayIcon className="size-3" />
-        {data.runLabel}
-      </Button>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   workflowId,
 } from "../model/presentation";
 import { outputItems } from "../model/results";
+import type { CanvasNextKind } from "./canvas-next-step";
 import type { CanvasNodeData } from "./canvas-node";
 import type { CanvasDisplayData } from "./canvas-output";
 import { retainNodeState } from "./flow-node-state";
@@ -38,8 +39,8 @@ export function useCanvasNodes(
     position: node.position,
     type: "workflow",
     data: {
-      continueFrom: (index?: number) => {
-        const next = createNode("image", graph.nodes.length);
+      continueFrom: (kind: CanvasNextKind, index?: number) => {
+        const next = createNode(kind, graph.nodes.length);
         const origin =
           index === undefined ? node.position : resultPosition(node, index);
         next.position = { x: origin.x + 420, y: origin.y };
@@ -127,7 +128,7 @@ export function useCanvasNodes(
                 ? "生成失败，请查看生成节点中的错误。"
                 : "等待生成。可先从右侧连接下游，此处只传递这一份结果。",
               busy: c.busy,
-              continueFrom: () => item.data.continueFrom(index),
+              continueFrom: (kind) => item.data.continueFrom(kind, index),
             } satisfies CanvasDisplayData,
           };
         }),

@@ -1,8 +1,6 @@
 "use client";
 import { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { Controls } from "@workspace/ui/components/ai-elements/controls";
-import { Button } from "@workspace/ui/components/button";
-import { UnplugIcon } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
 import {
@@ -12,6 +10,7 @@ import {
   workflowId,
 } from "../model/presentation";
 import { CanvasChat } from "./canvas-chat";
+import { CanvasEdgeView } from "./canvas-edge";
 import { CanvasHeader } from "./canvas-header";
 import { CanvasNodeView } from "./canvas-node";
 import { CanvasOutputView } from "./canvas-output";
@@ -25,6 +24,7 @@ const nodeTypes = {
   result: CanvasResultView,
   display: CanvasOutputView,
 };
+const edgeTypes = { connection: CanvasEdgeView };
 type FlowInstance = Parameters<
   NonNullable<ComponentProps<typeof Canvas>["onInit"]>
 >[0];
@@ -45,9 +45,6 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
     c.edit({ ...graph, nodes: [...graph.nodes, node] });
   }
   const nodes = useCanvasNodes(c, ready);
-  const connection = graph.edges.find(
-    (edge) => `${edge.source}->${edge.target}` === selectedEdge
-  );
   return (
     <main className="fixed inset-0 z-40 flex flex-col bg-background font-sans">
       <CanvasHeader controller={c} ready={ready} />
@@ -55,9 +52,26 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
         <Canvas
           edges={presentationEdges(graph).map((edge) => ({
             ...edge,
+            type:
+              "deletable" in edge && edge.deletable === false
+                ? "default"
+                : "connection",
+            data: {
+              busy: c.busy,
+              disconnect: () => {
+                c.edit({
+                  ...graph,
+                  edges: graph.edges.filter(
+                    (item) => `${item.source}->${item.target}` !== edge.id
+                  ),
+                });
+                setSelectedEdge(null);
+              },
+            },
             selected: selectedEdge === edge.id,
             animated: c.busy && c.activeNode === originalId(edge.target),
           }))}
+          edgeTypes={edgeTypes}
           fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
           isValidConnection={({ source, target }) =>
             !target.startsWith("result:") &&
@@ -151,30 +165,6 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           />
         </Canvas>
         <CanvasToolbar add={add} busy={c.busy} />
-        {connection ? (
-          <div className="absolute top-28 left-16 flex max-w-[calc(100%-5rem)] items-center gap-2 rounded-lg border bg-background p-2 shadow-sm sm:top-16">
-            <span className="truncate text-xs">
-              {graph.nodes.find((node) => node.id === connection.source)?.label}{" "}
-              →{" "}
-              {graph.nodes.find((node) => node.id === connection.target)?.label}
-            </span>
-            <Button
-              disabled={c.busy}
-              onClick={() => {
-                c.edit({
-                  ...graph,
-                  edges: graph.edges.filter((edge) => edge !== connection),
-                });
-                setSelectedEdge(null);
-              }}
-              size="sm"
-              variant="outline"
-            >
-              <UnplugIcon className="size-4" />
-              断开连线
-            </Button>
-          </div>
-        ) : null}
         <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
           拖动画布平移 · 双指缩放 · 拖动节点圆点连线
           <br />

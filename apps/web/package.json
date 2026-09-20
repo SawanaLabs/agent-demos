@@ -31,6 +31,7 @@
     "@vercel/sandbox": "^2.0.0",
     "@workspace/database": "workspace:^",
     "@workspace/ui": "workspace:*",
+    "@xyflow/react": "^12.10.2",
     "ai": "^6.0.188",
     "bash-tool": "^1.3.16",
     "drizzle-orm": "^0.45.2",

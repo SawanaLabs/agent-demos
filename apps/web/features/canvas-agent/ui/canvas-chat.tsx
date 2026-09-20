@@ -124,9 +124,14 @@ export function CanvasChat({
                           className="my-2 text-muted-foreground text-xs"
                           key={`${message.id}-${index}`}
                         >
-                          {part.type === "tool-editWorkflow"
-                            ? "编辑工作流"
-                            : "执行工作流"}
+                          {(
+                            {
+                              "tool-editWorkflow": "编辑工作流",
+                              "tool-runWorkflow": "执行工作流",
+                              "tool-readWorkflow": "读取工作流",
+                              "tool-arrangeCanvas": "整理画布",
+                            } as Record<string, string>
+                          )[part.type] ?? "操作工作流"}
                           {toolStatus("state" in part ? part : {})}
                         </p>
                       );

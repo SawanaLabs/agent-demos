@@ -8,7 +8,7 @@ import {
 } from "@workspace/ui/components/tooltip";
 import { ControlButton } from "@xyflow/react";
 import { LayoutDashboardIcon } from "lucide-react";
-import { type ComponentProps, useState } from "react";
+import { type ComponentProps, useEffect, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
 import { arrangeGraph } from "../model/layout";
 import {
@@ -75,6 +75,17 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
     }
   }
   const { nodes, onNodesChange } = useCanvasNodes(c, ready);
+  useEffect(() => {
+    if (
+      c.layoutRequested &&
+      !c.busy &&
+      flow &&
+      nodes.every((node) => node.measured?.width && node.measured.height)
+    ) {
+      arrange();
+      c.finishLayout();
+    }
+  });
   return (
     <main className="fixed inset-0 z-40 flex flex-col bg-background font-sans">
       <CanvasHeader controller={c} ready={ready} />

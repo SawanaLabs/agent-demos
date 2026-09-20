@@ -13,7 +13,7 @@ node (预览输出) displays all connected text and images without invoking a mo
 Both result cards and preview outputs offer image downloads and UTF-8 TXT downloads. It is a
 terminal display; continue workflows from the original material or result card.
 
-Start in **仅编排** to create and revise the workflow without generation. Use
+Use **新建** to start with an empty canvas and conversation. The Agent defaults to **允许 AI 生成** and executes only requested generation. Switch to **仅编排** to create and revise the workflow without generation. Use
 **运行工作流** to recompute all nodes, or the node button to run a target while
 reusing valid upstream results. Its label is **运行此节点** when upstream results
 and materials are ready (including nodes without inputs), or **运行到这里** when

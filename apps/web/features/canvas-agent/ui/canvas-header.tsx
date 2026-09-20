@@ -4,6 +4,7 @@ import {
   ArrowLeftIcon,
   DownloadIcon,
   PlayIcon,
+  PlusIcon,
   UploadIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -52,6 +53,16 @@ export function CanvasHeader({
         </span>
       </div>
       <div className="flex items-center gap-1">
+        <Button
+          aria-label="新建画布"
+          disabled={c.busy}
+          onClick={c.newCanvas}
+          size="sm"
+          variant="ghost"
+        >
+          <PlusIcon className="size-4" />
+          <span className="hidden sm:inline">新建</span>
+        </Button>
         <Button
           aria-label="打开工作流"
           disabled={c.busy}

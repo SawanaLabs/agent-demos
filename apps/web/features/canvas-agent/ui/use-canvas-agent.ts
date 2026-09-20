@@ -14,7 +14,8 @@ import { readRunStream } from "./run-stream";
 
 export function useCanvasAgent() {
   const [graph, setGraph] = useState(initialGraph);
-  const [mode, setMode] = useState<"plan" | "execute">("plan");
+  const [mode, setMode] = useState<"plan" | "execute">("execute");
+  const [layoutRequested, setLayoutRequested] = useState(false);
   const [activeNode, setActiveNode] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +37,9 @@ export function useCanvasAgent() {
   const chat = useChat({
     transport,
     onData: (part) => {
+      if (part.type === "data-canvas-layout") {
+        setLayoutRequested(true);
+      }
       if (part.type === "data-canvas") {
         const data = part.data as {
           graph: CanvasGraph;
@@ -110,6 +114,25 @@ export function useCanvasAgent() {
   return {
     graph,
     setGraph,
+    layoutRequested,
+    finishLayout: () => setLayoutRequested(false),
+    newCanvas: () => {
+      if (busyRef.current) {
+        return;
+      }
+      setGraph({
+        nodes: [],
+        edges: [],
+        outputs: {},
+        assets: {},
+        errors: {},
+        revision: 0,
+      });
+      chat.setMessages([]);
+      chat.clearError();
+      setError(null);
+      setLayoutRequested(false);
+    },
     mode,
     setMode,
     activeNode,

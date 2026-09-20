@@ -70,8 +70,7 @@ export function getDepthVideoOutputSize(
   sourceHeight: number
 ) {
   if (
-    !Number.isFinite(sourceWidth) ||
-    !Number.isFinite(sourceHeight) ||
+    !(Number.isFinite(sourceWidth) && Number.isFinite(sourceHeight)) ||
     sourceWidth <= 0 ||
     sourceHeight <= 0
   ) {

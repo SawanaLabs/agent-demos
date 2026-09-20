@@ -12,8 +12,10 @@ import {
   parseGraph,
 } from "../model/graph";
 
+import { canvasChatError, canvasChatFetch } from "./chat-error";
 import { storeGraphImages, uploadCanvasImage } from "./image-upload";
 import { readRunStream } from "./run-stream";
+import { useCanvasChatActions } from "./use-canvas-chat-actions";
 
 export function useCanvasAgent() {
   const [graph, setGraph] = useState(initialGraph);
@@ -32,6 +34,7 @@ export function useCanvasAgent() {
     () =>
       new DefaultChatTransport({
         api: "/api/demos/canvas-agent",
+        fetch: canvasChatFetch,
         prepareSendMessagesRequest: async ({ messages }) => ({
           body: {
             messages,
@@ -61,6 +64,9 @@ export function useCanvasAgent() {
   });
   const busy =
     running || chat.status === "submitted" || chat.status === "streaming";
+  const actions = useCanvasChatActions(chat, busyRef, setError, () =>
+    setActiveNode(null)
+  );
   busyRef.current = busy;
   useEffect(() => () => abort.current?.abort(), []);
 
@@ -111,19 +117,6 @@ export function useCanvasAgent() {
       setError(cause instanceof Error ? cause.message : "编辑失败。");
     }
   }
-  async function send(text: string) {
-    if (busyRef.current || !text.trim()) {
-      return;
-    }
-    busyRef.current = true;
-    setError(null);
-    chat.clearError();
-    try {
-      await chat.sendMessage({ text });
-    } finally {
-      busyRef.current = false;
-    }
-  }
   async function run(target?: string) {
     if (busyRef.current) {
       return;
@@ -172,6 +165,7 @@ export function useCanvasAgent() {
         errors: {},
         revision: 0,
       });
+      actions.reset();
       chat.setMessages([]);
       chat.clearError();
       setError(null);
@@ -181,7 +175,9 @@ export function useCanvasAgent() {
     setMode,
     activeNode,
     busy,
-    error: error ?? chat.error?.message,
+    error: error ?? canvasChatError(chat.error, chat.status),
+    chatFailed: chat.status === "error",
+    ...actions,
     setError,
     setNodeError: (id: string, message: string) =>
       setGraph((current) => ({
@@ -191,7 +187,6 @@ export function useCanvasAgent() {
     messages: chat.messages,
     status: chat.status,
     edit,
-    send,
     run,
   };
 }

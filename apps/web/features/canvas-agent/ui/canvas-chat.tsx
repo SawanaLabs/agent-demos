@@ -5,16 +5,19 @@ import {
   ConversationScrollButton,
 } from "@workspace/ui/components/ai-elements/conversation";
 import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@workspace/ui/components/ai-elements/message";
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@workspace/ui/components/ai-elements/prompt-input";
 import { Button } from "@workspace/ui/components/button";
-import { Textarea } from "@workspace/ui/components/textarea";
-import { ArrowUpIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { Spinner } from "@workspace/ui/components/spinner";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
+import { CanvasMessage } from "./canvas-message";
 import type { useCanvasAgent } from "./use-canvas-agent";
 
 export function CanvasChat({
@@ -25,29 +28,29 @@ export function CanvasChat({
   ready: boolean;
 }) {
   const [expanded, setExpanded] = useState(true);
-  const [input, setInput] = useState("");
-  const { busy, messages, error, mode } = controller;
-  const toolStatus = (part: { state?: unknown; output?: unknown }) => {
-    if (
-      part.output &&
-      typeof part.output === "object" &&
-      "failedNodeId" in part.output
-    ) {
-      return " · 节点失败";
-    }
-    if (part.state === "output-available") {
-      return " · 已完成";
-    }
-    return part.state === "output-error" ? " · 失败" : " · 处理中";
-  };
-  const submit = () => {
-    if (!input.trim() || busy || !ready) {
-      return;
-    }
-    const text = input;
-    setInput("");
-    void controller.send(text);
-  };
+  const { busy, messages, error } = controller;
+  const chatting =
+    controller.status === "submitted" || controller.status === "streaming";
+  const activeLabel = controller.graph.nodes.find(
+    (node) => node.id === controller.activeNode
+  )?.label;
+  let activity = "Agent 正在处理…";
+  if (controller.status === "submitted") {
+    activity = "请求已发送，等待 Agent 响应…";
+  }
+  if (activeLabel) {
+    activity = `正在执行：${activeLabel}`;
+  }
+  let heading = "说出想法，一起搭建工作流";
+  if (controller.stopped) {
+    heading = "已停止，可继续完成";
+  }
+  if (busy) {
+    heading = activity;
+  }
+  if (error) {
+    heading = "操作未完成，可重试";
+  }
   return (
     <section
       aria-label="Canvas Agent 对话"
@@ -57,7 +60,7 @@ export function CanvasChat({
         <div>
           <h2 className="font-medium text-sm">Canvas Agent</h2>
           <p aria-live="polite" className="text-muted-foreground text-xs">
-            {busy ? "正在工作，收起后继续运行" : "说出想法，一起搭建工作流"}
+            {heading}
           </p>
         </div>
         <Button
@@ -108,44 +111,40 @@ export function CanvasChat({
                 </Link>
               </div>
             ) : null}
-            {messages.map((message) => (
-              <Message from={message.role} key={message.id}>
-                <MessageContent>
-                  {message.parts.map((part, index) => {
-                    if (part.type === "text") {
-                      return (
-                        <MessageResponse key={`${message.id}-${index}`}>
-                          {part.text}
-                        </MessageResponse>
-                      );
-                    }
-                    if (part.type.startsWith("tool-")) {
-                      return (
-                        <p
-                          className="my-2 text-muted-foreground text-xs"
-                          key={`${message.id}-${index}`}
-                        >
-                          {(
-                            {
-                              "tool-editWorkflow": "编辑工作流",
-                              "tool-removeNodes": "删除节点",
-                              "tool-addNode": "添加并连接节点",
-                              "tool-runWorkflow": "执行工作流",
-                              "tool-readWorkflow": "读取工作流",
-                              "tool-arrangeCanvas": "整理画布",
-                            } as Record<string, string>
-                          )[part.type] ?? "操作工作流"}
-                          {toolStatus("state" in part ? part : {})}
-                        </p>
-                      );
-                    }
-                    return null;
-                  })}
-                </MessageContent>
-              </Message>
+            {messages.map((message, index) => (
+              <CanvasMessage
+                key={message.id}
+                message={message}
+                streaming={chatting && index === messages.length - 1}
+              />
             ))}
+            {busy ? (
+              <div
+                className="flex items-center gap-2 text-muted-foreground text-sm"
+                role="status"
+              >
+                <Spinner className="size-4" />
+                {activity}
+              </div>
+            ) : null}
             {error ? (
-              <ConversationErrorMessage error={error} title="操作未完成" />
+              <div role="alert">
+                <ConversationErrorMessage
+                  error={error}
+                  isRetryDisabled={busy}
+                  onRetry={controller.chatFailed ? controller.retry : undefined}
+                  retryLabel="重试"
+                  title="操作未完成"
+                />
+              </div>
+            ) : null}
+            {controller.stopped && !busy ? (
+              <div className="space-y-2 text-sm">
+                <p>已停止，画布中的已完成结果已保留。</p>
+                <Button onClick={controller.retry} size="sm" variant="outline">
+                  继续完成
+                </Button>
+              </div>
             ) : null}
             {ready ? null : (
               <p className="text-muted-foreground text-sm">
@@ -161,54 +160,63 @@ export function CanvasChat({
           操作未完成，展开查看详情。
         </p>
       ) : null}
-      <form
-        className="border-t p-3"
-        onSubmit={(event) => {
-          event.preventDefault();
-          submit();
-        }}
-      >
-        <Textarea
+      <CanvasComposer controller={controller} ready={ready} />
+    </section>
+  );
+}
+
+function CanvasComposer({
+  controller,
+  ready,
+}: {
+  controller: ReturnType<typeof useCanvasAgent>;
+  ready: boolean;
+}) {
+  const [input, setInput] = useState("");
+  const { busy, mode } = controller;
+  const chatting =
+    controller.status === "submitted" || controller.status === "streaming";
+  return (
+    <PromptInput
+      className="border-t p-3"
+      onSubmit={async ({ text }) => {
+        if (!text.trim() || busy || !ready) {
+          return;
+        }
+        setInput("");
+        await controller.send(text);
+      }}
+    >
+      <PromptInputBody>
+        <PromptInputTextarea
           aria-label="告诉 AI 如何修改工作流"
-          className="min-h-16 resize-none border-0 shadow-none focus-visible:ring-0"
-          disabled={!ready}
+          className="min-h-16 resize-none"
+          disabled={!ready || busy}
           onChange={(event) => setInput(event.target.value)}
-          onKeyDown={(event) => {
-            if (
-              event.key === "Enter" &&
-              !event.shiftKey &&
-              !event.nativeEvent.isComposing
-            ) {
-              event.preventDefault();
-              submit();
-            }
-          }}
           placeholder="描述工作流，或继续修改…"
           value={input}
         />
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <select
-            aria-label="Agent 模式"
-            className="rounded-md border bg-background p-1.5 text-xs"
-            disabled={busy}
-            onChange={(event) =>
-              controller.setMode(event.target.value as "plan" | "execute")
-            }
-            value={mode}
-          >
-            <option value="plan">仅编排</option>
-            <option value="execute">允许 AI 生成</option>
-          </select>
-          <Button
-            aria-label="发送消息"
-            disabled={busy || !ready || !input.trim()}
-            size="icon-sm"
-            type="submit"
-          >
-            <ArrowUpIcon />
-          </Button>
-        </div>
-      </form>
-    </section>
+      </PromptInputBody>
+      <PromptInputFooter>
+        <select
+          aria-label="Agent 模式"
+          className="rounded-md border bg-background p-1.5 text-xs"
+          disabled={busy}
+          onChange={(event) =>
+            controller.setMode(event.target.value as "plan" | "execute")
+          }
+          value={mode}
+        >
+          <option value="plan">仅编排</option>
+          <option value="execute">允许 AI 生成</option>
+        </select>
+        <PromptInputSubmit
+          aria-label={chatting ? "停止生成" : "发送消息"}
+          disabled={chatting ? false : busy || !ready || !input.trim()}
+          onStop={controller.stop}
+          status={controller.status}
+        />
+      </PromptInputFooter>
+    </PromptInput>
   );
 }

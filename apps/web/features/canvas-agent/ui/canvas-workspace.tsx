@@ -74,7 +74,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
       c.setError(error instanceof Error ? error.message : "整理画布失败。");
     }
   }
-  const nodes = useCanvasNodes(c, ready);
+  const { nodes, onNodesChange } = useCanvasNodes(c, ready);
   return (
     <main className="fixed inset-0 z-40 flex flex-col bg-background font-sans">
       <CanvasHeader controller={c} ready={ready} />
@@ -143,6 +143,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           }
           onInit={setFlow}
           onNodesChange={(changes) => {
+            onNodesChange(changes);
             if (c.busy) {
               return;
             }

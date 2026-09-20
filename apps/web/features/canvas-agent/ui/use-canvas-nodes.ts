@@ -1,6 +1,7 @@
 "use client";
 import type { Canvas } from "@workspace/ui/components/ai-elements/canvas";
-import type { ComponentProps } from "react";
+import { applyNodeChanges, type Node, type NodeChange } from "@xyflow/react";
+import { type ComponentProps, useState } from "react";
 import {
   type CanvasNode,
   createNode,
@@ -17,6 +18,7 @@ import {
   workflowId,
 } from "../model/presentation";
 import type { CanvasNodeData } from "./canvas-node";
+import { retainNodeState } from "./flow-node-state";
 import type { useCanvasAgent } from "./use-canvas-agent";
 
 export function useCanvasNodes(
@@ -24,6 +26,7 @@ export function useCanvasNodes(
   ready: boolean
 ) {
   const graph = c.graph;
+  const [viewNodes, setViewNodes] = useState<Node[]>([]);
   function update(id: string, patch: Partial<CanvasNode>) {
     c.edit({
       ...graph,
@@ -138,7 +141,14 @@ export function useCanvasNodes(
           : []),
       ];
     });
-  return nodes;
+  return {
+    nodes: retainNodeState(nodes, viewNodes),
+    onNodesChange: (changes: NodeChange[]) => {
+      setViewNodes((previous) =>
+        applyNodeChanges(changes, retainNodeState(nodes, previous))
+      );
+    },
+  };
 }
 
 function readImage(file: File) {

@@ -2,12 +2,13 @@
 import {
   Node,
   NodeContent,
+  NodeFooter,
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
 import { Button } from "@workspace/ui/components/button";
 import { Trash2Icon } from "lucide-react";
 import type { CanvasOutput } from "../model/graph";
-import { CanvasContent } from "./canvas-content";
+import { CanvasContent, CanvasDownloads } from "./canvas-content";
 import styles from "./canvas-node.module.css";
 
 export interface CanvasDisplayData extends Record<string, unknown> {
@@ -54,8 +55,23 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             把文本或图片连到左侧圆点，在这里集中查看。无需单独运行。
           </p>
         )}
-        {data.continueFrom ? (
-          <div className="flex justify-end">
+      </NodeContent>
+      {data.items.some(({ content }) => content.image || content.text) ||
+      data.continueFrom ? (
+        <NodeFooter className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap gap-2">
+            {data.items.map(({ id, label, content }) => (
+              <div className="flex min-w-0 flex-wrap gap-2" key={id}>
+                {data.items.length > 1 ? (
+                  <span className="w-full truncate text-muted-foreground text-xs">
+                    {label}
+                  </span>
+                ) : null}
+                <CanvasDownloads content={content} label={label} />
+              </div>
+            ))}
+          </div>
+          {data.continueFrom ? (
             <Button
               className="nodrag"
               disabled={data.busy}
@@ -65,9 +81,9 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             >
               用于下一步
             </Button>
-          </div>
-        ) : null}
-      </NodeContent>
+          ) : null}
+        </NodeFooter>
+      ) : null}
     </Node>
   );
 }

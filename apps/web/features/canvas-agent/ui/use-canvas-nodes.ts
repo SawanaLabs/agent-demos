@@ -3,6 +3,7 @@ import type { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { applyNodeChanges, type Node, type NodeChange } from "@xyflow/react";
 import { type ComponentProps, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
+import { connectedInputs } from "../model/inputs";
 import {
   displayInputs,
   nodeRunLabel,
@@ -57,6 +58,7 @@ export function useCanvasNodes(
         });
       },
       node,
+      inputs: connectedInputs(graph, node.id),
       error: graph.errors[node.id],
       output: graph.outputs[node.id],
       runLabel: nodeRunLabel(graph, node.id),
@@ -95,6 +97,11 @@ export function useCanvasNodes(
               busy: c.busy,
               remove: item.data.remove,
               items: displayInputs(graph, node.id),
+              types: [
+                ...new Set(
+                  connectedInputs(graph, node.id).map((input) => input.type)
+                ),
+              ],
             } satisfies CanvasDisplayData,
           },
         ];
@@ -111,6 +118,7 @@ export function useCanvasNodes(
             deletable: false,
             data: {
               label: `结果 ${index + 1}`,
+              types: [node.kind === "text" ? "text" : "image"],
               items: content
                 ? [
                     {

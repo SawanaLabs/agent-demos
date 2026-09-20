@@ -28,6 +28,8 @@ import {
 import Image from "next/image";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
+import type { connectedInputs } from "../model/inputs";
+import { CanvasInputBadges, canvasNodeIcons } from "./canvas-badges";
 import { CanvasGifSettings } from "./canvas-gif-settings";
 import styles from "./canvas-node.module.css";
 import { CanvasResultCount } from "./canvas-result-count";
@@ -38,6 +40,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
   busy: boolean;
   continueFrom: () => void;
   error?: string;
+  inputs: ReturnType<typeof connectedInputs>;
   node: CanvasNode;
   output?: CanvasOutput;
   remove: () => void;
@@ -50,6 +53,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
 export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
   const { node, asset, busy, active } = data;
   const image = asset;
+  const Icon = canvasNodeIcons[node.kind];
   return (
     <Node
       className={`${styles.node} w-80 shadow-sm ${active ? "ring-2 ring-primary" : ""}`}
@@ -60,7 +64,8 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
     >
       <NodeHeader>
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground text-xs">
+          <span className="flex shrink-0 items-center gap-1 text-muted-foreground text-xs">
+            <Icon aria-hidden="true" className="size-3.5" />
             {
               {
                 text: "生成文本",
@@ -74,7 +79,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
           </span>
           <Input
             aria-label="节点名称"
-            className="nodrag h-7 flex-1 border-0 bg-transparent px-1 font-medium shadow-none"
+            className="nodrag h-7 min-w-0 flex-1 border-0 bg-transparent px-1 font-medium shadow-none"
             disabled={busy}
             onChange={(event) =>
               data.update({ label: event.target.value || "未命名" })
@@ -101,6 +106,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             <AlertDescription>{data.error}</AlertDescription>
           </Alert>
         ) : null}
+        <CanvasInputBadges inputs={data.inputs} />
         <NodeInputs data={data} />
         {active ? (
           <p aria-live="polite" className="animate-pulse text-primary text-sm">

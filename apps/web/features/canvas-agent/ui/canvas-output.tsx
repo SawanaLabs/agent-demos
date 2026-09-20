@@ -6,8 +6,10 @@ import {
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
 import { Button } from "@workspace/ui/components/button";
-import { Trash2Icon } from "lucide-react";
+import { MonitorIcon, Trash2Icon } from "lucide-react";
 import type { CanvasOutput } from "../model/graph";
+import type { CanvasContentType } from "../model/inputs";
+import { CanvasTypeBadge } from "./canvas-badges";
 import { CanvasContent, CanvasDownloads } from "./canvas-content";
 import styles from "./canvas-node.module.css";
 
@@ -18,9 +20,20 @@ export interface CanvasDisplayData extends Record<string, unknown> {
   items: { id: string; label: string; content: CanvasOutput }[];
   label: string;
   remove?: () => void;
+  types: CanvasContentType[];
 }
 
 export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
+  const types = [
+    ...new Set(
+      data.items.length
+        ? data.items.flatMap(({ content }) => [
+            ...(content.text ? ["text" as const] : []),
+            ...(content.image ? ["image" as const] : []),
+          ])
+        : data.types
+    ),
+  ];
   return (
     <Node
       className={`${styles.node} ${data.continueFrom ? styles.result : ""} w-80 shadow-sm`}
@@ -30,8 +43,22 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
       }}
     >
       <NodeHeader>
-        <div className="flex items-center justify-between">
-          <span className="font-medium text-sm">{data.label}</span>
+        <div className="flex items-center gap-2">
+          <MonitorIcon
+            aria-hidden="true"
+            className="size-3.5 shrink-0 text-muted-foreground"
+          />
+          <span
+            className="min-w-0 flex-1 truncate font-medium text-sm"
+            title={data.label}
+          >
+            {data.label}
+          </span>
+          <div className="flex shrink-0 gap-1">
+            {types.map((type) => (
+              <CanvasTypeBadge key={type} type={type} />
+            ))}
+          </div>
           {data.remove ? (
             <Button
               aria-label={`删除${data.label}`}

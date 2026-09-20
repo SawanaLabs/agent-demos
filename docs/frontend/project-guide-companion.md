@@ -63,6 +63,7 @@ updateAt: 2026-06-16
 - On desktop, open the companion as a bottom-right floating panel around 380-420px wide with a maximum height near 70vh.
 - On mobile, open the companion as a bottom drawer so the chat remains usable on narrow screens.
 - Registry guide strategy: show a collapsed **Companion Launcher** that can answer install-path and handoff questions without interrupting the guide.
+- Full-screen Canvas Agent exception: hide the companion on `/demos/canvas-agent` because its launcher overlaps the workflow composer.
 - Demo workspace strategy: show only a small **Companion Launcher** so the active **Agent Demo** remains the primary interaction surface.
 - Status and error page strategy: hide the companion unless a future support-oriented workflow is explicitly designed.
 - Keep companion copy playful enough to feel pet-like, but preserve the repository's technical evaluator tone. The companion should help visitors choose what to inspect next instead of becoming generic small talk.

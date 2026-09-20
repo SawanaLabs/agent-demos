@@ -1,3 +1,4 @@
+import { canvasAgentDemoMeta } from "@/features/canvas-agent/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
   DemoCatalogEntry,
@@ -46,6 +47,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   generativeUiDemoMeta,
   minimalChatAgentDemoMeta,
   imageWorkflowAgentDemoMeta,
+  canvasAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,

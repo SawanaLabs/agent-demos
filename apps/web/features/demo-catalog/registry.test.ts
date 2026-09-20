@@ -80,6 +80,7 @@ describe("demo catalog registry", () => {
       "generative-ui",
       "minimal-chat-agent",
       "image-workflow-agent",
+      "canvas-agent",
       "customer-memory-agent",
       "persistent-agent",
       "streaming-chat-shell",
@@ -103,6 +104,7 @@ describe("demo catalog registry", () => {
       "generative-ui",
       "minimal-chat-agent",
       "image-workflow-agent",
+      "canvas-agent",
       "customer-memory-agent",
       "persistent-agent",
       "streaming-chat-shell",
@@ -126,7 +128,9 @@ describe("demo catalog registry", () => {
       )
     ).toBe(true);
   });
+});
 
+describe("demo gallery visuals", () => {
   it("tracks demos migrated to ASCII gallery visuals", () => {
     const asciiEntries = demoCatalogEntries.filter(
       (entry) => entry.galleryVisual.ascii
@@ -140,6 +144,7 @@ describe("demo catalog registry", () => {
       "generative-ui",
       "minimal-chat-agent",
       "image-workflow-agent",
+      "canvas-agent",
       "customer-memory-agent",
       "persistent-agent",
       "streaming-chat-shell",
@@ -203,6 +208,11 @@ describe("demo catalog registry", () => {
         accent: "indigo",
         label: "Workflow canvas",
         slug: "image-workflow-agent",
+      },
+      {
+        accent: "cyan",
+        label: "Canvas and conversation",
+        slug: "canvas-agent",
       },
       {
         accent: "emerald",

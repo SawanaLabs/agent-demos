@@ -4,6 +4,7 @@
   "namespace": "@agent-demos",
   "productionDomain": "agent-demos.hsawana9.com",
   "omittedReadyDemos": [
+    { "slug": "canvas-agent", "reason": "Canvas workflow runtime and browser UI are app-only pending a portable registry export." },
     {
       "slug": "image-workflow-agent",
       "reason": "The MVP is app-only for now and does not expose a registry export boundary yet."

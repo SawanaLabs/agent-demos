@@ -42,3 +42,5 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Trace and Eval Agent](./trace-eval-agent.md): Stable research-agent, product trace-panel, and eval-pipeline conventions for the trace-eval-agent demo.
 - [Ultra Chatbot Agent](./ultra-chatbot-agent.md): Product and architecture boundary for the `vercel/chatbot` application-shape port.
 - [Ultra Chatbot Agent Source Checklist](./ultra-chatbot-agent-source-checklist.md): Source-tree checklist for validating the `vercel/chatbot` port.
+
+- [Canvas Agent](./canvas-agent.md): Independent branching workflow graph, floating conversation, execution stages, and result reuse.

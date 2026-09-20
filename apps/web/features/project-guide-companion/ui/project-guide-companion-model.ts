@@ -68,6 +68,10 @@ export const projectGuideCompanionStarterPrompts = [
 export function getProjectGuideCompanionSurface(
   pathname: string | null
 ): ProjectGuideCompanionSurface | null {
+  if (pathname === "/demos/canvas-agent") {
+    return null;
+  }
+
   if (pathname === "/") {
     return "home";
   }

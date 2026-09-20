@@ -1,0 +1,41 @@
+# Canvas Agent
+
+An independent Agent Demo at `/demos/canvas-agent`. Natural-language requests edit
+an executable graph on an infinite canvas. Text, reference images, and generated
+images can branch and merge. The floating conversation keeps running when folded;
+its composer remains available.
+
+Start in **仅编排** to create and revise the workflow without generation. Use
+**运行工作流** to recompute all nodes, or **运行到这里** to run a target while
+reusing valid upstream results. **允许 AI 生成** enables the execution tool for
+explicit generation requests. **用于下一步** adds a connected image node while
+preserving the existing result. Uploaded and generated content can be saved and
+opened as a workflow JSON file. Refreshing without saving loses the workspace.
+
+```text
+canvas-agent/
+├── demo-meta.ts
+├── model/graph.ts          # graph schema, DAG validation, invalidation
+├── server/env.ts           # existing AI Gateway configuration
+├── server/runner.ts        # dependency execution and multimodal inputs
+├── server/handler.ts       # agent tool set and streamed progress
+└── ui/                    # canvas, nodes, floating chat, run-stream consumer
+```
+
+Uses the existing `AI_GATEWAY_API_KEY`, optional `AI_GATEWAY_BASE_URL`,
+`AI_GATEWAY_CHAT_MODEL`, and `AI_GATEWAY_IMAGE_MODEL` configuration. The image
+model must support image outputs through `generateText`. Both API routes are
+wrapped by the host usage gate. One agent turn can run at most one graph with
+at most 20 nodes. No workflow, upload, or result is stored on the server.
+
+This canvas currently executes text and image generation. Video generation,
+GIF assembly, and depth extraction are not graph node types. The existing
+`/tools/depth-video` tool remains available independently.
+
+Reference research: the supplied 78-second Bilibili video
+`BV1Uuen64E2J` was inspected from the user's local MP4 at six-second intervals.
+It demonstrates source-video branching into a first frame and depth reference,
+then merging visual references into a video generation node. The second supplied
+example demonstrates reusing generated results for subsequent image edits and
+GIF assembly. This implementation provides the branching and reuse interaction;
+it does not claim those video or GIF operations are connected.

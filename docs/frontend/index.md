@@ -19,7 +19,6 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [Workspace UI](./workspace-ui.md): Shared primitive boundaries, UI package exports, app wrappers, app imports, and shadcn component placement.
 - [AI SDK Recipes Checklist](./ai-sdk-recipes-checklist.md): Working checklist for converting AI SDK Recipes, guide, and docs examples into portable Agent Demos.
 - [Agent Demo Structure](./agent-demo-structure.md): Copy-boundary layout for independent full-stack agent demos.
-- [Depth Video Tool](./depth-video-tool.md): Browser-local short-video depth processing and the boundary between site tools and Agent Demos.
 - [Generative UI](./generative-ui.md): Stable source-core and UX conventions for model-selected UI components rendered from AI SDK UI tool parts.
 - [Minimal Chat Agent](./minimal-chat-agent.md): Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output.
 - [Image Workflow Agent](./image-workflow-agent.md): Stable app-side conventions for the workflow canvas demo with graph-sync, manual run routing, and mobile chat fallback.

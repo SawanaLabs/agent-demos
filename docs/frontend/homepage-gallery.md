@@ -20,7 +20,6 @@ updateAt: 2026-08-17
 ## Current Subdomain Docs
 
 - Shape the homepage as a demo gallery for technical evaluators.
-- Site-level builder tools may appear in a separate callout above the demo groups. Keep them out of `demoCatalogEntries` and make the page category explicit, as with the `/tools/depth-video` entry.
 - Keep the hero action row compact and utility-scoped: random exploration actions should appear before repository/documentation links, and the random demo action must choose only ready Agent Demos so roadmap cards remain visible but non-active.
 - Open random exploration in a compact picker dialog: use a fixed-duration slot-machine motion, reveal one linked ready `Demo Catalog Entry` card, keep `This one` as the primary confirmation action, and make `Spin again` exclude the current result when another ready demo exists.
 - Present each ready agent demo as an active gallery card.

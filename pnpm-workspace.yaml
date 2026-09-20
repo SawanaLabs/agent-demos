@@ -7,4 +7,6 @@ allowBuilds:
   esbuild: true
   msw: true
   node-liblzma: true
+  onnxruntime-node: false
+  protobufjs: false
   sharp: true

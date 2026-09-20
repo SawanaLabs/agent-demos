@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import { createNode, editGraph, initialGraph, parseGraph } from "./graph";
 import {
   displayInputs,
+  nodeRunLabel,
   originalId,
   presentationEdges,
   resultPosition,
@@ -59,4 +60,26 @@ it("displays all connected materials immediately and generated results when avai
     { image: graph.assets.ref },
     graph.outputs.visual,
   ]);
+});
+
+it("labels a node run according to available upstream results and materials", () => {
+  const graph = initialGraph();
+  expect(nodeRunLabel(graph, "brief")).toBe("运行此节点");
+  expect(nodeRunLabel(graph, "visual")).toBe("运行到这里");
+  graph.outputs.brief = { text: "Ready" };
+  expect(nodeRunLabel(graph, "visual")).toBe("运行此节点");
+  const edited = editGraph(graph, {
+    ...graph,
+    nodes: graph.nodes.map((node) => ({ ...node, prompt: "Changed" })),
+  });
+  expect(nodeRunLabel(edited, "visual")).toBe("运行到这里");
+  const materialGraph = {
+    ...initialGraph(),
+    nodes: [
+      { ...createNode("prompt", 0), id: "prompt", prompt: "A cup" },
+      { ...createNode("image", 1), id: "image" },
+    ],
+    edges: [{ source: "prompt", target: "image" }],
+  };
+  expect(nodeRunLabel(materialGraph, "image")).toBe("运行此节点");
 });

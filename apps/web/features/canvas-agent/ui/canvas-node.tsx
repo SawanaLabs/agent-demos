@@ -32,6 +32,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
   output?: CanvasOutput;
   remove: () => void;
   run: () => void;
+  runLabel: string;
   update: (patch: Partial<CanvasNode>) => void;
   upload: (file: File) => void;
 }
@@ -160,7 +161,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
                   variant="secondary"
                 >
                   <PlayIcon className="size-3" />
-                  运行到这里
+                  {data.runLabel}
                 </Button>
               </div>
             )}

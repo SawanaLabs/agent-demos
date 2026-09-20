@@ -11,6 +11,7 @@ import {
 import {
   displayInputs,
   hasResult,
+  nodeRunLabel,
   resultId,
   resultPosition,
   workflowId,
@@ -76,6 +77,7 @@ export function useCanvasNodes(
       node,
       error: graph.errors[node.id],
       output: graph.outputs[node.id],
+      runLabel: nodeRunLabel(graph, node.id),
       asset: graph.assets[node.id],
       busy: c.busy,
       active: c.activeNode === node.id,

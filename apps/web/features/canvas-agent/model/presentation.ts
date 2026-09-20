@@ -1,4 +1,9 @@
-import { type CanvasGraph, type CanvasNode, materialOutput } from "./graph";
+import {
+  type CanvasGraph,
+  type CanvasNode,
+  executionOrder,
+  materialOutput,
+} from "./graph";
 
 export const workflowId = (id: string) => `node:${id}`;
 export const resultId = (id: string) => `result:${id}`;
@@ -65,4 +70,16 @@ export function displayInputs(graph: CanvasGraph, id: string) {
           {},
       };
     });
+}
+
+export function nodeRunLabel(graph: CanvasGraph, id: string) {
+  const upstreamReady = executionOrder(graph, id).every((sourceId) => {
+    if (sourceId === id || graph.outputs[sourceId]) {
+      return true;
+    }
+    const node = graph.nodes.find((item) => item.id === sourceId);
+    const material = node ? materialOutput(graph, node) : undefined;
+    return Boolean(material?.text?.trim() || material?.image);
+  });
+  return upstreamReady ? "运行此节点" : "运行到这里";
 }

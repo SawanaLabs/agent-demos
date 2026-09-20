@@ -13,8 +13,10 @@ node displays all connected text and images without invoking a model. It is a
 terminal display; continue workflows from the original material or result card.
 
 Start in **仅编排** to create and revise the workflow without generation. Use
-**运行工作流** to recompute all nodes, or **运行到这里** to run a target while
-reusing valid upstream results. **允许 AI 生成** enables the execution tool for
+**运行工作流** to recompute all nodes, or the node button to run a target while
+reusing valid upstream results. Its label is **运行此节点** when upstream results
+and materials are ready (including nodes without inputs), or **运行到这里** when
+upstream content is missing. **允许 AI 生成** enables the execution tool for
 explicit generation requests. **用于下一步** adds a connected image node while
 preserving the existing result. Uploaded and generated content can be saved and
 opened as a workflow JSON file. Refreshing without saving loses the workspace.

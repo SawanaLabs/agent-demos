@@ -49,7 +49,7 @@ export function CanvasChat({
     heading = activity;
   }
   if (error) {
-    heading = "操作未完成，可重试";
+    heading = failureTitle(controller.chatFailed);
   }
   return (
     <section
@@ -133,8 +133,8 @@ export function CanvasChat({
                   error={error}
                   isRetryDisabled={busy}
                   onRetry={controller.chatFailed ? controller.retry : undefined}
-                  retryLabel="重试"
-                  title="操作未完成"
+                  retryLabel="继续对话"
+                  title={failureTitle(controller.chatFailed)}
                 />
               </div>
             ) : null}
@@ -219,4 +219,8 @@ function CanvasComposer({
       </PromptInputFooter>
     </PromptInput>
   );
+}
+
+function failureTitle(chatFailed: boolean) {
+  return chatFailed ? "Agent 回复中断，可继续对话" : "操作未完成";
 }

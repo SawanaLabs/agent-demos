@@ -69,11 +69,18 @@ export function createMeteredDemoRouteFactory({
   function createMeteredDemoRoute<TContext = unknown>({
     action,
     demoSlug,
+    chargeMessage,
     handler,
   }: MeteredDemoRouteOptions<TContext>): MeteredDemoRoute<TContext> {
     return (request, context) =>
-      meter.handleMeteredRequest(request, { action, demoSlug }, () =>
-        handler({ context, request })
+      meter.handleMeteredRequest(
+        request,
+        {
+          action,
+          demoSlug,
+          ...(chargeMessage === undefined ? {} : { chargeMessage }),
+        },
+        () => handler({ context, request })
       );
   }
 
@@ -83,6 +90,7 @@ export function createMeteredDemoRouteFactory({
   >({
     action,
     demoSlug,
+    chargeMessage,
     handleVisitorRequest,
     handler,
   }: VisitorOwnedMeteredDemoRouteOptions<
@@ -90,10 +98,17 @@ export function createMeteredDemoRouteFactory({
     TVisitor
   >): MeteredDemoRoute<TContext> {
     return (request, context) =>
-      meter.handleMeteredRequest(request, { action, demoSlug }, () =>
-        handleVisitorRequest(request, (ownedRequest, visitor) =>
-          handler({ context, request: ownedRequest, visitor })
-        )
+      meter.handleMeteredRequest(
+        request,
+        {
+          action,
+          demoSlug,
+          ...(chargeMessage === undefined ? {} : { chargeMessage }),
+        },
+        () =>
+          handleVisitorRequest(request, (ownedRequest, visitor) =>
+            handler({ context, request: ownedRequest, visitor })
+          )
       );
   }
 

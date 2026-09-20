@@ -113,3 +113,25 @@ describe("metered demo route module", () => {
     expect(handleVisitorRequest).toHaveBeenCalledTimes(1);
   });
 });
+
+it("passes the server-owned message exemption to the resource meter", async () => {
+  const handleMeteredRequest = vi.fn(async (_request, _options, handler) =>
+    handler()
+  );
+  const { createMeteredDemoRoute } = createMeteredDemoRouteFactory({
+    meter: { handleMeteredRequest },
+  });
+  const route = createMeteredDemoRoute({
+    action: "send_message",
+    demoSlug: "canvas-agent",
+    chargeMessage: false,
+    handler: async () => Response.json({ ok: true }),
+  });
+  const request = new Request("http://localhost/api/demos/canvas-agent");
+  await route(request, undefined);
+  expect(handleMeteredRequest).toHaveBeenCalledWith(
+    request,
+    { action: "send_message", demoSlug: "canvas-agent", chargeMessage: false },
+    expect.any(Function)
+  );
+});

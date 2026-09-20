@@ -5,7 +5,7 @@ import { resolveSiteUsagePolicy } from "./policy";
 import { createSiteUsageGate, type SiteUsageGateStore } from "./route-wrapper";
 
 const now = new Date("2026-05-29T10:00:00.000Z");
-function fixture(used = 0) {
+function fixture(used = 0, chargeMessage = true) {
   const events = new Map(
     Array.from({ length: used }, (_, i) => [`existing-${i}`, now])
   );
@@ -45,7 +45,7 @@ function fixture(used = 0) {
   const run = (handler: () => Promise<Response>) =>
     gate.handleMeteredRequest(
       request,
-      { action: "send_message", demoSlug: "canvas-agent" },
+      { action: "send_message", demoSlug: "canvas-agent", chargeMessage },
       handler
     );
   return { events, run };
@@ -149,4 +149,29 @@ it("reserves batch image credits atomically without partial charges on denial", 
     return Response.json({ ok: true });
   });
   expect(allowed.events.size).toBe(16);
+});
+
+it("allows free Canvas conversations at zero credits while still enforcing node costs", async () => {
+  const exhausted = fixture(50, false);
+  expect(
+    (await exhausted.run(async () => Response.json({ reply: "hello" }))).status
+  ).toBe(200);
+  expect(exhausted.events.size).toBe(50);
+  const denied = await exhausted.run(async () => {
+    await consumeResource("image_generation");
+    return Response.json({ ok: true });
+  });
+  expect(denied.status).toBe(429);
+  expect(await denied.json()).toMatchObject({
+    requiredUnits: 5,
+    policy: { remainingUnits: 0 },
+  });
+  expect(exhausted.events.size).toBe(50);
+  const allowed = fixture(44, false);
+  await allowed.run(async () => {
+    await consumeResource("text_generation");
+    await consumeResource("image_generation");
+    return Response.json({ ok: true });
+  });
+  expect(allowed.events.size).toBe(50);
 });

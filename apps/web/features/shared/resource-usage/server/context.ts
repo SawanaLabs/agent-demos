@@ -11,7 +11,19 @@ const execution = new AsyncLocalStorage<
   (operation: ResourceOperation, count?: number) => Promise<void>
 >();
 
-export class ResourceUsageDeniedError extends Error {}
+export interface ResourceUsageDenial {
+  remainingUnits: number;
+  requiredUnits: number;
+  resetAt: string;
+}
+
+export class ResourceUsageDeniedError extends Error {
+  readonly details?: ResourceUsageDenial;
+  constructor(message: string, details?: ResourceUsageDenial) {
+    super(message);
+    this.details = details;
+  }
+}
 
 export function withResourceUsage<T>(
   consume: (operation: ResourceOperation, count?: number) => Promise<void>,

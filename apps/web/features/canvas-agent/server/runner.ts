@@ -270,7 +270,9 @@ function inputError(graph: CanvasGraph, node: CanvasNode) {
 
 function publicNodeFailure(error: unknown, kind: CanvasNode["kind"]) {
   if (error instanceof ResourceUsageDeniedError) {
-    return error.message;
+    return error.details
+      ? `生成额度不足：需要 ${error.details.requiredUnits} 点，当前剩余 ${error.details.remainingUnits} 点。已完成的结果已保留。`
+      : error.message;
   }
   return kind === "gif"
     ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"

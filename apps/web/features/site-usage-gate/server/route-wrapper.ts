@@ -38,6 +38,7 @@ export interface SiteUsageGateStore {
 
 export interface SiteUsageGateOptions {
   action: SiteUsageGateAction;
+  chargeMessage?: boolean;
   demoSlug: string;
 }
 export type MeteredRouteHandler = () => Promise<Response>;
@@ -53,7 +54,12 @@ class CreditLimitError extends ResourceUsageDeniedError {
   readonly payload: SiteUsageLimitPayload;
   constructor(payload: SiteUsageLimitPayload) {
     super(
-      `Not enough demo credits. This operation needs ${payload.requiredUnits} credits; ${payload.policy.remainingUnits} remain. Credits refresh at ${payload.resetAt}.`
+      `Not enough demo credits. This operation needs ${payload.requiredUnits} credits; ${payload.policy.remainingUnits} remain. Credits refresh at ${payload.resetAt}.`,
+      {
+        requiredUnits: payload.requiredUnits ?? 0,
+        remainingUnits: payload.policy.remainingUnits,
+        resetAt: payload.resetAt,
+      }
     );
     this.payload = payload;
   }
@@ -102,7 +108,9 @@ export function createSiteUsageGate({
       let baseEventIds: string[] = [];
       let response: Response;
       try {
-        baseEventIds = await reserve(options.action, messageCreditCost);
+        if (options.chargeMessage !== false) {
+          baseEventIds = await reserve(options.action, messageCreditCost);
+        }
         response = await withResourceUsage(async (operation, count = 1) => {
           await reserve(operation, resourceCreditCosts[operation] * count);
         }, handler);

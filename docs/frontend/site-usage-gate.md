@@ -23,19 +23,19 @@ updateAt: 2026-09-21
 - The default is 50 credits per UTC calendar day. Unused credits do not accumulate.
 - Existing events each count as one credit. No schema migration or history rewrite is required.
 - Prices live together in `apps/web/features/site-usage-gate/pricing.ts`:
-  - Each metered message/action or manual workflow request costs 1 credit.
+  - Each metered message/action or manual workflow request costs 1 credit, except Canvas Agent chat, which is free.
   - Each executed image generation adds 5 credits.
   - Each executed Canvas text generation node adds 1 credit.
   - Each RAG retrieval adds 1 credit, including retrieval through Ultra Chatbot.
   - Each newly created shared Vercel Sandbox adds 4 credits. Reusing an existing sandbox does not incur another startup charge.
-- A message generating one image therefore costs 6 credits. Two generated images cost 11 credits. Workflow costs follow executed nodes, including internal agent tool execution.
-- Reused outputs, graph edits, material/output nodes, and GIF assembly do not add resource credits. An agent message requesting edits still incurs its message credit; a manual run still incurs its request credit.
+- Outside Canvas Agent chat, a message generating one image costs 6 credits and two generated images cost 11 credits. Canvas Agent chat charges only the generated resources: one image costs 5 credits and two images cost 10 credits. Workflow costs follow executed nodes, including internal agent tool execution.
+- Reused outputs, graph edits, material/output nodes, and GIF assembly do not add resource credits. Canvas Agent messages are exempt from the base message charge, including at zero balance; its executed generation nodes still reserve resource credits. Other agent messages and manual workflow requests retain their base charge.
 - Automatic provider retries inside a logical generation do not incur another resource charge. Starting a new user-requested attempt does.
 - These are application prices, not provider token or dollar accounting. Hosted search, Realtime duration, uploads, and storage do not have separate credit prices in this version; existing metered entrypoints still charge their base credit.
 
 ## Enforcement
 
-- `server/route-wrapper.ts` reserves the base credit before entering the handler. Validation/setup errors returned before streaming refund this base reservation. Resource attempts already started retain their charge.
+- `server/route-wrapper.ts` reserves the base credit before entering the handler unless the server route explicitly sets `chargeMessage: false`. Canvas Agent chat sets this flag; clients cannot select it. Validation/setup errors returned before streaming refund this base reservation. Resource attempts already started retain their charge.
 - `server/store.ts` locks the visitor row inside a Postgres transaction, resolves the live invitation policy, checks the current window, and inserts all credits for the operation atomically. Requests for the same visitor cannot spend the same balance concurrently.
 - Resource costs are reserved immediately before the provider call. Insufficient balance prevents that operation from starting. Provider failures after reservation retain the resource charge.
 - Operations in a workflow reserve independently. If a later node cannot be funded, completed outputs remain usable; the next expensive operation is blocked. Whole-workflow prepayment is not implemented.

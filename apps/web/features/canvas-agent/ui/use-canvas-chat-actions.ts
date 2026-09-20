@@ -1,6 +1,6 @@
 "use client";
 import type { UseChatHelpers } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
+import { isToolUIPart, type UIMessage } from "ai";
 import { type RefObject, useState } from "react";
 
 export function useCanvasChatActions(
@@ -39,9 +39,7 @@ export function useCanvasChatActions(
       last?.role === "assistant" &&
       last.parts.some((part) => part.type.startsWith("tool-"))
     ) {
-      await send(
-        "请继续完成上一条需求。先检查画布，复用已有节点和已完成结果，只执行尚未完成的部分。"
-      );
+      await send(canvasRetryMessage(last));
       return;
     }
     busyRef.current = true;
@@ -69,4 +67,19 @@ export function useCanvasChatActions(
       setStopped(true);
     },
   };
+}
+
+export function canvasRetryMessage(message: UIMessage) {
+  const failed = message.parts.some(
+    (part) =>
+      isToolUIPart(part) &&
+      (part.state === "output-error" ||
+        (part.state === "output-available" &&
+          part.output &&
+          typeof part.output === "object" &&
+          "error" in part.output))
+  );
+  return failed
+    ? "请继续说明上一轮工具执行的结果、失败原因和下一步建议。不要重新运行节点，不要再次尝试生成。"
+    : "请继续完成上一条需求。先检查画布，复用已有节点和已完成结果，只执行尚未完成的部分。";
 }

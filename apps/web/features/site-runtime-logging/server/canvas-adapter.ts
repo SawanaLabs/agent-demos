@@ -1,5 +1,6 @@
 import { APICallError, RetryError } from "ai";
 import type { CanvasFailureObserver } from "@/features/canvas-agent/server/runner";
+import { ResourceUsageDeniedError } from "@/features/shared/resource-usage/server/context";
 import { type RuntimeErrorEvent, runtimeErrorEvents } from "./events";
 import type { RuntimeErrorContext } from "./logger";
 import { runtimeErrorLogger } from "./server-logger";
@@ -14,6 +15,9 @@ export function createCanvasFailureObserver(
     const cause = RetryError.isInstance(error.cause)
       ? error.cause.lastError
       : error.cause;
+    if (cause instanceof ResourceUsageDeniedError) {
+      return;
+    }
     const category = kind === "gif" ? "tool" : "provider";
     logger.error(
       category === "tool"

@@ -165,7 +165,9 @@ export function CreditBalanceButton() {
               A message with one generated image uses{" "}
               {messageCreditCost + resourceCreditCosts.image_generation}{" "}
               credits. Workflows add up the nodes they execute. Reused results
-              and regular canvas edits cost no extra credits.
+              and regular canvas edits cost no extra credits. Canvas Agent chat
+              is free; its generated images cost{" "}
+              {resourceCreditCosts.image_generation} credits each.
             </p>
             <p className="text-muted-foreground text-xs/relaxed">
               Generation attempts use credits even if the provider fails.

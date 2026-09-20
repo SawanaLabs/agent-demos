@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 export const POST = createMeteredDemoRoute({
   action: "send_message",
+  chargeMessage: false,
   demoSlug: "canvas-agent",
   handler: ({ request }) =>
     handleCanvasChat(request, createCanvasFailureObserver("agent")),

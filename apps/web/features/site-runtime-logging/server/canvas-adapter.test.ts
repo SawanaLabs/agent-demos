@@ -1,6 +1,7 @@
 import { APICallError } from "ai";
 import { expect, it, vi } from "vitest";
 import { CanvasNodeError } from "@/features/canvas-agent/server/runner";
+import { ResourceUsageDeniedError } from "@/features/shared/resource-usage/server/context";
 
 vi.mock("./server-logger", () => ({ runtimeErrorLogger: { error: vi.fn() } }));
 
@@ -42,4 +43,15 @@ it.each([
     source,
   });
   expect(record).not.toContain("private");
+});
+
+it("does not report an expected credit denial as a provider failure", () => {
+  const logger = { error: vi.fn() };
+  createCanvasFailureObserver("agent", logger)(
+    new CanvasNodeError("image", "额度不足", {
+      cause: new ResourceUsageDeniedError("额度不足"),
+    }),
+    "image"
+  );
+  expect(logger.error).not.toHaveBeenCalled();
 });

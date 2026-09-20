@@ -1,0 +1,14 @@
+.node {
+  overflow: visible;
+}
+
+.node [class~="react-flow__handle"] {
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 2px solid var(--background);
+}
+
+.result [class~="react-flow__handle-left"] {
+  pointer-events: none;
+}

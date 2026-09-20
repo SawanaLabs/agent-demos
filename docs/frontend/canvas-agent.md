@@ -20,3 +20,7 @@ updateAt: 2026-09-20
 - Video generation, GIF assembly, and depth extraction are not supported graph operations. `/tools/depth-video` is a separate browser tool.
 
 - Node execution and input failures are stored by node ID in `graph.errors` and streamed with graph snapshots. Render them inside the feature node using the shared shadcn Alert; graph-level or transport failures remain in the conversation. Retrying clears errors for the run path; editing inputs clears affected node and descendant errors. Older exports default to an empty error map.
+
+- Toolbar exposes image/text generators, image/text materials, and a terminal output display. `prompt` materials pass literal text unchanged; `reference` materials pass uploaded images. Neither calls a model. Generators may receive their prompt entirely from upstream text. `output` accepts multiple inputs and displays materials immediately and generated outputs as available; it has no outgoing edges and makes no model calls.
+- Image outputs appear as separate draggable result cards via `model/presentation.ts`. These cards project the generator output, retaining the generator ID as the executable dependency; they do not duplicate assets or add executable nodes. View IDs are namespaced. Optional `node.resultPosition` persists result placement. Rerunning updates the same card; input edits invalidate stale results. Cards can connect to downstream generators or displays.
+- Feature-local node styles override Card overflow and enlarge XYFlow handles so manual connections remain accessible.

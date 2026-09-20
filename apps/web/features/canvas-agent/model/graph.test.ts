@@ -128,7 +128,7 @@ it("publishes failure on the exact node, preserves upstream output, and clears i
 it("locates missing input errors before executing any node", async () => {
   const graph = initialGraph();
   graph.nodes = graph.nodes.map((node) =>
-    node.id === "visual" ? { ...node, prompt: "" } : node
+    node.id === "brief" ? { ...node, prompt: "" } : node
   );
   let latest = graph;
   await expect(
@@ -142,7 +142,41 @@ it("locates missing input errors before executing any node", async () => {
         latest = next;
       }
     )
-  ).rejects.toMatchObject({ nodeId: "visual" });
-  expect(latest.errors.visual).toContain("提示词");
+  ).rejects.toMatchObject({ nodeId: "brief" });
+  expect(latest.errors.brief).toContain("提示词");
   expect(latest.outputs).toEqual({});
+});
+
+it("merges literal text and image inputs without generating materials or displays", async () => {
+  const graph = initialGraph();
+  graph.nodes = [
+    { ...createNode("prompt", 0), id: "prompt", prompt: "Make the cup blue" },
+    { ...createNode("reference", 1), id: "ref" },
+    { ...createNode("image", 2), id: "generate" },
+    { ...createNode("output", 3), id: "display" },
+  ];
+  graph.edges = [
+    { source: "prompt", target: "generate" },
+    { source: "ref", target: "generate" },
+    { source: "generate", target: "display" },
+    { source: "prompt", target: "display" },
+  ];
+  graph.assets.ref = "data:image/png;base64,YQ==";
+  const calls: string[] = [];
+  const result = await runGraph(graph, undefined, (node, inputs) => {
+    calls.push(node.id);
+    expect(inputs).toEqual([
+      { text: "Make the cup blue" },
+      { image: graph.assets.ref },
+    ]);
+    return Promise.resolve({ image: "data:image/png;base64,Yg==" });
+  });
+  expect(calls).toEqual(["generate"]);
+  expect(result.outputs.display).toEqual({});
+  expect(() =>
+    executionOrder({
+      ...graph,
+      edges: [...graph.edges, { source: "display", target: "generate" }],
+    })
+  ).toThrow("仅用于展示");
 });

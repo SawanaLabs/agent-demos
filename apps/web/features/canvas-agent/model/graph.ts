@@ -6,10 +6,13 @@ const imageSchema = z
   .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/);
 export const nodeSchema = z.object({
   id: z.string().min(1).max(80),
-  kind: z.enum(["text", "image", "reference"]),
+  kind: z.enum(["text", "image", "reference", "prompt", "output"]),
   label: z.string().min(1).max(100),
   prompt: z.string().max(12_000),
   aspectRatio: z.enum(["1:1", "16:9", "9:16"]),
+  resultPosition: z
+    .object({ x: z.number().finite(), y: z.number().finite() })
+    .optional(),
   position: z.object({ x: z.number().finite(), y: z.number().finite() }),
 });
 export const definitionSchema = z.object({
@@ -46,9 +49,16 @@ export function executionOrder(
       throw new Error("连线无效或重复。");
     }
     if (
-      graph.nodes.find((node) => node.id === edge.target)?.kind === "reference"
+      ["reference", "prompt"].includes(
+        graph.nodes.find((node) => node.id === edge.target)?.kind ?? ""
+      )
     ) {
-      throw new Error("参考图节点不能接收输入。");
+      throw new Error("素材节点不能接收输入。");
+    }
+    if (
+      graph.nodes.find((node) => node.id === edge.source)?.kind === "output"
+    ) {
+      throw new Error("输出节点仅用于展示，请从原始素材或生成结果继续连线。");
     }
     edges.add(key);
   }
@@ -138,7 +148,13 @@ export function createNode(
   return {
     id: crypto.randomUUID(),
     kind,
-    label: { text: "文本生成", image: "图片生成", reference: "参考图" }[kind],
+    label: {
+      text: "生成文本",
+      image: "生成图片",
+      reference: "图片素材",
+      prompt: "文本素材",
+      output: "输出",
+    }[kind],
     prompt: "",
     aspectRatio: "16:9",
     position: {
@@ -203,4 +219,20 @@ function retainValidEntries<T>(
       ([id]) => !invalid.has(id) && graph.nodes.some((node) => node.id === id)
     )
   );
+}
+
+export function materialOutput(
+  graph: CanvasGraph,
+  node: CanvasNode
+): CanvasOutput | undefined {
+  if (node.kind === "reference") {
+    return { image: graph.assets[node.id] };
+  }
+  if (node.kind === "prompt") {
+    return { text: node.prompt };
+  }
+  if (node.kind === "output") {
+    return {};
+  }
+  return;
 }

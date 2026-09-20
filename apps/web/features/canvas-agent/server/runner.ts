@@ -5,8 +5,10 @@ import {
   type CanvasOutput,
   executionOrder,
   invalidateOutputs,
+  materialOutput,
   parseGraph,
 } from "../model/graph";
+import { availableResultPosition } from "../model/presentation";
 import { canvasModels } from "./env";
 
 export type NodeExecutor = (
@@ -93,7 +95,7 @@ export async function runGraph(
     if (node.kind === "reference" && !graph.assets[id]) {
       fail(id, `请为「${node.label}」上传参考图。`);
     }
-    if (node.kind !== "reference" && !node.prompt.trim()) {
+    if (needsPrompt(graph, node)) {
       fail(id, `请填写「${node.label}」的提示词。`);
     }
   }
@@ -111,9 +113,7 @@ export async function runGraph(
       .filter((output): output is CanvasOutput => Boolean(output));
     try {
       graph.outputs[id] =
-        node.kind === "reference"
-          ? { image: graph.assets[id] }
-          : await execute(node, inputs, signal);
+        materialOutput(graph, node) ?? (await execute(node, inputs, signal));
     } catch (error) {
       if (signal?.aborted) {
         throw error;
@@ -123,8 +123,21 @@ export async function runGraph(
         "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
       );
     }
+    if (node.kind === "image" && graph.outputs[id]?.image) {
+      node.resultPosition = availableResultPosition(graph, node);
+    }
     graph.revision += 1;
     onProgress?.(graph, null);
   }
   return graph;
+}
+
+function needsPrompt(graph: CanvasGraph, node: CanvasNode) {
+  if (["reference", "output"].includes(node.kind) || node.prompt.trim()) {
+    return false;
+  }
+  return (
+    node.kind === "prompt" ||
+    !graph.edges.some((edge) => edge.target === node.id)
+  );
 }

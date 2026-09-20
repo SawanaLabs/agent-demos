@@ -5,6 +5,13 @@ an executable graph on an infinite canvas. Text, reference images, and generated
 images can branch and merge. The floating conversation keeps running when folded;
 its composer remains available.
 
+The toolbar exposes **生成图片**, **生成文本**, **图片素材**, **文本素材**,
+and **输出**. Text materials pass literal prompts without model calls. Multiple
+materials can feed one generator. Image results appear as separate draggable
+cards with outgoing connections; rerunning replaces that result. A manual output
+node displays all connected text and images without invoking a model. It is a
+terminal display; continue workflows from the original material or result card.
+
 Start in **仅编排** to create and revise the workflow without generation. Use
 **运行工作流** to recompute all nodes, or **运行到这里** to run a target while
 reusing valid upstream results. **允许 AI 生成** enables the execution tool for

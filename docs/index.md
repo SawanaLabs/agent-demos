@@ -16,6 +16,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 - [Observability](./observability/index.md): Development-only observability harness, metrics/logs/traces boundaries, and backend-adapter conventions.
 - [Telemetry](./telemetry/index.md): Production product analytics, runtime error logging, privacy, deployment gates, and registry isolation.
 - [Planning](./planning/index.md): Recoverable work topics, intended future states, and planning docs for future agents or teammates.
+- [Research](./research/index.md): 模型成本、工具与产品技术选择的研究证据和比较边界。
 
 <!-- BEGIN:docs-generated-catalog -->
 | File | Title | Description | Updated |
@@ -68,6 +69,9 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./repo/database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./repo/index.md | Repo | Navigation for repository layout and workflow knowledge. | 2026-05-21 |
 | ./repo/monorepo.md | Monorepo | Durable conventions for the pnpm and Turborepo workspace structure. | 2026-06-02 |
+| ./research/DOCS.md | Research Knowledge Protocol | Evidence, freshness, and scope conventions for reusable project research. | 2026-09-21 |
+| ./research/index.md | Research | 按主题组织模型、工具与产品技术选择的研究证据。 | 2026-09-21 |
+| ./research/text-model-cost-research.md | 文本模型标价与任务成本研究 | GPT-4.1 mini、GPT-5 mini 与 GPT-5.6 Luna 的官方标价、Artificial Analysis 任务成本与比较边界。 | 2026-09-21 |
 | ./telemetry/DOCS.md | Telemetry Knowledge Protocol | Domain language and hard boundaries for deployed product analytics and runtime error logging. | 2026-08-17 |
 | ./telemetry/index.md | Telemetry | Navigation for deployed product analytics and runtime error logging knowledge. | 2026-08-17 |
 | ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-20 |

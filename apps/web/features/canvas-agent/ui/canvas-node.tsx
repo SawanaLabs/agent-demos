@@ -11,6 +11,13 @@ import {
 } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
 import { Textarea } from "@workspace/ui/components/textarea";
 import {
   AlertCircleIcon,
@@ -185,21 +192,28 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
       ) : (
         <div className="flex items-center justify-between gap-2">
           {node.kind === "image" ? (
-            <select
-              aria-label="画面比例"
-              className="nodrag rounded-md border bg-background p-1 text-xs"
+            <Select
               disabled={busy}
-              onChange={(event) =>
-                data.update({
-                  aspectRatio: event.target.value as CanvasNode["aspectRatio"],
-                })
-              }
+              onValueChange={(value) => {
+                if (value) {
+                  data.update({ aspectRatio: value });
+                }
+              }}
               value={node.aspectRatio}
             >
-              <option>16:9</option>
-              <option>1:1</option>
-              <option>9:16</option>
-            </select>
+              <SelectTrigger aria-label="画面比例" className="nodrag" size="sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                align="start"
+                alignItemWithTrigger={false}
+                className="nodrag nowheel"
+              >
+                <SelectItem value="16:9">16:9</SelectItem>
+                <SelectItem value="1:1">1:1</SelectItem>
+                <SelectItem value="9:16">9:16</SelectItem>
+              </SelectContent>
+            </Select>
           ) : (
             <span className="text-muted-foreground text-xs">
               接收上游文本与图片

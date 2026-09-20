@@ -3,10 +3,33 @@
 }
 
 .node [class~="react-flow__handle"] {
-  width: 20px;
-  height: 20px;
-  background: var(--primary);
-  border: 2px solid var(--background);
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+}
+
+.node [class~="react-flow__handle"]::after {
+  position: absolute;
+  inset: 11px;
+  pointer-events: none;
+  content: "";
+  background: var(
+    --xy-handle-background-color,
+    var(--xy-handle-background-color-default)
+  );
+  border: 1px solid
+    var(--xy-handle-border-color, var(--xy-handle-border-color-default));
+  border-radius: 50%;
+}
+
+/* Match the original Card-clipped half-circle without clipping the hit area. */
+.node [class~="react-flow__handle-left"]::after {
+  clip-path: inset(0 0 0 50%);
+}
+
+.node [class~="react-flow__handle-right"]::after {
+  clip-path: inset(0 50% 0 0);
 }
 
 .result [class~="react-flow__handle-left"] {

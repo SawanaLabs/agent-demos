@@ -5,10 +5,10 @@ import { type ComponentProps, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
 import {
   displayInputs,
-  hasResult,
   nodeRunLabel,
   resultId,
   resultPosition,
+  resultSlots,
   workflowId,
 } from "../model/presentation";
 import { outputItems } from "../model/results";
@@ -38,9 +38,8 @@ export function useCanvasNodes(
     data: {
       continueFrom: (index?: number) => {
         const next = createNode("image", graph.nodes.length);
-        const origin = hasResult(graph, node.id)
-          ? resultPosition(node, index)
-          : node.position;
+        const origin =
+          index === undefined ? node.position : resultPosition(node, index);
         next.position = { x: origin.x + 420, y: origin.y };
         next.prompt = ["text", "prompt"].includes(node.kind)
           ? "根据上游文本生成一张图片，不添加文字。"
@@ -103,28 +102,32 @@ export function useCanvasNodes(
       const result = graph.outputs[node.id];
       return [
         item,
-        ...(hasResult(graph, node.id) && result
-          ? outputItems(result).map((content, index) => ({
-              id: resultId(node.id, index),
-              position: resultPosition(node, index),
-              type: "display",
-              deletable: false,
-              data: {
-                label: result.results
-                  ? `${index + 1}. ${content.label ?? "预览输出"}`
-                  : "预览输出",
-                items: [
-                  {
-                    id: `${node.id}:${index}`,
-                    label: content.label ?? node.label,
-                    content,
-                  },
-                ],
-                busy: c.busy,
-                continueFrom: () => item.data.continueFrom(index),
-              } satisfies CanvasDisplayData,
-            }))
-          : []),
+        ...resultSlots(node).map((index) => {
+          const content = outputItems(result)[index];
+          return {
+            id: resultId(node.id, index),
+            position: resultPosition(node, index),
+            type: "display",
+            deletable: false,
+            data: {
+              label: `结果 ${index + 1}`,
+              items: content
+                ? [
+                    {
+                      id: `${node.id}:${index}`,
+                      label: content.label ?? node.label,
+                      content,
+                    },
+                  ]
+                : [],
+              emptyText: graph.errors[node.id]
+                ? "生成失败，请查看生成节点中的错误。"
+                : "等待生成。可先从右侧连接下游，此处只传递这一份结果。",
+              busy: c.busy,
+              continueFrom: () => item.data.continueFrom(index),
+            } satisfies CanvasDisplayData,
+          };
+        }),
       ];
     });
   return {

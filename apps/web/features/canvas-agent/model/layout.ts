@@ -1,12 +1,11 @@
 import { Graph, layout } from "@dagrejs/dagre";
 import type { CanvasGraph } from "./graph";
 import {
-  hasResult,
   presentationEdges,
   resultId,
+  resultSlots,
   workflowId,
 } from "./presentation";
-import { outputItems } from "./results";
 
 interface MeasuredNode {
   id: string;
@@ -31,12 +30,8 @@ export function arrangeGraph(
   );
   for (const node of graph.nodes) {
     const ids = [workflowId(node.id)];
-    if (hasResult(graph, node.id)) {
-      ids.push(
-        ...outputItems(graph.outputs[node.id]).map((_, index) =>
-          resultId(node.id, index)
-        )
-      );
+    if (resultSlots(node).length > 0) {
+      ids.push(...resultSlots(node).map((index) => resultId(node.id, index)));
     }
     for (const id of ids) {
       const size = measurements.get(id);
@@ -58,11 +53,11 @@ export function arrangeGraph(
     nodes: graph.nodes.map((node) => ({
       ...node,
       position: position(workflowId(node.id)),
-      ...(hasResult(graph, node.id)
+      ...(resultSlots(node).length > 0
         ? {
             resultPosition: position(resultId(node.id)),
             resultPositions: Object.fromEntries(
-              outputItems(graph.outputs[node.id]).map((_, index) => [
+              resultSlots(node).map((index) => [
                 index,
                 position(resultId(node.id, index)),
               ])

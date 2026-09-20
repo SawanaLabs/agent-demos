@@ -14,6 +14,7 @@ import styles from "./canvas-node.module.css";
 export interface CanvasDisplayData extends Record<string, unknown> {
   busy: boolean;
   continueFrom?: () => void;
+  emptyText?: string;
   items: { id: string; label: string; content: CanvasOutput }[];
   label: string;
   remove?: () => void;
@@ -23,7 +24,10 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
   return (
     <Node
       className={`${styles.node} ${data.continueFrom ? styles.result : ""} w-80 shadow-sm`}
-      handles={{ source: Boolean(data.continueFrom), target: true }}
+      handles={{
+        source: Boolean(data.continueFrom),
+        target: true,
+      }}
     >
       <NodeHeader>
         <div className="flex items-center justify-between">
@@ -52,7 +56,8 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
           ))
         ) : (
           <p className="text-muted-foreground text-sm">
-            把文本或图片连到左侧圆点，在这里集中查看。无需单独运行。
+            {data.emptyText ??
+              "把文本或图片连到左侧圆点，在这里集中查看。无需单独运行。"}
           </p>
         )}
       </NodeContent>

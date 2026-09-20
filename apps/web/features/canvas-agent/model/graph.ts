@@ -4,9 +4,18 @@ import { canvasImageSchema } from "./image";
 
 export const nodeSchema = z.object({
   id: z.string().min(1).max(80),
-  kind: z.enum(["text", "image", "reference", "prompt", "output", "gif"]),
+  kind: z
+    .enum(["text", "image", "reference", "prompt", "output", "gif"])
+    .describe(
+      "text: AI text generation; image: AI image generation; reference: user-uploaded image; prompt: literal text passed unchanged; output: terminal preview collecting inputs without generation or outgoing connections; gif: assemble one grid image into a looping GIF without an AI call. Generators already have automatic per-result previews; add output only for an explicit collection/display request. Video generation and depth extraction are unsupported."
+    ),
   label: z.string().min(1).max(100),
-  prompt: z.string().max(12_000),
+  prompt: z
+    .string()
+    .max(12_000)
+    .describe(
+      "Concrete, self-contained generation instructions. For multiple results, specify each independent deliverable and its order, matching resultCount. Each text result must be usable by its downstream consumer without the other results. For a shared brief with multiple sections keep resultCount at 1."
+    ),
   aspectRatio: z.enum(["1:1", "16:9", "9:16"]),
   gif: z
     .object({
@@ -14,8 +23,19 @@ export const nodeSchema = z.object({
       columns: z.number().int().min(1).max(4),
       fps: z.number().min(1).max(24),
     })
-    .optional(),
-  resultCount: z.number().int().min(1).max(4).optional(),
+    .optional()
+    .describe(
+      "Split ONE upstream grid image into equal cells in row-major order and assemble a looping GIF. Defaults: 2x2 at 4fps. For a smoother turntable use a uniform 4x4 sheet, 16 frames at 22.5 degree increments, 8fps. Ask the upstream image generator for equal cells, consistent scale/centering/background, no gutters, borders, labels or text. Slicing does not interpolate frames or ensure character identity."
+    ),
+  resultCount: z
+    .number()
+    .int()
+    .min(1)
+    .max(4)
+    .optional()
+    .describe(
+      "Number of independent text/image deliverables, default 1. Two separately consumed prompts require 2; one shared brief feeding two branches still requires 1. Text uses structured results, images use a native batch. Counts are not inferred from connections. Results have zero-based indices and their own previews even before generation. To route each separately, use connectNodes.resultIndex. Changing this value invalidates this node and descendants; disconnect out-of-range result connections before reducing it."
+    ),
   resultPositions: z
     .record(
       z.string(),
@@ -226,7 +246,7 @@ export function initialGraph(): CanvasGraph {
         label: "产品画面",
         prompt: "根据上游提示词生成产品摄影，构图干净，不添加文字。",
         aspectRatio: "16:9",
-        position: { x: 500, y: 140 },
+        position: { x: 920, y: 140 },
       },
     ],
     edges: [{ source: "brief", target: "visual" }],

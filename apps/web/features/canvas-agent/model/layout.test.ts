@@ -2,9 +2,9 @@ import { expect, it } from "vitest";
 import { createNode, editGraph, initialGraph } from "./graph";
 import { arrangeGraph } from "./layout";
 import {
-  hasResult,
   presentationEdges,
   resultId,
+  resultSlots,
   workflowId,
 } from "./presentation";
 
@@ -28,7 +28,7 @@ it("arranges branches, results and disconnected nodes without changing workflow 
       id: workflowId(node.id),
       measured: { width: 320, height: node.id === "preview" ? 900 : 350 },
     },
-    ...(hasResult(graph, node.id)
+    ...(resultSlots(node).length > 0
       ? [{ id: resultId(node.id), measured: { width: 288, height: 420 } }]
       : []),
   ]);

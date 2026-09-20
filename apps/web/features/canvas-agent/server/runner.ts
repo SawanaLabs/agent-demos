@@ -14,7 +14,6 @@ import {
   materialOutput,
   parseGraph,
 } from "../model/graph";
-import { availableResultPosition, hasResult } from "../model/presentation";
 import { edgeInputs, outputItems } from "../model/results";
 import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels } from "./env";
 import { assembleGif } from "./gif";
@@ -229,9 +228,6 @@ export async function runGraph(
       const failure = new CanvasNodeError(id, message, { cause: error });
       reportFailure(onFailure, failure, node.kind);
       fail(failure);
-    }
-    if (hasResult(graph, id)) {
-      node.resultPosition = availableResultPosition(graph, node);
     }
     graph.revision += 1;
     onProgress?.(graph, null);

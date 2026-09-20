@@ -23,55 +23,40 @@ export const resultPosition = (node: CanvasNode, index = 0) => {
     ? base
     : (node.resultPositions?.[index] ?? { x: base.x, y: base.y + index * 480 });
 };
-export function availableResultPosition(graph: CanvasGraph, node: CanvasNode) {
-  if (node.resultPosition) {
-    return node.resultPosition;
-  }
-  const position = resultPosition(node);
-  const occupied = graph.nodes.flatMap((item) => [
-    item.position,
-    ...(item.resultPosition ? [item.resultPosition] : []),
-  ]);
-  while (
-    occupied.some(
-      (other) =>
-        Math.abs(position.x - other.x) < 340 &&
-        Math.abs(position.y - other.y) < 380
-    )
-  ) {
-    position.y += 420;
-  }
-  return position;
+// Slots describe the planned output contract, independently of execution state.
+export function resultSlots(node: CanvasNode) {
+  return ["image", "text", "gif"].includes(node.kind)
+    ? Array.from(
+        { length: node.kind === "gif" ? 1 : (node.resultCount ?? 1) },
+        (_, index) => index
+      )
+    : [];
 }
-
-export const hasResult = (graph: CanvasGraph, id: string) =>
-  graph.nodes.some(
-    (node) => node.id === id && ["image", "text", "gif"].includes(node.kind)
-  ) && outputItems(graph.outputs[id]).length > 0;
 
 export function presentationEdges(graph: CanvasGraph) {
   return [
     ...graph.edges.map((edge) => ({
       id: edgeId(edge),
       source:
-        hasResult(graph, edge.source) &&
-        (edge.resultIndex !== undefined ||
-          outputItems(graph.outputs[edge.source]).length === 1)
-          ? resultId(edge.source, edge.resultIndex ?? 0)
+        edge.resultIndex !== undefined &&
+        graph.nodes.some(
+          (node) =>
+            node.id === edge.source &&
+            resultSlots(node).includes(edge.resultIndex ?? -1)
+        )
+          ? resultId(edge.source, edge.resultIndex)
           : workflowId(edge.source),
       target: workflowId(edge.target),
     })),
-    ...graph.nodes
-      .filter((node) => hasResult(graph, node.id))
-      .flatMap((node) =>
-        outputItems(graph.outputs[node.id]).map((_, index) => ({
-          id: `generated:${node.id}${index ? `:${index}` : ""}`,
-          source: workflowId(node.id),
-          target: resultId(node.id, index),
-          deletable: false,
-          selectable: false,
-        }))
-      ),
+    ...graph.nodes.flatMap((node) =>
+      resultSlots(node).map((index) => ({
+        id: `generated:${node.id}${index ? `:${index}` : ""}`,
+        source: workflowId(node.id),
+        target: resultId(node.id, index),
+        deletable: false,
+        selectable: false,
+      }))
+    ),
   ];
 }
 

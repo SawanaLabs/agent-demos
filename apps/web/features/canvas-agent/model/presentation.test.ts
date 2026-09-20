@@ -22,7 +22,7 @@ it.each([
   }));
   expect(presentationEdges(graph)).toContainEqual({
     id: `${id}->next`,
-    source: `result:${id}`,
+    source: `node:${id}`,
     target: "node:next",
   });
   expect(originalId(`result:${id}`)).toBe(id);
@@ -44,7 +44,7 @@ it.each([
   });
   expect(
     presentationEdges(edited).some((edge) => edge.id === `generated:${id}`)
-  ).toBe(false);
+  ).toBe(true);
 });
 
 it("displays all connected materials immediately and generated results when available", () => {
@@ -89,4 +89,37 @@ it("labels a node run according to available upstream results and materials", ()
     edges: [{ source: "prompt", target: "image" }],
   };
   expect(nodeRunLabel(materialGraph, "image")).toBe("运行此节点");
+});
+
+it("keeps selected result connections and slots stable before generation and after invalidation", () => {
+  const graph = initialGraph();
+  graph.nodes[0] = { ...createNode("text", 0), id: "brief", resultCount: 2 };
+  graph.edges = [{ source: "brief", target: "visual", resultIndex: 1 }];
+  const planned = presentationEdges(graph);
+  expect(planned).toContainEqual({
+    id: "brief->visual:1",
+    source: "result:brief:output:1",
+    target: "node:visual",
+  });
+  graph.outputs.brief = { results: [{ text: "Closeup" }, { text: "Poster" }] };
+  expect(presentationEdges(graph)).toEqual(planned);
+  const edited = editGraph(graph, {
+    ...graph,
+    nodes: graph.nodes.map((node) =>
+      node.id === "brief" ? { ...node, prompt: "Changed" } : node
+    ),
+  });
+  expect(edited.outputs).toEqual({});
+  expect(presentationEdges(edited)).toEqual(planned);
+});
+
+it("keeps selected material inputs connected to the material node", () => {
+  const graph = initialGraph();
+  graph.nodes.push({ ...createNode("prompt", 2), id: "material" });
+  graph.edges = [{ source: "material", target: "visual", resultIndex: 0 }];
+  expect(presentationEdges(graph)).toContainEqual({
+    id: "material->visual:0",
+    source: "node:material",
+    target: "node:visual",
+  });
 });

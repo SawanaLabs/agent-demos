@@ -44,6 +44,7 @@ it("round-trips multiple outputs and routes only the selected result downstream"
   const ids = [
     "node:brief",
     "node:visual",
+    "result:visual",
     "node:preview",
     "result:brief",
     "result:brief:output:1",

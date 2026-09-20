@@ -1,6 +1,8 @@
 "use client";
 import { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { Controls } from "@workspace/ui/components/ai-elements/controls";
+import { Button } from "@workspace/ui/components/button";
+import { UnplugIcon } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
 import {
@@ -43,6 +45,9 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
     c.edit({ ...graph, nodes: [...graph.nodes, node] });
   }
   const nodes = useCanvasNodes(c, ready);
+  const connection = graph.edges.find(
+    (edge) => `${edge.source}->${edge.target}` === selectedEdge
+  );
   return (
     <main className="fixed inset-0 z-40 flex flex-col bg-background font-sans">
       <CanvasHeader controller={c} ready={ready} />
@@ -78,7 +83,9 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
               });
             }
           }}
-          onEdgeClick={(_, edge) => setSelectedEdge(edge.id)}
+          onEdgeClick={(_, edge) =>
+            setSelectedEdge(edge.deletable === false ? null : edge.id)
+          }
           onEdgesDelete={(edges) =>
             c.edit({
               ...graph,
@@ -144,6 +151,30 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           />
         </Canvas>
         <CanvasToolbar add={add} busy={c.busy} />
+        {connection ? (
+          <div className="absolute top-28 left-16 flex max-w-[calc(100%-5rem)] items-center gap-2 rounded-lg border bg-background p-2 shadow-sm sm:top-16">
+            <span className="truncate text-xs">
+              {graph.nodes.find((node) => node.id === connection.source)?.label}{" "}
+              →{" "}
+              {graph.nodes.find((node) => node.id === connection.target)?.label}
+            </span>
+            <Button
+              disabled={c.busy}
+              onClick={() => {
+                c.edit({
+                  ...graph,
+                  edges: graph.edges.filter((edge) => edge !== connection),
+                });
+                setSelectedEdge(null);
+              }}
+              size="sm"
+              variant="outline"
+            >
+              <UnplugIcon className="size-4" />
+              断开连线
+            </Button>
+          </div>
+        ) : null}
         <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
           拖动画布平移 · 双指缩放 · 拖动节点圆点连线
           <br />

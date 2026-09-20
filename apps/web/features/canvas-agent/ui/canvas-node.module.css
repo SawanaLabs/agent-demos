@@ -3,15 +3,34 @@
 }
 
 .node [class~="react-flow__handle"] {
-  width: 28px;
-  height: 28px;
+  width: 6px;
+  height: 6px;
   background: transparent;
   border: 0;
 }
 
+/* The invisible hit area does not change React Flow's measured anchor. */
+.node [class~="react-flow__handle"]::before {
+  position: absolute;
+  inset: -11px;
+  content: "";
+  border-radius: 50%;
+  transform: translateX(var(--port-offset));
+}
+
+.node [class~="react-flow__handle-left"] {
+  --port-offset: -3px;
+  left: 3px;
+}
+
+.node [class~="react-flow__handle-right"] {
+  --port-offset: 3px;
+  right: 3px;
+}
+
 .node [class~="react-flow__handle"]::after {
   position: absolute;
-  inset: 11px;
+  inset: 0;
   pointer-events: none;
   content: "";
   background: var(
@@ -21,6 +40,7 @@
   border: 1px solid
     var(--xy-handle-border-color, var(--xy-handle-border-color-default));
   border-radius: 50%;
+  transform: translateX(var(--port-offset));
 }
 
 /* Match the original Card-clipped half-circle without clipping the hit area. */

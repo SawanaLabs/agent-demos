@@ -21,9 +21,26 @@ export type NodeExecutor = (
 
 export class CanvasNodeError extends Error {
   readonly nodeId: string;
-  constructor(nodeId: string, message: string) {
-    super(message);
+  constructor(nodeId: string, message: string, options?: ErrorOptions) {
+    super(message, options);
     this.nodeId = nodeId;
+  }
+}
+
+export type CanvasFailureObserver = (
+  error: CanvasNodeError,
+  kind: CanvasNode["kind"]
+) => void;
+
+function reportFailure(
+  observer: CanvasFailureObserver | undefined,
+  error: CanvasNodeError,
+  kind: CanvasNode["kind"]
+) {
+  try {
+    observer?.(error, kind);
+  } catch {
+    // A logging failure must not replace the node failure.
   }
 }
 
@@ -107,7 +124,8 @@ export async function runGraph(
   target: string | undefined,
   execute: NodeExecutor = generateNode,
   onProgress?: (graph: CanvasGraph, activeNode: string | null) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onFailure?: CanvasFailureObserver
 ) {
   const graph = parseGraph(input);
   const order = executionOrder(graph, target);
@@ -115,15 +133,15 @@ export async function runGraph(
     delete graph.errors[id];
   }
   onProgress?.(graph, null);
-  function fail(id: string, message: string): never {
-    graph.errors[id] = message;
+  function fail(error: CanvasNodeError): never {
+    graph.errors[error.nodeId] = error.message;
     onProgress?.(graph, null);
-    throw new CanvasNodeError(id, message);
+    throw error;
   }
   for (const id of order) {
     const message = inputError(graph, requireNode(graph, id));
     if (message) {
-      fail(id, message);
+      fail(new CanvasNodeError(id, message));
     }
   }
   graph.outputs = target ? invalidateOutputs(graph, [target]) : {};
@@ -145,12 +163,13 @@ export async function runGraph(
       if (signal?.aborted) {
         throw error;
       }
-      fail(
-        id,
+      const message =
         node.kind === "gif"
           ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"
-          : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
-      );
+          : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。";
+      const failure = new CanvasNodeError(id, message, { cause: error });
+      reportFailure(onFailure, failure, node.kind);
+      fail(failure);
     }
     if (hasResult(graph, id)) {
       node.resultPosition = availableResultPosition(graph, node);

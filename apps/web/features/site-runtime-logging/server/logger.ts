@@ -10,7 +10,7 @@ export interface RuntimeErrorContext {
     | "route_error"
     | "unhandled_rejection"
     | "window_error";
-  readonly demo_slug?: "image-workflow-agent";
+  readonly demo_slug?: "image-workflow-agent" | "canvas-agent";
   readonly duration_ms?: number;
   readonly failure_category: "provider" | "runtime" | "storage" | "tool";
   readonly operation:
@@ -38,7 +38,7 @@ interface RuntimeErrorLoggerOptions<Events extends readonly string[]> {
 }
 
 const labelPattern = /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/u;
-const allowedDemoSlugs = new Set(["image-workflow-agent"]);
+const allowedDemoSlugs = new Set(["image-workflow-agent", "canvas-agent"]);
 const errorIdPattern = /^[A-Za-z0-9_-]{1,64}$/u;
 const deploymentEnvironmentPattern = /^[a-z][a-z0-9-]{0,63}$/u;
 const deploymentRefPattern = /^[A-Za-z0-9._/-]{1,128}$/u;

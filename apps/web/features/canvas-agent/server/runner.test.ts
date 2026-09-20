@@ -1,7 +1,7 @@
 import { generateImage } from "ai";
 import { afterEach, assert, expect, it, vi } from "vitest";
 import { initialGraph } from "../model/graph";
-import { generateNode } from "./runner";
+import { generateNode, runGraph } from "./runner";
 
 vi.mock("ai", async (original) => ({
   ...(await original<typeof import("ai")>()),
@@ -42,4 +42,32 @@ it.each([
     expect(typeof call.prompt).toBe("string");
   }
   expect(output.image).toBe("data:image/png;base64,b3V0");
+});
+
+it("retains the provider cause on the server and exposes only a safe node error", async () => {
+  const providerError = new Error("private-provider-detail");
+  const onFailure = vi.fn();
+  const snapshots: unknown[] = [];
+  await expect(
+    runGraph(
+      initialGraph(),
+      "brief",
+      () => {
+        throw providerError;
+      },
+      (graph) => snapshots.push(structuredClone(graph)),
+      undefined,
+      onFailure
+    )
+  ).rejects.toMatchObject({ nodeId: "brief", cause: providerError });
+  expect(onFailure).toHaveBeenCalledOnce();
+  expect(onFailure).toHaveBeenCalledWith(
+    expect.objectContaining({
+      nodeId: "brief",
+      cause: providerError,
+    }),
+    "text"
+  );
+  expect(JSON.stringify(snapshots)).not.toContain("private-provider-detail");
+  expect(JSON.stringify(snapshots)).toContain("生成失败");
 });

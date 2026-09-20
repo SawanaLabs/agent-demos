@@ -192,20 +192,18 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
   }
   return (
     <>
-      {node.kind === "prompt" ? (
-        <Textarea
-          aria-label={`${node.label}提示词`}
-          className="nodrag nowheel min-h-28 resize-y text-sm"
-          disabled={busy}
-          onChange={(event) => data.update({ prompt: event.target.value })}
-          placeholder="输入提示词或其他文本，连接后原样传给下游。"
-          value={node.prompt}
-        />
-      ) : (
-        <p className="text-muted-foreground text-xs">
-          连接提示词或生成结果作为输入。文本全文参与生成，图片作为参考。
-        </p>
-      )}
+      <Textarea
+        aria-label={`${node.label}提示词`}
+        className="nodrag nowheel min-h-28 resize-y text-sm"
+        disabled={busy}
+        onChange={(event) => data.update({ prompt: event.target.value })}
+        placeholder={
+          node.kind === "prompt"
+            ? "输入提示词或其他文本，连接后原样传给下游。"
+            : "描述生成要求；上游文本也会全文加入提示词，图片作为参考。"
+        }
+        value={node.prompt}
+      />
       {node.kind === "prompt" ? null : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CanvasResultCount data={data} />

@@ -2,10 +2,10 @@
 
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
+import { CanvasImage } from "./canvas-image";
 
 export function CanvasContent({
   content,
@@ -17,16 +17,7 @@ export function CanvasContent({
   return (
     <div className="space-y-3">
       {content.image ? (
-        <div className="space-y-2">
-          <Image
-            alt={label}
-            className="nodrag max-h-80 w-full rounded-sm object-contain"
-            height={280}
-            src={content.image}
-            unoptimized
-            width={296}
-          />
-        </div>
+        <CanvasImage key={content.image} label={label} src={content.image} />
       ) : null}
       {content.text ? (
         <div className="space-y-2">

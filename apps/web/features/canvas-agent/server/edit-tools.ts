@@ -6,7 +6,7 @@ import {
   nodePatchSchema,
   updateNode,
 } from "../model/commands";
-import { generationFeedback, isGenerator } from "../model/generation";
+import { generationFeedback } from "../model/generation";
 import type { CanvasGraph } from "../model/graph";
 
 type ApplyEdit = (
@@ -20,21 +20,7 @@ export function createCanvasEditTools(apply: ApplyEdit) {
         "Update only supplied fields of one node. Omit unchanged fields. Renaming/moving preserves results; generation changes invalidate only this node and descendants.",
       inputSchema: z.object({ nodeId: z.string(), patch: nodePatchSchema }),
       execute: ({ nodeId, patch }) =>
-        apply((graph) => {
-          const node = graph.nodes.find((item) => item.id === nodeId);
-          if (node && isGenerator(node) && patch.prompt !== undefined) {
-            const prompts = graph.edges
-              .filter((edge) => edge.target === nodeId)
-              .map((edge) =>
-                graph.nodes.find((item) => item.id === edge.source)
-              )
-              .filter((item) => item?.kind === "prompt");
-            throw new Error(
-              `生成节点不保存提示词。请 updateNode 修改相连的提示词节点：${prompts.map((item) => `${item?.label} (${item?.id})`).join(", ") || "暂无，请 addNode 创建 prompt 节点，再 connectNodes 接入本节点"}。上游文本会全文作为生成提示词传入。`
-            );
-          }
-          return updateNode(graph, nodeId, patch);
-        }),
+        apply((graph) => updateNode(graph, nodeId, patch)),
     }),
     connectNodes: tool({
       description:

@@ -163,7 +163,7 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                   ]);
                   current = added.graph;
                   publish();
-                  return generationFeedback(current, id, added.promptNodeId);
+                  return generationFeedback(current, id);
                 }),
             }),
             readWorkflow: tool({

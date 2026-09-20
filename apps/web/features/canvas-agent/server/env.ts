@@ -1,9 +1,8 @@
-import { createGateway, type LanguageModel } from "ai";
+import { createGateway, type ImageModel, type LanguageModel } from "ai";
 import { DEFAULT_GATEWAY_BASE_URL } from "@/features/shared/ai-gateway/server/contract";
-import {
-  DEFAULT_CHAT_MODEL,
-  DEFAULT_IMAGE_MODEL,
-} from "@/features/shared/ai-gateway/server/keys";
+import { DEFAULT_CHAT_MODEL } from "@/features/shared/ai-gateway/server/keys";
+
+export const DEFAULT_CANVAS_IMAGE_MODEL = "openai/gpt-image-2";
 
 export function canvasSetup() {
   return {
@@ -12,7 +11,7 @@ export function canvasSetup() {
     ),
   };
 }
-export function canvasModels(): { text: LanguageModel; image: LanguageModel } {
+export function canvasModels(): { text: LanguageModel; image: ImageModel } {
   if (!canvasSetup().ready) {
     throw new Error("请配置 AI_GATEWAY_API_KEY 后使用 AI。");
   }
@@ -24,8 +23,8 @@ export function canvasModels(): { text: LanguageModel; image: LanguageModel } {
     text: gateway.languageModel(
       process.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL
     ),
-    image: gateway.languageModel(
-      process.env.AI_GATEWAY_IMAGE_MODEL || DEFAULT_IMAGE_MODEL
+    image: gateway.imageModel(
+      process.env.AI_GATEWAY_IMAGE_MODEL || DEFAULT_CANVAS_IMAGE_MODEL
     ),
   };
 }

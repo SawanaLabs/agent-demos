@@ -1,4 +1,4 @@
-import { generateText } from "ai";
+import { generateImage, generateText } from "ai";
 import {
   type CanvasGraph,
   type CanvasNode,
@@ -19,36 +19,41 @@ export class CanvasInputError extends Error {}
 
 export const generateNode: NodeExecutor = async (node, inputs, signal) => {
   const models = canvasModels();
-  const content = [
-    {
-      type: "text" as const,
-      text: `${node.kind === "image" ? `Generate one image. Aspect ratio ${node.aspectRatio}.` : "Complete the following task."}\n${node.prompt}\nUpstream text:\n${inputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`,
-    },
-    ...inputs.flatMap((input) =>
-      input.image ? [{ type: "image" as const, image: input.image }] : []
-    ),
-  ];
+  const text = `${node.prompt}\nUpstream text:\n${inputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
+  const images = inputs.flatMap((input) => (input.image ? [input.image] : []));
+  if (node.kind === "image") {
+    const sizes = {
+      "1:1": "1024x1024",
+      "16:9": "1536x864",
+      "9:16": "864x1536",
+    } as const;
+    const result = await generateImage({
+      model: models.image,
+      prompt: images.length ? { text, images } : text,
+      size: sizes[node.aspectRatio],
+      providerOptions: { openai: { quality: "low" } },
+      abortSignal: signal,
+      maxRetries: 1,
+    });
+    return {
+      image: `data:${result.image.mediaType};base64,${result.image.base64}`,
+    };
+  }
   const result = await generateText({
-    model: models[node.kind === "image" ? "image" : "text"],
-    messages: [{ role: "user", content }],
+    model: models.text,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text },
+          ...images.map((image) => ({ type: "image" as const, image })),
+        ],
+      },
+    ],
     abortSignal: signal,
     maxRetries: 1,
-    ...(node.kind === "image"
-      ? {
-          providerOptions: {
-            google: { responseModalities: ["TEXT", "IMAGE"] },
-          },
-        }
-      : {}),
   });
-  if (node.kind === "text") {
-    return { text: result.text };
-  }
-  const file = result.files.find((item) => item.mediaType.startsWith("image/"));
-  if (!file) {
-    throw new Error("生成服务未返回图片。");
-  }
-  return { image: `data:${file.mediaType};base64,${file.base64}` };
+  return { text: result.text };
 };
 
 export async function runGraph(

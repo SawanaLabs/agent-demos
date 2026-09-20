@@ -9,6 +9,7 @@ updateAt: 2026-09-20
 - Route: `/demos/canvas-agent`; feature boundary: `apps/web/features/canvas-agent`.
 - Reuse generic AI Elements Canvas/Node primitives. Keep workflow semantics feature-local; the older Image Workflow Agent retains its single-generator contract.
 - `model/graph.ts` owns schema validation, acyclic dependency ordering, atomic definition changes, and descendant output invalidation. Position and label changes preserve generated results.
+- Canvas image generation defaults to `openai/gpt-image-2` with `providerOptions.openai.quality: "low"` via `generateImage`. `AI_GATEWAY_IMAGE_MODEL` can override the model. Reference inputs use `prompt.images`. Output sizes are 1024×1024, 1536×864, and 864×1536 for the three canvas ratios.
 - Agent tools and manual edits share this graph model. Agent requests carry the latest graph; image payloads are omitted from the agent's system context. Generation nodes receive connected text and images as multimodal inputs.
 - Plan mode does not expose an execution tool. Execute mode permits one run per turn, and only on a generation request. Tool operations are serialized. Graphs have at most 20 nodes and 60 edges.
 - Running the whole workflow recomputes all outputs. Running a target reuses valid upstream outputs and invalidates that target and its descendants. A failed run retains completed nodes and stops dependent execution.

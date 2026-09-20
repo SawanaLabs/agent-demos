@@ -24,7 +24,10 @@ canvas-agent/
 
 Uses the existing `AI_GATEWAY_API_KEY`, optional `AI_GATEWAY_BASE_URL`,
 `AI_GATEWAY_CHAT_MODEL`, and `AI_GATEWAY_IMAGE_MODEL` configuration. The image
-model must support image outputs through `generateText`. Both API routes are
+model defaults to `openai/gpt-image-2` with `quality: "low"` through
+`generateImage`; reference images are passed as image inputs. Overrides must
+support the image-generation API. The shared default for other demos is unchanged.
+Both API routes are
 wrapped by the host usage gate. One agent turn can run at most one graph with
 at most 20 nodes. No workflow, upload, or result is stored on the server.
 

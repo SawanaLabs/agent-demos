@@ -27,7 +27,14 @@ export function CanvasChat({
   const [expanded, setExpanded] = useState(true);
   const [input, setInput] = useState("");
   const { busy, messages, error, mode } = controller;
-  const toolStatus = (part: { state?: unknown }) => {
+  const toolStatus = (part: { state?: unknown; output?: unknown }) => {
+    if (
+      part.output &&
+      typeof part.output === "object" &&
+      "failedNodeId" in part.output
+    ) {
+      return " · 节点失败";
+    }
     if (part.state === "output-available") {
       return " · 已完成";
     }

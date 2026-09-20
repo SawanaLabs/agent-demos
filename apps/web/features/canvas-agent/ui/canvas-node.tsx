@@ -4,10 +4,20 @@ import {
   NodeContent,
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { DownloadIcon, PlayIcon, Trash2Icon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  DownloadIcon,
+  PlayIcon,
+  Trash2Icon,
+} from "lucide-react";
 import Image from "next/image";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
 
@@ -16,6 +26,7 @@ export interface CanvasNodeData extends Record<string, unknown> {
   asset?: string;
   busy: boolean;
   continueFrom: () => void;
+  error?: string;
   node: CanvasNode;
   output?: CanvasOutput;
   remove: () => void;
@@ -59,6 +70,13 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
         </div>
       </NodeHeader>
       <NodeContent className="space-y-3">
+        {data.error ? (
+          <Alert className="nodrag border-destructive/40" variant="destructive">
+            <AlertCircleIcon />
+            <AlertTitle>节点执行失败</AlertTitle>
+            <AlertDescription>{data.error}</AlertDescription>
+          </Alert>
+        ) : null}
         {node.kind === "reference" ? (
           <label className="nodrag block cursor-pointer border border-dashed p-4 text-center text-muted-foreground text-sm">
             {asset ? "更换参考图" : "上传参考图"}

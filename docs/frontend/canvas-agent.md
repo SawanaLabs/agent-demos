@@ -18,3 +18,5 @@ updateAt: 2026-09-20
 - Hide the host companion on this full-screen route to avoid overlapping the workflow composer. Keep the host theme toggle accessible beside the header.
 - The catalog lists this Agent Demo as ready and explicitly omits registry export until its portable export is prepared.
 - Video generation, GIF assembly, and depth extraction are not supported graph operations. `/tools/depth-video` is a separate browser tool.
+
+- Node execution and input failures are stored by node ID in `graph.errors` and streamed with graph snapshots. Render them inside the feature node using the shared shadcn Alert; graph-level or transport failures remain in the conversation. Retrying clears errors for the run path; editing inputs clears affected node and descendant errors. Older exports default to an empty error map.

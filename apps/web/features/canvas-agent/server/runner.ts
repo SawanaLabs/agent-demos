@@ -15,7 +15,21 @@ export type NodeExecutor = (
   signal?: AbortSignal
 ) => Promise<CanvasOutput>;
 
-export class CanvasInputError extends Error {}
+export class CanvasNodeError extends Error {
+  readonly nodeId: string;
+  constructor(nodeId: string, message: string) {
+    super(message);
+    this.nodeId = nodeId;
+  }
+}
+
+function requireNode(graph: CanvasGraph, id: string) {
+  const node = graph.nodes.find((item) => item.id === id);
+  if (!node) {
+    throw new Error("节点不存在。");
+  }
+  return node;
+}
 
 export const generateNode: NodeExecutor = async (node, inputs, signal) => {
   const models = canvasModels();
@@ -66,15 +80,21 @@ export async function runGraph(
   const graph = parseGraph(input);
   const order = executionOrder(graph, target);
   for (const id of order) {
-    const node = graph.nodes.find((item) => item.id === id);
-    if (!node) {
-      throw new Error("节点不存在。");
-    }
+    delete graph.errors[id];
+  }
+  onProgress?.(graph, null);
+  function fail(id: string, message: string): never {
+    graph.errors[id] = message;
+    onProgress?.(graph, null);
+    throw new CanvasNodeError(id, message);
+  }
+  for (const id of order) {
+    const node = requireNode(graph, id);
     if (node.kind === "reference" && !graph.assets[id]) {
-      throw new CanvasInputError(`请为「${node.label}」上传参考图。`);
+      fail(id, `请为「${node.label}」上传参考图。`);
     }
     if (node.kind !== "reference" && !node.prompt.trim()) {
-      throw new CanvasInputError(`请填写「${node.label}」的提示词。`);
+      fail(id, `请填写「${node.label}」的提示词。`);
     }
   }
   graph.outputs = target ? invalidateOutputs(graph, [target]) : {};
@@ -83,19 +103,26 @@ export async function runGraph(
     if (graph.outputs[id]) {
       continue;
     }
-    const node = graph.nodes.find((item) => item.id === id);
-    if (!node) {
-      throw new Error("节点不存在。");
-    }
+    const node = requireNode(graph, id);
     onProgress?.(graph, id);
     const inputs = graph.edges
       .filter((edge) => edge.target === id)
       .map((edge) => graph.outputs[edge.source])
       .filter((output): output is CanvasOutput => Boolean(output));
-    graph.outputs[id] =
-      node.kind === "reference"
-        ? { image: graph.assets[id] }
-        : await execute(node, inputs, signal);
+    try {
+      graph.outputs[id] =
+        node.kind === "reference"
+          ? { image: graph.assets[id] }
+          : await execute(node, inputs, signal);
+    } catch (error) {
+      if (signal?.aborted) {
+        throw error;
+      }
+      fail(
+        id,
+        "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
+      );
+    }
     graph.revision += 1;
     onProgress?.(graph, null);
   }

@@ -21,6 +21,7 @@ export const outputSchema = z.object({
   image: imageSchema.optional(),
 });
 export const graphSchema = definitionSchema.extend({
+  errors: z.record(z.string(), z.string()).default({}),
   revision: z.number().int().nonnegative(),
   assets: z.record(z.string(), imageSchema),
   outputs: z.record(z.string(), outputSchema),
@@ -121,7 +122,13 @@ export function editGraph(
     })
     .map((node) => node.id);
   const outputs = invalidateOutputs({ ...graph, ...next }, changed);
-  return { ...next, assets, outputs, revision: graph.revision + 1 };
+  return {
+    ...next,
+    assets,
+    outputs,
+    errors: invalidateErrors({ ...graph, ...next }, changed),
+    revision: graph.revision + 1,
+  };
 }
 
 export function createNode(
@@ -144,6 +151,7 @@ export function createNode(
 export function initialGraph(): CanvasGraph {
   return {
     revision: 0,
+    errors: {},
     assets: {},
     outputs: {},
     nodes: [
@@ -170,6 +178,18 @@ export function initialGraph(): CanvasGraph {
 }
 
 export function invalidateOutputs(graph: CanvasGraph, ids: string[]) {
+  return retainValidEntries(graph, graph.outputs, ids);
+}
+
+export function invalidateErrors(graph: CanvasGraph, ids: string[]) {
+  return retainValidEntries(graph, graph.errors, ids);
+}
+
+function retainValidEntries<T>(
+  graph: CanvasGraph,
+  entries: Record<string, T>,
+  ids: string[]
+) {
   const invalid = new Set(ids);
   for (const id of executionOrder(graph)) {
     if (
@@ -179,7 +199,7 @@ export function invalidateOutputs(graph: CanvasGraph, ids: string[]) {
     }
   }
   return Object.fromEntries(
-    Object.entries(graph.outputs).filter(
+    Object.entries(entries).filter(
       ([id]) => !invalid.has(id) && graph.nodes.some((node) => node.id === id)
     )
   );

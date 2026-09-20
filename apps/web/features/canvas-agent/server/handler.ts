@@ -13,7 +13,7 @@ import {
   parseGraph,
 } from "../model/graph";
 import { canvasModels, canvasSetup } from "./env";
-import { CanvasInputError, runGraph } from "./runner";
+import { CanvasNodeError, runGraph } from "./runner";
 
 const requestSchema = z.object({
   graph: z.unknown(),
@@ -135,6 +135,14 @@ export async function handleCanvasChat(request: Request) {
                           return {
                             summary: "工作流已完成，结果已显示在各节点中。",
                           };
+                        } catch (error) {
+                          if (error instanceof CanvasNodeError) {
+                            return {
+                              failedNodeId: error.nodeId,
+                              error: error.message,
+                            };
+                          }
+                          throw error;
                         } finally {
                           publish();
                         }
@@ -181,11 +189,11 @@ export async function handleCanvasRun(request: Request) {
           );
           emit({ graph: result, activeNode: null, done: true });
         } catch (error) {
-          emit({
-            error:
-              error instanceof CanvasInputError ? error.message : publicFailure,
-            activeNode: null,
-          });
+          emit(
+            error instanceof CanvasNodeError
+              ? { activeNode: null, done: true }
+              : { error: publicFailure, activeNode: null }
+          );
         } finally {
           controller.close();
         }

@@ -7,6 +7,7 @@ import { type ComponentProps, useState } from "react";
 import {
   type CanvasNode,
   createNode,
+  invalidateErrors,
   invalidateOutputs,
   parseGraph,
 } from "../model/graph";
@@ -48,26 +49,22 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
       file.size > 4 * 1024 * 1024 ||
       !["image/png", "image/jpeg", "image/webp"].includes(file.type)
     ) {
-      c.setError("请选择 4 MB 以内的 PNG、JPEG 或 WebP 图片。");
+      c.setNodeError(id, "请选择 4 MB 以内的 PNG、JPEG 或 WebP 图片。");
       return;
     }
     try {
-      const data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const data = await readImage(file);
       c.setGraph((current) =>
         parseGraph({
           ...current,
           assets: { ...current.assets, [id]: data },
           outputs: invalidateOutputs(current, [id]),
+          errors: invalidateErrors(current, [id]),
           revision: current.revision + 1,
         })
       );
     } catch {
-      c.setError("图片读取失败。");
+      c.setNodeError(id, "图片读取失败。");
     }
   }
   const nodes = graph.nodes.map((node) => ({
@@ -88,6 +85,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
         });
       },
       node,
+      error: graph.errors[node.id],
       output: graph.outputs[node.id],
       asset: graph.assets[node.id],
       busy: c.busy,
@@ -231,4 +229,13 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
       </div>
     </main>
   );
+}
+
+function readImage(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }

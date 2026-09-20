@@ -116,6 +116,11 @@ export function useCanvasAgent() {
     busy,
     error: error ?? chat.error?.message,
     setError,
+    setNodeError: (id: string, message: string) =>
+      setGraph((current) => ({
+        ...current,
+        errors: { ...current.errors, [id]: message },
+      })),
     messages: chat.messages,
     status: chat.status,
     edit,

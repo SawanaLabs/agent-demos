@@ -92,3 +92,57 @@ describe("canvas workflow contract", () => {
     expect(edited.outputs).toEqual({ other: { text: "Independent result" } });
   });
 });
+
+it("publishes failure on the exact node, preserves upstream output, and clears it on retry", async () => {
+  let latest = initialGraph();
+  await expect(
+    runGraph(
+      latest,
+      "visual",
+      (node) => {
+        if (node.id === "brief") {
+          return Promise.resolve({ text: "Retained result" });
+        }
+        throw new Error("private provider failure");
+      },
+      (graph) => {
+        latest = structuredClone(graph);
+      }
+    )
+  ).rejects.toMatchObject({ nodeId: "visual" });
+  expect(latest.errors.visual).toContain("生成失败");
+  expect(latest.errors.brief).toBeUndefined();
+  expect(latest.outputs.brief?.text).toBe("Retained result");
+  const edited = editGraph(latest, {
+    ...latest,
+    nodes: latest.nodes.map((node) => ({ ...node, prompt: "Updated prompt" })),
+  });
+  expect(edited.errors).toEqual({});
+  const retried = await runGraph(latest, "visual", () =>
+    Promise.resolve({ image: "data:image/png;base64,YQ==" })
+  );
+  expect(retried.errors).toEqual({});
+  expect(retried.outputs.brief?.text).toBe("Retained result");
+});
+
+it("locates missing input errors before executing any node", async () => {
+  const graph = initialGraph();
+  graph.nodes = graph.nodes.map((node) =>
+    node.id === "visual" ? { ...node, prompt: "" } : node
+  );
+  let latest = graph;
+  await expect(
+    runGraph(
+      graph,
+      undefined,
+      () => {
+        throw new Error("must not execute");
+      },
+      (next) => {
+        latest = next;
+      }
+    )
+  ).rejects.toMatchObject({ nodeId: "visual" });
+  expect(latest.errors.visual).toContain("提示词");
+  expect(latest.outputs).toEqual({});
+});

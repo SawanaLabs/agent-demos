@@ -14,6 +14,7 @@ description: >
   thorough analysis — do not attempt to analyze VM traces without it.
 argument-hint: trace.json
 disable-model-invocation: true
+allowed-tools: Bash(python3:*), Read
 ---
 
 # VictoriaMetrics Query Trace Analyzer
@@ -200,7 +201,7 @@ Follow this algorithm to select recommendations:
 | Aggregation / functions | Xms | X% | |
 | Response generation | Xms | X% | |
 
-(Adapt the phases to what actually appears in the trace.
+(Adapt the phases to what actually appears in the trace. 
 For cluster traces, break down data fetch per storage node.)
 
 ## Storage Node Breakdown (cluster only)

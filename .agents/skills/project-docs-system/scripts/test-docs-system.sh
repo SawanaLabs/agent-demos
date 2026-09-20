@@ -78,4 +78,12 @@ if run_verify_capture "$missing_index_repo" >/dev/null; then
   fail "deep docs without an index should fail verification"
 fi
 
+hidden_parent_repo="$tmp_root/.hidden-parent/hidden-parent-repo"
+make_base_docs "$hidden_parent_repo"
+write_doc "$hidden_parent_repo/docs/application/homepage/replication.md" "Replication" "Homepage replication notes."
+run_update "$hidden_parent_repo"
+if run_verify_capture "$hidden_parent_repo" >/dev/null; then
+  fail "deep docs without an index should fail verification under a hidden parent path"
+fi
+
 printf 'Docs system script tests passed.\n'

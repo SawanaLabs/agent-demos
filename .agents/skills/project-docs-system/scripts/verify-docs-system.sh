@@ -39,7 +39,7 @@ contains_required_link() {
 
 has_markdown_tree() {
   dir="$1"
-  [ -n "$(find "$dir" -type f -name '*.md' ! -path '*/.*/*' -print | sed -n '1p')" ]
+  [ -n "$(find "$dir" -type d -name '.*' -prune -o -type f -name '*.md' -print | sed -n '1p')" ]
 }
 
 verify_index_covers_scope() {

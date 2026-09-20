@@ -1,7 +1,7 @@
 ---
 name: investigating-with-observability
 description: Use when investigating issues, debugging problems for applications, or responding to alerts in the Kubernetes cluster using VictoriaMetrics, VictoriaLogs, or VictoriaTraces.
-allowed-tools: Bash(curl:*), Agent, Read
+allowed-tools: Bash(curl:*), Bash(jq:*), Bash(date:*), Agent, Read
 ---
 
 # Troubleshooting with Observability Skills
@@ -169,11 +169,7 @@ echo "VM_METRICS_URL:      $VM_METRICS_URL"
 echo "VM_LOGS_URL:         $VM_LOGS_URL"
 echo "VM_TRACES_URL:       $VM_TRACES_URL"
 echo "VM_ALERTMANAGER_URL: $VM_ALERTMANAGER_URL"
-if [ -n "${VM_AUTH_HEADER-}" ]; then
-  echo "VM_AUTH_HEADER:      (set)"
-else
-  echo "VM_AUTH_HEADER:      (empty - no auth)"
-fi
+echo "VM_CURL_CONFIG:      ${VM_CURL_CONFIG:-(unset - no auth)}"
 ```
 
 If unsure which environment the application runs in, ask user.
@@ -203,7 +199,7 @@ echo "ALERTMANAGER:${VM_ALERTMANAGER_URL:+available}"
    - Investigation context: target namespace, service name, time range (RFC3339)
    - Any specific queries or metrics to look for
 3. Dispatch independent subagents in the SAME tool-call message for parallel execution
-4. Set `allowed-tools: Bash(curl:*)` on each subagent
+4. Set `allowed-tools: Bash(curl:*), Bash(jq:*), Bash(date:*)` on each subagent
 
 ### Agent Files
 

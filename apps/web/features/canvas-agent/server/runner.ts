@@ -12,6 +12,7 @@ import {
 import { availableResultPosition, hasResult } from "../model/presentation";
 import { canvasModels } from "./env";
 import { assembleGif } from "./gif";
+import { loadCanvasImage, storeCanvasImage } from "./image-storage";
 
 export type NodeExecutor = (
   node: CanvasNode,
@@ -53,8 +54,15 @@ function requireNode(graph: CanvasGraph, id: string) {
 }
 
 export const generateNode: NodeExecutor = async (node, inputs, signal) => {
+  const resolvedInputs = await Promise.all(
+    inputs.map(async (input) =>
+      input.image
+        ? { ...input, image: await loadCanvasImage(input.image, signal) }
+        : input
+    )
+  );
   if (node.kind === "gif") {
-    const images = inputs.flatMap((input) =>
+    const images = resolvedInputs.flatMap((input) =>
       input.image ? [input.image] : []
     );
     if (images.length !== 1) {
@@ -68,9 +76,9 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
     };
   }
   const models = canvasModels();
-  const text = `${node.prompt}\nUpstream text:\n${inputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
+  const text = `${node.prompt}\nUpstream text:\n${resolvedInputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
   const images = await Promise.all(
-    inputs
+    resolvedInputs
       .flatMap((input) => (input.image ? [input.image] : []))
       .map(async (image) => {
         if (!image.startsWith("data:image/gif")) {
@@ -119,10 +127,21 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
   return { text: result.text };
 };
 
+export const generateStoredNode: NodeExecutor = async (
+  node,
+  inputs,
+  signal
+) => {
+  const result = await generateNode(node, inputs, signal);
+  return result.image
+    ? { ...result, image: await storeCanvasImage(result.image, signal) }
+    : result;
+};
+
 export async function runGraph(
   input: CanvasGraph,
   target: string | undefined,
-  execute: NodeExecutor = generateNode,
+  execute: NodeExecutor = generateStoredNode,
   onProgress?: (graph: CanvasGraph, activeNode: string | null) => void,
   signal?: AbortSignal,
   onFailure?: CanvasFailureObserver

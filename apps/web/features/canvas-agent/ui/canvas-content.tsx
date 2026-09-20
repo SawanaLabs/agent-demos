@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { CanvasOutput } from "../model/graph";
+import { imageExtension } from "../model/image";
 
 export function CanvasContent({
   content,
@@ -10,15 +11,7 @@ export function CanvasContent({
   content: CanvasOutput;
   label: string;
 }) {
-  let imageExtension = "png";
-  if (content.image?.startsWith("data:image/jpeg")) {
-    imageExtension = "jpg";
-  } else if (content.image?.startsWith("data:image/webp")) {
-    imageExtension = "webp";
-  }
-  if (content.image?.startsWith("data:image/gif")) {
-    imageExtension = "gif";
-  }
+  const extension = content.image ? imageExtension(content.image) : "png";
   return (
     <div className="space-y-3">
       {content.image ? (
@@ -33,10 +26,14 @@ export function CanvasContent({
           />
           <a
             className="nodrag text-xs underline"
-            download={`${label}.${imageExtension}`}
-            href={content.image}
+            download={`${label}.${extension}`}
+            href={
+              content.image.startsWith("https:")
+                ? `${content.image}?download=1`
+                : content.image
+            }
           >
-            {imageExtension === "gif" ? "下载 GIF" : "下载图片"}
+            {extension === "gif" ? "下载 GIF" : "下载图片"}
           </a>
         </div>
       ) : null}

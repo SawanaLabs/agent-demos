@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
+import { imageExtension } from "../model/image";
 import { CanvasGifSettings } from "./canvas-gif-settings";
 import styles from "./canvas-node.module.css";
 
@@ -110,8 +111,8 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             />
             <a
               className="nodrag flex items-center gap-1 text-xs underline"
-              download={`${node.label}.png`}
-              href={image}
+              download={`${node.label}.${imageExtension(image)}`}
+              href={image.startsWith("https:") ? `${image}?download=1` : image}
             >
               <DownloadIcon className="size-3" />
               下载图片
@@ -144,7 +145,7 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
       <label className="nodrag block cursor-pointer border border-dashed p-4 text-center text-muted-foreground text-sm">
         {asset ? "更换图片" : "上传图片"}
         <input
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/png,image/jpeg,image/webp,image/gif"
           aria-label="上传图片"
           className="sr-only"
           disabled={busy}
@@ -157,7 +158,9 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
           }}
           type="file"
         />
-        <span className="mt-1 block text-xs">PNG、JPEG、WebP，最大 4 MB</span>
+        <span className="mt-1 block text-xs">
+          PNG、JPEG、WebP、GIF，最大 8 MB
+        </span>
       </label>
     );
   }

@@ -7,9 +7,12 @@ import {
   type CanvasGraph,
   editGraph,
   initialGraph,
+  invalidateErrors,
+  invalidateOutputs,
   parseGraph,
 } from "../model/graph";
 
+import { storeGraphImages, uploadCanvasImage } from "./image-upload";
 import { readRunStream } from "./run-stream";
 
 export function useCanvasAgent() {
@@ -29,8 +32,12 @@ export function useCanvasAgent() {
     () =>
       new DefaultChatTransport({
         api: "/api/demos/canvas-agent",
-        prepareSendMessagesRequest: ({ messages }) => ({
-          body: { messages, graph: graphRef.current, mode: modeRef.current },
+        prepareSendMessagesRequest: async ({ messages }) => ({
+          body: {
+            messages,
+            graph: await prepareGraph(),
+            mode: modeRef.current,
+          },
         }),
       })
   );
@@ -57,6 +64,42 @@ export function useCanvasAgent() {
   busyRef.current = busy;
   useEffect(() => () => abort.current?.abort(), []);
 
+  async function prepareGraph() {
+    const next = await storeGraphImages(graphRef.current);
+    graphRef.current = next;
+    setGraph(next);
+    return next;
+  }
+  async function uploadAsset(id: string, file: File) {
+    if (busyRef.current) {
+      return;
+    }
+    busyRef.current = true;
+    setRunning(true);
+    try {
+      const image = await uploadCanvasImage(file);
+      setGraph((current) =>
+        parseGraph({
+          ...current,
+          assets: { ...current.assets, [id]: image },
+          outputs: invalidateOutputs(current, [id]),
+          errors: invalidateErrors(current, [id]),
+          revision: current.revision + 1,
+        })
+      );
+    } catch {
+      setGraph((current) => ({
+        ...current,
+        errors: {
+          ...current.errors,
+          [id]: "图片上传失败，请检查 Blob 配置、图片格式或上传额度。",
+        },
+      }));
+    } finally {
+      busyRef.current = false;
+      setRunning(false);
+    }
+  }
   function edit(definition: CanvasDefinition) {
     if (busyRef.current) {
       return;
@@ -93,7 +136,7 @@ export function useCanvasAgent() {
       const response = await fetch("/api/demos/canvas-agent/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ graph: graphRef.current, target }),
+        body: JSON.stringify({ graph: await prepareGraph(), target }),
         signal: abort.current.signal,
       });
       if (!(response.ok && response.body)) {
@@ -114,6 +157,7 @@ export function useCanvasAgent() {
   return {
     graph,
     setGraph,
+    uploadAsset,
     layoutRequested,
     finishLayout: () => setLayoutRequested(false),
     newCanvas: () => {

@@ -1,9 +1,7 @@
 import { z } from "zod";
 
-const imageSchema = z
-  .string()
-  .max(8_000_000)
-  .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/);
+import { canvasImageSchema } from "./image";
+
 export const nodeSchema = z.object({
   id: z.string().min(1).max(80),
   kind: z.enum(["text", "image", "reference", "prompt", "output", "gif"]),
@@ -28,16 +26,12 @@ export const definitionSchema = z.object({
 });
 export const outputSchema = z.object({
   text: z.string().max(50_000).optional(),
-  image: z
-    .string()
-    .max(8_000_000)
-    .regex(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/)
-    .optional(),
+  image: canvasImageSchema.optional(),
 });
 export const graphSchema = definitionSchema.extend({
   errors: z.record(z.string(), z.string()).default({}),
   revision: z.number().int().nonnegative(),
-  assets: z.record(z.string(), imageSchema),
+  assets: z.record(z.string(), canvasImageSchema),
   outputs: z.record(z.string(), outputSchema),
 });
 export type CanvasNode = z.infer<typeof nodeSchema>;

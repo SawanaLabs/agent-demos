@@ -60,7 +60,7 @@ it("runs GIF processing without AI and keeps the upstream image when settings ch
   const { createNode, editGraph, parseGraph, removeNodes } = await import(
     "../model/graph"
   );
-  const { runGraph } = await import("./runner");
+  const { runGraph, generateNode } = await import("./runner");
   const png = await sharp({
     create: { width: 32, height: 32, channels: 3, background: "red" },
   })
@@ -78,7 +78,7 @@ it("runs GIF processing without AI and keeps the upstream image when settings ch
     errors: {},
     revision: 0,
   });
-  const result = await runGraph(graph, "gif");
+  const result = await runGraph(graph, "gif", generateNode);
   expect(result.outputs.source).toEqual(graph.outputs.source);
   expect(result.outputs.gif?.image).toMatch(/^data:image\/gif;base64,/);
   const unfinished = { ...createNode("image", 2), id: "unfinished" };

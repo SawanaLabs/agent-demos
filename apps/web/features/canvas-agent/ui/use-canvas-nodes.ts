@@ -2,13 +2,7 @@
 import type { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { applyNodeChanges, type Node, type NodeChange } from "@xyflow/react";
 import { type ComponentProps, useState } from "react";
-import {
-  type CanvasNode,
-  createNode,
-  invalidateErrors,
-  invalidateOutputs,
-  parseGraph,
-} from "../model/graph";
+import { type CanvasNode, createNode } from "../model/graph";
 import {
   displayInputs,
   hasResult,
@@ -34,29 +28,6 @@ export function useCanvasNodes(
         node.id === id ? { ...node, ...patch } : node
       ),
     });
-  }
-  async function upload(id: string, file: File) {
-    if (
-      file.size > 4 * 1024 * 1024 ||
-      !["image/png", "image/jpeg", "image/webp"].includes(file.type)
-    ) {
-      c.setNodeError(id, "请选择 4 MB 以内的 PNG、JPEG 或 WebP 图片。");
-      return;
-    }
-    try {
-      const data = await readImage(file);
-      c.setGraph((current) =>
-        parseGraph({
-          ...current,
-          assets: { ...current.assets, [id]: data },
-          outputs: invalidateOutputs(current, [id]),
-          errors: invalidateErrors(current, [id]),
-          revision: current.revision + 1,
-        })
-      );
-    } catch {
-      c.setNodeError(id, "图片读取失败。");
-    }
   }
   const baseNodes = graph.nodes.map((node) => ({
     id: workflowId(node.id),
@@ -98,7 +69,7 @@ export function useCanvasNodes(
         }
         c.setError("请配置 AI_GATEWAY_API_KEY 后运行。");
       },
-      upload: (file: File) => upload(node.id, file),
+      upload: (file: File) => c.uploadAsset(node.id, file),
     } satisfies CanvasNodeData,
   }));
   const nodes: NonNullable<ComponentProps<typeof Canvas>["nodes"]> =
@@ -149,13 +120,4 @@ export function useCanvasNodes(
       );
     },
   };
-}
-
-function readImage(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

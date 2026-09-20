@@ -1,8 +1,16 @@
 "use client";
 import { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { Controls } from "@workspace/ui/components/ai-elements/controls";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip";
+import { ControlButton } from "@xyflow/react";
+import { LayoutDashboardIcon } from "lucide-react";
 import { type ComponentProps, useState } from "react";
 import { type CanvasNode, createNode } from "../model/graph";
+import { arrangeGraph } from "../model/layout";
 import {
   originalId,
   presentationEdges,
@@ -43,6 +51,28 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
       });
     }
     c.edit({ ...graph, nodes: [...graph.nodes, node] });
+  }
+  function arrange() {
+    if (!flow || c.busy) {
+      return;
+    }
+    try {
+      c.edit(
+        arrangeGraph(
+          graph,
+          nodes.map(({ id }) => ({
+            id,
+            measured: flow.getInternalNode(id)?.measured,
+          }))
+        )
+      );
+      setSelectedEdge(null);
+      requestAnimationFrame(() => {
+        void flow.fitView({ padding: 0.35, maxZoom: 0.85, duration: 300 });
+      });
+    } catch (error) {
+      c.setError(error instanceof Error ? error.message : "整理画布失败。");
+    }
   }
   const nodes = useCanvasNodes(c, ready);
   return (
@@ -162,7 +192,22 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           <Controls
             fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
             position="top-left"
-          />
+          >
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <ControlButton
+                    aria-label="整理画布"
+                    disabled={c.busy || !flow || graph.nodes.length === 0}
+                    onClick={arrange}
+                  />
+                }
+              >
+                <LayoutDashboardIcon />
+              </TooltipTrigger>
+              <TooltipContent side="right">整理画布</TooltipContent>
+            </Tooltip>
+          </Controls>
         </Canvas>
         <CanvasToolbar add={add} busy={c.busy} />
         <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">

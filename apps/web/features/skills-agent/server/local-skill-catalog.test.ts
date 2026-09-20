@@ -3,9 +3,18 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { discoverWorkspaceSkills } from "./local-skill-catalog";
+import {
+  discoverWorkspaceSkills,
+  PRIMARY_SKILL_NAMES,
+} from "./local-skill-catalog";
 
 describe("local skills catalog", () => {
+  it("ships the primary skills required by the demo", async () => {
+    const skills = await discoverWorkspaceSkills();
+
+    expect(skills.map((skill) => skill.name)).toEqual([...PRIMARY_SKILL_NAMES]);
+  });
+
   it("returns an empty catalog when the configured skills directory is absent", async () => {
     const workspaceRoot = await mkdtemp(
       path.join(tmpdir(), "skills-agent-catalog-")

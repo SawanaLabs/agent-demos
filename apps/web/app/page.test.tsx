@@ -2,6 +2,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
+import { latestReadyDemoCatalogEntries } from "@/features/demo-catalog/registry";
+
 vi.mock("next/link", () => ({
   default: ({
     children,
@@ -47,13 +49,11 @@ describe("homepage demo gallery", () => {
     const newIndex = markup.indexOf("Latest additions");
     const recommendIndex = markup.indexOf("Start here");
     const newSectionMarkup = markup.slice(newIndex, recommendIndex);
-    const latestDemoHrefs = [
-      "/demos/minimal-chat-agent",
-      "/demos/image-workflow-agent",
-      "/demos/generative-ui",
-      "/demos/langgraph-agent",
-    ];
+    const latestDemoHrefs = latestReadyDemoCatalogEntries.map(
+      (entry) => entry.href
+    );
 
+    expect(latestDemoHrefs).toHaveLength(4);
     expect(newIndex).toBeGreaterThanOrEqual(0);
     expect(newIndex).toBeLessThan(recommendIndex);
     expect(newSectionMarkup).toContain("4 newest demos");

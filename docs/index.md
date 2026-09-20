@@ -52,8 +52,8 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/ultra-chatbot-agent-source-checklist.md | Ultra Chatbot Agent Source Checklist | Source-tree checklist for the vercel/chatbot application-shape port. | 2026-05-28 |
 | ./frontend/ultra-chatbot-agent.md | Ultra Chatbot Agent | Product and architecture boundary for the vercel/chatbot application-shape port. | 2026-06-04 |
 | ./frontend/workspace-ui.md | Workspace UI | Durable conventions for shared UI exports and Next.js app consumption. | 2026-05-26 |
-| ./observability/DOCS.md | Observability Knowledge Protocol | Domain-level language and boundaries for the development-only observability harness. | 2026-06-16 |
-| ./observability/development-harness.md | Development Harness | Development-only lifecycle, exposure, storage, and adapter boundaries for the observability harness. | 2026-06-16 |
+| ./observability/DOCS.md | Observability Knowledge Protocol | Domain-level language and boundaries for the development-only observability harness. | 2026-09-21 |
+| ./observability/development-harness.md | Development Harness | Development-only lifecycle, exposure, storage, and adapter boundaries for the observability harness. | 2026-09-21 |
 | ./observability/index.md | Observability | Navigation for development-only observability harness knowledge. | 2026-06-16 |
 | ./observability/victoriametrics.md | VictoriaMetrics | First metrics backend integration and numeric latency signal boundaries for the development observability harness. | 2026-06-16 |
 | ./planning/DOCS.md | Planning Knowledge Protocol | Domain-level language, reading path, and boundary principles for recoverable planning docs. | 2026-05-29 |

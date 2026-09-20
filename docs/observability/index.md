@@ -22,7 +22,7 @@ Use this domain when changing local observability stack wiring, development-only
 <!-- BEGIN:docs-generated-catalog -->
 | File | Title | Description | Updated |
 | --- | --- | --- | --- |
-| ./DOCS.md | Observability Knowledge Protocol | Domain-level language and boundaries for the development-only observability harness. | 2026-06-16 |
-| ./development-harness.md | Development Harness | Development-only lifecycle, exposure, storage, and adapter boundaries for the observability harness. | 2026-06-16 |
+| ./DOCS.md | Observability Knowledge Protocol | Domain-level language and boundaries for the development-only observability harness. | 2026-09-21 |
+| ./development-harness.md | Development Harness | Development-only lifecycle, exposure, storage, and adapter boundaries for the observability harness. | 2026-09-21 |
 | ./victoriametrics.md | VictoriaMetrics | First metrics backend integration and numeric latency signal boundaries for the development observability harness. | 2026-06-16 |
 <!-- END:docs-generated-catalog -->

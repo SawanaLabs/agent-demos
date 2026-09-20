@@ -225,6 +225,54 @@ function RegistryGuideCallout() {
   );
 }
 
+function DepthVideoToolCallout() {
+  return (
+    <section className="grid gap-5 border border-status-info-500/25 bg-status-info-500/5 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-center">
+      <div className="space-y-3">
+        <p className="text-[11px] text-status-info-700 uppercase tracking-[0.24em] dark:text-status-info-300">
+          Builder tool
+        </p>
+        <h2 className="max-w-3xl font-medium text-2xl tracking-tight">
+          Make a depth video in the browser
+        </h2>
+        <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
+          Turn a short clip into a stabilized grayscale motion reference for AI
+          video models. Five seconds is the recommended working length, fifteen
+          seconds is the limit, and the source file never leaves the browser.
+        </p>
+        <Link
+          className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
+          href="/tools/depth-video"
+        >
+          Open depth video tool
+          <ArrowSquareOutIcon className="size-3.5" />
+        </Link>
+      </div>
+
+      <div
+        aria-label="A grayscale depth map with bright foreground planes and dark background planes"
+        className="grid min-h-36 grid-cols-[minmax(0,1fr)_1rem] gap-3 border border-status-info-500/25 bg-background p-4"
+        role="img"
+      >
+        <div className="flex flex-col justify-center gap-3 overflow-hidden">
+          {[82, 55, 94, 68, 41].map((width, index) => (
+            <div
+              className="h-px bg-status-info-500"
+              key={width}
+              style={{
+                marginLeft: `${index * 4}%`,
+                opacity: 1 - index * 0.16,
+                width: `${width}%`,
+              }}
+            />
+          ))}
+        </div>
+        <div className="bg-gradient-to-b from-foreground via-muted-foreground to-background" />
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
   return (
     <main className="min-h-svh bg-background text-foreground">
@@ -289,6 +337,8 @@ export default function Page() {
         </section>
 
         <RegistryGuideCallout />
+
+        <DepthVideoToolCallout />
 
         <section className="space-y-8">
           <div className="space-y-4">

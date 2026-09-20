@@ -114,11 +114,6 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
         ) : null}
         <CanvasInputBadges inputs={data.inputs} />
         <NodeInputs data={data} />
-        {active ? (
-          <p aria-live="polite" className="animate-pulse text-primary text-sm">
-            正在生成…
-          </p>
-        ) : null}
         {image ? (
           <div className="space-y-2">
             <Image
@@ -140,7 +135,15 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
           </div>
         ) : null}
       </NodeContent>
-      <NodeFooter className="flex justify-end">
+      <NodeFooter className="flex items-center justify-end gap-2">
+        {active ? (
+          <p
+            aria-live="polite"
+            className="mr-auto animate-pulse text-primary text-sm"
+          >
+            正在生成…
+          </p>
+        ) : null}
         {node.kind === "prompt" || asset ? (
           <CanvasNextStep disabled={busy} onSelect={data.continueFrom} />
         ) : null}
@@ -150,7 +153,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             disabled={busy}
             onClick={data.run}
             size="sm"
-            variant="secondary"
+            variant="outline"
           >
             <PlayIcon className="size-3" />
             {data.runLabel}

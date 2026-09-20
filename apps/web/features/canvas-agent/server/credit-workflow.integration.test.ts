@@ -85,7 +85,14 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
           event.type === "tool-output-available" &&
           event.output?.failure?.code === "resource_usage_denied"
       );
-      expect(toolIndex).toBeGreaterThan(-1);
+      expect(
+        toolIndex,
+        JSON.stringify(
+          events
+            .filter((event) => event.type === "tool-output-available")
+            .map((event) => event.output)
+        )
+      ).toBeGreaterThan(-1);
       expect(events[toolIndex].output).toMatchObject({
         failedNodeId: image.id,
         failure: { requiredUnits: 5, remainingUnits: 2 },
@@ -117,6 +124,37 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
       );
       expect(edited.outputs[text.id]).toEqual(latest.outputs[text.id]);
       expect((await balance()).remainingUnits).toBe(2);
+      // Simulate an external top-up without reloading or replacing the canvas graph.
+      await store.refundCredits(seeded.eventIds);
+      expect((await balance()).remainingUnits).toBe(49);
+      const resumed = await chat(
+        edited,
+        "我已经充值了，请继续整个工作流未完成的部分。保留现有创意，不要重新生成文本。"
+      );
+      expect(resumed.filter((event) => event.type === "error")).toEqual([]);
+      const completion = resumed.find(
+        (event) =>
+          event.type === "tool-output-available" && event.output?.execution
+      );
+      expect(
+        completion?.output.error,
+        JSON.stringify(completion?.output.failure)
+      ).toBeUndefined();
+      expect(completion?.output).toMatchObject({
+        execution: {
+          mode: "resume",
+          reusedNodeIds: [text.id],
+          completedNodeIds: [image.id],
+        },
+      });
+      const finished = parseGraph(
+        resumed.filter((event) => event.type === "data-canvas").at(-1).data
+          .graph
+      );
+      expect(finished.outputs[text.id]).toEqual(edited.outputs[text.id]);
+      expect(finished.outputs[image.id]?.image).toBeTruthy();
+      expect(finished.errors).toEqual({});
+      expect((await balance()).remainingUnits).toBe(44);
     } finally {
       await database
         .delete(siteUsageVisitors)

@@ -5,7 +5,7 @@ import {
   withResourceUsage,
 } from "@/features/shared/resource-usage/server/context";
 import { initialGraph } from "../model/graph";
-import { generateNode, runGraph } from "./runner";
+import { executionReport, generateNode, runGraph } from "./runner";
 
 vi.mock("ai", async (original) => ({
   ...(await original<typeof import("ai")>()),
@@ -49,8 +49,8 @@ it.each([
   expect(output.image).toBe("data:image/png;base64,b3V0");
 });
 
-it("retains the provider cause on the server and exposes only a safe node error", async () => {
-  const providerError = new Error("private-provider-detail");
+it("preserves diagnostic errors while redacting credentials", async () => {
+  const providerError = new Error("Connection failed: Bearer sk-private-token");
   const onFailure = vi.fn();
   const snapshots: unknown[] = [];
   await expect(
@@ -73,8 +73,8 @@ it("retains the provider cause on the server and exposes only a safe node error"
     }),
     "text"
   );
-  expect(JSON.stringify(snapshots)).not.toContain("private-provider-detail");
-  expect(JSON.stringify(snapshots)).toContain("生成失败");
+  expect(JSON.stringify(snapshots)).not.toContain("sk-private-token");
+  expect(JSON.stringify(snapshots)).toContain("Connection failed");
 });
 
 it("uses Luna medium for text nodes and respects the configured model", async () => {
@@ -148,4 +148,63 @@ it("uses native image batching and reserves the entire batch before generation",
   expect(output.results).toHaveLength(3);
   expect(vi.mocked(generateImage).mock.lastCall?.[0]).toMatchObject({ n: 3 });
   expect(charge).toHaveBeenCalledExactlyOnceWith("image_generation", 3);
+});
+
+it("resumes after credits are replenished without rerunning completed upstream work", async () => {
+  const graph = initialGraph();
+  graph.outputs.brief = { text: "Existing approved brief" };
+  graph.errors.visual = "Not enough credits";
+  const execute = vi.fn(async () => ({ image: "data:image/png;base64,b2s=" }));
+  const result = await runGraph(graph, undefined, execute);
+  expect(execute.mock.calls).toHaveLength(1);
+  expect(result.outputs.brief).toEqual(graph.outputs.brief);
+  expect(result.outputs.visual?.image).toBeTruthy();
+  expect(result.errors).toEqual({});
+});
+
+it("keeps previous output on failed regeneration, then invalidates only downstream results on success", async () => {
+  const graph = initialGraph();
+  const first = graph.nodes[0];
+  assert(first);
+  graph.nodes.push({ ...first, id: "independent" });
+  graph.outputs = {
+    brief: { text: "old brief" },
+    visual: { image: "data:image/png;base64,b2xk" },
+    independent: { text: "keep" },
+  };
+  let current = graph;
+  const report = executionReport("regenerate");
+  await expect(
+    runGraph(
+      graph,
+      "brief",
+      async () => {
+        throw new Error("upstream timed out");
+      },
+      (next) => {
+        current = next;
+      },
+      undefined,
+      undefined,
+      report
+    )
+  ).rejects.toThrow("upstream timed out");
+  expect(current.outputs).toEqual(graph.outputs);
+  expect(report.attemptedNodeIds).toEqual(["brief"]);
+  expect(report.completedNodeIds).toEqual([]);
+  const nextReport = executionReport("regenerate");
+  const result = await runGraph(
+    current,
+    "brief",
+    async () => ({ text: "new brief" }),
+    undefined,
+    undefined,
+    undefined,
+    nextReport
+  );
+  expect(result.outputs).toEqual({
+    brief: { text: "new brief" },
+    independent: { text: "keep" },
+  });
+  expect(nextReport.invalidatedNodeIds).toEqual(["visual"]);
 });

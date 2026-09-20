@@ -110,7 +110,7 @@ it("publishes failure on the exact node, preserves upstream output, and clears i
       }
     )
   ).rejects.toMatchObject({ nodeId: "visual" });
-  expect(latest.errors.visual).toContain("生成失败");
+  expect(latest.errors.visual).toContain("private provider failure");
   expect(latest.errors.brief).toBeUndefined();
   expect(latest.outputs.brief?.text).toBe("Retained result");
   const edited = editGraph(latest, {

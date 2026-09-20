@@ -20,9 +20,11 @@ import {
 import { outputItems } from "../model/results";
 import { createCanvasEditTools } from "./edit-tools";
 import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels, canvasSetup } from "./env";
+import { nodeFailureDetails } from "./node-failure";
 import {
   type CanvasFailureObserver,
   CanvasNodeError,
+  executionReport,
   runGraph,
 } from "./runner";
 
@@ -85,7 +87,6 @@ function streamCanvasChat(
       onError: () => publicFailure,
       execute: async ({ writer }) => {
         let current = initial;
-        let ran = false;
         let pending = Promise.resolve();
         function serial<T>(operation: () => Promise<T> | T): Promise<T> {
           const result = pending.then(operation);
@@ -160,28 +161,7 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
               description:
                 "Read the current workflow, available output types, generated text, and node errors. Image bytes are omitted; reuse images by connecting their source node IDs.",
               inputSchema: z.object({}),
-              execute: () =>
-                serial(() => ({
-                  nodes: current.nodes,
-                  edges: current.edges,
-                  errors: current.errors,
-                  uploadedReferenceIds: Object.keys(current.assets),
-                  outputs: Object.fromEntries(
-                    Object.entries(current.outputs).map(([id, output]) => [
-                      id,
-                      {
-                        results: outputItems(output).map(
-                          (item, resultIndex) => ({
-                            resultIndex,
-                            label: item.label,
-                            text: item.text,
-                            hasImage: Boolean(item.image),
-                          })
-                        ),
-                      },
-                    ])
-                  ),
-                })),
+              execute: () => serial(() => workflowSnapshot(current)),
             }),
             arrangeCanvas: tool({
               description:
@@ -213,19 +193,22 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
               ? {
                   runWorkflow: tool({
                     description:
-                      "Execute the graph or one target and its dependencies, reusing available results. Uses paid generation. Only when user asks to generate/run/assemble; at most once per turn. Build ALL requested branches before running. For a new multi-deliverable workflow use target:null, so sibling branches are not skipped. For follow-ups run only the new target; for make a GIF add a GIF node connected to the existing grid and target that GIF. GIF processing itself does not call a model. A failed node returns error, failure details and completedNodes; read these and continue the conversation, preserving completed work.",
+                      "Execute the graph or one target and its dependencies. Default mode resume runs missing or failed nodes and reuses successful results, including after credits are replenished. Use regenerate only when the user requests fresh results; it replaces the selected target (or all nodes for target:null) and invalidates dependent results only after success. Failed replacements retain the previous result. Uses paid generation. Only when user asks to generate/run/assemble. You may call this tool repeatedly to run distinct targets and inspect outcomes within one turn. Build ALL requested branches before running. For a new multi-deliverable workflow use target:null, so sibling branches are not skipped. For follow-ups run only the new target; for make a GIF add a GIF node connected to the existing grid and target that GIF. GIF processing itself does not call a model. A failed node returns error, failure details and completedNodes; read these and continue the conversation, preserving completed work.",
                     inputSchema: z.object({
+                      mode: z
+                        .enum(["resume", "regenerate"])
+                        .default("resume")
+                        .describe(
+                          "resume continues unfinished work; regenerate requests fresh output. A successful upstream replacement invalidates dependent results."
+                        ),
                       target: z
                         .string()
                         .nullable()
                         .describe("Target node ID, or null to run all nodes"),
                     }),
-                    execute: ({ target }) =>
+                    execute: ({ target, mode }) =>
                       serial(async () => {
-                        if (ran) {
-                          throw new Error("每轮仅运行一次工作流。");
-                        }
-                        ran = true;
+                        const execution = executionReport(mode);
                         try {
                           current = await runGraph(
                             current,
@@ -236,7 +219,8 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                               publish(active);
                             },
                             request.signal,
-                            onFailure
+                            onFailure,
+                            execution
                           );
                           writer.write({
                             type: "data-canvas-layout",
@@ -245,11 +229,15 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                           });
                           return {
                             summary: "工作流已完成，结果已显示在画布中。",
+                            execution,
                             completedNodeIds: Object.keys(current.outputs),
                           };
                         } catch (error) {
                           if (error instanceof CanvasNodeError) {
-                            return workflowFailure(current, error);
+                            return {
+                              ...workflowFailure(current, error),
+                              execution,
+                            };
                           }
                           throw error;
                         } finally {
@@ -278,7 +266,10 @@ function workflowFailure(graph: CanvasGraph, error: CanvasNodeError) {
     failure:
       error.cause instanceof ResourceUsageDeniedError
         ? { code: "resource_usage_denied", ...error.cause.details }
-        : { code: "node_execution_failed" },
+        : {
+            code: "node_execution_failed",
+            error: nodeFailureDetails(error.cause ?? error),
+          },
     completedNodes: graph.nodes
       .filter((node) => graph.outputs[node.id])
       .map(({ id, label }) => ({ id, label })),
@@ -314,7 +305,8 @@ export async function handleCanvasRun(
             undefined,
             (next, activeNode) => emit({ graph: next, activeNode }),
             request.signal,
-            onFailure
+            onFailure,
+            executionReport("regenerate")
           );
           emit({ graph: result, activeNode: null, done: true });
         } catch (error) {
@@ -335,4 +327,26 @@ export async function handleCanvasRun(
       },
     }
   );
+}
+
+function workflowSnapshot(graph: CanvasGraph) {
+  return {
+    nodes: graph.nodes,
+    edges: graph.edges,
+    errors: graph.errors,
+    uploadedReferenceIds: Object.keys(graph.assets),
+    outputs: Object.fromEntries(
+      Object.entries(graph.outputs).map(([id, output]) => [
+        id,
+        {
+          results: outputItems(output).map((item, resultIndex) => ({
+            resultIndex,
+            label: item.label,
+            text: item.text,
+            hasImage: Boolean(item.image),
+          })),
+        },
+      ])
+    ),
+  };
 }

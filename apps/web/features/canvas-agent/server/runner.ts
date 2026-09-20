@@ -18,6 +18,7 @@ import { edgeInputs, outputItems } from "../model/results";
 import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels } from "./env";
 import { assembleGif } from "./gif";
 import { loadCanvasImage, storeCanvasImage } from "./image-storage";
+import { nodeFailureDetails } from "./node-failure";
 
 export type NodeExecutor = (
   node: CanvasNode,
@@ -181,19 +182,28 @@ export const generateStoredNode: NodeExecutor = async (
   return result.results ? { results: stored } : (stored[0] ?? result);
 };
 
+export function executionReport(mode: "resume" | "regenerate" = "resume") {
+  return {
+    mode,
+    attemptedNodeIds: [] as string[],
+    completedNodeIds: [] as string[],
+    reusedNodeIds: [] as string[],
+    invalidatedNodeIds: [] as string[],
+  };
+}
+
 export async function runGraph(
   input: CanvasGraph,
   target: string | undefined,
   execute: NodeExecutor = generateStoredNode,
   onProgress?: (graph: CanvasGraph, activeNode: string | null) => void,
   signal?: AbortSignal,
-  onFailure?: CanvasFailureObserver
+  onFailure?: CanvasFailureObserver,
+  report = executionReport()
 ) {
   const graph = parseGraph(input);
   const order = executionOrder(graph, target);
-  for (const id of order) {
-    delete graph.errors[id];
-  }
+  const failedIds = new Set(Object.keys(graph.errors));
   onProgress?.(graph, null);
   function fail(error: CanvasNodeError): never {
     graph.errors[error.nodeId] = error.message;
@@ -206,25 +216,38 @@ export async function runGraph(
       fail(new CanvasNodeError(id, message));
     }
   }
-  graph.outputs = target ? invalidateOutputs(graph, [target]) : {};
   for (const id of order) {
     signal?.throwIfAborted();
-    if (graph.outputs[id]) {
+    const regenerate =
+      report.mode === "regenerate" && (!target || target === id);
+    if (graph.outputs[id] && !failedIds.has(id) && !regenerate) {
+      report.reusedNodeIds.push(id);
       continue;
     }
+    delete graph.errors[id];
+    report.attemptedNodeIds.push(id);
     const node = requireNode(graph, id);
     onProgress?.(graph, id);
     try {
       const inputs = graph.edges
         .filter((edge) => edge.target === id)
         .flatMap((edge) => edgeInputs(graph, edge));
-      graph.outputs[id] =
+      const output =
         materialOutput(graph, node) ?? (await execute(node, inputs, signal));
+      // Replace successful results atomically; a failed attempt keeps the previous output.
+      const retained = invalidateOutputs(graph, [id]);
+      report.invalidatedNodeIds.push(
+        ...Object.keys(graph.outputs).filter(
+          (key) => key !== id && !(key in retained)
+        )
+      );
+      graph.outputs = { ...retained, [id]: output };
+      report.completedNodeIds.push(id);
     } catch (error) {
       if (signal?.aborted) {
         throw error;
       }
-      const message = publicNodeFailure(error, node.kind);
+      const message = publicNodeFailure(error);
       const failure = new CanvasNodeError(id, message, { cause: error });
       reportFailure(onFailure, failure, node.kind);
       fail(failure);
@@ -264,13 +287,12 @@ function inputError(graph: CanvasGraph, node: CanvasNode) {
   return;
 }
 
-function publicNodeFailure(error: unknown, kind: CanvasNode["kind"]) {
+function publicNodeFailure(error: unknown) {
   if (error instanceof ResourceUsageDeniedError) {
     return error.details
       ? `生成额度不足：需要 ${error.details.requiredUnits} 点，当前剩余 ${error.details.remainingUnits} 点。已完成的结果已保留。`
       : error.message;
   }
-  return kind === "gif"
-    ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"
-    : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。";
+  const details = nodeFailureDetails(error);
+  return `${details.name}: ${details.message}`;
 }

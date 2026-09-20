@@ -19,6 +19,12 @@ describe("AI Gateway env contract", () => {
     });
   });
 
+  it("defaults to GPT 5.6 Luna", () => {
+    expect(
+      getAiGatewayConfig({ AI_GATEWAY_API_KEY: "test-key" }).chatModel
+    ).toBe("openai/gpt-5.6-luna");
+  });
+
   it("reports missing credentials clearly", () => {
     expect(getAiGatewaySetupState({}).issues.join(" ")).toMatch(
       missingGatewayKeyPattern

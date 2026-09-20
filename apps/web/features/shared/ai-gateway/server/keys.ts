@@ -1,8 +1,11 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
-import { DEFAULT_GATEWAY_BASE_URL } from "./contract";
+import {
+  DEFAULT_GATEWAY_BASE_URL,
+  DEFAULT_CHAT_MODEL as DEFAULT_GATEWAY_CHAT_MODEL,
+} from "./contract";
 
-export const DEFAULT_CHAT_MODEL = "openai/gpt-4.1-mini";
+export const DEFAULT_CHAT_MODEL = DEFAULT_GATEWAY_CHAT_MODEL;
 export const DEFAULT_IMAGE_MODEL = "google/gemini-3.1-flash-lite-image";
 
 export const keys = () =>

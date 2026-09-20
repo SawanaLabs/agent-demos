@@ -17,7 +17,7 @@ import {
   removeNodes,
 } from "../model/graph";
 import { createCanvasEditTools } from "./edit-tools";
-import { canvasModels, canvasSetup } from "./env";
+import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels, canvasSetup } from "./env";
 import {
   type CanvasFailureObserver,
   CanvasNodeError,
@@ -101,6 +101,7 @@ function streamCanvasChat(
           });
         const result = streamText({
           model: models.text,
+          providerOptions: CANVAS_TEXT_PROVIDER_OPTIONS,
           abortSignal: request.signal,
           maxRetries: 1,
           stopWhen: stepCountIs(12),

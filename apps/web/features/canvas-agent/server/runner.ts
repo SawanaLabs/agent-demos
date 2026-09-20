@@ -10,7 +10,7 @@ import {
   parseGraph,
 } from "../model/graph";
 import { availableResultPosition, hasResult } from "../model/presentation";
-import { canvasModels } from "./env";
+import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels } from "./env";
 import { assembleGif } from "./gif";
 import { loadCanvasImage, storeCanvasImage } from "./image-storage";
 
@@ -112,6 +112,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
   }
   const result = await generateText({
     model: models.text,
+    providerOptions: CANVAS_TEXT_PROVIDER_OPTIONS,
     messages: [
       {
         role: "user",

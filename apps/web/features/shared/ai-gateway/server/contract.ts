@@ -1,5 +1,6 @@
 import { createGateway } from "ai";
 
+export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-luna";
 export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const MINIMUM_NODE_VERSION = "22.13.0";
 const nodeVersionPattern =

@@ -5,7 +5,7 @@ an executable graph on an infinite canvas. Text, reference images, and generated
 images can branch and merge. The floating conversation keeps running when folded;
 its composer remains available.
 
-The Canvas Agent defaults to `openai/gpt-5-mini` (overridable with `AI_GATEWAY_CHAT_MODEL`). Image generation stays on `openai/gpt-image-2` with low quality.
+The Canvas Agent defaults to `openai/gpt-5.6-luna` with medium reasoning for conversation and text nodes (overridable with `AI_GATEWAY_CHAT_MODEL`). Image generation stays on `openai/gpt-image-2` with low quality.
 
 The toolbar exposes **生成图片**, **生成文本**, **图片输入**, **提示词**,
 **合成 GIF**, and **预览输出**. Text materials pass literal prompts without model calls. Multiple

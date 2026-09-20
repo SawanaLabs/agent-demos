@@ -1,4 +1,4 @@
-import { generateImage } from "ai";
+import { generateImage, generateText } from "ai";
 import { afterEach, assert, expect, it, vi } from "vitest";
 import { initialGraph } from "../model/graph";
 import { generateNode, runGraph } from "./runner";
@@ -6,6 +6,7 @@ import { generateNode, runGraph } from "./runner";
 vi.mock("ai", async (original) => ({
   ...(await original<typeof import("ai")>()),
   generateImage: vi.fn(),
+  generateText: vi.fn(),
 }));
 
 afterEach(() => {
@@ -70,4 +71,21 @@ it("retains the provider cause on the server and exposes only a safe node error"
   );
   expect(JSON.stringify(snapshots)).not.toContain("private-provider-detail");
   expect(JSON.stringify(snapshots)).toContain("生成失败");
+});
+
+it("uses Luna medium for text nodes and respects the configured model", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  vi.mocked(generateText).mockResolvedValue({ text: "done" } as Awaited<
+    ReturnType<typeof generateText>
+  >);
+  const node = initialGraph().nodes[0];
+  assert(node);
+  for (const model of ["", "openai/gpt-5-mini"]) {
+    vi.stubEnv("AI_GATEWAY_CHAT_MODEL", model);
+    expect(await generateNode(node, [])).toEqual({ text: "done" });
+    expect(vi.mocked(generateText).mock.lastCall?.[0]).toMatchObject({
+      model: { modelId: model || "openai/gpt-5.6-luna" },
+      providerOptions: { openai: { reasoningEffort: "medium" } },
+    });
+  }
 });

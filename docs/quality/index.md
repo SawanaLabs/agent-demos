@@ -27,7 +27,7 @@ Use this domain when changing linting, formatting, type checking, tests, or CI q
 | File | Title | Description | Updated |
 | --- | --- | --- | --- |
 | ./DOCS.md | Quality Knowledge Protocol | Domain-level language, reading path, and boundary principles for quality tooling and verification. | 2026-06-04 |
-| ./environment-config.md | Environment Config | Durable rules for environment-variable contracts, env modules, and direct process.env usage. | 2026-08-17 |
+| ./environment-config.md | Environment Config | Durable rules for environment-variable contracts, env modules, and direct process.env usage. | 2026-09-21 |
 | ./integration-testing.md | Integration Testing | General conventions for repository integration tests, including Vercel Sandbox-backed contract tests. | 2026-06-12 |
 | ./resource-abuse-privacy-review.md | Resource Abuse and Privacy Review | Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity. | 2026-06-04 |
 | ./ultracite.md | Ultracite | Durable conventions for the repository's Ultracite and Biome quality gate. | 2026-06-08 |

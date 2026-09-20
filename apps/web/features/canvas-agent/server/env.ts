@@ -1,7 +1,13 @@
 import { createGateway, type ImageModel, type LanguageModel } from "ai";
-import { DEFAULT_GATEWAY_BASE_URL } from "@/features/shared/ai-gateway/server/contract";
+import {
+  DEFAULT_CHAT_MODEL,
+  DEFAULT_GATEWAY_BASE_URL,
+} from "@/features/shared/ai-gateway/server/contract";
 
-export const DEFAULT_CANVAS_TEXT_MODEL = "openai/gpt-5-mini";
+export const DEFAULT_CANVAS_TEXT_MODEL = DEFAULT_CHAT_MODEL;
+export const CANVAS_TEXT_PROVIDER_OPTIONS = {
+  openai: { reasoningEffort: "medium" },
+} as const;
 export const DEFAULT_CANVAS_IMAGE_MODEL = "openai/gpt-image-2";
 
 export function canvasSetup() {

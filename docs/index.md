@@ -59,7 +59,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./planning/index.md | Planning | Navigation for recoverable planning docs and future work topics. | 2026-05-29 |
 | ./planning/work-roadmap.md | Work Roadmap | Recoverable work topics and intended future states for this repository. | 2026-06-03 |
 | ./quality/DOCS.md | Quality Knowledge Protocol | Domain-level language, reading path, and boundary principles for quality tooling and verification. | 2026-06-04 |
-| ./quality/environment-config.md | Environment Config | Durable rules for environment-variable contracts, env modules, and direct process.env usage. | 2026-08-17 |
+| ./quality/environment-config.md | Environment Config | Durable rules for environment-variable contracts, env modules, and direct process.env usage. | 2026-09-21 |
 | ./quality/index.md | Quality | Navigation for quality tooling and verification workflow knowledge. | 2026-06-04 |
 | ./quality/integration-testing.md | Integration Testing | General conventions for repository integration tests, including Vercel Sandbox-backed contract tests. | 2026-06-12 |
 | ./quality/resource-abuse-privacy-review.md | Resource Abuse and Privacy Review | Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity. | 2026-06-04 |

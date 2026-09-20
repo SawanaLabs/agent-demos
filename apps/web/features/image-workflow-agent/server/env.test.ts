@@ -11,7 +11,7 @@ describe("image workflow agent env", () => {
     expect(getImageWorkflowAgentSetupState({})).toEqual({
       config: {
         baseURL: "https://ai-gateway.vercel.sh/v3/ai",
-        chatModel: "openai/gpt-4.1-mini",
+        chatModel: "openai/gpt-5.6-luna",
         imageModel: DEFAULT_IMAGE_WORKFLOW_AGENT_IMAGE_MODEL,
       },
       isReady: false,

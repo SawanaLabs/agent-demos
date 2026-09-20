@@ -17,6 +17,7 @@ afterEach(() => {
 
 it("preserves completed tools across turns while excluding interrupted calls", async () => {
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  vi.stubEnv("AI_GATEWAY_CHAT_MODEL", "");
   const response = await handleCanvasChat(
     new Request("http://localhost/chat", {
       method: "POST",
@@ -48,6 +49,10 @@ it("preserves completed tools across turns while excluding interrupted calls", a
     })
   );
   await response.text();
+  expect(vi.mocked(streamText).mock.calls[0]?.[0]).toMatchObject({
+    model: { modelId: "openai/gpt-5.6-luna" },
+    providerOptions: { openai: { reasoningEffort: "medium" } },
+  });
   const messages = vi.mocked(streamText).mock.calls[0]?.[0].messages;
   expect(JSON.stringify(messages)).not.toContain("interrupted");
   expect(messages).toEqual(

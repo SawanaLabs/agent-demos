@@ -1,7 +1,7 @@
 ---
 title: Environment Config
 description: Durable rules for environment-variable contracts, env modules, and direct process.env usage.
-updateAt: 2026-08-17
+updateAt: 2026-09-21
 ---
 
 # Environment Config
@@ -25,6 +25,7 @@ updateAt: 2026-08-17
 - Vercel Sandbox authentication should prefer `VERCEL_OIDC_TOKEN`. Local provider-backed tests get this token through `vercel link` plus `vercel env pull`; Vercel production uses Vercel-managed OIDC automatically. The `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and `VERCEL_PROJECT_ID` trio is only for external CI/CD or non-Vercel hosting where OIDC is unavailable. See [Vercel Sandbox authentication](https://vercel.com/docs/vercel-sandbox/concepts/authentication) and [Vercel OIDC federation](https://vercel.com/docs/oidc).
 - Do not treat a locally pulled `VERCEL_OIDC_TOKEN` as a permanent production secret. Local development tokens expire and should be refreshed with `vercel env pull`; production on Vercel should rely on the platform-managed OIDC context.
 - Shared environment modules that must ship through the shadcn registry should split portable runtime contracts from environment adapters. The portable contract accepts an env record or explicit config; the app adapter wires `apps/web/env.ts`; the registry adapter wires consumer `process.env`.
+- The app-wide `AI_GATEWAY_CHAT_MODEL` default is `openai/gpt-5.6-luna`, centralized in the Gateway contract and supplied through the app env. Luna defaults to medium reasoning at the provider; Canvas explicitly requests medium for both conversation and text generation. Explicit model/effort selections and specialist demo contracts retain their own overrides. See [OpenAI Luna model](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
 - The AI Gateway shared contract lives at `apps/web/features/shared/ai-gateway/server/contract.ts`. It owns Node version checks, Gateway default resolution, setup-state construction, and `createGateway` wiring. App demo `server/env.ts` files should import that contract and get env data through feature-local `server/env-source.ts` adapters.
 - Registry AI Gateway demos should copy the same portable contract into `registry/<demo-slug>/lib/ai-gateway/contract.ts`. Their demo-owned `env-source.ts` files may read `process.env`; their demo-owned `env.ts` files should import `@/lib/ai-gateway/contract` and keep demo-specific defaults or extra setup issues local.
 - Registry source under `registry/*` is consumer-installed code. It may read `process.env` directly from an `env.ts` or `env-source.ts` adapter because that installed code does not have this repo's `@/env` aggregation layer.

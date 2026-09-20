@@ -6,6 +6,7 @@ import {
   nodePatchSchema,
   updateNode,
 } from "../model/commands";
+import { generationFeedback, isGenerator } from "../model/generation";
 import type { CanvasGraph } from "../model/graph";
 
 type ApplyEdit = (
@@ -19,7 +20,21 @@ export function createCanvasEditTools(apply: ApplyEdit) {
         "Update only supplied fields of one node. Omit unchanged fields. Renaming/moving preserves results; generation changes invalidate only this node and descendants.",
       inputSchema: z.object({ nodeId: z.string(), patch: nodePatchSchema }),
       execute: ({ nodeId, patch }) =>
-        apply((graph) => updateNode(graph, nodeId, patch)),
+        apply((graph) => {
+          const node = graph.nodes.find((item) => item.id === nodeId);
+          if (node && isGenerator(node) && patch.prompt !== undefined) {
+            const prompts = graph.edges
+              .filter((edge) => edge.target === nodeId)
+              .map((edge) =>
+                graph.nodes.find((item) => item.id === edge.source)
+              )
+              .filter((item) => item?.kind === "prompt");
+            throw new Error(
+              `生成节点不保存提示词。请 updateNode 修改相连的提示词节点：${prompts.map((item) => `${item?.label} (${item?.id})`).join(", ") || "暂无，请 addNode 创建 prompt 节点，再 connectNodes 接入本节点"}。上游文本会全文作为生成提示词传入。`
+            );
+          }
+          return updateNode(graph, nodeId, patch);
+        }),
     }),
     connectNodes: tool({
       description:
@@ -34,11 +49,28 @@ export function createCanvasEditTools(apply: ApplyEdit) {
           .max(3)
           .optional()
           .describe(
-            "Optional zero-based result to connect; omit to pass every result."
+            "Zero-based result to connect. Required for text/image/GIF generators; omit for prompt or reference materials."
           ),
       }),
-      execute: ({ source, target, resultIndex }) =>
-        apply((graph) => connectNodes(graph, source, target, resultIndex)),
+      execute: async ({ source, target, resultIndex }) => {
+        let feedback: ReturnType<typeof generationFeedback> | undefined;
+        const changed = await apply((graph) => {
+          const node = graph.nodes.find((item) => item.id === source);
+          if (
+            node &&
+            ["text", "image", "gif"].includes(node.kind) &&
+            resultIndex === undefined
+          ) {
+            throw new Error(
+              `请连接生成结果，提供 resultIndex。可用结果：${JSON.stringify(generationFeedback(graph, source).results)}。`
+            );
+          }
+          const next = connectNodes(graph, source, target, resultIndex);
+          feedback = generationFeedback(next, target);
+          return next;
+        });
+        return { ...changed, ...feedback };
+      },
     }),
     disconnectNodes: tool({
       description:

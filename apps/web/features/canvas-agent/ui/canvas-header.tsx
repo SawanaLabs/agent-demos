@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
+import { migrateGenerationInputs } from "../model/generation";
 import { parseGraph } from "../model/graph";
 import type { useCanvasAgent } from "./use-canvas-agent";
 
@@ -35,7 +36,9 @@ export function CanvasHeader({
       if (file.size > 32 * 1024 * 1024) {
         throw new Error("文件过大。");
       }
-      c.setGraph(parseGraph(JSON.parse(await file.text())));
+      c.setGraph(
+        migrateGenerationInputs(parseGraph(JSON.parse(await file.text())))
+      );
       c.setError(null);
     } catch {
       c.setError("无法打开工作流，请选择从此画布导出的 JSON 文件。");

@@ -48,7 +48,7 @@ export const nodeSchema = z.object({
   position: z.object({ x: z.number().finite(), y: z.number().finite() }),
 });
 export const definitionSchema = z.object({
-  nodes: z.array(nodeSchema).max(20),
+  nodes: z.array(nodeSchema).max(40),
   edges: z
     .array(
       z.object({
@@ -57,7 +57,7 @@ export const definitionSchema = z.object({
         resultIndex: z.number().int().min(0).max(3).optional(),
       })
     )
-    .max(60),
+    .max(260),
 });
 export const contentSchema = z.object({
   label: z.string().max(100).optional(),

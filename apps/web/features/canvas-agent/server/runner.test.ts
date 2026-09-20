@@ -208,3 +208,59 @@ it("keeps previous output on failed regeneration, then invalidates only downstre
   });
   expect(nextReport.invalidatedNodeIds).toEqual(["visual"]);
 });
+
+it("passes each selected generated text verbatim to its image request through explicit inputs", async () => {
+  const { addCanvasNode } = await import("../model/generation");
+  const { createNode } = await import("../model/graph");
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  vi.mocked(generateText).mockResolvedValue({
+    output: {
+      results: [
+        { label: "特写", text: "完整的产品特写提示词" },
+        { label: "海报", text: "完整的户外海报提示词" },
+      ],
+    },
+  } as Awaited<ReturnType<typeof generateText>>);
+  vi.mocked(generateImage).mockResolvedValue({
+    image: { mediaType: "image/png", base64: "b3V0" },
+  } as Awaited<ReturnType<typeof generateImage>>);
+  const source = {
+    ...createNode("text", 0),
+    id: "source",
+    resultCount: 2,
+    prompt: "生成两个独立提示词",
+  };
+  let graph = addCanvasNode(
+    { ...initialGraph(), nodes: [], edges: [] },
+    source
+  ).graph;
+  for (const resultIndex of [0, 1]) {
+    graph = addCanvasNode(graph, createNode("image", resultIndex + 1), [
+      { source: source.id, resultIndex },
+    ]).graph;
+  }
+  const completed = await runGraph(graph, undefined, generateNode);
+  expect(
+    vi.mocked(generateImage).mock.calls.map(([call]) => call.prompt)
+  ).toEqual(["完整的产品特写提示词", "完整的户外海报提示词"]);
+  expect(
+    Object.values(completed.outputs).filter((output) => output.image)
+  ).toHaveLength(2);
+});
+
+it("resumes a migrated completed workflow without regenerating existing results", async () => {
+  const { migrateGenerationInputs } = await import("../model/generation");
+  const graph = initialGraph();
+  graph.outputs = {
+    brief: { text: "保留原文" },
+    visual: { image: "data:image/png;base64,b3V0" },
+  };
+  const execute = vi.fn();
+  const completed = await runGraph(
+    migrateGenerationInputs(graph),
+    undefined,
+    execute
+  );
+  expect(execute).not.toHaveBeenCalled();
+  expect(completed.outputs).toMatchObject(graph.outputs);
+});

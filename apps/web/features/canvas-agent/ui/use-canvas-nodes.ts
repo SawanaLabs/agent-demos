@@ -2,6 +2,7 @@
 import type { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { applyNodeChanges, type Node, type NodeChange } from "@xyflow/react";
 import { type ComponentProps, useState } from "react";
+import { addCanvasNode } from "../model/generation";
 import { type CanvasNode, createNode } from "../model/graph";
 import { connectedInputs } from "../model/inputs";
 import {
@@ -42,20 +43,14 @@ export function useCanvasNodes(
         const origin =
           index === undefined ? node.position : resultPosition(node, index);
         next.position = { x: origin.x + 420, y: origin.y };
-        next.prompt = ["text", "prompt"].includes(node.kind)
-          ? "根据上游文本生成一张图片，不添加文字。"
-          : "以输入图片为参考，保留主体身份，修改场景和构图。";
-        c.edit({
-          nodes: [...graph.nodes, next],
-          edges: [
-            ...graph.edges,
+        c.edit(
+          addCanvasNode(graph, next, [
             {
               source: node.id,
-              target: next.id,
               ...(index === undefined ? {} : { resultIndex: index }),
             },
-          ],
-        });
+          ]).graph
+        );
       },
       node,
       inputs: connectedInputs(graph, node.id),

@@ -83,7 +83,12 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
   }
   const models = canvasModels();
   const count = node.resultCount ?? 1;
-  const text = `${node.prompt}\nUpstream text:\n${resolvedInputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
+  const text = [
+    node.prompt,
+    ...resolvedInputs.flatMap((input) => (input.text ? [input.text] : [])),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
   const images = await Promise.all(
     resolvedInputs
       .flatMap((input) => (input.image ? [input.image] : []))

@@ -10,9 +10,9 @@ import {
 } from "ai";
 import { z } from "zod";
 import { ResourceUsageDeniedError } from "@/features/shared/resource-usage/server/context";
+import { addCanvasNode, generationFeedback } from "../model/generation";
 import {
   type CanvasGraph,
-  editGraph,
   nodeSchema,
   parseGraph,
   removeNodes,
@@ -136,25 +136,34 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                   resultPosition: true,
                   resultPositions: true,
                 }),
+                sourceResults: z
+                  .array(
+                    z.object({
+                      source: z.string(),
+                      resultIndex: z.number().int().min(0).max(3),
+                    })
+                  )
+                  .optional()
+                  .describe(
+                    "Selected generated results returned by a prior tool. Connects them during creation without adding an empty prompt material."
+                  ),
                 sourceIds: z
                   .array(z.string())
                   .max(20)
                   .describe(
-                    "Connect ALL results from each of these original upstream node IDs. Required image references must be real connections; repeating a description does not supply the image. For a selected result, pass [] here then use connectNodes with resultIndex. Also use [] for independent generation or materials."
+                    "Connect ALL results from each of these original upstream node IDs. Required image references must be real connections; repeating a description does not supply the image. For selected results, use sourceResults and omit those sources here. Also use [] for independent generation or materials."
                   ),
               }),
-              execute: ({ node, sourceIds }) =>
+              execute: ({ node, sourceIds, sourceResults }) =>
                 serial(() => {
                   const id = crypto.randomUUID();
-                  current = editGraph(current, {
-                    nodes: [...current.nodes, { ...node, id }],
-                    edges: [
-                      ...current.edges,
-                      ...sourceIds.map((source) => ({ source, target: id })),
-                    ],
-                  });
+                  const added = addCanvasNode(current, { ...node, id }, [
+                    ...sourceIds.map((source) => ({ source })),
+                    ...(sourceResults ?? []),
+                  ]);
+                  current = added.graph;
                   publish();
-                  return { nodeId: id, sourceIds };
+                  return generationFeedback(current, id, added.promptNodeId);
                 }),
             }),
             readWorkflow: tool({
@@ -208,6 +217,10 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                     }),
                     execute: ({ target, mode }) =>
                       serial(async () => {
+                        const material = materialTargetFailure(current, target);
+                        if (material) {
+                          return material;
+                        }
                         const execution = executionReport(mode);
                         try {
                           current = await runGraph(
@@ -255,6 +268,23 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
       },
     }),
   });
+}
+
+function materialTargetFailure(graph: CanvasGraph, target: string | null) {
+  const selected = graph.nodes.find((node) => node.id === target);
+  if (!(selected && ["prompt", "reference"].includes(selected.kind))) {
+    return null;
+  }
+  return {
+    error:
+      "该节点是素材输入，不调用模型，未生成任何新内容。请运行相连的生成节点。",
+    availableTargets: graph.edges
+      .filter((edge) => edge.source === target)
+      .map((edge) => ({
+        nodeId: edge.target,
+        label: graph.nodes.find((node) => node.id === edge.target)?.label,
+      })),
+  };
 }
 
 function workflowFailure(graph: CanvasGraph, error: CanvasNodeError) {

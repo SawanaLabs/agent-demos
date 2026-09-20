@@ -10,6 +10,7 @@ import { ControlButton } from "@xyflow/react";
 import { LayoutDashboardIcon } from "lucide-react";
 import { type ComponentProps, useEffect, useState } from "react";
 import { connectNodes } from "../model/commands";
+import { addCanvasNode } from "../model/generation";
 import { type CanvasNode, createNode } from "../model/graph";
 import { arrangeGraph } from "../model/layout";
 import {
@@ -50,7 +51,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
         y: window.innerHeight * 0.35,
       });
     }
-    c.edit({ ...graph, nodes: [...graph.nodes, node] });
+    c.edit(addCanvasNode(graph, node).graph);
   }
   function arrange() {
     if (!flow || c.busy) {
@@ -114,6 +115,11 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
           isValidConnection={({ source, target }) =>
             !target.startsWith("result:") &&
+            (source.startsWith("result:") ||
+              ["prompt", "reference"].includes(
+                graph.nodes.find((node) => node.id === originalId(source))
+                  ?.kind ?? ""
+              )) &&
             originalId(source) !== originalId(target) &&
             !["reference", "prompt"].includes(
               graph.nodes.find((node) => node.id === originalId(target))

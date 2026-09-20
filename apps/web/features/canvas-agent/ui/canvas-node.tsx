@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import { Textarea } from "@workspace/ui/components/textarea";
+import { Handle, Position } from "@xyflow/react";
 import {
   AlertCircleIcon,
   DownloadIcon,
@@ -58,10 +59,13 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
     <Node
       className={`${styles.node} w-80 shadow-sm ${active ? "ring-2 ring-primary" : ""}`}
       handles={{
-        source: true,
+        source: ["prompt", "reference"].includes(node.kind),
         target: !["reference", "prompt"].includes(node.kind),
       }}
     >
+      {["text", "image", "gif"].includes(node.kind) ? (
+        <Handle isConnectable={false} position={Position.Right} type="source" />
+      ) : null}
       <NodeHeader>
         <div className="flex items-center gap-2">
           <span className="flex shrink-0 items-center gap-1 text-muted-foreground text-xs">
@@ -180,18 +184,20 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
   }
   return (
     <>
-      <Textarea
-        aria-label={`${node.label}提示词`}
-        className="nodrag nowheel min-h-28 resize-y text-sm"
-        disabled={busy}
-        onChange={(event) => data.update({ prompt: event.target.value })}
-        placeholder={
-          node.kind === "prompt"
-            ? "输入提示词或其他文本，连接后原样传给下游。"
-            : "描述生成要求，也可以通过连线传入提示词和图片。"
-        }
-        value={node.prompt}
-      />
+      {node.kind === "prompt" ? (
+        <Textarea
+          aria-label={`${node.label}提示词`}
+          className="nodrag nowheel min-h-28 resize-y text-sm"
+          disabled={busy}
+          onChange={(event) => data.update({ prompt: event.target.value })}
+          placeholder="输入提示词或其他文本，连接后原样传给下游。"
+          value={node.prompt}
+        />
+      ) : (
+        <p className="text-muted-foreground text-xs">
+          连接提示词或生成结果作为输入。文本全文参与生成，图片作为参考。
+        </p>
+      )}
       {node.kind === "prompt" ? (
         <p className="text-muted-foreground text-xs">
           原样传给下游 · 不调用 AI

@@ -2,6 +2,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { migrateGenerationInputs } from "../model/generation";
 import {
   type CanvasDefinition,
   type CanvasGraph,
@@ -11,14 +12,15 @@ import {
   invalidateOutputs,
   parseGraph,
 } from "../model/graph";
-
 import { canvasChatError, canvasChatFetch } from "./chat-error";
 import { storeGraphImages, uploadCanvasImage } from "./image-upload";
 import { readRunStream } from "./run-stream";
 import { useCanvasChatActions } from "./use-canvas-chat-actions";
 
 export function useCanvasAgent() {
-  const [graph, setGraph] = useState(initialGraph);
+  const [graph, setGraph] = useState(() =>
+    migrateGenerationInputs(initialGraph())
+  );
   const [mode, setMode] = useState<"plan" | "execute">("execute");
   const [layoutRequested, setLayoutRequested] = useState(false);
   const [activeNode, setActiveNode] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export function useCanvasAgent() {
           graph: CanvasGraph;
           activeNode: string | null;
         };
-        setGraph(parseGraph(data.graph));
+        setGraph(migrateGenerationInputs(parseGraph(data.graph)));
         setActiveNode(data.activeNode);
       }
     },
@@ -68,7 +70,10 @@ export function useCanvasAgent() {
     setActiveNode(null)
   );
   busyRef.current = busy;
-  useEffect(() => () => abort.current?.abort(), []);
+  useEffect(() => {
+    setGraph((current) => migrateGenerationInputs(current));
+    return () => abort.current?.abort();
+  }, []);
 
   async function prepareGraph() {
     const next = await storeGraphImages(graphRef.current);

@@ -1,4 +1,5 @@
 import { generateImage, generateText } from "ai";
+import sharp from "sharp";
 import {
   type CanvasGraph,
   type CanvasNode,
@@ -10,6 +11,7 @@ import {
 } from "../model/graph";
 import { availableResultPosition, hasResult } from "../model/presentation";
 import { canvasModels } from "./env";
+import { assembleGif } from "./gif";
 
 export type NodeExecutor = (
   node: CanvasNode,
@@ -34,9 +36,37 @@ function requireNode(graph: CanvasGraph, id: string) {
 }
 
 export const generateNode: NodeExecutor = async (node, inputs, signal) => {
+  if (node.kind === "gif") {
+    const images = inputs.flatMap((input) =>
+      input.image ? [input.image] : []
+    );
+    if (images.length !== 1) {
+      throw new Error("合成 GIF 需要连接一张网格图片。");
+    }
+    return {
+      image: await assembleGif(
+        images[0] as string,
+        node.gif ?? { rows: 2, columns: 2, fps: 4 }
+      ),
+    };
+  }
   const models = canvasModels();
   const text = `${node.prompt}\nUpstream text:\n${inputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
-  const images = inputs.flatMap((input) => (input.image ? [input.image] : []));
+  const images = await Promise.all(
+    inputs
+      .flatMap((input) => (input.image ? [input.image] : []))
+      .map(async (image) => {
+        if (!image.startsWith("data:image/gif")) {
+          return image;
+        }
+        const png = await sharp(
+          Buffer.from(image.split(",")[1] ?? "", "base64")
+        )
+          .png()
+          .toBuffer();
+        return `data:image/png;base64,${png.toString("base64")}`;
+      })
+  );
   if (node.kind === "image") {
     const sizes = {
       "1:1": "1024x1024",
@@ -91,12 +121,9 @@ export async function runGraph(
     throw new CanvasNodeError(id, message);
   }
   for (const id of order) {
-    const node = requireNode(graph, id);
-    if (node.kind === "reference" && !graph.assets[id]) {
-      fail(id, `请为「${node.label}」上传参考图。`);
-    }
-    if (needsPrompt(graph, node)) {
-      fail(id, `请填写「${node.label}」的提示词。`);
+    const message = inputError(graph, requireNode(graph, id));
+    if (message) {
+      fail(id, message);
     }
   }
   graph.outputs = target ? invalidateOutputs(graph, [target]) : {};
@@ -120,7 +147,9 @@ export async function runGraph(
       }
       fail(
         id,
-        "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
+        node.kind === "gif"
+          ? "GIF 合成失败，请检查上游是否为图片，以及网格行列设置。"
+          : "生成失败，请检查模型配置或稍后重试。已完成的上游结果仍可复用。"
       );
     }
     if (hasResult(graph, id)) {
@@ -133,11 +162,30 @@ export async function runGraph(
 }
 
 function needsPrompt(graph: CanvasGraph, node: CanvasNode) {
-  if (["reference", "output"].includes(node.kind) || node.prompt.trim()) {
+  if (
+    ["reference", "output", "gif"].includes(node.kind) ||
+    node.prompt.trim()
+  ) {
     return false;
   }
   return (
     node.kind === "prompt" ||
     !graph.edges.some((edge) => edge.target === node.id)
   );
+}
+
+function inputError(graph: CanvasGraph, node: CanvasNode) {
+  if (node.kind === "reference" && !graph.assets[node.id]) {
+    return `请为「${node.label}」上传参考图。`;
+  }
+  if (
+    node.kind === "gif" &&
+    graph.edges.filter((edge) => edge.target === node.id).length !== 1
+  ) {
+    return "合成 GIF 需要连接一张网格图片。";
+  }
+  if (needsPrompt(graph, node)) {
+    return `请填写「${node.label}」的提示词。`;
+  }
+  return;
 }

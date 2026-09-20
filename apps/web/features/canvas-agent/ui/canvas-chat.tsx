@@ -95,8 +95,9 @@ export function CanvasChat({
                   搭建一个有两条图片分支的广告工作流
                 </Button>
                 <p className="text-muted-foreground text-xs">
-                  支持生成图片、生成文本、图片输入、提示词和预览输出。视频、GIF
-                  与深度节点尚未接入。
+                  支持图片与文本生成、网格图合成
+                  GIF、素材输入和预览输出。直接描述需求，Agent
+                  会搭建、运行并整理画布。
                 </p>
                 <Link
                   className="text-xs underline"
@@ -127,6 +128,8 @@ export function CanvasChat({
                           {(
                             {
                               "tool-editWorkflow": "编辑工作流",
+                              "tool-removeNodes": "删除节点",
+                              "tool-addNode": "添加并连接节点",
                               "tool-runWorkflow": "执行工作流",
                               "tool-readWorkflow": "读取工作流",
                               "tool-arrangeCanvas": "整理画布",

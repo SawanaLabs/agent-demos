@@ -93,7 +93,7 @@ export function useCanvasNodes(
           ),
         }),
       run: () => {
-        if (ready) {
+        if (ready || node.kind === "gif") {
           return c.run(node.id);
         }
         c.setError("请配置 AI_GATEWAY_API_KEY 后运行。");

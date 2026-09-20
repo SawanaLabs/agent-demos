@@ -6,10 +6,17 @@ const imageSchema = z
   .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/);
 export const nodeSchema = z.object({
   id: z.string().min(1).max(80),
-  kind: z.enum(["text", "image", "reference", "prompt", "output"]),
+  kind: z.enum(["text", "image", "reference", "prompt", "output", "gif"]),
   label: z.string().min(1).max(100),
   prompt: z.string().max(12_000),
   aspectRatio: z.enum(["1:1", "16:9", "9:16"]),
+  gif: z
+    .object({
+      rows: z.number().int().min(1).max(4),
+      columns: z.number().int().min(1).max(4),
+      fps: z.number().min(1).max(24),
+    })
+    .optional(),
   resultPosition: z
     .object({ x: z.number().finite(), y: z.number().finite() })
     .optional(),
@@ -21,7 +28,11 @@ export const definitionSchema = z.object({
 });
 export const outputSchema = z.object({
   text: z.string().max(50_000).optional(),
-  image: imageSchema.optional(),
+  image: z
+    .string()
+    .max(8_000_000)
+    .regex(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/)
+    .optional(),
 });
 export const graphSchema = definitionSchema.extend({
   errors: z.record(z.string(), z.string()).default({}),
@@ -45,8 +56,13 @@ export function executionOrder(
   const edges = new Set<string>();
   for (const edge of graph.edges) {
     const key = `${edge.source}->${edge.target}`;
-    if (!(ids.has(edge.source) && ids.has(edge.target)) || edges.has(key)) {
-      throw new Error("连线无效或重复。");
+    if (!(ids.has(edge.source) && ids.has(edge.target))) {
+      throw new Error(
+        `连线 ${key} 引用了不存在的节点。可用 ID：${[...ids].join(", ")}。请使用原始节点 ID，不要使用 node: 或 result: 前缀。`
+      );
+    }
+    if (edges.has(key)) {
+      throw new Error(`连线 ${key} 重复，请只保留一次。`);
     }
     if (
       ["reference", "prompt"].includes(
@@ -127,6 +143,7 @@ export function editGraph(
         node.kind !== previous.kind ||
         node.prompt !== previous.prompt ||
         node.aspectRatio !== previous.aspectRatio ||
+        JSON.stringify(node.gif) !== JSON.stringify(previous.gif) ||
         sources(graph) !== sources(next)
       );
     })
@@ -154,8 +171,10 @@ export function createNode(
       reference: "图片输入",
       prompt: "提示词",
       output: "预览输出",
+      gif: "合成 GIF",
     }[kind],
     prompt: "",
+    ...(kind === "gif" ? { gif: { rows: 2, columns: 2, fps: 4 } } : {}),
     aspectRatio: "16:9",
     position: {
       x: 80 + (index % 3) * 380,
@@ -235,4 +254,14 @@ export function materialOutput(
     return {};
   }
   return;
+}
+
+export function removeNodes(graph: CanvasGraph, nodeIds: string[]) {
+  return editGraph(graph, {
+    nodes: graph.nodes.filter((node) => !nodeIds.includes(node.id)),
+    edges: graph.edges.filter(
+      (edge) =>
+        !(nodeIds.includes(edge.source) || nodeIds.includes(edge.target))
+    ),
+  });
 }

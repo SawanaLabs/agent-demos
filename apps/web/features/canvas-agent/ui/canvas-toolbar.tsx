@@ -2,6 +2,7 @@
 import { Button } from "@workspace/ui/components/button";
 import {
   FileTextIcon,
+  FilmIcon,
   ImageIcon,
   MonitorIcon,
   SparklesIcon,
@@ -13,6 +14,7 @@ const entries = [
   { kind: "text", label: "生成文本", icon: SparklesIcon },
   { kind: "reference", label: "图片输入", icon: ImageIcon },
   { kind: "prompt", label: "提示词", icon: FileTextIcon },
+  { kind: "gif", label: "合成 GIF", icon: FilmIcon },
   { kind: "output", label: "预览输出", icon: MonitorIcon },
 ] as const;
 

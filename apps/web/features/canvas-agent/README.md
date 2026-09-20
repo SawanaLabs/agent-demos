@@ -5,8 +5,10 @@ an executable graph on an infinite canvas. Text, reference images, and generated
 images can branch and merge. The floating conversation keeps running when folded;
 its composer remains available.
 
+The Canvas Agent defaults to `openai/gpt-5-mini` (overridable with `AI_GATEWAY_CHAT_MODEL`). Image generation stays on `openai/gpt-image-2` with low quality.
+
 The toolbar exposes **生成图片**, **生成文本**, **图片输入**, **提示词**,
-and **输出**. Text materials pass literal prompts without model calls. Multiple
+**合成 GIF**, and **预览输出**. Text materials pass literal prompts without model calls. Multiple
 materials can feed one generator. Image and generated text results appear as separate draggable
 cards with outgoing connections; rerunning replaces that result. A manual output
 node (预览输出) displays all connected text and images without invoking a model.
@@ -41,14 +43,6 @@ Both API routes are
 wrapped by the host usage gate. One agent turn can run at most one graph with
 at most 20 nodes. No workflow, upload, or result is stored on the server.
 
-This canvas currently executes text and image generation. Video generation,
-GIF assembly, and depth extraction are not graph node types. The existing
-`/tools/depth-video` tool remains available independently.
+This canvas executes text/image generation and grid-to-GIF processing. The **合成 GIF** node slices one image into equal grid cells, in row-major order, and loops them at the configured frame rate. It supports up to 4×4 cells, with output frames capped at 512 pixels per side. No AI call is needed for assembly. GIFs animate in result/preview cards and download as `.gif`. Source grids remain available for follow-up image generation; GIF inputs to AI use the first frame.
 
-Reference research: the supplied 78-second Bilibili video
-`BV1Uuen64E2J` was inspected from the user's local MP4 at six-second intervals.
-It demonstrates source-video branching into a first frame and depth reference,
-then merging visual references into a video generation node. The second supplied
-example demonstrates reusing generated results for subsequent image edits and
-GIF assembly. This implementation provides the branching and reuse interaction;
-it does not claim those video or GIF operations are connected.
+Conversation acceptance: start with **新建**, ask for a 2×2 character reference grid, say **做成 GIF**, then request a consistent 4×4 rotation sequence and GIF. The Agent creates/connects/runs nodes and arranges the canvas; no manual canvas operations are required. GIF assembly does not interpolate poses or repair grid alignment. Video generation and depth extraction remain outside this workflow; `/tools/depth-video` is available independently.

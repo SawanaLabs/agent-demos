@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
+import { CanvasGifSettings } from "./canvas-gif-settings";
 import styles from "./canvas-node.module.css";
 
 export interface CanvasNodeData extends Record<string, unknown> {
@@ -58,6 +59,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
                 reference: "图片输入",
                 prompt: "提示词",
                 output: "输出",
+                gif: "合成 GIF",
               }[node.kind]
             }
           </span>
@@ -90,83 +92,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             <AlertDescription>{data.error}</AlertDescription>
           </Alert>
         ) : null}
-        {node.kind === "reference" ? (
-          <label className="nodrag block cursor-pointer border border-dashed p-4 text-center text-muted-foreground text-sm">
-            {asset ? "更换图片" : "上传图片"}
-            <input
-              accept="image/png,image/jpeg,image/webp"
-              aria-label="上传图片"
-              className="sr-only"
-              disabled={busy}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  data.upload(file);
-                }
-                event.target.value = "";
-              }}
-              type="file"
-            />
-            <span className="mt-1 block text-xs">
-              PNG、JPEG、WebP，最大 4 MB
-            </span>
-          </label>
-        ) : (
-          <>
-            <Textarea
-              aria-label={`${node.label}提示词`}
-              className="nodrag nowheel min-h-28 resize-y text-sm"
-              disabled={busy}
-              onChange={(event) => data.update({ prompt: event.target.value })}
-              placeholder={
-                node.kind === "prompt"
-                  ? "输入提示词或其他文本，连接后原样传给下游。"
-                  : "描述生成要求，也可以通过连线传入提示词和图片。"
-              }
-              value={node.prompt}
-            />
-            {node.kind === "prompt" ? (
-              <p className="text-muted-foreground text-xs">
-                原样传给下游 · 不调用 AI
-              </p>
-            ) : (
-              <div className="flex items-center justify-between gap-2">
-                {node.kind === "image" ? (
-                  <select
-                    aria-label="画面比例"
-                    className="nodrag rounded-md border bg-background p-1 text-xs"
-                    disabled={busy}
-                    onChange={(event) =>
-                      data.update({
-                        aspectRatio: event.target
-                          .value as CanvasNode["aspectRatio"],
-                      })
-                    }
-                    value={node.aspectRatio}
-                  >
-                    <option>16:9</option>
-                    <option>1:1</option>
-                    <option>9:16</option>
-                  </select>
-                ) : (
-                  <span className="text-muted-foreground text-xs">
-                    接收上游文本与图片
-                  </span>
-                )}
-                <Button
-                  className="nodrag"
-                  disabled={busy}
-                  onClick={data.run}
-                  size="sm"
-                  variant="secondary"
-                >
-                  <PlayIcon className="size-3" />
-                  {data.runLabel}
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+        <NodeInputs data={data} />
         {active ? (
           <p aria-live="polite" className="animate-pulse text-primary text-sm">
             正在生成…
@@ -205,5 +131,89 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
         ) : null}
       </NodeContent>
     </Node>
+  );
+}
+
+function NodeInputs({ data }: { data: CanvasNodeData }) {
+  const { node, asset, busy } = data;
+  if (node.kind === "gif") {
+    return <CanvasGifSettings data={data} />;
+  }
+  if (node.kind === "reference") {
+    return (
+      <label className="nodrag block cursor-pointer border border-dashed p-4 text-center text-muted-foreground text-sm">
+        {asset ? "更换图片" : "上传图片"}
+        <input
+          accept="image/png,image/jpeg,image/webp"
+          aria-label="上传图片"
+          className="sr-only"
+          disabled={busy}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) {
+              data.upload(file);
+            }
+            event.target.value = "";
+          }}
+          type="file"
+        />
+        <span className="mt-1 block text-xs">PNG、JPEG、WebP，最大 4 MB</span>
+      </label>
+    );
+  }
+  return (
+    <>
+      <Textarea
+        aria-label={`${node.label}提示词`}
+        className="nodrag nowheel min-h-28 resize-y text-sm"
+        disabled={busy}
+        onChange={(event) => data.update({ prompt: event.target.value })}
+        placeholder={
+          node.kind === "prompt"
+            ? "输入提示词或其他文本，连接后原样传给下游。"
+            : "描述生成要求，也可以通过连线传入提示词和图片。"
+        }
+        value={node.prompt}
+      />
+      {node.kind === "prompt" ? (
+        <p className="text-muted-foreground text-xs">
+          原样传给下游 · 不调用 AI
+        </p>
+      ) : (
+        <div className="flex items-center justify-between gap-2">
+          {node.kind === "image" ? (
+            <select
+              aria-label="画面比例"
+              className="nodrag rounded-md border bg-background p-1 text-xs"
+              disabled={busy}
+              onChange={(event) =>
+                data.update({
+                  aspectRatio: event.target.value as CanvasNode["aspectRatio"],
+                })
+              }
+              value={node.aspectRatio}
+            >
+              <option>16:9</option>
+              <option>1:1</option>
+              <option>9:16</option>
+            </select>
+          ) : (
+            <span className="text-muted-foreground text-xs">
+              接收上游文本与图片
+            </span>
+          )}
+          <Button
+            className="nodrag"
+            disabled={busy}
+            onClick={data.run}
+            size="sm"
+            variant="secondary"
+          >
+            <PlayIcon className="size-3" />
+            {data.runLabel}
+          </Button>
+        </div>
+      )}
+    </>
   );
 }

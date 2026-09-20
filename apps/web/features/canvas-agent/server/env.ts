@@ -1,7 +1,7 @@
 import { createGateway, type ImageModel, type LanguageModel } from "ai";
 import { DEFAULT_GATEWAY_BASE_URL } from "@/features/shared/ai-gateway/server/contract";
-import { DEFAULT_CHAT_MODEL } from "@/features/shared/ai-gateway/server/keys";
 
+export const DEFAULT_CANVAS_TEXT_MODEL = "openai/gpt-5-mini";
 export const DEFAULT_CANVAS_IMAGE_MODEL = "openai/gpt-image-2";
 
 export function canvasSetup() {
@@ -21,7 +21,7 @@ export function canvasModels(): { text: LanguageModel; image: ImageModel } {
   });
   return {
     text: gateway.languageModel(
-      process.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL
+      process.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CANVAS_TEXT_MODEL
     ),
     image: gateway.imageModel(
       process.env.AI_GATEWAY_IMAGE_MODEL || DEFAULT_CANVAS_IMAGE_MODEL

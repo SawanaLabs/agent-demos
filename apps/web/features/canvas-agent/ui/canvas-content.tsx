@@ -16,6 +16,9 @@ export function CanvasContent({
   } else if (content.image?.startsWith("data:image/webp")) {
     imageExtension = "webp";
   }
+  if (content.image?.startsWith("data:image/gif")) {
+    imageExtension = "gif";
+  }
   return (
     <div className="space-y-3">
       {content.image ? (
@@ -33,7 +36,7 @@ export function CanvasContent({
             download={`${label}.${imageExtension}`}
             href={content.image}
           >
-            下载图片
+            {imageExtension === "gif" ? "下载 GIF" : "下载图片"}
           </a>
         </div>
       ) : null}

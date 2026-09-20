@@ -102,7 +102,7 @@ def catalog_docs(base_dir: Path, index_path: Path) -> list[Path]:
         relative_parts = path.relative_to(base_dir).parts
         if any(part.startswith(".") for part in relative_parts):
             continue
-        if path == index_path:
+        if path == index_path or path.name.endswith(".adr.md"):
             continue
         docs.append(path)
     return sorted(docs, key=lambda item: item.relative_to(base_dir).as_posix())

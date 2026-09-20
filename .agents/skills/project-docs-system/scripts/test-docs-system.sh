@@ -86,4 +86,70 @@ if run_verify_capture "$hidden_parent_repo" >/dev/null; then
   fail "deep docs without an index should fail verification under a hidden parent path"
 fi
 
+# Companions are reached through their living documents, never the catalog.
+adr_repo="$tmp_root/adr-repo"
+make_base_docs "$adr_repo"
+write_doc "$adr_repo/docs/application/billing.md" "Billing" "Current billing behavior."
+for stem in DOCS application/DOCS application/billing; do
+  living="$adr_repo/docs/$stem.md"
+  companion="$adr_repo/docs/$stem.adr.md"
+  name="$(basename "$stem")"
+  write_doc "$companion" "Decision history" "Why we chose this behavior."
+  printf '\n[Decision history](./%s.adr.md)\n' "$name" >>"$living"
+  printf '\n[Current documentation](./%s.md)\n\n## 2026-09-21 scoped-decision\n\nWe chose this behavior because it keeps ownership local.\n' "$name" >>"$companion"
+done
+run_update "$adr_repo"
+if grep -q '\.adr\.md' "$adr_repo/docs/index.md" "$adr_repo/docs/application/index.md"; then
+  fail "catalogs must omit companions"
+fi
+adr_output="$(run_verify_capture "$adr_repo")" || fail "companions without index entries should verify"
+if printf '%s\n' "$adr_output" | grep -q 'WARN:'; then
+  fail "valid companions should not produce warnings"
+fi
+cp "$adr_repo/docs/application/billing.adr.md" "$tmp_root/valid-adr.md"
+sed '/Current documentation/d' "$adr_repo/docs/application/billing.adr.md" >"$tmp_root/no-backlink.md"
+cp "$tmp_root/no-backlink.md" "$adr_repo/docs/application/billing.adr.md"
+if run_verify_capture "$adr_repo" >/dev/null; then
+  fail "missing companion backlink should fail"
+fi
+
+cp "$tmp_root/valid-adr.md" "$adr_repo/docs/application/billing.adr.md"
+sed '/Decision history/d' "$adr_repo/docs/application/billing.md" >"$tmp_root/no-forward-link.md"
+cp "$tmp_root/no-forward-link.md" "$adr_repo/docs/application/billing.md"
+if run_verify_capture "$adr_repo" >/dev/null; then
+  fail "missing living-document link should fail"
+fi
+mv "$adr_repo/docs/application/billing.md" "$tmp_root/moved-billing.md"
+if run_verify_capture "$adr_repo" >/dev/null; then
+  fail "orphan companion should fail"
+fi
+
+# Physical author-maintained lines trigger warnings without failing verification.
+length_repo="$tmp_root/length-repo"
+make_base_docs "$length_repo"
+write_doc "$length_repo/docs/application/long.md" "Long document" "Cohesion review fixture."
+while [ "$(wc -l <"$length_repo/docs/application/long.md")" -lt 500 ]; do
+  printf 'Document content.\n' >>"$length_repo/docs/application/long.md"
+done
+run_update "$length_repo"
+length_output="$(run_verify_capture "$length_repo")" || fail "500 lines should verify"
+if printf '%s\n' "$length_output" | grep -q 'WARN:'; then
+  fail "500 lines should not warn"
+fi
+printf 'One more line.\n' >>"$length_repo/docs/application/long.md"
+cp "$length_repo/docs/application/long.md" "$length_repo/docs/application/another.md"
+run_update "$length_repo"
+length_output="$(run_verify_capture "$length_repo")" || fail "length warnings must not fail verification"
+for name in long another; do
+  printf '%s\n' "$length_output" | grep -q "docs/application/$name.md has 501 lines (recommended maximum: 500)" || fail "warning should identify file and line count"
+done
+printf '%s\n' "$length_output" | grep -q '0 errors, 2 warning(s)' || fail "length warnings should be counted"
+# Reuse a real generated catalog with enough entries to exceed 500 lines.
+for number in $(seq 1 501); do
+  write_doc "$length_repo/docs/application/item-$number.md" "Item" "Catalog fixture."
+done
+run_update "$length_repo"
+length_output="$(run_verify_capture "$length_repo")" || fail "large generated catalogs should verify"
+printf '%s\n' "$length_output" | grep -q '0 errors, 2 warning(s)' || fail "generated catalog lines must not add warnings"
+
 printf 'Docs system script tests passed.\n'

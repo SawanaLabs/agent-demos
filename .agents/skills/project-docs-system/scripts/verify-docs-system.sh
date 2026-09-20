@@ -54,7 +54,7 @@ verify_index_covers_scope() {
   while IFS= read -r leaf_doc; do
     leaf_name="$(basename "$leaf_doc")"
     case "$leaf_name" in
-      index.md|DOCS.md) continue ;;
+      index.md|DOCS.md|*.adr.md) continue ;;
     esac
 
     if ! contains_required_link "$index_file" "$leaf_name"; then
@@ -146,6 +146,38 @@ if [ ! -f "$docs_dir/DOCS.md" ]; then
 fi
 
 while IFS= read -r md_file; do
+  # Generated catalogs do not count toward the author-maintained reading budget.
+  line_count="$(awk '
+    $0 == "<!-- BEGIN:docs-generated-catalog -->" { generated = 1; next }
+    $0 == "<!-- END:docs-generated-catalog -->" { generated = 0; next }
+    !generated { count++ }
+    END { print count + 0 }
+  ' "$md_file")"
+  if [ "$line_count" -gt 500 ]; then
+    warn "${md_file#"$repo_root/"} has $line_count lines (recommended maximum: 500). Review cohesion: move decision history to a companion ADR, split distinct domains, or trim unnecessary content to reduce reading context; do not split mechanically."
+  fi
+
+  case "$md_file" in
+    *.adr.md)
+      living="${md_file%.adr.md}.md"
+      if [ ! -f "$living" ]; then
+        error "ADR companion has no living document: $md_file"
+      else
+        for direction in forward backward; do
+          if [ "$direction" = forward ]; then
+            source="$living"
+            destination="$(basename "$md_file")"
+          else
+            source="$md_file"
+            destination="$(basename "$living")"
+          fi
+          if ! grep -Fq "](./$destination)" "$source" && ! grep -Fq "]($destination)" "$source"; then
+            error "$source must link its companion document with a relative Markdown link: $destination"
+          fi
+        done
+      fi
+      ;;
+  esac
   if ! has_frontmatter "$md_file"; then
     error "missing frontmatter: $md_file"
   fi
@@ -158,7 +190,7 @@ done < <(find "$docs_dir" -type f -name '*.md' -exec grep -nE '(^|[^[:alnum:]_])
 while IFS= read -r root_md; do
   name="$(basename "$root_md")"
   case "$name" in
-    index.md|DOCS.md) ;;
+    index.md|DOCS.md|DOCS.adr.md) ;;
     *) warn "root-level docs markdown is outside the canonical layout: $root_md" ;;
   esac
 done < <(find "$docs_dir" -mindepth 1 -maxdepth 1 -type f -name '*.md' -print | sort)

@@ -59,7 +59,7 @@
       "source": "multicul-silver-wolf/agent-docs-system-skill",
       "sourceType": "github",
       "skillPath": "skills/project-docs-system/SKILL.md",
-      "computedHash": "a4812123e3a03d1c0d0633711fd929c7408dabe8be1e48a43255042cc474e4f0"
+      "computedHash": "bd3f6afd2c5c16d5417fe6d6152e29952a71bd1005def53ef0c60645ec96adad"
     },
     "stream-aggregation-helper": {
       "source": "VictoriaMetrics/skills",

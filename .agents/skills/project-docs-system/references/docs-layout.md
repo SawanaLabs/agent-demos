@@ -11,19 +11,19 @@ Use this layout when bootstrapping or repairing a project docs system:
 - `docs/DOCS.md`
   - Act as the repository knowledge protocol.
   - Store cross-domain language, collaboration conventions, and boundary principles.
-  - Store repo-wide decision records only when the decision affects multiple domains.
+  - Keep repo-wide decision history in an optional adjacent `DOCS.adr.md`.
 - `docs/index.md`
   - Act as the map for first-level domains.
 - `docs/<domain>/DOCS.md`
   - Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
-  - Store domain-wide decision records only when the decision affects multiple subdomain docs.
+  - Keep domain-wide decision history in an optional adjacent `DOCS.adr.md`.
 - `docs/<domain>/index.md`
   - Act as the map for second-level docs in one domain.
 - `docs/<domain>/<subdomain>.md`
   - Store durable knowledge that only applies to one subdomain.
-  - Store subdomain-specific decision records in an optional `## Decision Records` section.
+  - Keep decision history in an optional adjacent `<subdomain>.adr.md`.
 
-This is the default starter shape for small and medium projects. Larger projects may add deeper docs scopes such as `docs/application/homepage/replication.md` when each docs directory has an `index.md` that maps direct Markdown files and child docs directories. Directories that only contain non-Markdown resources, such as images, are outside docs layout validation. Deeper scopes may add `DOCS.md` only when that scope has shared protocol or language worth preserving.
+This is the default starter shape for small and medium projects. Larger projects may add deeper docs scopes such as `docs/application/homepage/replication.md` when each docs directory has an `index.md` that maps direct living Markdown files and child docs directories. Directories that only contain non-Markdown resources, such as images, are outside docs layout validation. Deeper scopes may add `DOCS.md` only when that scope has shared protocol or language worth preserving.
 
 ## AGENTS Rules Block
 
@@ -60,7 +60,6 @@ Store:
 - boundary principles for ownership, responsibility, or placement
 - recurring user preferences that affect many tasks
 - architectural expectations that show up repeatedly
-- repo-wide decision records that are hard to reverse, surprising without context, and based on real trade-offs
 
 Avoid:
 
@@ -109,14 +108,14 @@ Use this minimal map template:
 
 ### `docs/<domain>/DOCS.md`
 
-Store domain-level language, conventions, boundary principles, and decision records shared by multiple subdomain docs.
+Store domain-level language, conventions, and boundary principles shared by multiple subdomain docs.
 
 ### `docs/<domain>/index.md`
 
 Include:
 
 - a short usage note for that domain
-- one entry per direct `docs/<domain>/<subdomain>.md` file or child docs scope
+- one entry per direct living `docs/<domain>/<subdomain>.md` file or child docs scope; omit ADR companions
 - when to consult each subdomain doc or child docs scope
 
 Use this minimal map template:
@@ -138,7 +137,6 @@ Store:
 - ownership boundaries
 - stable file or route relationships
 - user corrections that only matter in that subdomain
-- optional `## Decision Records` entries for decisions scoped to this subdomain
 
 Prefer one clear subdomain per file, such as:
 
@@ -147,35 +145,27 @@ Prefer one clear subdomain per file, such as:
 - `docs/backend/api-contracts.md`
 - `docs/backend/auth-flow.md`
 
-## Decision Records
+## ADR Companions
 
-Add a `## Decision Records` section only when a decision meets all three conditions:
+Keep current knowledge in `<stem>.md` and decision history in an optional adjacent `<stem>.adr.md`:
 
-- It is hard to reverse.
-- It would surprise a future reader without context.
-- It came from a real trade-off between meaningful options.
-
-Default to one lightweight bullet:
-
-```md
-## Decision Records
-
-- **YYYY-MM-DD short-decision-slug**: One-sentence summary of the scoped decision.
-  Status: One of `Proposed`, `Accepted`, `Rejected`, `Deprecated`, or `Superseded by YYYY-MM-DD short-decision-slug`.
-  Context: Why this decision came up.
-  Decision: The chosen path.
-  Consequences: The main cost, constraint, or follow-up.
+```text
+docs/DOCS.md                              docs/DOCS.adr.md
+docs/<domain>/DOCS.md                     docs/<domain>/DOCS.adr.md
+docs/<domain>/<subdomain>.md              docs/<domain>/<subdomain>.adr.md
 ```
 
-Use the date when the decision is first recorded. Keep the slug lowercase kebab-case and stable for future references. Pick one status value, not the whole list.
+Create the companion when there is a decision worth preserving. Use the [ADR template](./adr-template.md) for a lightweight record of what was decided and why. One companion may hold multiple decisions at the same scope.
 
-Keep the record at the same scope as the decision:
+Link both directions using relative Markdown links. Keep companions out of all index entries and generated catalogs: readers discover history through the living document, only when needed.
 
-- Repo-wide decisions belong in `docs/DOCS.md`.
-- Domain-wide decisions belong in `docs/<domain>/DOCS.md`.
-- Subdomain decisions belong in `docs/<domain>/<subdomain>.md`.
+When migrating, move existing decision history without changing its meaning or chronology. Preserve current behavior in the living document. Later decisions may supersede earlier ones without rewriting the earlier rationale. Plans belong in history until behavior actually changes.
 
-Preserve final decision records as history. If the decision changes, update status or add a superseding record instead of rewriting the old rationale. If decision records become too many or cross-cutting for scoped docs, promote them into a normal docs domain: `docs/adr/DOCS.md`, `docs/adr/index.md`, and `docs/adr/<slug>.md`.
+## Document Length
+
+The verifier warns when any Markdown document, including a companion, exceeds 500 physical lines after excluding generated catalog blocks. Warnings do not fail verification.
+
+Use the warning to review cohesion and reading cost: extract accumulated decision history, separate distinct domains, or remove unnecessary content. Keep a cohesive document together when splitting would not help. The threshold prompts regular maintenance; it is not a mandatory file size limit.
 
 ## Placement Rules
 
@@ -184,7 +174,7 @@ Use this decision rule before writing:
 - If knowledge should apply across the repository, put it in `docs/DOCS.md`.
 - If knowledge is shared by multiple subdomain docs inside one domain, put it in `docs/<domain>/DOCS.md`.
 - If a confirmed project-specific term is needed in one docs file, put it in that file's optional `## Domain Language` section.
-- If a decision record is needed, put it in the docs file matching the decision scope.
+- If decision history is needed, put it in the adjacent ADR companion matching the living document scope.
 - If it maps first-level navigation, put it in `docs/index.md`.
 - If it maps second-level navigation, put it in `docs/<domain>/index.md`.
 - If it maps a deeper docs scope, put it in that scope's `index.md`.
@@ -202,7 +192,7 @@ Update the relevant docs file when:
 
 Also update map files whenever docs files or docs directories change:
 
-- Update the nearest parent `index.md` when its direct docs files or child docs directories change.
+- Update the nearest parent `index.md` when its direct living docs files or child docs directories change. ADR companions do not require index updates.
 - Update `docs/index.md` when first-level domains change.
 
 ## Verification Helper

@@ -12,6 +12,7 @@ import {
   workflowId,
 } from "../model/presentation";
 import type { CanvasNodeData } from "./canvas-node";
+import type { CanvasDisplayData } from "./canvas-output";
 import { retainNodeState } from "./flow-node-state";
 import type { useCanvasAgent } from "./use-canvas-agent";
 
@@ -87,7 +88,7 @@ export function useCanvasNodes(
               busy: c.busy,
               remove: item.data.remove,
               items: displayInputs(graph, node.id),
-            },
+            } satisfies CanvasDisplayData,
           },
         ];
       }
@@ -99,14 +100,14 @@ export function useCanvasNodes(
               {
                 id: resultId(node.id),
                 position: resultPosition(node),
-                type: "result",
+                type: "display",
                 deletable: false,
                 data: {
-                  label: node.label,
-                  content: result,
+                  label: "预览输出",
+                  items: [{ id: node.id, label: node.label, content: result }],
                   busy: c.busy,
                   continueFrom: item.data.continueFrom,
-                },
+                } satisfies CanvasDisplayData,
               },
             ]
           : []),

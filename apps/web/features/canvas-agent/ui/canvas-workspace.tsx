@@ -22,14 +22,12 @@ import { CanvasEdgeView } from "./canvas-edge";
 import { CanvasHeader } from "./canvas-header";
 import { CanvasNodeView } from "./canvas-node";
 import { CanvasOutputView } from "./canvas-output";
-import { CanvasResultView } from "./canvas-result";
 import { CanvasToolbar } from "./canvas-toolbar";
 import { useCanvasAgent } from "./use-canvas-agent";
 import { useCanvasNodes } from "./use-canvas-nodes";
 
 const nodeTypes = {
   workflow: CanvasNodeView,
-  result: CanvasResultView,
   display: CanvasOutputView,
 };
 const edgeTypes = { connection: CanvasEdgeView };

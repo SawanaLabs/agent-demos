@@ -12,30 +12,33 @@ import styles from "./canvas-node.module.css";
 
 export interface CanvasDisplayData extends Record<string, unknown> {
   busy: boolean;
+  continueFrom?: () => void;
   items: { id: string; label: string; content: CanvasOutput }[];
   label: string;
-  remove: () => void;
+  remove?: () => void;
 }
 
 export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
   return (
     <Node
-      className={`${styles.node} w-80 shadow-sm`}
-      handles={{ source: false, target: true }}
+      className={`${styles.node} ${data.continueFrom ? styles.result : ""} w-80 shadow-sm`}
+      handles={{ source: Boolean(data.continueFrom), target: true }}
     >
       <NodeHeader>
         <div className="flex items-center justify-between">
           <span className="font-medium text-sm">{data.label}</span>
-          <Button
-            aria-label={`删除${data.label}`}
-            className="nodrag"
-            disabled={data.busy}
-            onClick={data.remove}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <Trash2Icon className="size-3.5" />
-          </Button>
+          {data.remove ? (
+            <Button
+              aria-label={`删除${data.label}`}
+              className="nodrag"
+              disabled={data.busy}
+              onClick={data.remove}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <Trash2Icon className="size-3.5" />
+            </Button>
+          ) : null}
         </div>
       </NodeHeader>
       <NodeContent className="space-y-3">
@@ -51,6 +54,19 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             把文本或图片连到左侧圆点，在这里集中查看。无需单独运行。
           </p>
         )}
+        {data.continueFrom ? (
+          <div className="flex justify-end">
+            <Button
+              className="nodrag"
+              disabled={data.busy}
+              onClick={data.continueFrom}
+              size="sm"
+              variant="outline"
+            >
+              用于下一步
+            </Button>
+          </div>
+        ) : null}
       </NodeContent>
     </Node>
   );

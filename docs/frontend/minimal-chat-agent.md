@@ -1,3 +1,9 @@
+---
+title: Minimal Chat Agent
+description: Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output.
+updateAt: 2026-09-20
+---
+
 # Minimal Chat Agent
 
 The Minimal Chat Agent is a source-backed tool-calling demo adapted from the open-source [`shadcn-ui/chatbot-template`](https://github.com/shadcn-ui/chatbot-template).

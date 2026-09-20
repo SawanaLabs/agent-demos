@@ -24,28 +24,43 @@ export function updateNode(
 export function connectNodes(
   graph: CanvasGraph,
   source: string,
-  target: string
+  target: string,
+  resultIndex?: number
 ) {
   if (
-    graph.edges.some((edge) => edge.source === source && edge.target === target)
+    graph.edges.some(
+      (edge) =>
+        edge.source === source &&
+        edge.target === target &&
+        edge.resultIndex === resultIndex
+    )
   ) {
     return graph;
   }
   return editGraph(graph, {
     nodes: graph.nodes,
-    edges: [...graph.edges, { source, target }],
+    edges: [
+      ...graph.edges,
+      { source, target, ...(resultIndex === undefined ? {} : { resultIndex }) },
+    ],
   });
 }
 
 export function disconnectNodes(
   graph: CanvasGraph,
   source: string,
-  target: string
+  target: string,
+  resultIndex?: number
 ) {
   return editGraph(graph, {
     nodes: graph.nodes,
     edges: graph.edges.filter(
-      (edge) => !(edge.source === source && edge.target === target)
+      (edge) =>
+        !(
+          edge.source === source &&
+          edge.target === target &&
+          edge.resultIndex === resultIndex
+        )
     ),
   });
 }

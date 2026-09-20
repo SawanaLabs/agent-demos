@@ -27,7 +27,9 @@ it.each([
   });
   expect(originalId(`result:${id}`)).toBe(id);
   expect(
-    parseGraph(JSON.parse(JSON.stringify(graph))).nodes.map(resultPosition)[1]
+    parseGraph(JSON.parse(JSON.stringify(graph))).nodes.map((node) =>
+      resultPosition(node)
+    )[1]
   ).toEqual({ x: 900, y: 300 });
   const edited = editGraph(graph, {
     ...graph,

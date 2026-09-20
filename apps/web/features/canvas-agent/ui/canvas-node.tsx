@@ -30,6 +30,7 @@ import type { CanvasNode, CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
 import { CanvasGifSettings } from "./canvas-gif-settings";
 import styles from "./canvas-node.module.css";
+import { CanvasResultCount } from "./canvas-result-count";
 
 export interface CanvasNodeData extends Record<string, unknown> {
   active: boolean;
@@ -130,7 +131,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
           <Button
             className="nodrag w-full"
             disabled={busy}
-            onClick={data.continueFrom}
+            onClick={() => data.continueFrom()}
             size="sm"
             variant="outline"
           >
@@ -190,7 +191,8 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
           原样传给下游 · 不调用 AI
         </p>
       ) : (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CanvasResultCount data={data} />
           {node.kind === "image" ? (
             <Select
               disabled={busy}
@@ -214,11 +216,7 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
                 <SelectItem value="9:16">9:16</SelectItem>
               </SelectContent>
             </Select>
-          ) : (
-            <span className="text-muted-foreground text-xs">
-              接收上游文本与图片
-            </span>
-          )}
+          ) : null}
           <Button
             className="nodrag"
             disabled={busy}

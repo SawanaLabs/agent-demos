@@ -8,18 +8,29 @@ export type ResourceOperation =
   | "sandbox_start";
 
 const execution = new AsyncLocalStorage<
-  (operation: ResourceOperation) => Promise<void>
+  (operation: ResourceOperation, count?: number) => Promise<void>
 >();
 
 export class ResourceUsageDeniedError extends Error {}
 
 export function withResourceUsage<T>(
-  consume: (operation: ResourceOperation) => Promise<void>,
+  consume: (operation: ResourceOperation, count?: number) => Promise<void>,
   run: () => T
 ): T {
   return execution.run(consume, run);
 }
 
-export async function consumeResource(operation: ResourceOperation) {
-  await execution.getStore()?.(operation);
+export async function consumeResource(
+  operation: ResourceOperation,
+  count?: number
+) {
+  if (count !== undefined && (!Number.isSafeInteger(count) || count < 1)) {
+    throw new Error("Resource count must be a positive integer.");
+  }
+  const consume = execution.getStore();
+  if (count === undefined) {
+    await consume?.(operation);
+  } else {
+    await consume?.(operation, count);
+  }
 }

@@ -24,16 +24,40 @@ export function createCanvasEditTools(apply: ApplyEdit) {
     connectNodes: tool({
       description:
         "Connect an existing source to a target using original node IDs. Preserves other connections and unrelated results. Rejects cycles; connecting an existing edge is a no-op.",
-      inputSchema: z.object({ source: z.string(), target: z.string() }),
-      execute: ({ source, target }) =>
-        apply((graph) => connectNodes(graph, source, target)),
+      inputSchema: z.object({
+        source: z.string(),
+        target: z.string(),
+        resultIndex: z
+          .number()
+          .int()
+          .min(0)
+          .max(3)
+          .optional()
+          .describe(
+            "Optional zero-based result to connect; omit to pass every result."
+          ),
+      }),
+      execute: ({ source, target, resultIndex }) =>
+        apply((graph) => connectNodes(graph, source, target, resultIndex)),
     }),
     disconnectNodes: tool({
       description:
         "Remove only this connection, retaining both nodes and all other edges. Invalidates target and downstream results.",
-      inputSchema: z.object({ source: z.string(), target: z.string() }),
-      execute: ({ source, target }) =>
-        apply((graph) => disconnectNodes(graph, source, target)),
+      inputSchema: z.object({
+        source: z.string(),
+        target: z.string(),
+        resultIndex: z
+          .number()
+          .int()
+          .min(0)
+          .max(3)
+          .optional()
+          .describe(
+            "Optional zero-based result connection to remove; omit to remove the all-results connection."
+          ),
+      }),
+      execute: ({ source, target, resultIndex }) =>
+        apply((graph) => disconnectNodes(graph, source, target, resultIndex)),
     }),
   };
 }

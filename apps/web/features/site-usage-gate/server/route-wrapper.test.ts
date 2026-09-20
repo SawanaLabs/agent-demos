@@ -134,3 +134,19 @@ describe("credit gate", () => {
     expect(events.size).toBe(7);
   });
 });
+
+it("reserves batch image credits atomically without partial charges on denial", async () => {
+  const { events, run } = fixture(40);
+  const response = await run(async () => {
+    await consumeResource("image_generation", 3);
+    return Response.json({ ok: true });
+  });
+  expect(response.status).toBe(429);
+  expect(events.size).toBe(40);
+  const allowed = fixture();
+  await allowed.run(async () => {
+    await consumeResource("image_generation", 3);
+    return Response.json({ ok: true });
+  });
+  expect(allowed.events.size).toBe(16);
+});

@@ -9,20 +9,22 @@ import {
 import { ControlButton } from "@xyflow/react";
 import { LayoutDashboardIcon } from "lucide-react";
 import { type ComponentProps, useEffect, useState } from "react";
+import { connectNodes } from "../model/commands";
 import { type CanvasNode, createNode } from "../model/graph";
 import { arrangeGraph } from "../model/layout";
 import {
   originalId,
   presentationEdges,
-  resultId,
-  workflowId,
+  resultIndex,
 } from "../model/presentation";
+import { edgeId } from "../model/results";
 import { CanvasChat } from "./canvas-chat";
 import { CanvasEdgeView } from "./canvas-edge";
 import { CanvasHeader } from "./canvas-header";
 import { CanvasNodeView } from "./canvas-node";
 import { CanvasOutputView } from "./canvas-output";
 import { CanvasToolbar } from "./canvas-toolbar";
+import { moveCanvasNodes } from "./flow-node-state";
 import { useCanvasAgent } from "./use-canvas-agent";
 import { useCanvasNodes } from "./use-canvas-nodes";
 
@@ -100,9 +102,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
               disconnect: () => {
                 c.edit({
                   ...graph,
-                  edges: graph.edges.filter(
-                    (item) => `${item.source}->${item.target}` !== edge.id
-                  ),
+                  edges: graph.edges.filter((item) => edgeId(item) !== edge.id),
                 });
                 setSelectedEdge(null);
               },
@@ -127,13 +127,22 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
           nodeTypes={nodeTypes}
           onConnect={({ source, target }) => {
             if (source && target) {
-              c.edit({
-                ...graph,
-                edges: [
-                  ...graph.edges,
-                  { source: originalId(source), target: originalId(target) },
-                ],
-              });
+              try {
+                c.edit(
+                  connectNodes(
+                    graph,
+                    originalId(source),
+                    originalId(target),
+                    source.startsWith("result:")
+                      ? resultIndex(source)
+                      : undefined
+                  )
+                );
+              } catch (error) {
+                c.setError(
+                  error instanceof Error ? error.message : "连接失败。"
+                );
+              }
             }
           }}
           onEdgeClick={(_, edge) =>
@@ -143,10 +152,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             c.edit({
               ...graph,
               edges: graph.edges.filter(
-                (edge) =>
-                  !edges.some(
-                    (deleted) => deleted.id === `${edge.source}->${edge.target}`
-                  )
+                (edge) => !edges.some((deleted) => deleted.id === edgeId(edge))
               ),
             })
           }
@@ -177,21 +183,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             if (moves.length) {
               c.setGraph((current) => ({
                 ...current,
-                nodes: current.nodes.map((node) => {
-                  const move = moves.find(
-                    (change) => change.id === workflowId(node.id)
-                  );
-                  const resultMove = moves.find(
-                    (change) => change.id === resultId(node.id)
-                  );
-                  return {
-                    ...node,
-                    ...(move?.position ? { position: move.position } : {}),
-                    ...(resultMove?.position
-                      ? { resultPosition: resultMove.position }
-                      : {}),
-                  };
-                }),
+                nodes: moveCanvasNodes(current.nodes, moves),
               }));
             }
           }}

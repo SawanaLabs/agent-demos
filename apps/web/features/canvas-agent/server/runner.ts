@@ -1,5 +1,6 @@
-import { generateImage, generateText } from "ai";
+import { generateImage, generateText, Output } from "ai";
 import sharp from "sharp";
+import { z } from "zod";
 import {
   consumeResource,
   ResourceUsageDeniedError,
@@ -14,6 +15,7 @@ import {
   parseGraph,
 } from "../model/graph";
 import { availableResultPosition, hasResult } from "../model/presentation";
+import { edgeInputs, outputItems } from "../model/results";
 import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels } from "./env";
 import { assembleGif } from "./gif";
 import { loadCanvasImage, storeCanvasImage } from "./image-storage";
@@ -80,6 +82,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
     };
   }
   const models = canvasModels();
+  const count = node.resultCount ?? 1;
   const text = `${node.prompt}\nUpstream text:\n${resolvedInputs.flatMap((input) => (input.text ? [input.text] : [])).join("\n\n")}`;
   const images = await Promise.all(
     resolvedInputs
@@ -102,22 +105,51 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
       "16:9": "1536x864",
       "9:16": "864x1536",
     } as const;
-    await consumeResource("image_generation");
+    await consumeResource("image_generation", count > 1 ? count : undefined);
     const result = await generateImage({
       model: models.image,
+      n: count,
       prompt: images.length ? { text, images } : text,
       size: sizes[node.aspectRatio],
       providerOptions: { openai: { quality: "low" } },
       abortSignal: signal,
       maxRetries: 1,
     });
+    if (count === 1) {
+      return {
+        image: `data:${result.image.mediaType};base64,${result.image.base64}`,
+      };
+    }
+    if (result.images.length !== count) {
+      throw new Error("生成图片数量与请求不一致。");
+    }
     return {
-      image: `data:${result.image.mediaType};base64,${result.image.base64}`,
+      results: result.images.map((image, index) => ({
+        label: `${node.label} ${index + 1}`,
+        image: `data:${image.mediaType};base64,${image.base64}`,
+      })),
     };
   }
   await consumeResource("text_generation");
   const result = await generateText({
     model: models.text,
+    ...(count > 1
+      ? {
+          output: Output.object({
+            schema: z.object({
+              results: z
+                .array(
+                  z.object({
+                    label: z.string().max(100),
+                    text: z.string().min(1).max(50_000),
+                  })
+                )
+                .length(count),
+            }),
+          }),
+          system: `Produce exactly ${count} separate, self-contained results in prompt order. Each result has a short descriptive label and its complete text. Divide the requested deliverables across results; do not repeat all deliverables in every result.`,
+        }
+      : {}),
     providerOptions: CANVAS_TEXT_PROVIDER_OPTIONS,
     messages: [
       {
@@ -131,7 +163,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
     abortSignal: signal,
     maxRetries: 1,
   });
-  return { text: result.text };
+  return count > 1 ? { results: result.output.results } : { text: result.text };
 };
 
 export const generateStoredNode: NodeExecutor = async (
@@ -140,9 +172,14 @@ export const generateStoredNode: NodeExecutor = async (
   signal
 ) => {
   const result = await generateNode(node, inputs, signal);
-  return result.image
-    ? { ...result, image: await storeCanvasImage(result.image, signal) }
-    : result;
+  const stored = await Promise.all(
+    outputItems(result).map(async (item) =>
+      item.image
+        ? { ...item, image: await storeCanvasImage(item.image, signal) }
+        : item
+    )
+  );
+  return result.results ? { results: stored } : (stored[0] ?? result);
 };
 
 export async function runGraph(
@@ -178,11 +215,10 @@ export async function runGraph(
     }
     const node = requireNode(graph, id);
     onProgress?.(graph, id);
-    const inputs = graph.edges
-      .filter((edge) => edge.target === id)
-      .map((edge) => graph.outputs[edge.source])
-      .filter((output): output is CanvasOutput => Boolean(output));
     try {
+      const inputs = graph.edges
+        .filter((edge) => edge.target === id)
+        .flatMap((edge) => edgeInputs(graph, edge));
       graph.outputs[id] =
         materialOutput(graph, node) ?? (await execute(node, inputs, signal));
     } catch (error) {

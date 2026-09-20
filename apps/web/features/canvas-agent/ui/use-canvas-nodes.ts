@@ -11,6 +11,7 @@ import {
   resultPosition,
   workflowId,
 } from "../model/presentation";
+import { outputItems } from "../model/results";
 import type { CanvasNodeData } from "./canvas-node";
 import type { CanvasDisplayData } from "./canvas-output";
 import { retainNodeState } from "./flow-node-state";
@@ -35,10 +36,10 @@ export function useCanvasNodes(
     position: node.position,
     type: "workflow",
     data: {
-      continueFrom: () => {
+      continueFrom: (index?: number) => {
         const next = createNode("image", graph.nodes.length);
         const origin = hasResult(graph, node.id)
-          ? resultPosition(node)
+          ? resultPosition(node, index)
           : node.position;
         next.position = { x: origin.x + 420, y: origin.y };
         next.prompt = ["text", "prompt"].includes(node.kind)
@@ -46,7 +47,14 @@ export function useCanvasNodes(
           : "以输入图片为参考，保留主体身份，修改场景和构图。";
         c.edit({
           nodes: [...graph.nodes, next],
-          edges: [...graph.edges, { source: node.id, target: next.id }],
+          edges: [
+            ...graph.edges,
+            {
+              source: node.id,
+              target: next.id,
+              ...(index === undefined ? {} : { resultIndex: index }),
+            },
+          ],
         });
       },
       node,
@@ -96,20 +104,26 @@ export function useCanvasNodes(
       return [
         item,
         ...(hasResult(graph, node.id) && result
-          ? [
-              {
-                id: resultId(node.id),
-                position: resultPosition(node),
-                type: "display",
-                deletable: false,
-                data: {
-                  label: "预览输出",
-                  items: [{ id: node.id, label: node.label, content: result }],
-                  busy: c.busy,
-                  continueFrom: item.data.continueFrom,
-                } satisfies CanvasDisplayData,
-              },
-            ]
+          ? outputItems(result).map((content, index) => ({
+              id: resultId(node.id, index),
+              position: resultPosition(node, index),
+              type: "display",
+              deletable: false,
+              data: {
+                label: result.results
+                  ? `${index + 1}. ${content.label ?? "预览输出"}`
+                  : "预览输出",
+                items: [
+                  {
+                    id: `${node.id}:${index}`,
+                    label: content.label ?? node.label,
+                    content,
+                  },
+                ],
+                busy: c.busy,
+                continueFrom: () => item.data.continueFrom(index),
+              } satisfies CanvasDisplayData,
+            }))
           : []),
       ];
     });

@@ -103,8 +103,8 @@ export function createSiteUsageGate({
       let response: Response;
       try {
         baseEventIds = await reserve(options.action, messageCreditCost);
-        response = await withResourceUsage(async (operation) => {
-          await reserve(operation, resourceCreditCosts[operation]);
+        response = await withResourceUsage(async (operation, count = 1) => {
+          await reserve(operation, resourceCreditCosts[operation] * count);
         }, handler);
       } catch (error) {
         await store.refundCredits(baseEventIds);

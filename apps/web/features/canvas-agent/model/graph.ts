@@ -15,6 +15,13 @@ export const nodeSchema = z.object({
       fps: z.number().min(1).max(24),
     })
     .optional(),
+  resultCount: z.number().int().min(1).max(4).optional(),
+  resultPositions: z
+    .record(
+      z.string(),
+      z.object({ x: z.number().finite(), y: z.number().finite() })
+    )
+    .optional(),
   resultPosition: z
     .object({ x: z.number().finite(), y: z.number().finite() })
     .optional(),
@@ -22,11 +29,23 @@ export const nodeSchema = z.object({
 });
 export const definitionSchema = z.object({
   nodes: z.array(nodeSchema).max(20),
-  edges: z.array(z.object({ source: z.string(), target: z.string() })).max(60),
+  edges: z
+    .array(
+      z.object({
+        source: z.string(),
+        target: z.string(),
+        resultIndex: z.number().int().min(0).max(3).optional(),
+      })
+    )
+    .max(60),
 });
-export const outputSchema = z.object({
+export const contentSchema = z.object({
+  label: z.string().max(100).optional(),
   text: z.string().max(50_000).optional(),
   image: canvasImageSchema.optional(),
+});
+export const outputSchema = contentSchema.extend({
+  results: z.array(contentSchema).min(1).max(4).optional(),
 });
 export const graphSchema = definitionSchema.extend({
   errors: z.record(z.string(), z.string()).default({}),
@@ -49,11 +68,18 @@ export function executionOrder(
   }
   const edges = new Set<string>();
   for (const edge of graph.edges) {
-    const key = `${edge.source}->${edge.target}`;
+    const key = `${edge.source}->${edge.target}:${edge.resultIndex ?? "all"}`;
     if (!(ids.has(edge.source) && ids.has(edge.target))) {
       throw new Error(
         `连线 ${key} 引用了不存在的节点。可用 ID：${[...ids].join(", ")}。请使用原始节点 ID，不要使用 node: 或 result: 前缀。`
       );
+    }
+    const sourceNode = graph.nodes.find((node) => node.id === edge.source);
+    if (
+      edge.resultIndex !== undefined &&
+      edge.resultIndex >= (sourceNode?.resultCount ?? 1)
+    ) {
+      throw new Error("连接引用的结果编号超出生成数量，请先调整连接。");
     }
     if (edges.has(key)) {
       throw new Error(`连线 ${key} 重复，请只保留一次。`);
@@ -129,7 +155,7 @@ export function editGraph(
       const sources = (definition: CanvasDefinition) =>
         definition.edges
           .filter((edge) => edge.target === node.id)
-          .map((edge) => edge.source)
+          .map((edge) => `${edge.source}:${edge.resultIndex ?? "all"}`)
           .sort()
           .join("|");
       return (
@@ -137,6 +163,7 @@ export function editGraph(
         node.kind !== previous.kind ||
         node.prompt !== previous.prompt ||
         node.aspectRatio !== previous.aspectRatio ||
+        (node.resultCount ?? 1) !== (previous.resultCount ?? 1) ||
         JSON.stringify(node.gif) !== JSON.stringify(previous.gif) ||
         sources(graph) !== sources(next)
       );

@@ -6,6 +6,7 @@ import {
   resultId,
   workflowId,
 } from "./presentation";
+import { outputItems } from "./results";
 
 interface MeasuredNode {
   id: string;
@@ -31,7 +32,11 @@ export function arrangeGraph(
   for (const node of graph.nodes) {
     const ids = [workflowId(node.id)];
     if (hasResult(graph, node.id)) {
-      ids.push(resultId(node.id));
+      ids.push(
+        ...outputItems(graph.outputs[node.id]).map((_, index) =>
+          resultId(node.id, index)
+        )
+      );
     }
     for (const id of ids) {
       const size = measurements.get(id);
@@ -54,8 +59,16 @@ export function arrangeGraph(
       ...node,
       position: position(workflowId(node.id)),
       ...(hasResult(graph, node.id)
-        ? { resultPosition: position(resultId(node.id)) }
-        : { resultPosition: undefined }),
+        ? {
+            resultPosition: position(resultId(node.id)),
+            resultPositions: Object.fromEntries(
+              outputItems(graph.outputs[node.id]).map((_, index) => [
+                index,
+                position(resultId(node.id, index)),
+              ])
+            ),
+          }
+        : { resultPosition: undefined, resultPositions: undefined }),
     })),
     edges: graph.edges,
   };

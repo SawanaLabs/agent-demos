@@ -107,3 +107,45 @@ it("blocks image generation before the provider call when the host denies credit
   expect(charge).toHaveBeenCalledWith("image_generation");
   expect(generateImage).not.toHaveBeenCalled();
 });
+
+it("requests a structured result list for multi-text while charging one text generation", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  const results = [
+    { label: "产品", text: "Closeup" },
+    { label: "海报", text: "Poster" },
+  ];
+  vi.mocked(generateText).mockResolvedValue({ output: { results } } as Awaited<
+    ReturnType<typeof generateText>
+  >);
+  const node = initialGraph().nodes[0];
+  assert(node);
+  const charge = vi.fn(async () => undefined);
+  expect(
+    await withResourceUsage(charge, () =>
+      generateNode({ ...node, resultCount: 2 }, [])
+    )
+  ).toEqual({ results });
+  expect(vi.mocked(generateText).mock.lastCall?.[0]).toMatchObject({
+    output: { name: "object" },
+  });
+  expect(charge).toHaveBeenCalledExactlyOnceWith("text_generation");
+});
+
+it("uses native image batching and reserves the entire batch before generation", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  vi.mocked(generateImage).mockResolvedValue({
+    images: Array.from({ length: 3 }, () => ({
+      mediaType: "image/png",
+      base64: "YQ==",
+    })),
+  } as Awaited<ReturnType<typeof generateImage>>);
+  const node = initialGraph().nodes[1];
+  assert(node);
+  const charge = vi.fn(async () => undefined);
+  const output = await withResourceUsage(charge, () =>
+    generateNode({ ...node, resultCount: 3 }, [])
+  );
+  expect(output.results).toHaveLength(3);
+  expect(vi.mocked(generateImage).mock.lastCall?.[0]).toMatchObject({ n: 3 });
+  expect(charge).toHaveBeenCalledExactlyOnceWith("image_generation", 3);
+});

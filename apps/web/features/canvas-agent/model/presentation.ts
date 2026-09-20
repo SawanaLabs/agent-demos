@@ -5,11 +5,24 @@ import {
   materialOutput,
 } from "./graph";
 
+import { edgeId, outputItems } from "./results";
+
 export const workflowId = (id: string) => `node:${id}`;
-export const resultId = (id: string) => `result:${id}`;
-export const originalId = (id: string) => id.slice(id.indexOf(":") + 1);
-export const resultPosition = (node: CanvasNode) =>
-  node.resultPosition ?? { x: node.position.x + 380, y: node.position.y };
+export const resultId = (id: string, index = 0) =>
+  `result:${id}${index ? `:output:${index}` : ""}`;
+export const resultIndex = (id: string) =>
+  Number(id.match(/:output:(\d+)$/)?.[1] ?? 0);
+export const originalId = (id: string) =>
+  id.slice(id.indexOf(":") + 1).replace(/:output:\d+$/, "");
+export const resultPosition = (node: CanvasNode, index = 0) => {
+  const base = node.resultPosition ?? {
+    x: node.position.x + 380,
+    y: node.position.y,
+  };
+  return index === 0
+    ? base
+    : (node.resultPositions?.[index] ?? { x: base.x, y: base.y + index * 480 });
+};
 export function availableResultPosition(graph: CanvasGraph, node: CanvasNode) {
   if (node.resultPosition) {
     return node.resultPosition;
@@ -34,42 +47,54 @@ export function availableResultPosition(graph: CanvasGraph, node: CanvasNode) {
 export const hasResult = (graph: CanvasGraph, id: string) =>
   graph.nodes.some(
     (node) => node.id === id && ["image", "text", "gif"].includes(node.kind)
-  ) && Boolean(graph.outputs[id]?.image || graph.outputs[id]?.text);
+  ) && outputItems(graph.outputs[id]).length > 0;
 
 export function presentationEdges(graph: CanvasGraph) {
   return [
     ...graph.edges.map((edge) => ({
-      id: `${edge.source}->${edge.target}`,
-      source: hasResult(graph, edge.source)
-        ? resultId(edge.source)
-        : workflowId(edge.source),
+      id: edgeId(edge),
+      source:
+        hasResult(graph, edge.source) &&
+        (edge.resultIndex !== undefined ||
+          outputItems(graph.outputs[edge.source]).length === 1)
+          ? resultId(edge.source, edge.resultIndex ?? 0)
+          : workflowId(edge.source),
       target: workflowId(edge.target),
     })),
     ...graph.nodes
       .filter((node) => hasResult(graph, node.id))
-      .map((node) => ({
-        id: `generated:${node.id}`,
-        source: workflowId(node.id),
-        target: resultId(node.id),
-        deletable: false,
-        selectable: false,
-      })),
+      .flatMap((node) =>
+        outputItems(graph.outputs[node.id]).map((_, index) => ({
+          id: `generated:${node.id}${index ? `:${index}` : ""}`,
+          source: workflowId(node.id),
+          target: resultId(node.id, index),
+          deletable: false,
+          selectable: false,
+        }))
+      ),
   ];
 }
 
 export function displayInputs(graph: CanvasGraph, id: string) {
   return graph.edges
     .filter((edge) => edge.target === id)
-    .map((edge) => {
+    .flatMap((edge) => {
       const node = graph.nodes.find((item) => item.id === edge.source);
-      return {
-        id: edge.source,
-        label: node?.label ?? edge.source,
-        content:
-          (node ? materialOutput(graph, node) : undefined) ??
-          graph.outputs[edge.source] ??
-          {},
-      };
+      const items = outputItems(
+        (node ? materialOutput(graph, node) : undefined) ??
+          graph.outputs[edge.source]
+      );
+      return items.flatMap((content, index) =>
+        edge.resultIndex !== undefined && edge.resultIndex !== index
+          ? []
+          : [
+              {
+                id: `${edgeId(edge)}:${index}`,
+                label: content.label ?? node?.label ?? edge.source,
+                content,
+              },
+            ]
+      );
     });
 }
 

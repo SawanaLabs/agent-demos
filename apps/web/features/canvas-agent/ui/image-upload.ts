@@ -49,6 +49,16 @@ export async function storeGraphImages(graph: CanvasGraph) {
     assets[id] = await store(image);
   }
   for (const [id, output] of Object.entries(graph.outputs)) {
+    if (output.results) {
+      const results: NonNullable<typeof output.results> = [];
+      for (const item of output.results) {
+        results.push(
+          item.image ? { ...item, image: await store(item.image) } : item
+        );
+      }
+      outputs[id] = { results };
+      continue;
+    }
     outputs[id] = output.image
       ? { ...output, image: await store(output.image) }
       : output;

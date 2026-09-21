@@ -18,6 +18,7 @@ import {
   removeNodes,
 } from "../model/graph";
 import { outputItems } from "../model/results";
+import { workflowResults } from "../model/tool-results";
 import { createCanvasEditTools } from "./edit-tools";
 import { CANVAS_TEXT_PROVIDER_OPTIONS, canvasModels, canvasSetup } from "./env";
 import { nodeFailureDetails } from "./node-failure";
@@ -202,7 +203,7 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
               ? {
                   runWorkflow: tool({
                     description:
-                      "Execute the graph or one target and its dependencies. Default mode resume runs missing or failed nodes and reuses successful results, including after credits are replenished. Use regenerate only when the user requests fresh results; it replaces the selected target (or all nodes for target:null) and invalidates dependent results only after success. Failed replacements retain the previous result. Uses paid generation. Only when user asks to generate/run/assemble. You may call this tool repeatedly to run distinct targets and inspect outcomes within one turn. Build ALL requested branches before running. For a new multi-deliverable workflow use target:null, so sibling branches are not skipped. For follow-ups run only the new target; for make a GIF add a GIF node connected to the existing grid and target that GIF. GIF processing itself does not call a model. A failed node returns error, failure details and completedNodes; read these and continue the conversation, preserving completed work.",
+                      "Execute the graph or one target and its dependencies. Default mode resume runs missing or failed nodes and reuses successful results, including after credits are replenished. Use regenerate only when the user requests fresh results; it replaces the selected target (or all nodes for target:null) and invalidates dependent results only after success. Failed replacements retain the previous result. Uses paid generation. Only when user asks to generate/run/assemble. You may call this tool repeatedly to run distinct targets and inspect outcomes within one turn. Build ALL requested branches before running. For a new multi-deliverable workflow use target:null, so sibling branches are not skipped. For follow-ups run only the new target; for make a GIF add a GIF node connected to the existing grid and target that GIF. GIF processing itself does not call a model. Returns results with nodeId, resultIndex, label, reused and content (text/image URL). These results are displayed directly in chat, including completed work before a failure; summarize the outcome without repeating full text or image links. A failed node returns error, failure details and completedNodes; read these and continue the conversation, preserving completed work.",
                     inputSchema: z.object({
                       mode: z
                         .enum(["resume", "regenerate"])
@@ -240,15 +241,12 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
                             data: {},
                             transient: true,
                           });
-                          return {
-                            summary: "工作流已完成，结果已显示在画布中。",
-                            execution,
-                            completedNodeIds: Object.keys(current.outputs),
-                          };
+                          return completedWorkflow(current, execution);
                         } catch (error) {
                           if (error instanceof CanvasNodeError) {
                             return {
                               ...workflowFailure(current, error),
+                              results: workflowResults(current, execution),
                               execution,
                             };
                           }
@@ -268,6 +266,18 @@ Current graph: ${JSON.stringify({ nodes: current.nodes, edges: current.edges, up
       },
     }),
   });
+}
+
+function completedWorkflow(
+  graph: CanvasGraph,
+  execution: ReturnType<typeof executionReport>
+) {
+  return {
+    summary: "工作流已完成，结果已显示在画布和对话中。",
+    results: workflowResults(graph, execution),
+    execution,
+    completedNodeIds: Object.keys(graph.outputs),
+  };
 }
 
 function materialTargetFailure(graph: CanvasGraph, target: string | null) {

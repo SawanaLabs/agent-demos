@@ -82,3 +82,44 @@ describe("Canvas conversation tools", () => {
     ).toContain("连接超时");
   });
 });
+
+it("renders tool result images and collapsible text even when a later node fails", () => {
+  const html = renderToStaticMarkup(
+    <CanvasTool
+      part={{
+        ...completed,
+        toolName: "runWorkflow",
+        output: {
+          error: "下一节点额度不足",
+          results: [
+            {
+              nodeId: "image",
+              resultIndex: 0,
+              label: "产品图",
+              reused: false,
+              content: {
+                image:
+                  "https://test.public.blob.vercel-storage.com/canvas-agent/results/product.png",
+              },
+            },
+            {
+              nodeId: "text",
+              resultIndex: 0,
+              label: "广告文案",
+              reused: true,
+              content: { text: "清爽一夏" },
+            },
+          ],
+        },
+      }}
+      streaming={false}
+    />
+  );
+  expect(html).toContain("下一节点额度不足");
+  expect(html).toContain('alt="产品图"');
+  expect(html).toContain("product.png");
+  expect(html).toContain("查看文本");
+  expect(html).toContain("已复用");
+  expect(html).toContain("下载文本");
+  expect(html).toContain("复制");
+});

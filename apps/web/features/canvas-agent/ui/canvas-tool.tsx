@@ -20,6 +20,7 @@ import {
   UnlinkIcon,
   WrenchIcon,
 } from "lucide-react";
+import { CanvasToolResults } from "./canvas-tool-results";
 
 const actions = {
   addNode: { label: "添加并连接节点", icon: PlusIcon },
@@ -113,6 +114,9 @@ export function CanvasTool({
       <ToolContent className="space-y-0 px-0 py-1 pl-5 text-muted-foreground text-xs">
         {part.state === "output-available" && !error ? summary : status}
       </ToolContent>
+      {name === "runWorkflow" && part.state === "output-available" ? (
+        <CanvasToolResults results={output?.results} />
+      ) : null}
     </Tool>
   );
 }

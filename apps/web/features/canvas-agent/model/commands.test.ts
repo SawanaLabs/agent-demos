@@ -1,6 +1,23 @@
 import { assert, expect, it } from "vitest";
 import { connectNodes, disconnectNodes, updateNode } from "./commands";
-import { initialGraph } from "./graph";
+import { initialGraph, parseGraph } from "./graph";
+
+it("persists independent preview names without invalidating generated results", () => {
+  const graph = initialGraph();
+  graph.outputs = { brief: { text: "keep" } };
+  const renamed = updateNode(graph, "brief", {
+    resultLabels: { 0: "产品文案", 1: "海报提示词" },
+  });
+  const restored = parseGraph(JSON.parse(JSON.stringify(renamed)));
+  expect(
+    restored.nodes.find((node) => node.id === "brief")?.resultLabels
+  ).toEqual({
+    0: "产品文案",
+    1: "海报提示词",
+  });
+  expect(restored.outputs).toEqual(graph.outputs);
+  expect(restored.edges).toEqual(graph.edges);
+});
 
 it("preserves results on renames and invalidates only the edited branch", () => {
   const graph = initialGraph();

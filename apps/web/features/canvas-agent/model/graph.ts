@@ -36,6 +36,12 @@ export const nodeSchema = z.object({
     .describe(
       "Number of independent text/image deliverables, default 1. Two separately consumed prompts require 2; one shared brief feeding two branches still requires 1. Text uses structured results, images use a native batch. Counts are not inferred from connections. Results have zero-based indices and their own previews even before generation. To route each separately, use connectNodes.resultIndex. Changing this value invalidates this node and descendants; disconnect out-of-range result connections before reducing it."
     ),
+  resultLabels: z
+    .record(z.string(), z.string().min(1).max(100))
+    .optional()
+    .describe(
+      "Custom preview titles keyed by zero-based result index. Display only; renaming preserves generated content."
+    ),
   resultPositions: z
     .record(
       z.string(),

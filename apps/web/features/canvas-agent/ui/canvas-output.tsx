@@ -6,6 +6,7 @@ import {
   NodeHeader,
 } from "@workspace/ui/components/ai-elements/node";
 import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
 import { MonitorIcon, Trash2Icon } from "lucide-react";
 import type { CanvasOutput } from "../model/graph";
 import type { CanvasContentType } from "../model/inputs";
@@ -21,6 +22,7 @@ export interface CanvasDisplayData extends Record<string, unknown> {
   items: { id: string; label: string; content: CanvasOutput }[];
   label: string;
   remove?: () => void;
+  rename: (label: string) => void;
   types: CanvasContentType[];
 }
 
@@ -49,12 +51,26 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             aria-hidden="true"
             className="size-3.5 shrink-0 text-muted-foreground"
           />
-          <span
-            className="min-w-0 flex-1 truncate font-medium text-sm"
-            title={data.label}
-          >
-            {data.label}
-          </span>
+          <Input
+            aria-label="预览输出名称"
+            className="nodrag h-7 min-w-0 flex-1 border-0 bg-transparent px-1 font-medium shadow-none"
+            defaultValue={data.label}
+            disabled={data.busy}
+            key={data.label}
+            maxLength={100}
+            onBlur={(event) => {
+              const label = event.target.value.trim() || "预览输出";
+              event.target.value = label;
+              if (label !== data.label) {
+                data.rename(label);
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+                event.currentTarget.blur();
+              }
+            }}
+          />
           <div className="flex shrink-0 gap-1">
             {types.map((type) => (
               <CanvasTypeBadge key={type} type={type} />

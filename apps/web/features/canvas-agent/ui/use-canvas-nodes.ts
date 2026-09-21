@@ -90,6 +90,7 @@ export function useCanvasNodes(
             type: "display",
             data: {
               label: node.label,
+              rename: (label) => update(node.id, { label }),
               busy: c.busy,
               remove: item.data.remove,
               items: displayInputs(graph, node.id),
@@ -113,7 +114,11 @@ export function useCanvasNodes(
             type: "display",
             deletable: false,
             data: {
-              label: `结果 ${index + 1}`,
+              label: node.resultLabels?.[index] ?? "预览输出",
+              rename: (label) =>
+                update(node.id, {
+                  resultLabels: { ...node.resultLabels, [index]: label },
+                }),
               types: [node.kind === "text" ? "text" : "image"],
               items: content
                 ? [

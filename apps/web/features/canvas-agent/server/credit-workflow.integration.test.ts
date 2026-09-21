@@ -7,16 +7,24 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
   "continues a real HTTP conversation after a 3-credit workflow partially completes",
   async () => {
     const { database, siteUsageVisitors } = await import("@workspace/database");
-    const { eq } = await import("@workspace/database/drizzle");
+    const { inArray } = await import("@workspace/database/drizzle");
     const { createDatabaseSiteUsageGateStore } = await import(
       "@/features/site-usage-gate/server/store"
     );
     const visitorId = `canvas-credit-test-${crypto.randomUUID()}`;
+    const { resolveFreeVisitorId } = await import(
+      "@/features/site-usage-gate/server/free-visitor"
+    );
     const store = createDatabaseSiteUsageGateStore();
     const headers = {
       "content-type": "application/json",
+      "user-agent": visitorId,
       cookie: `site_visitor_id=${visitorId}`,
     };
+    const freeVisitorId = resolveFreeVisitorId(
+      new Request("http://localhost:3000", { headers }),
+      { NODE_ENV: "development" }
+    );
     const text = {
       ...createNode("text", 0),
       label: "广告创意",
@@ -72,6 +80,7 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
         demoSlug: "canvas-credit-test",
         units: 47,
         visitorId,
+        freeVisitorId,
       });
       expect(seeded.allowed).toBe(true);
       expect((await balance()).remainingUnits).toBe(3);
@@ -158,7 +167,7 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
     } finally {
       await database
         .delete(siteUsageVisitors)
-        .where(eq(siteUsageVisitors.id, visitorId));
+        .where(inArray(siteUsageVisitors.id, [visitorId, freeVisitorId]));
     }
   }
 );

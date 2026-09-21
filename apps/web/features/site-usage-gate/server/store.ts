@@ -32,7 +32,14 @@ export type SiteUsageWaitlistSupportIntent = "willing_to_support";
 
 export function createDatabaseSiteUsageGateStore(): SiteUsageGateStore {
   return {
-    async reserveCredits({ action, createdAt, demoSlug, visitorId, units }) {
+    async reserveCredits({
+      action,
+      createdAt,
+      demoSlug,
+      visitorId,
+      units,
+      freeVisitorId = visitorId,
+    }) {
       if (!Number.isSafeInteger(units) || units < 1) {
         throw new Error("Credit cost must be a positive integer.");
       }
@@ -46,22 +53,16 @@ export function createDatabaseSiteUsageGateStore(): SiteUsageGateStore {
         gte,
       } = await getDatabaseBoundary();
       return database.transaction(async (tx) => {
-        await tx
-          .insert(siteUsageVisitors)
-          .values({ id: visitorId, createdAt, updatedAt: createdAt })
-          .onConflictDoNothing();
-        // Serialize spending for this visitor across requests and server instances.
-        const [visitor] = await tx
-          .select()
+        // The cookie owns invitations; the server-derived identity owns free credits.
+        const [binding] = await tx
+          .select({ accessCode: siteUsageAccessCodes })
           .from(siteUsageVisitors)
-          .where(eq(siteUsageVisitors.id, visitorId))
-          .for("update");
-        const [accessCode] = visitor?.activeAccessCodeId
-          ? await tx
-              .select()
-              .from(siteUsageAccessCodes)
-              .where(eq(siteUsageAccessCodes.id, visitor.activeAccessCodeId))
-          : [];
+          .leftJoin(
+            siteUsageAccessCodes,
+            eq(siteUsageVisitors.activeAccessCodeId, siteUsageAccessCodes.id)
+          )
+          .where(eq(siteUsageVisitors.id, visitorId));
+        const accessCode = binding?.accessCode;
         const activeAccessCodePolicy = accessCode?.isEnabled
           ? accessCode
           : null;
@@ -72,12 +73,23 @@ export function createDatabaseSiteUsageGateStore(): SiteUsageGateStore {
           activeAccessCodePolicy,
           now: createdAt,
         });
+        const ownerId = activeAccessCodePolicy ? visitorId : freeVisitorId;
+        await tx
+          .insert(siteUsageVisitors)
+          .values({ id: ownerId, createdAt, updatedAt: createdAt })
+          .onConflictDoNothing();
+        // Lock the allowance owner, so different cookies cannot double-spend free credits.
+        await tx
+          .select({ id: siteUsageVisitors.id })
+          .from(siteUsageVisitors)
+          .where(eq(siteUsageVisitors.id, ownerId))
+          .for("update");
         const events = await tx
           .select({ createdAt: siteUsageEvents.createdAt })
           .from(siteUsageEvents)
           .where(
             and(
-              eq(siteUsageEvents.visitorId, visitorId),
+              eq(siteUsageEvents.visitorId, ownerId),
               gte(siteUsageEvents.createdAt, policy.windowStartsAt)
             )
           );
@@ -93,7 +105,7 @@ export function createDatabaseSiteUsageGateStore(): SiteUsageGateStore {
               action,
               createdAt,
               demoSlug,
-              visitorId,
+              visitorId: ownerId,
             }))
           )
           .returning({ id: siteUsageEvents.id });

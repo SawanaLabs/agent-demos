@@ -102,7 +102,7 @@ export function CreditBalanceButton() {
         <div className="space-y-1">
           <PopoverTitle>Your demo credits</PopoverTitle>
           <PopoverDescription>
-            One shared allowance across all demos in this browser.
+            One shared allowance across all demos for your visitor identity.
           </PopoverDescription>
         </div>
         {error && (

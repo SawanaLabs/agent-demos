@@ -9,6 +9,7 @@ import {
 } from "../contract";
 import { messageCreditCost, resourceCreditCosts } from "../pricing";
 import type { CreditBalance } from "./balance";
+import { resolveFreeVisitorId } from "./free-visitor";
 import type { ActiveAccessCodePolicy } from "./policy";
 import {
   appendSiteUsageVisitorCookie,
@@ -33,6 +34,7 @@ export interface SiteUsageGateStore {
     demoSlug: string;
     visitorId: string;
     units: number;
+    freeVisitorId?: string;
   }): Promise<{ balance: CreditBalance; eventIds: string[]; allowed: boolean }>;
 }
 
@@ -80,6 +82,7 @@ export function createSiteUsageGate({
         createVisitorId,
         request,
       });
+      const freeVisitorId = resolveFreeVisitorId(request);
       let denial: CreditLimitError | undefined;
       async function reserve(action: SiteUsageGateAction, units: number) {
         const now = clock();
@@ -88,6 +91,7 @@ export function createSiteUsageGate({
           action,
           units,
           visitorId: viewer.visitorId,
+          freeVisitorId,
           createdAt: now,
         });
         if (!reservation.allowed) {

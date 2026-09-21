@@ -13,7 +13,8 @@ updateAt: 2026-09-21
 
 ## Domain Language
 
-- **Site Visitor Owner**: A browser identified by the `site_visitor_id` HTTP-only cookie, separate from individual demos' owner cookies.
+- **Site Visitor Owner**: The `site_visitor_id` HTTP-only cookie owns invitation bindings and demo session data.
+- **Free Allowance Owner**: A server-derived HMAC of trusted IP and User-Agent, independent of cookies.
 - **Demo Credit**: One unit of the visitor's shared recurring allowance.
 - **Usage Event**: One consumed credit, including the demo, operation, and timestamp. A five-credit operation inserts five rows in one transaction.
 - **Usage Access Code**: An operator-configured recurring allowance upgrade; visitor-facing wording is "Invite code".
@@ -41,7 +42,12 @@ updateAt: 2026-09-21
 - Operations in a workflow reserve independently. If a later node cannot be funded, completed outputs remain usable; the next expensive operation is blocked. Whole-workflow prepayment is not implemented.
 - Pre-stream denials return structured `SITE_USAGE_LIMIT_EXCEEDED` HTTP 429 with required credits, remaining credits, and reset time. Denials inside an active stream use the tool/node error path; Canvas and Image Workflow retain the credit error as user-facing node feedback.
 - The portable `shared/resource-usage/server/context.ts` execution hook uses request-scoped async context to carry an optional host observer into streamed tools. Without a host observer, demos run normally. Demos do not import site pricing, storage, or dialogs.
-- Cookie identity remains browser-scoped. Clearing cookies obtains a new allowance. Per-IP limits and a global site spending cap are not implemented.
+- Free spending and balance queries use `free-v1-<HMAC-SHA256(IP, User-Agent)>`. Clearing/changing cookies does not replenish the same free identity. Enabled invitation policies keep their cookie-owned allowance; disabling a code returns to the current free identity.
+- `SITE_USAGE_VISITOR_SECRET` must be a stable random secret of at least 32 characters on Vercel. Configure it before deploying. Rotation resets free identities. Local development uses a fixed development identity and secret; non-Vercel production fails closed until a trusted ingress is explicitly supported.
+- Only Vercel's `x-vercel-forwarded-for` is accepted in deployment. See [Vercel request headers](https://vercel.com/docs/headers/request-headers). Missing trusted IP or secret fails before resource calls. Raw IP and User-Agent are not persisted in the credit tables.
+- IP or User-Agent changes can change the free allowance; people sharing both may share credits. No additional identity service, Turnstile, or global site spending cap is introduced.
+- Existing cookie-owned usage cannot reliably be mapped to IP identities. The switch starts a fresh free allowance; existing invitation bindings and their usage remain. No schema migration is needed.
+- Spending looks up the cookie invitation binding, then locks the effective allowance owner. Compared with the prior ordinary-visitor path this adds one indexed binding query per reservation; different cookies sharing a free identity serialize on that same row.
 - `site_usage_events` retains the shared seven-day Demo Data Retention Window through the existing cleanup cron. Visitor, access-code, and waitlist tables retain their existing responsibilities.
 
 ## Homepage and limit UI

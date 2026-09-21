@@ -35,7 +35,8 @@ export function creditBalance(
 export async function readCreditBalance(
   store: SiteUsageGateStore,
   visitorId: string,
-  now: Date
+  now: Date,
+  freeVisitorId = visitorId
 ) {
   const visitor = await store.ensureVisitor({ now, visitorId });
   const policy = resolveSiteUsagePolicy({
@@ -45,7 +46,7 @@ export async function readCreditBalance(
   const events = await store.listUsageEventsSince({
     now,
     since: policy.windowStartsAt,
-    visitorId,
+    visitorId: visitor.activeAccessCodePolicy ? visitorId : freeVisitorId,
   });
   return creditBalance(policy, events);
 }

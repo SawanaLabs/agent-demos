@@ -8,6 +8,7 @@ import { keys as vercelBlob } from "@/features/shared/vercel-blob/server/keys";
 import { keys as vercelEnvironment } from "@/features/shared/vercel-environment/server/keys";
 import { keys as vercelSandbox } from "@/features/shared/vercel-sandbox/server/keys";
 import { keys as siteAnalytics } from "@/features/site-analytics/server/keys";
+import { keys as siteUsage } from "@/features/site-usage-gate/server/keys";
 
 function createAppEnv() {
   return createEnv({
@@ -18,6 +19,7 @@ function createAppEnv() {
       langGraphAgent(),
       redis(),
       siteAnalytics(),
+      siteUsage(),
       vercelBlob(),
       vercelEnvironment(),
       vercelSandbox(),

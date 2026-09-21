@@ -6,9 +6,13 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
   "atomically spends credits across concurrent transactions without overdrawing",
   async () => {
     const { createDatabaseSiteUsageGateStore } = await import("./store");
-    const { database, siteUsageVisitors } = await import("@workspace/database");
-    const { eq } = await import("@workspace/database/drizzle");
+    const { database, siteUsageVisitors, siteUsageAccessCodes } = await import(
+      "@workspace/database"
+    );
+    const { eq, inArray } = await import("@workspace/database/drizzle");
     const visitorId = `credit-test-${crypto.randomUUID()}`;
+    const cookieId = `cookie-test-${crypto.randomUUID()}`;
+    const codeId = crypto.randomUUID();
     const store = createDatabaseSiteUsageGateStore();
     const now = new Date();
     try {
@@ -19,7 +23,8 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
             createdAt: now,
             demoSlug: "credit-contract-test",
             units: 5,
-            visitorId,
+            visitorId: `cookie-${crypto.randomUUID()}`,
+            freeVisitorId: visitorId,
           })
         )
       );
@@ -50,11 +55,63 @@ it.skipIf(process.env.SITE_USAGE_DATABASE_INTEGRATION !== "1")(
       });
       expect(next.allowed).toBe(true);
       expect(next.balance.remainingUnits).toBe(0);
+      const { readCreditBalance } = await import("./balance");
+      expect(
+        (await readCreditBalance(store, cookieId, now, visitorId))
+          .remainingUnits
+      ).toBe(0);
+      await database.insert(siteUsageAccessCodes).values({
+        id: codeId,
+        code: `test-${codeId}`,
+        allowanceUnits: 100,
+        windowSeconds: 18_000,
+      });
+      await database
+        .update(siteUsageVisitors)
+        .set({ activeAccessCodeId: codeId })
+        .where(eq(siteUsageVisitors.id, cookieId));
+      const invited = await store.reserveCredits({
+        action: "send_message",
+        demoSlug: "credit-contract-test",
+        createdAt: now,
+        visitorId: cookieId,
+        freeVisitorId: visitorId,
+        units: 1,
+      });
+      expect(invited.allowed).toBe(true);
+      expect(invited.balance.remainingUnits).toBe(99);
+      expect(
+        (await readCreditBalance(store, cookieId, now, visitorId))
+          .remainingUnits
+      ).toBe(99);
+      await database
+        .update(siteUsageAccessCodes)
+        .set({ isEnabled: false })
+        .where(eq(siteUsageAccessCodes.id, codeId));
+      expect(
+        (await readCreditBalance(store, cookieId, now, visitorId))
+          .remainingUnits
+      ).toBe(0);
+      expect(
+        (
+          await store.reserveCredits({
+            action: "send_message",
+            demoSlug: "credit-contract-test",
+            createdAt: now,
+            visitorId: cookieId,
+            freeVisitorId: visitorId,
+            units: 1,
+          })
+        ).allowed
+      ).toBe(false);
     } finally {
       // Only this test's unique visitor and its cascading credit rows are removed.
       await database
         .delete(siteUsageVisitors)
-        .where(eq(siteUsageVisitors.id, visitorId));
+        .where(inArray(siteUsageVisitors.id, [visitorId, cookieId]));
+      await database
+        .delete(siteUsageAccessCodes)
+        .where(eq(siteUsageAccessCodes.id, codeId));
     }
   }
 );

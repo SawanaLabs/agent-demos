@@ -7,7 +7,7 @@ export default function FeedbackAgentPage() {
   const config = feedbackEnv();
   return (
     <DemoWorkspaceShell
-      badges={["Make This Better · MIT", "Screenshots + AI triage"]}
+      badges={["Self-hosted feedback", "Screenshots + AI triage"]}
       breadcrumbTitle="Feedback Agent"
       summary="Select an element, capture the page, and turn your feedback into an actionable issue."
       title="Show exactly what needs to change"

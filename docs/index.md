@@ -29,7 +29,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/canvas-node-research.md | 无边画布节点职责与竞品研究 | 图片与视频工作流的节点分类、竞品证据，以及 Canvas Agent 的产品设计建议。 | 2026-09-20 |
 | ./frontend/customer-memory-agent.md | Memory & Persistence Agent | Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo. | 2026-06-09 |
 | ./frontend/depth-video-tool.md | Depth Video Tool | Product and runtime boundary for the browser-local depth video processor. | 2026-09-20 |
-| ./frontend/feedback-agent.md | Feedback Agent | Upstream widget reuse, submission protocol, private evidence storage, and copy boundaries for Feedback Agent. | 2026-09-23 |
+| ./frontend/feedback-agent.md | Feedback Agent | Native shadcn capture UI, upstream capture logic, private evidence storage, and copy boundaries for Feedback Agent. | 2026-09-23 |
 | ./frontend/generative-ui.md | Generative UI | Stable conventions for the Generative UI Agent Demo. | 2026-06-15 |
 | ./frontend/homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-09-21 |
 | ./frontend/image-workflow-agent.md | Image Workflow Agent | Stable UI, route, and copy-boundary conventions for the image workflow canvas demo. | 2026-08-20 |

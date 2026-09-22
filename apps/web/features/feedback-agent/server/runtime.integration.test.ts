@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import sharp from "sharp";
-import { afterAll, expect, it } from "vitest";
+import { afterAll, expect, it, vi } from "vitest";
+import { newSubmissionIdentity, submitCapture } from "../client/submit";
 import { handleFeedbackRequest } from "./runtime";
 import { feedbackRedis } from "./store";
 
@@ -133,4 +134,64 @@ it("abandonment clears evidence and never creates a report", async () => {
       ])
     ).status
   ).toBe(409);
+});
+
+it("native collector retries a lost finalization response without duplicating feedback", async () => {
+  const visitor = randomUUID();
+  let loseResponse = true;
+  const transport = vi
+    .spyOn(globalThis, "fetch")
+    .mockImplementation(async (input, init) => {
+      const url = new URL(String(input), "http://localhost");
+      const path = url.pathname
+        .replace("/api/demos/feedback-agent/", "")
+        .split("/");
+      const response = await handleFeedbackRequest(
+        new Request(url, init),
+        visitor,
+        path
+      );
+      if (path.at(-1) === "feedback" && loseResponse) {
+        loseResponse = false;
+        throw new Error("Connection lost after saving");
+      }
+      return response;
+    });
+  try {
+    const capture = {
+      context: {
+        page_url: "http://localhost/report",
+        user_agent: "test",
+        browser: "test",
+        os: "test",
+        screen_width: 1200,
+        screen_height: 800,
+      },
+      base: null,
+      preview: null,
+      color: "black",
+    };
+    const identity = newSubmissionIdentity();
+    await expect(
+      submitCapture(capture, "Native text-only feedback", [], false, identity)
+    ).rejects.toThrow("Connection lost");
+    const id = await submitCapture(
+      capture,
+      "Native text-only feedback",
+      [],
+      false,
+      identity
+    );
+    const list = await (
+      await handleFeedbackRequest(request("GET"), visitor)
+    ).json();
+    expect(list.feedback.map((item: { id: string }) => item.id)).toEqual([id]);
+    const detail = await (
+      await handleFeedbackRequest(request("GET"), visitor, ["feedback", id])
+    ).json();
+    expect(detail.feedback.description).toBe("Native text-only feedback");
+    expect(detail.feedback.screenshot).toBeUndefined();
+  } finally {
+    transport.mockRestore();
+  }
 });

@@ -1,6 +1,6 @@
 ---
 title: Feedback Agent
-description: Upstream widget reuse, submission protocol, private evidence storage, and copy boundaries for Feedback Agent.
+description: Native shadcn capture UI, upstream capture logic, private evidence storage, and copy boundaries for Feedback Agent.
 updateAt: 2026-09-23
 ---
 
@@ -13,7 +13,12 @@ updateAt: 2026-09-23
 
 ## Current Rules
 
-- Reuse the MIT Make This Better npm widget directly. Preserve upstream attribution and the copied sanitizer's license. Verify its actual network protocol when upgrading; version 1.30.1 uploads screenshots separately from session creation.
+- Keep the Feedback launcher docked to the right edge at mid-height, matching the original entry position. Rotate the vertical label so the text baseline faces the outside edge. Restyling the controls must not move the entry point.
+- Build all capture controls with shared shadcn primitives and theme tokens. Keep React UI in `ui/`, capture/submission adapters in `client/`, and attributed MIT capture/privacy code in `upstream/`. Do not mount the upstream Shadow DOM widget or override its stylesheet.
+- Preserve upstream attribution and license. The native collector attaches its image at session creation; retain the separate screenshot endpoint for original SDK compatibility.
+- Show a privacy-masked preview before submission. Draw coordinates use the captured viewport; screenshot baking preserves the original scroll anchor. Capture errors must be visible and require retake or explicit screenshot opt-out.
+- The native UI does not record replay or console logs. Keep existing optional replay evidence readable. An unchanged submission retry reuses its idempotency identity.
+- Feedback Agent is an independent application slice. Send feedback only to this app's same-origin API and configured Redis; AI analysis uses this app's configured gateway. Upstream attribution identifies MIT code provenance, never a submission destination, affiliation, or service dependency.
 - Keep capture usable without an AI key. Save feedback first, then let the user request AI analysis. The runtime implements the submission-only protocol, advertises `ai_clarify_available: false`, and does not impersonate the hosted backend's wider API.
 - Keep ownership in `server/owner.ts`. Every Redis record and inbox is visitor-scoped; report IDs, SDK project keys, and the success-link `identity` query parameter never grant access. A copied team collector must introduce its own project and reviewer authorization.
 - Drafts expire after one day; finalized feedback after seven days. Updating status or analysis must not extend report retention. Session creation is idempotent, and compare-and-swap protects finalize, abandon, and edit transitions.
@@ -29,4 +34,4 @@ updateAt: 2026-09-23
 
 ## Update Triggers
 
-- Revisit this document when upgrading the widget, changing ownership/retention, adding team routing, enabling synchronous clarification, or adding external ticket delivery.
+- Revisit this document when updating the adapted capture code, changing ownership/retention, adding team routing, enabling synchronous clarification, or adding external ticket delivery.

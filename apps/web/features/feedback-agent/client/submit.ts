@@ -1,14 +1,6 @@
-import type { Capture } from "./capture";
-import { renderScreenshot, screenshotAnnotations } from "./capture";
+import type { FeedbackSubmission } from "./submission";
 
 const API = "/api/demos/feedback-agent/widget/feedback_submission_sessions";
-export interface SubmissionIdentity {
-  key: string;
-  token: string;
-}
-export function newSubmissionIdentity(): SubmissionIdentity {
-  return { token: crypto.randomUUID(), key: crypto.randomUUID() };
-}
 async function request(path: string, headers: HeadersInit, body?: FormData) {
   const response = await fetch(`${API}${path}`, {
     method: "POST",
@@ -21,44 +13,27 @@ async function request(path: string, headers: HeadersInit, body?: FormData) {
   }
   return result;
 }
-export async function submitCapture(
-  capture: Capture,
-  description: string,
-  paths: string[],
-  includeScreenshot: boolean,
-  identity: SubmissionIdentity
+
+/** Transport for this demo's inbox. The portable collector does not import it. */
+export async function submitToDemoInbox(
+  submission: FeedbackSubmission
 ): Promise<string> {
   const form = new FormData();
-  form.set("feedback[description]", description);
-  for (const [key, value] of Object.entries(capture.context)) {
+  form.set("feedback[description]", submission.description);
+  for (const [key, value] of Object.entries(submission.context)) {
     form.set(`feedback[${key}]`, String(value));
   }
-  form.set(
-    "feedback[annotations]",
-    JSON.stringify(
-      screenshotAnnotations(capture, includeScreenshot ? paths : [])
-    )
-  );
-  if (capture.annotation) {
-    form.set(
-      "feedback[target_element]",
-      JSON.stringify({
-        selector: capture.annotation.targetSelector,
-        name: capture.annotation.targetName,
-      })
-    );
+  form.set("feedback[annotations]", JSON.stringify(submission.annotations));
+  if (submission.target) {
+    form.set("feedback[target_element]", JSON.stringify(submission.target));
   }
-  if (includeScreenshot) {
-    form.set(
-      "feedback[screenshot]",
-      await renderScreenshot(capture, paths),
-      "capture.jpg"
-    );
+  if (submission.screenshot) {
+    form.set("feedback[screenshot]", submission.screenshot, "capture.jpg");
   }
   const headers = {
     "x-project-key": "feedback-agent",
-    "x-submission-token": identity.token,
-    "x-idempotency-key": identity.key,
+    "x-submission-token": submission.idempotencyKey,
+    "x-idempotency-key": submission.idempotencyKey,
     "x-mtb-capture-policy": "sensitive-data-v1",
   };
   const session = await request("", headers, form);

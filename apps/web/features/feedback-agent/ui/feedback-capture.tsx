@@ -163,19 +163,6 @@ export function FeedbackCapture({
                 {busy ? "Sending…" : "Send feedback"}
               </Button>
             </DialogFooter>
-            <p className="text-muted-foreground text-xs">
-              Saved to this app's private inbox.
-              <br />
-              Open-source capture code:{" "}
-              <a
-                className="underline"
-                href="https://github.com/makethisbetter/makethisbetter-js"
-                rel="noreferrer"
-                target="_blank"
-              >
-                Make This Better (MIT)
-              </a>
-            </p>
           </form>
         </DialogContent>
       </Dialog>

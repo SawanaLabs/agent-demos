@@ -10,6 +10,7 @@ import {
 } from "@workspace/ui/components/card";
 import { Crosshair, ExternalLink, Inbox, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
 import { FeedbackCapture } from "./feedback-capture";
 import { FeedbackDetail, statusLabels } from "./feedback-detail";
@@ -129,7 +130,7 @@ export function FeedbackWorkspace({
     });
   }
 
-  const captureController = useFeedbackCapture((id) => {
+  const captureController = useFeedbackCapture(submitToDemoInbox, (id) => {
     openFeedback(id);
     refresh().catch((cause: Error) => setError(cause.message));
   });
@@ -234,9 +235,7 @@ export function FeedbackWorkspace({
             )}
           </div>
           {available ? null : (
-            <p role="status">
-              Configure REDIS_URL to enable feedback collection.
-            </p>
+            <p role="status">The feedback inbox is unavailable.</p>
           )}
           {error ? (
             <p className="text-destructive text-sm" role="alert">

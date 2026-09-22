@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { afterAll, expect, it, vi } from "vitest";
-import { newSubmissionIdentity, submitCapture } from "../client/submit";
+import { prepareSubmission } from "../client/submission";
+import { submitToDemoInbox } from "../client/submit";
 import { handleFeedbackRequest } from "./runtime";
 import { feedbackRedis } from "./store";
 
@@ -171,17 +172,17 @@ it("native collector retries a lost finalization response without duplicating fe
       preview: null,
       color: "black",
     };
-    const identity = newSubmissionIdentity();
-    await expect(
-      submitCapture(capture, "Native text-only feedback", [], false, identity)
-    ).rejects.toThrow("Connection lost");
-    const id = await submitCapture(
+    const submission = await prepareSubmission(
       capture,
       "Native text-only feedback",
       [],
       false,
-      identity
+      randomUUID()
     );
+    await expect(submitToDemoInbox(submission)).rejects.toThrow(
+      "Connection lost"
+    );
+    const id = await submitToDemoInbox(submission);
     const list = await (
       await handleFeedbackRequest(request("GET"), visitor)
     ).json();

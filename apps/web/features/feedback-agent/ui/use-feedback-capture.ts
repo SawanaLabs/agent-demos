@@ -2,13 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import { type Capture, capturePage } from "../client/capture";
 import {
-  newSubmissionIdentity,
-  type SubmissionIdentity,
-  submitCapture,
-} from "../client/submit";
+  type FeedbackSubmission,
+  prepareSubmission,
+} from "../client/submission";
 import type { Annotation } from "../upstream/types";
 
-export function useFeedbackCapture(onSubmitted: (id: string) => void) {
+export function useFeedbackCapture<T>(
+  onSubmit: (submission: FeedbackSubmission) => Promise<T>,
+  onSubmitted?: (result: T) => void
+) {
   const [phase, setPhase] = useState<
     "closed" | "selecting" | "capturing" | "composing" | "submitting"
   >("closed");
@@ -17,7 +19,7 @@ export function useFeedbackCapture(onSubmitted: (id: string) => void) {
   const [paths, setPaths] = useState<string[]>([]);
   const [includeScreenshot, setIncludeScreenshot] = useState(true);
   const [error, setError] = useState("");
-  const identity = useRef<SubmissionIdentity | null>(null);
+  const pending = useRef<FeedbackSubmission | null>(null);
   const generation = useRef(0);
   useEffect(
     () => () => {
@@ -26,7 +28,7 @@ export function useFeedbackCapture(onSubmitted: (id: string) => void) {
     []
   );
   function changed() {
-    identity.current = null;
+    pending.current = null;
     setError("");
   }
   function close() {
@@ -74,20 +76,20 @@ export function useFeedbackCapture(onSubmitted: (id: string) => void) {
     const version = generation.current;
     setError("");
     setPhase("submitting");
-    identity.current ??= newSubmissionIdentity();
     try {
-      const id = await submitCapture(
+      pending.current ??= await prepareSubmission(
         capture,
         description.trim(),
         paths,
         includeScreenshot,
-        identity.current
+        crypto.randomUUID()
       );
+      const result = await onSubmit(pending.current);
       if (version !== generation.current) {
         return;
       }
       close();
-      onSubmitted(id);
+      onSubmitted?.(result);
     } catch (cause) {
       if (version !== generation.current) {
         return;

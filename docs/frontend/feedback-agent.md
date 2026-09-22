@@ -18,14 +18,15 @@ updateAt: 2026-09-23
 - Preserve upstream attribution and license. The native collector attaches its image at session creation; retain the separate screenshot endpoint for original SDK compatibility.
 - Show a privacy-masked preview before submission. Draw coordinates use the captured viewport; screenshot baking preserves the original scroll anchor. Capture errors must be visible and require retake or explicit screenshot opt-out.
 - The native UI does not record replay or console logs. Keep existing optional replay evidence readable. An unchanged submission retry reuses its idempotency identity.
-- Feedback Agent is an independent application slice. Send feedback only to this app's same-origin API and configured Redis; AI analysis uses this app's configured gateway. Upstream attribution identifies MIT code provenance, never a submission destination, affiliation, or service dependency.
+- Feedback Agent is an independent application slice. The portable `FeedbackCollector` requires an `onSubmit` callback and has no default API, cookie, Redis, or AI dependency. Keep evidence preparation separate from `client/submit.ts`, which wires this demo to its same-origin Redis inbox. AI analysis uses this app's configured gateway. Upstream attribution identifies MIT code provenance, never a submission destination, affiliation, or service dependency.
 - Keep capture usable without an AI key. Save feedback first, then let the user request AI analysis. The runtime implements the submission-only protocol, advertises `ai_clarify_available: false`, and does not impersonate the hosted backend's wider API.
 - Keep ownership in `server/owner.ts`. Every Redis record and inbox is visitor-scoped; report IDs, SDK project keys, and the success-link `identity` query parameter never grant access. A copied team collector must introduce its own project and reviewer authorization.
 - Drafts expire after one day; finalized feedback after seven days. Updating status or analysis must not extend report retention. Session creation is idempotent, and compare-and-swap protects finalize, abandon, and edit transitions.
 - Enforce upload limits before parsing, validate screenshots with Sharp, require the SDK capture policy, and sanitize structured evidence. Keep previous feedback panels blocked from capture with `rr-block`.
 - Only Analyze uses the site-owned metered route wrapper. Keep that wrapper outside portable feature code; consumers can substitute their own usage controls.
 - AI reads untrusted report evidence and drafts an issue. Do not claim that it inspected source, fixed a bug, or published a ticket. Copy issue is a clipboard operation.
-- Keep both visible paths: use the upstream project directly, or copy this feature slice. Do not advertise a registry install command until the slice is actually packaged.
+- Keep architecture, storage choices, and provenance in documentation/source links, outside the feedback composer. Redis is required by the full reference inbox, never by the portable collector; a host can use its existing database or ticket API via `onSubmit`. A rejected save keeps the draft and unchanged retries reuse the exact evidence and idempotency key.
+- Keep both discovery paths: use the upstream project directly, or copy this feature slice. Do not advertise a registry install command until the slice is actually packaged.
 
 ## Validation
 

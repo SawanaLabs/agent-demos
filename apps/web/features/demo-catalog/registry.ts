@@ -7,6 +7,7 @@ import type {
   ReadyDemoCatalogEntry,
   RoadmapDemoCatalogEntry,
 } from "@/features/demo-catalog/types";
+import { feedbackAgentDemoMeta } from "@/features/feedback-agent/demo-meta";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
 import { generativeUiDemoMeta } from "@/features/generative-ui/demo-meta";
 import { imageWorkflowAgentDemoMeta } from "@/features/image-workflow-agent/demo-meta";
@@ -48,6 +49,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   minimalChatAgentDemoMeta,
   imageWorkflowAgentDemoMeta,
   canvasAgentDemoMeta,
+  feedbackAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,

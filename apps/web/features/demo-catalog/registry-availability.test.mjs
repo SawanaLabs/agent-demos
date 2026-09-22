@@ -5,6 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { canvasAgentDemoMeta } from "../canvas-agent/demo-meta.ts";
 import { customerMemoryAgentDemoMeta } from "../customer-memory-agent/demo-meta.ts";
+import { feedbackAgentDemoMeta } from "../feedback-agent/demo-meta.ts";
 import { foundationChatDemoMeta } from "../foundation-chat/demo-meta.ts";
 import { generativeUiDemoMeta } from "../generative-ui/demo-meta.ts";
 import { imageWorkflowAgentDemoMeta } from "../image-workflow-agent/demo-meta.ts";
@@ -43,6 +44,7 @@ const currentDemoCatalogEntries = [
   minimalChatAgentDemoMeta,
   imageWorkflowAgentDemoMeta,
   canvasAgentDemoMeta,
+  feedbackAgentDemoMeta,
   customerMemoryAgentDemoMeta,
   persistentAgentDemoMeta,
   streamingChatShellDemoMeta,
@@ -67,7 +69,7 @@ test("current registry manifest classifies every ready catalog demo", () => {
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),
-    ["canvas-agent", "image-workflow-agent"]
+    ["canvas-agent", "feedback-agent", "image-workflow-agent"]
   );
 });
 

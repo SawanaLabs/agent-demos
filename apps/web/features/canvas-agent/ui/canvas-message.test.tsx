@@ -26,7 +26,12 @@ describe("Canvas conversation tools", () => {
       ],
     };
     const html = renderToStaticMarkup(
-      <CanvasMessage message={message} streaming={false} />
+      <CanvasMessage
+        canChoose={false}
+        message={message}
+        onChoose={async () => {}}
+        streaming={false}
+      />
     );
     expect(html.indexOf("准备添加提示词")).toBeLessThan(
       html.indexOf("添加并连接节点")

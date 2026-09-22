@@ -8,7 +8,7 @@ import {
 } from "@workspace/ui/components/tooltip";
 import { ControlButton } from "@xyflow/react";
 import { LayoutDashboardIcon } from "lucide-react";
-import { type ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, useEffect, useRef, useState } from "react";
 import { connectNodes } from "../model/commands";
 import { addCanvasNode } from "../model/generation";
 import { type CanvasNode, createNode } from "../model/graph";
@@ -21,13 +21,16 @@ import {
 import { edgeId } from "../model/results";
 import { CanvasChat } from "./canvas-chat";
 import { CanvasEdgeView } from "./canvas-edge";
+import { CanvasFileConfirmation } from "./canvas-file-confirmation";
 import { CanvasHeader } from "./canvas-header";
 import { CanvasNodeView } from "./canvas-node";
 import { CanvasOutputView } from "./canvas-output";
+import { CanvasSidebar } from "./canvas-sidebar";
 import { CanvasToolbar } from "./canvas-toolbar";
 import { moveCanvasNodes } from "./flow-node-state";
 import { useCanvasAgent } from "./use-canvas-agent";
 import { useCanvasNodes } from "./use-canvas-nodes";
+import { useWorkflowFile } from "./use-workflow-file";
 
 const nodeTypes = {
   workflow: CanvasNodeView,
@@ -40,15 +43,18 @@ type FlowInstance = Parameters<
 
 export function CanvasWorkspace({ ready }: { ready: boolean }) {
   const c = useCanvasAgent();
+  const file = useWorkflowFile(c);
+  const canvasRegion = useRef<HTMLDivElement>(null);
   const [flow, setFlow] = useState<FlowInstance | null>(null);
   const graph = c.graph;
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   function add(kind: CanvasNode["kind"]) {
     const node = createNode(kind, graph.nodes.length);
-    if (flow) {
+    const bounds = canvasRegion.current?.getBoundingClientRect();
+    if (flow && bounds) {
       node.position = flow.screenToFlowPosition({
-        x: window.innerWidth * 0.32,
-        y: window.innerHeight * 0.35,
+        x: bounds.left + bounds.width * 0.32,
+        y: bounds.top + bounds.height * 0.35,
       });
     }
     c.edit(addCanvasNode(graph, node).graph);
@@ -88,143 +94,153 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
     }
   });
   return (
-    <main className="fixed inset-0 z-40 flex flex-col bg-background font-sans">
-      <CanvasHeader controller={c} ready={ready} />
-      <div className="relative min-h-0 flex-1">
-        <Canvas
-          edges={presentationEdges(graph).map((edge) => ({
-            ...edge,
-            type:
-              "deletable" in edge && edge.deletable === false
-                ? "default"
-                : "connection",
-            data: {
-              busy: c.busy,
-              disconnect: () => {
-                c.edit({
-                  ...graph,
-                  edges: graph.edges.filter((item) => edgeId(item) !== edge.id),
-                });
-                setSelectedEdge(null);
+    <main className="fixed inset-0 z-40 flex flex-col bg-muted/35 font-sans">
+      <CanvasHeader controller={c} file={file} ready={ready} />
+      <CanvasFileConfirmation file={file} />
+      <div className="flex min-h-0 flex-1 pr-2 pb-2 sm:pr-3 sm:pb-3">
+        <CanvasSidebar navigate={file.navigate} />
+        <div
+          className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl border bg-background"
+          ref={canvasRegion}
+        >
+          <Canvas
+            edges={presentationEdges(graph).map((edge) => ({
+              ...edge,
+              type:
+                "deletable" in edge && edge.deletable === false
+                  ? "default"
+                  : "connection",
+              data: {
+                busy: c.busy,
+                disconnect: () => {
+                  c.edit({
+                    ...graph,
+                    edges: graph.edges.filter(
+                      (item) => edgeId(item) !== edge.id
+                    ),
+                  });
+                  setSelectedEdge(null);
+                },
               },
-            },
-            selected: selectedEdge === edge.id,
-            animated: c.busy && c.activeNode === originalId(edge.target),
-          }))}
-          edgeTypes={edgeTypes}
-          fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
-          isValidConnection={({ source, target }) =>
-            !target.startsWith("result:") &&
-            (source.startsWith("result:") ||
-              ["prompt", "reference"].includes(
-                graph.nodes.find((node) => node.id === originalId(source))
+              selected: selectedEdge === edge.id,
+              animated: c.busy && c.activeNode === originalId(edge.target),
+            }))}
+            edgeTypes={edgeTypes}
+            fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
+            isValidConnection={({ source, target }) =>
+              !target.startsWith("result:") &&
+              (source.startsWith("result:") ||
+                ["prompt", "reference"].includes(
+                  graph.nodes.find((node) => node.id === originalId(source))
+                    ?.kind ?? ""
+                )) &&
+              originalId(source) !== originalId(target) &&
+              !["reference", "prompt"].includes(
+                graph.nodes.find((node) => node.id === originalId(target))
                   ?.kind ?? ""
-              )) &&
-            originalId(source) !== originalId(target) &&
-            !["reference", "prompt"].includes(
-              graph.nodes.find((node) => node.id === originalId(target))
-                ?.kind ?? ""
-            )
-          }
-          minZoom={0.15}
-          nodes={nodes}
-          nodesConnectable={!c.busy}
-          nodesDraggable={!c.busy}
-          nodeTypes={nodeTypes}
-          onConnect={({ source, target }) => {
-            if (source && target) {
-              try {
-                c.edit(
-                  connectNodes(
-                    graph,
-                    originalId(source),
-                    originalId(target),
-                    source.startsWith("result:")
-                      ? resultIndex(source)
-                      : undefined
-                  )
-                );
-              } catch (error) {
-                c.setError(
-                  error instanceof Error ? error.message : "连接失败。"
-                );
+              )
+            }
+            minZoom={0.15}
+            nodes={nodes}
+            nodesConnectable={!c.busy}
+            nodesDraggable={!c.busy}
+            nodeTypes={nodeTypes}
+            onConnect={({ source, target }) => {
+              if (source && target) {
+                try {
+                  c.edit(
+                    connectNodes(
+                      graph,
+                      originalId(source),
+                      originalId(target),
+                      source.startsWith("result:")
+                        ? resultIndex(source)
+                        : undefined
+                    )
+                  );
+                } catch (error) {
+                  c.setError(
+                    error instanceof Error ? error.message : "连接失败。"
+                  );
+                }
               }
+            }}
+            onEdgeClick={(_, edge) =>
+              setSelectedEdge(edge.deletable === false ? null : edge.id)
             }
-          }}
-          onEdgeClick={(_, edge) =>
-            setSelectedEdge(edge.deletable === false ? null : edge.id)
-          }
-          onEdgesDelete={(edges) =>
-            c.edit({
-              ...graph,
-              edges: graph.edges.filter(
-                (edge) => !edges.some((deleted) => deleted.id === edgeId(edge))
-              ),
-            })
-          }
-          onInit={setFlow}
-          onNodesChange={(changes) => {
-            onNodesChange(changes);
-            if (c.busy) {
-              return;
-            }
-            const removed = new Set(
-              changes
-                .filter((change) => change.type === "remove")
-                .map((change) => originalId(change.id))
-            );
-            if (removed.size) {
+            onEdgesDelete={(edges) =>
               c.edit({
-                nodes: graph.nodes.filter((node) => !removed.has(node.id)),
+                ...graph,
                 edges: graph.edges.filter(
                   (edge) =>
-                    !(removed.has(edge.source) || removed.has(edge.target))
+                    !edges.some((deleted) => deleted.id === edgeId(edge))
                 ),
-              });
-              return;
+              })
             }
-            const moves = changes.filter(
-              (change) => change.type === "position"
-            );
-            if (moves.length) {
-              c.setGraph((current) => ({
-                ...current,
-                nodes: moveCanvasNodes(current.nodes, moves),
-              }));
-            }
-          }}
-          onPaneClick={() => setSelectedEdge(null)}
-          panOnDrag
-          selectionOnDrag={false}
-        >
-          <Controls
-            fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
-            position="top-left"
+            onInit={setFlow}
+            onNodesChange={(changes) => {
+              onNodesChange(changes);
+              if (c.busy) {
+                return;
+              }
+              const removed = new Set(
+                changes
+                  .filter((change) => change.type === "remove")
+                  .map((change) => originalId(change.id))
+              );
+              if (removed.size) {
+                c.edit({
+                  nodes: graph.nodes.filter((node) => !removed.has(node.id)),
+                  edges: graph.edges.filter(
+                    (edge) =>
+                      !(removed.has(edge.source) || removed.has(edge.target))
+                  ),
+                });
+                return;
+              }
+              const moves = changes.filter(
+                (change) => change.type === "position"
+              );
+              if (moves.length) {
+                c.setGraph((current) => ({
+                  ...current,
+                  nodes: moveCanvasNodes(current.nodes, moves),
+                }));
+              }
+            }}
+            onPaneClick={() => setSelectedEdge(null)}
+            panOnDrag
+            selectionOnDrag={false}
           >
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <ControlButton
-                    aria-label="整理画布"
-                    disabled={c.busy || !flow || graph.nodes.length === 0}
-                    onClick={arrange}
-                  />
-                }
-              >
-                <LayoutDashboardIcon />
-              </TooltipTrigger>
-              <TooltipContent side="right">整理画布</TooltipContent>
-            </Tooltip>
-          </Controls>
-        </Canvas>
-        <CanvasToolbar add={add} busy={c.busy} />
-        <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
-          拖动画布平移 · 双指缩放 · 拖动节点圆点连线
-          <br />
-          {graph.nodes.length} 个节点 / {graph.edges.length} 条连线 ·
-          刷新前请保存文件
-        </p>
-        <CanvasChat controller={c} ready={ready} />
+            <Controls
+              fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
+              position="top-left"
+            >
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <ControlButton
+                      aria-label="整理画布"
+                      disabled={c.busy || !flow || graph.nodes.length === 0}
+                      onClick={arrange}
+                    />
+                  }
+                >
+                  <LayoutDashboardIcon />
+                </TooltipTrigger>
+                <TooltipContent side="right">整理画布</TooltipContent>
+              </Tooltip>
+            </Controls>
+          </Canvas>
+          <CanvasToolbar add={add} busy={c.busy} />
+          <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
+            拖动画布平移 · 双指缩放 · 拖动节点圆点连线
+            <br />
+            {graph.nodes.length} 个节点 / {graph.edges.length} 条连线 ·
+            刷新前请保存文件
+          </p>
+          <CanvasChat controller={c} key={c.session} ready={ready} />
+        </div>
       </div>
     </main>
   );

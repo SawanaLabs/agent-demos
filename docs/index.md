@@ -23,9 +23,9 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | --- | --- | --- | --- |
 | ./DOCS.md | Project Knowledge Protocol | Cross-domain language, collaboration conventions, and repository boundary rules. | 2026-06-02 |
 | ./frontend/DOCS.md | Frontend Knowledge Protocol | Domain-level language, reading path, and boundary principles for frontend work. | 2026-06-01 |
-| ./frontend/agent-demo-structure.md | Agent Demo Structure | Durable conventions for organizing independent full-stack agent demos as portable feature slices. | 2026-07-01 |
+| ./frontend/agent-demo-structure.md | Agent Demo Structure | Durable conventions for organizing independent full-stack agent demos as portable feature slices. | 2026-09-23 |
 | ./frontend/ai-sdk-recipes-checklist.md | AI SDK Recipes Checklist | Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos. | 2026-06-16 |
-| ./frontend/canvas-agent.md | Canvas Agent | Independent canvas workflow runtime and floating conversation contract. | 2026-09-21 |
+| ./frontend/canvas-agent.md | Canvas Agent | Independent canvas workflow runtime and floating conversation contract. | 2026-09-23 |
 | ./frontend/canvas-node-research.md | 无边画布节点职责与竞品研究 | 图片与视频工作流的节点分类、竞品证据，以及 Canvas Agent 的产品设计建议。 | 2026-09-20 |
 | ./frontend/customer-memory-agent.md | Memory & Persistence Agent | Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo. | 2026-06-09 |
 | ./frontend/depth-video-tool.md | Depth Video Tool | Product and runtime boundary for the browser-local depth video processor. | 2026-09-20 |

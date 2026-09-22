@@ -115,7 +115,7 @@ export const generateNode: NodeExecutor = async (node, inputs, signal) => {
       model: models.image,
       n: count,
       prompt: images.length ? { text, images } : text,
-      size: sizes[node.aspectRatio],
+      ...(node.aspectRatio !== "auto" && { size: sizes[node.aspectRatio] }),
       providerOptions: { openai: { quality: "low" } },
       abortSignal: signal,
       maxRetries: 1,

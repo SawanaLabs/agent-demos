@@ -2,12 +2,12 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { emptyCanvas } from "../model/empty-canvas";
 import { migrateGenerationInputs } from "../model/generation";
 import {
   type CanvasDefinition,
   type CanvasGraph,
   editGraph,
-  initialGraph,
   invalidateErrors,
   invalidateOutputs,
   parseGraph,
@@ -18,10 +18,9 @@ import { readRunStream } from "./run-stream";
 import { useCanvasChatActions } from "./use-canvas-chat-actions";
 
 export function useCanvasAgent() {
-  const [graph, setGraph] = useState(() =>
-    migrateGenerationInputs(initialGraph())
-  );
+  const [graph, setGraph] = useState(emptyCanvas);
   const [mode, setMode] = useState<"plan" | "execute">("execute");
+  const [session, setSession] = useState(0);
   const [layoutRequested, setLayoutRequested] = useState(false);
   const [activeNode, setActiveNode] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
@@ -37,11 +36,11 @@ export function useCanvasAgent() {
       new DefaultChatTransport({
         api: "/api/demos/canvas-agent",
         fetch: canvasChatFetch,
-        prepareSendMessagesRequest: async ({ messages }) => ({
+        prepareSendMessagesRequest: async ({ messages, body }) => ({
           body: {
             messages,
             graph: await prepareGraph(),
-            mode: modeRef.current,
+            mode: body?.mode ?? modeRef.current,
           },
         }),
       })
@@ -154,6 +153,7 @@ export function useCanvasAgent() {
   }
   return {
     graph,
+    session,
     setGraph,
     uploadAsset,
     layoutRequested,
@@ -162,14 +162,8 @@ export function useCanvasAgent() {
       if (busyRef.current) {
         return;
       }
-      setGraph({
-        nodes: [],
-        edges: [],
-        outputs: {},
-        assets: {},
-        errors: {},
-        revision: 0,
-      });
+      setGraph(emptyCanvas());
+      setSession((value) => value + 1);
       actions.reset();
       chat.setMessages([]);
       chat.clearError();

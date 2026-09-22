@@ -53,6 +53,16 @@ export function useCanvasNodes(
           ]).graph
         );
       },
+      askAgent: () => {
+        const error = graph.errors[node.id];
+        if (error && ready && !c.busy) {
+          return c.send(
+            `请分析这个节点的执行错误，说明原因，并帮助修复可修改的工作流配置。不要重新生成；需要重试时先说明下一步。以下是报错时的节点信息与原始错误：\n${JSON.stringify({ nodeId: node.id, label: node.label, kind: node.kind, error })}`,
+            "plan"
+          );
+        }
+      },
+      agentReady: ready,
       node,
       inputs: connectedInputs(graph, node.id),
       error: graph.errors[node.id],

@@ -83,3 +83,45 @@ it("preserves completed tools across turns while excluding interrupted calls", a
     ])
   );
 });
+
+it("accepts photo-only messages and binds the attachment through addNode in plan mode", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  const url =
+    "https://example.public.blob.vercel-storage.com/canvas-agent/uploads/photo.png";
+  const response = await handleCanvasChat(
+    new Request("http://localhost/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        graph: initialGraph(),
+        mode: "plan",
+        messages: [
+          {
+            id: "photo",
+            role: "user",
+            parts: [{ type: "file", url, mediaType: "image/png" }],
+          },
+        ],
+      }),
+    })
+  );
+  await response.text();
+  const options = vi.mocked(streamText).mock.lastCall?.[0];
+  expect(JSON.stringify(options?.messages)).toContain(url);
+  expect(options?.tools).not.toHaveProperty("runWorkflow");
+  expect(options?.tools).toHaveProperty("askQuestion");
+  const result = await options?.tools?.addNode?.execute?.(
+    {
+      node: {
+        kind: "reference",
+        label: "原图",
+        prompt: "",
+        aspectRatio: "auto",
+        position: { x: 0, y: 0 },
+      },
+      sourceIds: [],
+      attachmentUrl: url,
+    },
+    { toolCallId: "add", messages: [] }
+  );
+  expect(result).toMatchObject({ nodeId: expect.any(String) });
+});

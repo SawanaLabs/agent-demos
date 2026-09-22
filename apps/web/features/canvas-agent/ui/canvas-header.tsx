@@ -1,65 +1,60 @@
 "use client";
 import { Button } from "@workspace/ui/components/button";
 import {
-  ArrowLeftIcon,
   DownloadIcon,
   PlayIcon,
   PlusIcon,
+  SlashIcon,
   UploadIcon,
+  WorkflowIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
-import { migrateGenerationInputs } from "../model/generation";
-import { parseGraph } from "../model/graph";
 import type { useCanvasAgent } from "./use-canvas-agent";
+import type { useWorkflowFile } from "./use-workflow-file";
 
 export function CanvasHeader({
   controller: c,
   ready,
+  file,
 }: {
   controller: ReturnType<typeof useCanvasAgent>;
   ready: boolean;
+  file: ReturnType<typeof useWorkflowFile>;
 }) {
   const importInput = useRef<HTMLInputElement>(null);
-  function save() {
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(c.graph)], { type: "application/json" })
-    );
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "canvas-workflow.json";
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-  async function load(file: File) {
-    try {
-      if (file.size > 32 * 1024 * 1024) {
-        throw new Error("文件过大。");
-      }
-      c.setGraph(
-        migrateGenerationInputs(parseGraph(JSON.parse(await file.text())))
-      );
-      c.setError(null);
-    } catch {
-      c.setError("无法打开工作流，请选择从此画布导出的 JSON 文件。");
-    }
-  }
   return (
-    <header className="flex flex-wrap items-center justify-between gap-2 border-b bg-background px-4 py-3 pr-16">
-      <div className="flex items-center gap-3">
-        <Link aria-label="返回 Agent Demos" href="/">
-          <ArrowLeftIcon className="size-4" />
+    <header className="flex min-h-[72px] shrink-0 flex-wrap items-center justify-between gap-y-2 py-3 pr-16">
+      <div className="flex min-w-0 items-center">
+        <Link
+          aria-label="返回 Agent Demos"
+          className="flex w-14 shrink-0 items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-[72px]"
+          href="/"
+          onNavigate={(event) => {
+            event.preventDefault();
+            void file.navigate("/");
+          }}
+        >
+          <WorkflowIcon className="size-7" />
         </Link>
-        <h1 className="font-semibold text-base">Canvas Agent</h1>
-        <span className="hidden text-muted-foreground text-xs sm:inline">
-          编排工作流，再生成内容
-        </span>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="hidden font-semibold text-muted-foreground text-sm md:inline">
+            Agent Demos
+          </span>
+          <SlashIcon className="hidden size-4 text-border md:block" />
+          <h1 className="truncate font-semibold text-sm tracking-tight sm:text-base">
+            Canvas Agent
+          </h1>
+          <span aria-live="polite" className="text-muted-foreground text-xs">
+            {file.dirty ? "未保存" : "临时画布"}
+          </span>
+        </div>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="ml-14 flex items-center gap-1 sm:ml-3">
         <Button
           aria-label="新建画布"
-          disabled={c.busy}
-          onClick={c.newCanvas}
+          disabled={file.busy}
+          onClick={file.newCanvas}
           size="sm"
           variant="ghost"
         >
@@ -68,7 +63,7 @@ export function CanvasHeader({
         </Button>
         <Button
           aria-label="打开工作流"
-          disabled={c.busy}
+          disabled={file.busy}
           onClick={() => importInput.current?.click()}
           size="sm"
           variant="ghost"
@@ -78,7 +73,8 @@ export function CanvasHeader({
         </Button>
         <Button
           aria-label="保存工作流"
-          onClick={save}
+          disabled={file.busy}
+          onClick={file.save}
           size="sm"
           variant="ghost"
         >
@@ -86,7 +82,7 @@ export function CanvasHeader({
           <span className="hidden sm:inline">保存</span>
         </Button>
         <Button
-          disabled={c.busy || !ready || c.graph.nodes.length === 0}
+          disabled={file.busy || !ready || c.graph.nodes.length === 0}
           onClick={() => c.run()}
           size="sm"
         >
@@ -99,9 +95,9 @@ export function CanvasHeader({
         aria-label="打开工作流文件"
         className="hidden"
         onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (file) {
-            void load(file);
+          const selected = event.target.files?.[0];
+          if (selected) {
+            void file.load(selected);
           }
           event.target.value = "";
         }}

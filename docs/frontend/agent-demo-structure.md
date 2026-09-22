@@ -1,7 +1,7 @@
 ---
 title: Agent Demo Structure
 description: Durable conventions for organizing independent full-stack agent demos as portable feature slices.
-updateAt: 2026-07-01
+updateAt: 2026-09-23
 ---
 
 # Agent Demo Structure
@@ -53,6 +53,7 @@ updateAt: 2026-07-01
 - Shape each demo page primarily as an operable application workspace.
 - Use the **Demo Workspace Shell** for implemented Agent Demo screens instead of copying the same `main`, breadcrumb, heading, summary, badge rail, and workspace wrapper in every feature slice.
 - Keep feature-specific workspace implementation under `apps/web/features/<demo-slug>/ui`; the **Demo Workspace Shell** should own only the repeated screen chrome and workspace slot.
+- Canvas Agent uses a dedicated full-screen canvas shell; its temporary state and local-file contract live in [Canvas Agent](./canvas-agent.md).
 - Keep `apps/web/app/demos/<demo-slug>/loading.tsx` beside each ready demo `page.tsx`. Loading files should stay thin, import the matching feature `demo-meta.ts`, and render **Demo Loading Shell** through `DemoRouteLoadingScreen`.
 - Keep dynamic conversation route loading files, such as `apps/web/app/demos/<demo-slug>/[id]/loading.tsx`, parameter-free and generic because Next.js loading components do not receive route params.
 - Use route-level `loading.tsx` for the default segment fallback, then add local `<Suspense fallback={...}>` skeletons only around independently streaming server subtrees.

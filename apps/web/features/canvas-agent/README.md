@@ -15,7 +15,13 @@ node (预览输出) displays all connected text and images without invoking a mo
 Both result cards and preview outputs offer image downloads and UTF-8 TXT downloads. It is a
 terminal display; continue workflows from the original material or result card.
 
-Use **新建** to start with an empty canvas and conversation. The Agent defaults to **允许 AI 生成** and executes only requested generation. Switch to **仅编排** to create and revise the workflow without generation. Use
+The workspace starts empty, with a compact navigation rail and header. **新建** confirms before clearing the canvas and conversation; new/open/navigation actions offer local saving when needed. The browser warns before leaving an unsaved graph. Workflow JSON stays local, with no database or cloud workflow history.
+
+Chat accepts up to four image attachments, including photo-only messages without an implicit generation request. The welcome choices begin a planning conversation, and the Agent can present clickable follow-up options. Attachments become reference nodes only when the Agent explicitly adds them. Image nodes support **自动** aspect ratio, which leaves the image size to the provider.
+
+Failed nodes expose **Ask Agent** and **重试节点**. Ask Agent sends a snapshot of the node identity and raw error with a short repair instruction, expands chat, and uses planning mode for that request and its retries. Planning mode excludes the workflow execution tool; the normal composer mode is unchanged.
+
+The Agent defaults to **允许 AI 生成** and executes only requested generation. Switch to **仅编排** to create and revise the workflow without generation. Use
 **运行工作流** to recompute all nodes, or the node button to run a target while
 reusing valid upstream results. Its label is **运行此节点** when upstream results
 and materials are ready (including nodes without inputs), or **运行到这里** when
@@ -40,8 +46,7 @@ model defaults to `openai/gpt-image-2` with `quality: "low"` through
 `generateImage`; reference images are passed as image inputs. Overrides must
 support the image-generation API. The shared default for other demos is unchanged.
 Both API routes are
-wrapped by the host usage gate. One agent turn can run at most one graph with
-at most 20 nodes. No workflow, upload, or result is stored on the server.
+wrapped by the host usage gate. Graphs contain at most 40 nodes. Workflow and conversation state live in the browser. Image uploads and generated assets use the existing Blob storage path; local JSON files retain their asset URLs and do not embed every image.
 
 This canvas executes text/image generation and grid-to-GIF processing. The **合成 GIF** node slices one image into equal grid cells, in row-major order, and loops them at the configured frame rate. It supports up to 4×4 cells, with output frames capped at 512 pixels per side. No AI call is needed for assembly. GIFs animate in result/preview cards and download as `.gif`. Source grids remain available for follow-up image generation; GIF inputs to AI use the first frame.
 

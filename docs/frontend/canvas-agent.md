@@ -1,7 +1,7 @@
 ---
 title: Canvas Agent
 description: Independent canvas workflow runtime and floating conversation contract.
-updateAt: 2026-09-21
+updateAt: 2026-09-23
 ---
 
 # Canvas Agent
@@ -70,3 +70,8 @@ updateAt: 2026-09-21
 - Tool outcomes return actual input connections, result references and the input contract. Connecting a generator without a result index receives an actionable tool error. Running a material as a target returns a non-generation result with connected execution targets. System instructions remain unchanged. Legacy all-result connections expand to explicit result references without changing prompts or completed outputs.
 - Generator source handles are reserved for automatic result-preview edges; users connect downstream from result previews. Manual terminal outputs keep their collection-only role. Graph capacity remains 40 nodes / 260 edges.
 - Result image previews use Next Image load/error callbacks, show loading and failure states, and provide a local reload action. Retrying remounts the image; public Vercel Blob URLs receive a preview-only cache-busting query. Canonical output/download URLs and generation state are unchanged; retrying a preview never runs a node or consumes credits.
+
+- The workspace starts with an empty graph and an open welcome conversation. Its header and navigation rail preserve the canvas workspace; new/open/leave actions offer local saving, and unsaved graph changes register a browser unload warning. New/open resets chat and pending attachments. Workflow state has no database or cloud history; image Blob storage is unchanged.
+- Chat accepts up to four image attachments, including photo-only messages without an implicit prompt or generation permission. `addNode.attachmentUrl` may bind only an existing user attachment to a reference node. `askQuestion` renders 2–4 clickable choices; only the latest assistant message can submit them. Welcome choices request planning before generation.
+- Node Alert actions include **Ask Agent** and **重试节点**. Ask Agent sends a captured node identity and raw diagnostic error, opens the conversation, and overrides that request and its retries to plan mode without changing the composer mode. Node retry uses the existing targeted execution path.
+- Image nodes support `aspectRatio: auto`; the runner omits `size` so the provider chooses dimensions. Explicit ratios retain their existing sizes.

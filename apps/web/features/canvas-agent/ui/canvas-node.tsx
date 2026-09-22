@@ -39,6 +39,8 @@ import { CanvasResultCount } from "./canvas-result-count";
 
 export interface CanvasNodeData extends Record<string, unknown> {
   active: boolean;
+  agentReady: boolean;
+  askAgent: () => void;
   asset?: string;
   busy: boolean;
   continueFrom: (kind: CanvasNextKind) => void;
@@ -109,7 +111,29 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
           <Alert className="nodrag border-destructive/40" variant="destructive">
             <AlertCircleIcon />
             <AlertTitle>节点执行失败</AlertTitle>
-            <AlertDescription>{data.error}</AlertDescription>
+            <AlertDescription className="min-w-0 gap-3">
+              <p className="whitespace-pre-wrap break-words">{data.error}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  disabled={busy || !data.agentReady}
+                  onClick={data.askAgent}
+                  size="sm"
+                  variant="outline"
+                >
+                  Ask Agent
+                </Button>
+                {["text", "image", "gif"].includes(node.kind) ? (
+                  <Button
+                    disabled={busy}
+                    onClick={data.run}
+                    size="sm"
+                    variant="outline"
+                  >
+                    重试节点
+                  </Button>
+                ) : null}
+              </div>
+            </AlertDescription>
           </Alert>
         ) : null}
         <CanvasInputBadges inputs={data.inputs} />
@@ -228,6 +252,7 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
                 alignItemWithTrigger={false}
                 className="nodrag nowheel"
               >
+                <SelectItem value="auto">自动</SelectItem>
                 <SelectItem value="16:9">16:9</SelectItem>
                 <SelectItem value="1:1">1:1</SelectItem>
                 <SelectItem value="9:16">9:16</SelectItem>

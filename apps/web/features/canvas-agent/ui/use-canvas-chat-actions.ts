@@ -1,7 +1,7 @@
 "use client";
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { isToolUIPart, type UIMessage } from "ai";
-import { type RefObject, useState } from "react";
+import { type FileUIPart, isToolUIPart, type UIMessage } from "ai";
+import { type RefObject, useRef, useState } from "react";
 
 export function useCanvasChatActions(
   chat: UseChatHelpers<UIMessage>,
@@ -9,17 +9,22 @@ export function useCanvasChatActions(
   setError: (error: string | null) => void,
   clearActive: () => void
 ) {
+  const requestMode = useRef<"plan" | undefined>(undefined);
   const [stopped, setStopped] = useState(false);
-  async function send(text: string) {
-    if (busyRef.current || !text.trim()) {
+  async function send(text: string, mode?: "plan", files?: FileUIPart[]) {
+    if (busyRef.current || !(text.trim() || files?.length)) {
       return;
     }
+    requestMode.current = mode;
     busyRef.current = true;
     setError(null);
     setStopped(false);
     chat.clearError();
     try {
-      await chat.sendMessage({ text });
+      await chat.sendMessage(
+        text.trim() ? { files, text } : { files: files ?? [] },
+        mode ? { body: { mode } } : undefined
+      );
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -39,7 +44,7 @@ export function useCanvasChatActions(
       last?.role === "assistant" &&
       last.parts.some((part) => part.type.startsWith("tool-"))
     ) {
-      await send(canvasRetryMessage(last));
+      await send(canvasRetryMessage(last), requestMode.current);
       return;
     }
     busyRef.current = true;
@@ -47,7 +52,11 @@ export function useCanvasChatActions(
     setStopped(false);
     chat.clearError();
     try {
-      await chat.regenerate();
+      await chat.regenerate(
+        requestMode.current
+          ? { body: { mode: requestMode.current } }
+          : undefined
+      );
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message || "重试失败。" : "重试失败。"

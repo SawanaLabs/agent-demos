@@ -264,3 +264,16 @@ it("resumes a migrated completed workflow without regenerating existing results"
   expect(execute).not.toHaveBeenCalled();
   expect(completed.outputs).toMatchObject(graph.outputs);
 });
+
+it("leaves image dimensions to the provider in auto mode", async () => {
+  vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
+  vi.mocked(generateImage).mockResolvedValue({
+    image: { mediaType: "image/png", base64: "b3V0" },
+  } as Awaited<ReturnType<typeof generateImage>>);
+  const node = initialGraph().nodes[1];
+  assert(node);
+  await generateNode({ ...node, aspectRatio: "auto" }, []);
+  expect(vi.mocked(generateImage).mock.lastCall?.[0]).not.toHaveProperty(
+    "size"
+  );
+});

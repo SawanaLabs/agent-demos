@@ -16,7 +16,7 @@ export const nodeSchema = z.object({
     .describe(
       "Concrete, self-contained generation instructions. For multiple results, specify each independent deliverable and its order, matching resultCount. Each text result must be usable by its downstream consumer without the other results. For a shared brief with multiple sections keep resultCount at 1."
     ),
-  aspectRatio: z.enum(["1:1", "16:9", "9:16"]),
+  aspectRatio: z.enum(["auto", "1:1", "16:9", "9:16"]),
   gif: z
     .object({
       rows: z.number().int().min(1).max(4),

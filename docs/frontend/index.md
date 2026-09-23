@@ -17,6 +17,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 ## Subdomains
 
 - [Feedback Agent](./feedback-agent.md): Native shadcn capture UI, private inbox, AI triage, and upstream migration boundaries.
+- [Canvas Agent Harness 选型研究](./canvas-harness-research.md): AI SDK HarnessAgent、Pi、现有工具循环与未来 Skills 的选型依据及验证方案。
 - [Workspace UI](./workspace-ui.md): Shared primitive boundaries, UI package exports, app wrappers, app imports, and shadcn component placement.
 - [AI SDK Recipes Checklist](./ai-sdk-recipes-checklist.md): Working checklist for converting AI SDK Recipes, guide, and docs examples into portable Agent Demos.
 - [Agent Demo Structure](./agent-demo-structure.md): Copy-boundary layout for independent full-stack agent demos.
@@ -54,6 +55,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 | ./agent-demo-structure.md | Agent Demo Structure | Durable conventions for organizing independent full-stack agent demos as portable feature slices. | 2026-09-23 |
 | ./ai-sdk-recipes-checklist.md | AI SDK Recipes Checklist | Working checklist for turning AI SDK recipe, guide, and docs examples into portable Agent Demos. | 2026-06-16 |
 | ./canvas-agent.md | Canvas Agent | Independent canvas workflow runtime and floating conversation contract. | 2026-09-23 |
+| ./canvas-harness-research.md | Canvas Agent Harness 选型研究 | AI SDK HarnessAgent、Pi 与按需 Skills 对 Canvas 编排场景的收益、限制和验证方案。 | 2026-09-21 |
 | ./canvas-node-research.md | 无边画布节点职责与竞品研究 | 图片与视频工作流的节点分类、竞品证据，以及 Canvas Agent 的产品设计建议。 | 2026-09-20 |
 | ./customer-memory-agent.md | Memory & Persistence Agent | Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo. | 2026-06-09 |
 | ./depth-video-tool.md | Depth Video Tool | Product and runtime boundary for the browser-local depth video processor. | 2026-09-20 |

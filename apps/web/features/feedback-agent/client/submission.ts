@@ -1,6 +1,7 @@
 import type { Annotation } from "../upstream/types";
 import {
   type Capture,
+  type DrawStroke,
   renderScreenshot,
   screenshotAnnotations,
 } from "./capture";
@@ -18,7 +19,7 @@ export interface FeedbackSubmission {
 export async function prepareSubmission(
   capture: Capture,
   description: string,
-  paths: string[],
+  paths: DrawStroke[],
   includeScreenshot: boolean,
   idempotencyKey: string
 ): Promise<FeedbackSubmission> {

@@ -340,7 +340,12 @@ async function bakeScreenshot(
 
   for (const annotation of annotations) {
     if (annotation.type === "draw" && annotation.drawPath) {
-      drawStroke(ctx, annotation.drawPath, transform, brandColors?.primary);
+      drawStroke(
+        ctx,
+        annotation.drawPath,
+        transform,
+        annotation.color ?? brandColors?.primary
+      );
     } else if (annotation.type === "pin") {
       drawPin(
         ctx,

@@ -28,6 +28,8 @@ export interface Annotation {
    */
   captureOffsetX?: number;
   captureOffsetY?: number;
+  /** Host-selected color for this individual freehand stroke. */
+  color?: string;
   drawPath?: string;
   targetName?: string;
   targetRect?: TargetRect;

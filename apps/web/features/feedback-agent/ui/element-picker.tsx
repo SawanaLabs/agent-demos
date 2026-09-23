@@ -79,9 +79,12 @@ export function ElementPicker({
   }, [capturing, onCancel, onSelect]);
   return createPortal(
     <div data-feedback-ui="picker">
+      {capturing || target ? null : (
+        <div className="pointer-events-none fixed inset-0 z-50 bg-overlay/50" />
+      )}
       {!capturing && target ? (
         <div
-          className="pointer-events-none fixed z-50 border-2 border-primary bg-primary/10"
+          className="pointer-events-none fixed z-50 border-2 border-primary shadow-[0_0_0_100vmax] shadow-overlay/50"
           style={{
             top: target.rect.top,
             left: target.rect.left,
@@ -89,7 +92,7 @@ export function ElementPicker({
             height: target.rect.height,
           }}
         >
-          <Badge className="absolute top-0 left-0 max-w-64 truncate">
+          <Badge className="absolute bottom-full left-0 mb-1 max-w-64 truncate">
             {target.name}
           </Badge>
         </div>

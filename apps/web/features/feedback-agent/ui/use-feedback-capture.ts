@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { type Capture, capturePage } from "../client/capture";
+import { type Capture, capturePage, type DrawStroke } from "../client/capture";
 import {
   type FeedbackSubmission,
   prepareSubmission,
@@ -16,7 +16,7 @@ export function useFeedbackCapture<T>(
   >("closed");
   const [capture, setCapture] = useState<Capture | null>(null);
   const [description, setDescription] = useState("");
-  const [paths, setPaths] = useState<string[]>([]);
+  const [paths, setPaths] = useState<DrawStroke[]>([]);
   const [includeScreenshot, setIncludeScreenshot] = useState(true);
   const [error, setError] = useState("");
   const pending = useRef<FeedbackSubmission | null>(null);
@@ -117,7 +117,7 @@ export function useFeedbackCapture<T>(
       changed();
       setDescription(value);
     },
-    setPaths: (value: string[]) => {
+    setPaths: (value: DrawStroke[]) => {
       changed();
       setPaths(value);
     },

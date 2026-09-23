@@ -3,7 +3,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Pencil, Undo2 } from "lucide-react";
 import Image from "next/image";
 import { type PointerEvent, useRef, useState } from "react";
-import type { Capture } from "../client/capture";
+import type { Capture, DrawStroke } from "../client/capture";
 
 export function ScreenshotEditor({
   capture,
@@ -12,10 +12,11 @@ export function ScreenshotEditor({
   disabled,
 }: {
   capture: Capture;
-  paths: string[];
-  onPaths: (paths: string[]) => void;
+  paths: DrawStroke[];
+  onPaths: (paths: DrawStroke[]) => void;
   disabled: boolean;
 }) {
+  const [color, setColor] = useState(capture.color);
   const [drawing, setDrawing] = useState(false);
   const [stroke, setStroke] = useState("");
   const active = useRef("");
@@ -46,15 +47,15 @@ export function ScreenshotEditor({
     if (!active.current) {
       return;
     }
-    onPaths([...paths, active.current]);
+    onPaths([...paths, { path: active.current, color }]);
     active.current = "";
     setStroke("");
   }
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-muted-foreground text-xs">Screenshot preview</p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           <Button
             aria-pressed={drawing}
             disabled={disabled}
@@ -65,6 +66,32 @@ export function ScreenshotEditor({
             <Pencil size={14} />
             Draw
           </Button>
+          {[
+            { name: "Primary", value: capture.color },
+            { name: "Black", value: "black" },
+            { name: "Green", value: "green" },
+            { name: "Yellow", value: "gold" },
+          ].map((choice) => (
+            <Button
+              aria-label={`${choice.name} pen`}
+              aria-pressed={color === choice.value}
+              disabled={disabled}
+              key={choice.name}
+              onClick={() => {
+                setColor(choice.value);
+                setDrawing(true);
+              }}
+              size="icon-sm"
+              title={choice.name}
+              type="button"
+              variant={color === choice.value ? "secondary" : "ghost"}
+            >
+              <span
+                className={`size-4 rounded-full border border-foreground/30 ${color === choice.value ? "ring-2 ring-ring ring-offset-2 ring-offset-background" : ""}`}
+                style={{ backgroundColor: choice.value }}
+              />
+            </Button>
+          ))}
           <Button
             aria-label="Undo last stroke"
             disabled={disabled || !paths.length}
@@ -106,17 +133,19 @@ export function ScreenshotEditor({
             className="pointer-events-none h-full w-full"
             viewBox={`0 0 ${width} ${height}`}
           >
-            {[...paths, ...(stroke ? [stroke] : [])].map((path, index) => (
-              <path
-                d={path}
-                fill="none"
-                key={`${index}-${path}`}
-                stroke={capture.color}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={4}
-              />
-            ))}
+            {[...paths, ...(stroke ? [{ path: stroke, color }] : [])].map(
+              (line, index) => (
+                <path
+                  d={line.path}
+                  fill="none"
+                  key={`${index}-${line.path}`}
+                  stroke={line.color}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={4}
+                />
+              )
+            )}
           </svg>
         </button>
       </div>

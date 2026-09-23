@@ -13,6 +13,11 @@ import {
 import { captureAnchorOffset } from "../upstream/screenshot/geometry";
 import type { Annotation } from "../upstream/types";
 
+export interface DrawStroke {
+  color: string;
+  path: string;
+}
+
 export interface Capture {
   annotation?: Annotation;
   base: BaseScreenshot | null;
@@ -53,22 +58,23 @@ export function describeTarget(
 
 export function screenshotAnnotations(
   capture: Capture,
-  paths: string[]
+  paths: DrawStroke[]
 ): Annotation[] {
   return [
     ...(capture.annotation ? [capture.annotation] : []),
-    ...paths.map((drawPath) => ({
+    ...paths.map(({ path, color }) => ({
       type: "draw" as const,
       x: 0,
       y: 0,
-      drawPath,
+      drawPath: path,
+      color,
       captureOffsetX: capture.base?.pageScroll.x ?? 0,
       captureOffsetY: capture.base?.pageScroll.y ?? 0,
     })),
   ];
 }
 
-export async function renderScreenshot(capture: Capture, paths: string[]) {
+export async function renderScreenshot(capture: Capture, paths: DrawStroke[]) {
   if (!capture.base) {
     throw new Error(
       "Screenshot could not be captured. Retake it or turn off Include screenshot."

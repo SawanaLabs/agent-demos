@@ -43,11 +43,17 @@ export function ScreenshotEditor({
     active.current += ` L ${point(event)}`;
     setStroke(active.current);
   }
-  function finish() {
+  function finish(event: PointerEvent<HTMLButtonElement>) {
     if (!active.current) {
       return;
     }
-    onPaths([...paths, { path: active.current, color }]);
+    const strokeColor =
+      color === "var(--destructive)"
+        ? getComputedStyle(event.currentTarget)
+            .getPropertyValue("--destructive")
+            .trim()
+        : color;
+    onPaths([...paths, { path: active.current, color: strokeColor }]);
     active.current = "";
     setStroke("");
   }
@@ -68,6 +74,7 @@ export function ScreenshotEditor({
           </Button>
           {[
             { name: "Primary", value: capture.color },
+            { name: "Red", value: "var(--destructive)" },
             { name: "Black", value: "black" },
             { name: "Green", value: "green" },
             { name: "Yellow", value: "gold" },

@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/features/site-runtime-logging/server/server-logger", () => ({
+  runtimeErrorLogger: { error: vi.fn() },
+}));
+
 import {
   createMeteredDemoRouteFactory,
   type MeteredDemoRouteMeter,
+  type MeteredDemoRouteTelemetry,
 } from "./metered-demo-route";
 
 describe("metered demo route module", () => {
@@ -134,4 +140,284 @@ it("passes the server-owned message exemption to the resource meter", async () =
     { action: "send_message", demoSlug: "canvas-agent", chargeMessage: false },
     expect.any(Function)
   );
+});
+
+describe("metered demo route telemetry", () => {
+  it("marks one accepted action after a successful route response", async () => {
+    const markAcceptedAction = vi.fn();
+    const reportUnexpectedFailure = vi.fn();
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction,
+      reportUnexpectedFailure,
+    };
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest(_request, _options, handler) {
+        return handler();
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "object-generation",
+      handler: async () => Response.json({ ok: true }),
+      productAction: "generate_object",
+    });
+
+    const response = await route(
+      new Request("http://localhost/api/demos/object-generation", {
+        method: "POST",
+      }),
+      undefined
+    );
+
+    expect(response.ok).toBe(true);
+    expect(markAcceptedAction).toHaveBeenCalledOnce();
+    expect(markAcceptedAction).toHaveBeenCalledWith(expect.any(Response), {
+      action: "generate_object",
+      demoSlug: "object-generation",
+    });
+    expect(reportUnexpectedFailure).not.toHaveBeenCalled();
+  });
+
+  it("reports one terminal 5xx and keeps expected 4xx paths silent", async () => {
+    const markAcceptedAction = vi.fn();
+    const reportUnexpectedFailure = vi.fn();
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction,
+      reportUnexpectedFailure,
+    };
+    const responses = [
+      Response.json({ error: "invalid" }, { status: 400 }),
+      Response.json({ error: "failed" }, { status: 500 }),
+    ];
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        const response = responses.shift();
+
+        if (!response) {
+          throw new Error("Missing test response.");
+        }
+
+        return response;
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    expect(
+      (
+        await route(
+          new Request("http://localhost/api/demos/foundation-chat", {
+            method: "POST",
+          }),
+          undefined
+        )
+      ).status
+    ).toBe(400);
+    expect(reportUnexpectedFailure).not.toHaveBeenCalled();
+    expect(
+      (
+        await route(
+          new Request("http://localhost/api/demos/foundation-chat", {
+            method: "POST",
+          }),
+          undefined
+        )
+      ).status
+    ).toBe(500);
+    expect(reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).toHaveBeenCalledWith({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+    });
+    expect(markAcceptedAction).not.toHaveBeenCalled();
+  });
+
+  it("reports a thrown terminal failure once and preserves the original error", async () => {
+    const originalError = new Error("provider failed");
+    const telemetry: MeteredDemoRouteTelemetry = {
+      markAcceptedAction: vi.fn(),
+      reportUnexpectedFailure: vi.fn(),
+    };
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        throw originalError;
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry,
+    }).createMeteredDemoRoute({
+      action: "evaluate",
+      demoSlug: "trace-eval-agent",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    await expect(
+      route(
+        new Request("http://localhost/api/demos/trace-eval-agent/evaluate", {
+          method: "POST",
+        }),
+        undefined
+      )
+    ).rejects.toBe(originalError);
+    expect(telemetry.reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(telemetry.markAcceptedAction).not.toHaveBeenCalled();
+  });
+});
+
+describe("metered demo route stream telemetry", () => {
+  it.each([
+    ["error", "provider"],
+    ["tool-output-error", "tool"],
+  ] as const)("reports one terminal UI %s without changing the stream", async (streamType, failureCategory) => {
+    const encoder = new TextEncoder();
+    const markAcceptedAction = vi.fn();
+    const reportUnexpectedFailure = vi.fn();
+    const chunks = [
+      'data: {"type":"start"}\n\ndata: {"ty',
+      `pe":"${streamType}","errorText":"public message"}\n\n`,
+      `data: {"type":"${streamType}","errorText":"duplicate"}\n\n`,
+    ];
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        return new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              for (const chunk of chunks) {
+                controller.enqueue(encoder.encode(chunk));
+              }
+              controller.close();
+            },
+          }),
+          { headers: { "x-vercel-ai-ui-message-stream": "v1" } }
+        );
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry: {
+        markAcceptedAction,
+        reportUnexpectedFailure,
+      },
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    const response = await route(
+      new Request("http://localhost/api/demos/foundation-chat", {
+        method: "POST",
+      }),
+      undefined
+    );
+
+    await expect(response.text()).resolves.toBe(chunks.join(""));
+    expect(markAcceptedAction).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).toHaveBeenCalledWith({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+      failureCategory,
+    });
+  });
+
+  it("keeps successful and client-cancelled streams silent", async () => {
+    const cancel = vi.fn();
+    const encoder = new TextEncoder();
+    const reportUnexpectedFailure = vi.fn();
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        return new Response(
+          new ReadableStream<Uint8Array>({
+            cancel,
+            start(controller) {
+              controller.enqueue(
+                encoder.encode('data: {"type":"text-delta","delta":"ok"}\n\n')
+              );
+            },
+          }),
+          { headers: { "x-vercel-ai-ui-message-stream": "v1" } }
+        );
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry: {
+        markAcceptedAction: vi.fn(),
+        reportUnexpectedFailure,
+      },
+    }).createMeteredDemoRoute({
+      action: "send_message",
+      demoSlug: "foundation-chat",
+      handler: async () => Response.json({ ok: true }),
+    });
+
+    const response = await route(
+      new Request("http://localhost/api/demos/foundation-chat", {
+        method: "POST",
+      }),
+      undefined
+    );
+    const reader = response.body?.getReader();
+
+    expect(reader).toBeDefined();
+    await reader?.read();
+    await reader?.cancel("browser disconnected");
+
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).not.toHaveBeenCalled();
+  });
+
+  it("reports a body stream rejection once and preserves the rejection", async () => {
+    const streamError = new Error("private provider failure");
+    const reportUnexpectedFailure = vi.fn();
+    const meter: MeteredDemoRouteMeter = {
+      async handleMeteredRequest() {
+        return new Response(
+          new ReadableStream({
+            pull(controller) {
+              controller.error(streamError);
+            },
+          })
+        );
+      },
+    };
+    const route = createMeteredDemoRouteFactory({
+      meter,
+      telemetry: {
+        markAcceptedAction: vi.fn(),
+        reportUnexpectedFailure,
+      },
+    }).createMeteredDemoRoute({
+      action: "generate_suggestion",
+      demoSlug: "object-generation",
+      handler: async () => Response.json({ ok: true }),
+      productAction: "generate_object",
+    });
+
+    const response = await route(
+      new Request("http://localhost/api/demos/object-generation", {
+        method: "POST",
+      }),
+      undefined
+    );
+
+    await expect(response.text()).rejects.toBe(streamError);
+    expect(reportUnexpectedFailure).toHaveBeenCalledOnce();
+    expect(reportUnexpectedFailure).toHaveBeenCalledWith({
+      action: "generate_object",
+      demoSlug: "object-generation",
+      failureCategory: "provider",
+    });
+  });
 });

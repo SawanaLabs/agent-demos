@@ -10,12 +10,36 @@ export interface RuntimeErrorContext {
     | "route_error"
     | "unhandled_rejection"
     | "window_error";
-  readonly demo_slug?: "image-workflow-agent" | "canvas-agent";
+  readonly demo_slug?:
+    | "canvas-agent"
+    | "customer-memory-agent"
+    | "feedback-agent"
+    | "foundation-chat"
+    | "generative-ui"
+    | "image-workflow-agent"
+    | "langgraph-agent"
+    | "loop-agent"
+    | "mcp-agent"
+    | "minimal-chat-agent"
+    | "multimodal-chatbot"
+    | "object-generation"
+    | "openai-agents-sdk-demo"
+    | "persistent-agent"
+    | "rag-chatbot"
+    | "sandbox-agent"
+    | "skills-agent"
+    | "streaming-chat-shell"
+    | "trace-eval-agent"
+    | "ultra-chatbot-agent";
   readonly duration_ms?: number;
   readonly failure_category: "provider" | "runtime" | "storage" | "tool";
   readonly operation:
     | "chat"
     | "client_render"
+    | "context_compaction"
+    | "evaluation"
+    | "message_edit"
+    | "object_generation"
     | "storage_read"
     | "storage_write"
     | "tool_call"
@@ -38,7 +62,28 @@ interface RuntimeErrorLoggerOptions<Events extends readonly string[]> {
 }
 
 const labelPattern = /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/u;
-const allowedDemoSlugs = new Set(["image-workflow-agent", "canvas-agent"]);
+const allowedDemoSlugs = new Set([
+  "canvas-agent",
+  "customer-memory-agent",
+  "feedback-agent",
+  "foundation-chat",
+  "generative-ui",
+  "image-workflow-agent",
+  "langgraph-agent",
+  "loop-agent",
+  "mcp-agent",
+  "minimal-chat-agent",
+  "multimodal-chatbot",
+  "object-generation",
+  "openai-agents-sdk-demo",
+  "persistent-agent",
+  "rag-chatbot",
+  "sandbox-agent",
+  "skills-agent",
+  "streaming-chat-shell",
+  "trace-eval-agent",
+  "ultra-chatbot-agent",
+]);
 const errorIdPattern = /^[A-Za-z0-9_-]{1,64}$/u;
 const deploymentEnvironmentPattern = /^[a-z][a-z0-9-]{0,63}$/u;
 const deploymentRefPattern = /^[A-Za-z0-9._/-]{1,128}$/u;
@@ -52,6 +97,10 @@ const allowedFailureCategories = new Set([
 const allowedOperations = new Set([
   "chat",
   "client_render",
+  "context_compaction",
+  "evaluation",
+  "message_edit",
+  "object_generation",
   "storage_read",
   "storage_write",
   "tool_call",

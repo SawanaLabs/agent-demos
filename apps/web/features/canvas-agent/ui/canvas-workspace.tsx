@@ -26,6 +26,7 @@ import { CanvasHeader } from "./canvas-header";
 import { CanvasNodeView } from "./canvas-node";
 import { CanvasOutputView } from "./canvas-output";
 import { CanvasSidebar } from "./canvas-sidebar";
+import { CanvasStartHint } from "./canvas-start-hint";
 import { CanvasToolbar } from "./canvas-toolbar";
 import { moveCanvasNodes } from "./flow-node-state";
 import { useCanvasAgent } from "./use-canvas-agent";
@@ -233,6 +234,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             </Controls>
           </Canvas>
           <CanvasToolbar add={add} busy={c.busy} />
+          <CanvasStartHint controller={c} ready={ready} />
           <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
             拖动画布平移 · 双指缩放 · 拖动节点圆点连线
             <br />

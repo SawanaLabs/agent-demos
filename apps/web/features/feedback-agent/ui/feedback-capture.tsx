@@ -21,9 +21,13 @@ import { useFeedbackViewport } from "./use-feedback-viewport";
 export function FeedbackCapture({
   controller: c,
   enabled,
+  launcherLabel = "Feedback",
+  launcherLocale = "en",
 }: {
   controller: FeedbackCaptureController;
   enabled: boolean;
+  launcherLabel?: string;
+  launcherLocale?: string;
 }) {
   const busy = c.phase === "submitting";
   const viewportStyle = useFeedbackViewport(c.phase === "composing" || busy);
@@ -31,12 +35,18 @@ export function FeedbackCapture({
     <>
       {c.phase === "closed" ? (
         <Button
-          className={`${styles.launcher} fixed top-1/2 right-0 z-40 h-auto -translate-y-1/2 flex-col rounded-r-none px-2 py-4 shadow-lg`}
+          className="fixed top-1/2 right-0 z-40 h-auto -translate-y-1/2 rounded-r-none px-2 py-4 shadow-lg [@media(max-width:480px)]:hidden [@media(pointer:coarse)]:hidden"
           data-feedback-ui="launcher"
           disabled={!enabled}
           onClick={c.open}
         >
-          <span className="[writing-mode:vertical-rl]">Feedback</span>
+          <span
+            className="[text-orientation:mixed] [writing-mode:sideways-lr] [&:is(:lang(zh),:lang(ja),:lang(ko))]:[writing-mode:vertical-rl]"
+            dir="auto"
+            lang={launcherLocale}
+          >
+            {launcherLabel}
+          </span>
         </Button>
       ) : null}
       {c.phase === "selecting" || c.phase === "capturing" ? (

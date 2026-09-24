@@ -14,6 +14,7 @@ import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
 import { FeedbackCapture } from "./feedback-capture";
 import { FeedbackDetail, statusLabels } from "./feedback-detail";
+import { launcherLabels } from "./launcher-locales";
 import { SamplePage } from "./sample-page";
 import { useFeedbackCapture } from "./use-feedback-capture";
 
@@ -37,6 +38,8 @@ export function FeedbackWorkspace({
   available: boolean;
   aiAvailable: boolean;
 }) {
+  const [launcherLocale, setLauncherLocale] =
+    useState<keyof typeof launcherLabels>("en");
   const [items, setItems] = useState<FeedbackSummary[]>([]);
   const [selected, setSelected] = useState<Feedback | null>(null);
   const [error, setError] = useState("");
@@ -137,7 +140,12 @@ export function FeedbackWorkspace({
 
   return (
     <>
-      <FeedbackCapture controller={captureController} enabled={ready} />
+      <FeedbackCapture
+        controller={captureController}
+        enabled={ready}
+        launcherLabel={launcherLabels[launcherLocale]}
+        launcherLocale={launcherLocale}
+      />
       <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[290px_minmax(0,1fr)]">
         <Card className="min-h-0">
           <CardHeader className="border-b">
@@ -158,6 +166,24 @@ export function FeedbackWorkspace({
             </div>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-4">
+            <label className="flex flex-col gap-2 text-sm">
+              Launcher language
+              <select
+                className="rounded-md border bg-background p-2"
+                onChange={(event) =>
+                  setLauncherLocale(
+                    event.target.value as keyof typeof launcherLabels
+                  )
+                }
+                value={launcherLocale}
+              >
+                {Object.entries(launcherLabels).map(([locale, label]) => (
+                  <option key={locale} value={locale}>
+                    {locale} · {label}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Button
               className="min-h-11"
               data-feedback-ui="page-trigger"

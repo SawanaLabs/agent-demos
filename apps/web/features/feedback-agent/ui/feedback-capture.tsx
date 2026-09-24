@@ -36,10 +36,10 @@ export function FeedbackCapture({
           disabled={!enabled}
           onClick={c.open}
         >
-          <MessageSquare size={16} />
           <span className="rotate-180 [writing-mode:vertical-rl]">
             Feedback
           </span>
+          <MessageSquare className="-rotate-90" size={16} />
         </Button>
       ) : null}
       {c.phase === "selecting" || c.phase === "capturing" ? (

@@ -30,7 +30,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/canvas-node-research.md | 无边画布节点职责与竞品研究 | 图片与视频工作流的节点分类、竞品证据，以及 Canvas Agent 的产品设计建议。 | 2026-09-20 |
 | ./frontend/customer-memory-agent.md | Memory & Persistence Agent | Stable source-core, storage, and compaction conventions for the Batch 6 memory and persistence demo. | 2026-06-09 |
 | ./frontend/depth-video-tool.md | Depth Video Tool | Product and runtime boundary for the browser-local depth video processor. | 2026-09-20 |
-| ./frontend/feedback-agent.md | Feedback Agent | Native shadcn capture UI, upstream capture logic, private evidence storage, and copy boundaries for Feedback Agent. | 2026-09-23 |
+| ./frontend/feedback-agent.md | Feedback Agent | Native shadcn capture UI, upstream capture logic, private evidence storage, and copy boundaries for Feedback Agent. | 2026-09-24 |
 | ./frontend/generative-ui.md | Generative UI | Stable conventions for the Generative UI Agent Demo. | 2026-06-15 |
 | ./frontend/homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-09-21 |
 | ./frontend/image-workflow-agent.md | Image Workflow Agent | Stable UI, route, and copy-boundary conventions for the image workflow canvas demo. | 2026-08-20 |
@@ -76,5 +76,5 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./research/text-model-cost-research.md | 文本模型标价与任务成本研究 | GPT-4.1 mini、GPT-5 mini 与 GPT-5.6 Luna 的官方标价、Artificial Analysis 任务成本与比较边界。 | 2026-09-21 |
 | ./telemetry/DOCS.md | Telemetry Knowledge Protocol | Domain language and hard boundaries for deployed product analytics and runtime error logging. | 2026-08-17 |
 | ./telemetry/index.md | Telemetry | Navigation for deployed product analytics and runtime error logging knowledge. | 2026-08-17 |
-| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-20 |
+| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-22 |
 <!-- END:docs-generated-catalog -->

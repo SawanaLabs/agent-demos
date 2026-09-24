@@ -1,0 +1,77 @@
+@media (pointer: coarse), (max-width: 480px) {
+  .launcher {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .composer textarea {
+    font-size: 16px;
+  }
+
+  .composer button:not([role="switch"]),
+  .picker button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .composer[data-feedback-ui] {
+    top: auto;
+    right: 0;
+    bottom: var(--feedback-keyboard-inset, 0px);
+    left: 0;
+    width: 100%;
+    max-width: none;
+    max-height: var(--feedback-sheet-height, 85dvh);
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    border-radius: 20px 20px 0 0;
+    transform: none;
+    translate: none;
+    animation: none;
+  }
+
+  .composer textarea {
+    font-size: 16px;
+  }
+
+  .composer button:not([role="switch"]),
+  .picker button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .composer [data-slot="dialog-header"] {
+    padding-right: 40px;
+  }
+
+  .composer [data-slot="dialog-footer"] {
+    position: sticky;
+    bottom: -1px;
+    flex-direction: row;
+    padding-block: 8px;
+    background: var(--popover);
+  }
+
+  .composer [data-slot="dialog-footer"] > button {
+    flex: 1;
+  }
+
+  .picker[data-slot="card"] {
+    inset: 0 0 auto;
+    max-width: none;
+    padding-block: max(8px, env(safe-area-inset-top)) 8px;
+    border-radius: 0;
+  }
+
+  .picker [data-slot="card-content"] {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .pickerHint {
+    display: none;
+  }
+}

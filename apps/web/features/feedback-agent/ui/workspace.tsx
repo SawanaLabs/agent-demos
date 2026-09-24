@@ -158,7 +158,12 @@ export function FeedbackWorkspace({
             </div>
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-4">
-            <Button disabled={!ready} onClick={captureController.open}>
+            <Button
+              className="min-h-11"
+              data-feedback-ui="page-trigger"
+              disabled={!ready || captureController.phase !== "closed"}
+              onClick={captureController.open}
+            >
               <Crosshair size={16} />
               Feedback
             </Button>

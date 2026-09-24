@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { describeTarget } from "../client/capture";
 import type { Annotation } from "../upstream/types";
+import styles from "./feedback-mobile.module.css";
 
 export function ElementPicker({
   capturing,
@@ -97,7 +98,9 @@ export function ElementPicker({
           </Badge>
         </div>
       ) : null}
-      <Card className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl shadow-lg">
+      <Card
+        className={`${styles.picker} fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl shadow-lg`}
+      >
         <CardContent className="flex flex-wrap items-center gap-3">
           {capturing ? (
             <Loader2 className="animate-spin" size={16} />
@@ -110,7 +113,7 @@ export function ElementPicker({
                 ? "Capturing this view…"
                 : "Select an element on the page"}
             </p>
-            <p className="text-muted-foreground text-xs">
+            <p className={`${styles.pickerHint} text-muted-foreground text-xs`}>
               {capturing
                 ? "Your screenshot will open for review."
                 : "Click a target, or use Tab and Enter. Escape cancels."}

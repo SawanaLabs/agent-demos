@@ -1,7 +1,7 @@
 ---
 title: Feedback Agent
 description: Native shadcn capture UI, upstream capture logic, private evidence storage, and copy boundaries for Feedback Agent.
-updateAt: 2026-09-23
+updateAt: 2026-09-24
 ---
 
 # Feedback Agent
@@ -13,7 +13,8 @@ updateAt: 2026-09-23
 
 ## Current Rules
 
-- Keep the Feedback launcher docked to the right edge at mid-height, matching the original entry position. Rotate the vertical label so the text baseline faces the outside edge. Restyling the controls must not move the entry point.
+- Keep the right-edge vertical launcher on desktop mouse layouts. Hide it for coarse pointers and viewports up to 480px; the host must provide an in-page trigger. `FeedbackCollector` requires `renderTrigger` so copied collectors remain reachable on mobile. The demo uses its existing inbox Feedback button.
+- At widths up to 480px, use a full-width bottom sheet and a compact top selection bar. Keep the sheet inside the visual viewport above the soft keyboard, use 16px text inputs and 44px touch targets, and respect safe-area insets. Keep these adaptations feature-local in `feedback-mobile.module.css` and `use-feedback-viewport.ts`.
 - Build all capture controls with shared shadcn primitives and theme tokens. Keep React UI in `ui/`, capture/submission adapters in `client/`, and attributed MIT capture/privacy code in `upstream/`. Do not mount the upstream Shadow DOM widget or override its stylesheet.
 - Preserve upstream attribution and license. The native collector attaches its image at session creation; retain the separate screenshot endpoint for original SDK compatibility.
 - Selection dims the page with the shared overlay token and leaves the hovered/focused element clear. Keep the overlay pointer-transparent.

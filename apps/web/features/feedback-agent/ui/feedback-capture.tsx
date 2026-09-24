@@ -13,8 +13,10 @@ import { Switch } from "@workspace/ui/components/switch";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Crosshair, Loader2, MessageSquare, Send } from "lucide-react";
 import { ElementPicker } from "./element-picker";
+import styles from "./feedback-mobile.module.css";
 import { ScreenshotEditor } from "./screenshot-editor";
 import type { FeedbackCaptureController } from "./use-feedback-capture";
+import { useFeedbackViewport } from "./use-feedback-viewport";
 
 export function FeedbackCapture({
   controller: c,
@@ -24,11 +26,12 @@ export function FeedbackCapture({
   enabled: boolean;
 }) {
   const busy = c.phase === "submitting";
+  const viewportStyle = useFeedbackViewport(c.phase === "composing" || busy);
   return (
     <>
       {c.phase === "closed" ? (
         <Button
-          className="fixed top-1/2 right-0 z-40 h-auto -translate-y-1/2 flex-col rounded-r-none px-2 py-4 shadow-lg"
+          className={`${styles.launcher} fixed top-1/2 right-0 z-40 h-auto -translate-y-1/2 flex-col rounded-r-none px-2 py-4 shadow-lg`}
           data-feedback-ui="launcher"
           disabled={!enabled}
           onClick={c.open}
@@ -56,9 +59,10 @@ export function FeedbackCapture({
         open={c.phase === "composing" || busy}
       >
         <DialogContent
-          className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"
+          className={`${styles.composer} max-h-[90dvh] min-w-0 overflow-y-auto max-[481px]:translate-x-0 max-[481px]:translate-y-0 sm:max-w-xl`}
           data-feedback-ui="composer"
           showCloseButton={!busy}
+          style={viewportStyle}
         >
           <DialogHeader>
             <DialogTitle>Send feedback</DialogTitle>

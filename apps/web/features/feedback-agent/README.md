@@ -12,7 +12,7 @@ The headless capture code is adapted from the MIT [Make This Better widget](http
 
 ## Capture flow
 
-`ui/use-feedback-capture.ts` owns the flow; `ui/feedback-capture.tsx` renders it. The launcher stays at the original right edge, vertically centered, and opens element selection, including Tab/Enter and Escape. Selection captures the current viewport and opens a shadcn Dialog with a masked screenshot preview, description, optional screenshot switch, draw/undo controls, and reselect. Markup is baked into the saved image. Successful submission opens the saved report immediately.
+`ui/use-feedback-capture.ts` owns the flow; `ui/feedback-capture.tsx` renders it. On desktop mouse layouts, the launcher stays at the right edge, vertically centered. On touch devices and screens up to 480px, use the page’s own Feedback button. Both open element selection, including Tab/Enter and Escape. Selection captures the current viewport and opens a shadcn Dialog with a masked screenshot preview, description, optional screenshot switch, draw/undo controls, and reselect. Markup is baked into the saved image. Successful submission opens the saved report immediately. On screens up to 480px, the composer becomes a full-width bottom sheet above the software keyboard and selection uses a compact top bar. Touch controls keep 44px targets and text fields use 16px fonts.
 
 `client/capture.ts` adapts headless upstream code. `client/submission.ts` prepares evidence without making requests. The collector passes it to the required `onSubmit` callback and closes only when that promise resolves. A rejection displays the error and retains the draft. An unchanged retry reuses the same payload and idempotency key; edits create a new submission. The host must honor that key to prevent duplicate writes. `client/submit.ts` is this demo’s separate transport adapter: it attaches the image during session creation and then finalizes. Capture failures remain visible; the reporter can retake or explicitly send text only.
 
@@ -31,13 +31,14 @@ Open `/demos/feedback-agent`. Click Feedback, choose a sample-page element, revi
 
 ## Copy the collector into your application (no Redis required)
 
-Copy `upstream/` (including LICENSE), `client/capture.ts`, `client/submission.ts`, and these UI files: `feedback-collector.tsx`, `feedback-capture.tsx`, `use-feedback-capture.ts`, `element-picker.tsx`, `screenshot-editor.tsx`. Install `html-to-image@1.11.13` and `lucide-react`, and map `@workspace/ui` imports to your shadcn components. These are React client components; the screenshot editor uses `next/image` for a local, unoptimized preview. For other React frameworks, replace that with a native image element.
+Copy `upstream/` (including LICENSE), `client/capture.ts`, `client/submission.ts`, and these UI files: `feedback-collector.tsx`, `feedback-capture.tsx`, `use-feedback-capture.ts`, `element-picker.tsx`, `screenshot-editor.tsx`, `feedback-mobile.module.css`, and `use-feedback-viewport.ts`. Install `html-to-image@1.11.13` and `lucide-react`, and map `@workspace/ui` imports to your shadcn components. These are React client components; the screenshot editor uses `next/image` for a local, unoptimized preview. For other React frameworks, replace that with a native image element.
 
 Mount once in your client layout:
 
 ```tsx
 "use client";
 import { FeedbackCollector } from "@/features/feedback-agent/ui/feedback-collector";
+import { Button } from "@workspace/ui/components/button";
 
 export function SiteFeedback() {
   return <FeedbackCollector onSubmit={async ({ screenshot, ...evidence }) => {
@@ -46,7 +47,9 @@ export function SiteFeedback() {
     if (screenshot) body.set("screenshot", screenshot, "capture.jpg");
     const response = await fetch("/api/feedback", { method: "POST", body });
     if (!response.ok) throw new Error("Could not save feedback. Please retry.");
-  }} />;
+  }} renderTrigger={(props) => (
+    <Button {...props} data-feedback-ui="page-trigger">Feedback</Button>
+  )} />;
 }
 ```
 
@@ -92,3 +95,20 @@ pnpm typecheck
 ```
 
 The integration tests require an isolated Redis instance. They create randomly scoped, expiring test records.
+
+## Host-owned mobile entry
+
+`FeedbackCollector` requires `renderTrigger`. Place the collector where the host’s feedback button belongs, such as a help menu or page header. The render callback receives `onClick` and `disabled`; forward both to your control. The desktop edge launcher remains available, while touch and narrow layouts use this host-owned entry.
+
+```tsx
+<FeedbackCollector
+  onSubmit={saveFeedback}
+  renderTrigger={(props) => (
+    <Button {...props} data-feedback-ui="page-trigger">
+      Report a problem
+    </Button>
+  )}
+/>
+```
+
+Copy `feedback-mobile.module.css` and `use-feedback-viewport.ts` with the UI directory. The viewport hook adjusts only narrow-screen sheet geometry; capture and persistence contracts are unchanged.

@@ -11,6 +11,12 @@
 - 遇到可能由于网络原因导致的报错，应该先重试一次。
 - During this rapid iteration phase, use `main` as the default target branch for commits unless the user explicitly specifies otherwise.
 
+## UI styling
+
+- Prefer Tailwind utilities, variants, and arbitrary properties alongside the component JSX. Extract repeated UI structures into components instead of growing shared stylesheet files.
+- Keep global CSS for design tokens and base styles. Use component-local CSS only when Tailwind cannot express the requirement clearly; document that reason beside the rule.
+- Localize layout as well as text: account for each supported language's writing direction and script. Verify affected locales in the browser rather than limiting coverage to the user's examples.
+
 <!-- BEGIN:docs-system-rules -->
 # This is NOT the docs system you know
 

@@ -11,7 +11,7 @@ import {
 import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { Crosshair, Loader2, MessageSquare, Send } from "lucide-react";
+import { Crosshair, Loader2, Send } from "lucide-react";
 import { ElementPicker } from "./element-picker";
 import styles from "./feedback-mobile.module.css";
 import { ScreenshotEditor } from "./screenshot-editor";
@@ -36,10 +36,7 @@ export function FeedbackCapture({
           disabled={!enabled}
           onClick={c.open}
         >
-          <span className="rotate-180 [writing-mode:vertical-rl]">
-            Feedback
-          </span>
-          <MessageSquare className="-rotate-90" size={16} />
+          <span className="[writing-mode:vertical-rl]">Feedback</span>
         </Button>
       ) : null}
       {c.phase === "selecting" || c.phase === "capturing" ? (

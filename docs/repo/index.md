@@ -17,11 +17,13 @@ Use this domain when changing workspace layout, package boundaries, or root scri
 
 - [Monorepo](./monorepo.md): pnpm workspace layout, Turborepo tasks, and package ownership boundaries.
 - [Database Workflow](./database-workflow.md): Drizzle CLI sync rules, escalation path, and database-change guardrails.
+- [Branch Workflow](./branch-workflow.md): Dedicated worker branches, remote branch lifecycle, and the pull-request path into `main`.
 
 <!-- BEGIN:docs-generated-catalog -->
 | File | Title | Description | Updated |
 | --- | --- | --- | --- |
 | ./DOCS.md | Repo Knowledge Protocol | Domain-level language, reading path, and boundary principles for repository layout and workspace workflow. | 2026-05-26 |
+| ./branch-workflow.md | Branch Workflow | Durable conventions for dedicated worker branches and the pull-request path into main. | 2026-09-24 |
 | ./database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./monorepo.md | Monorepo | Durable conventions for the pnpm and Turborepo workspace structure. | 2026-06-02 |
 <!-- END:docs-generated-catalog -->

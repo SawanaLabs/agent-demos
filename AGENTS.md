@@ -10,6 +10,7 @@
 - Always use `uv` CLI first to manage Python environments instead of manually editing Python environment config.
 - 遇到可能由于网络原因导致的报错，应该先重试一次。
 - During this rapid iteration phase, use `main` as the default target branch for commits unless the user explicitly specifies otherwise.
+- Update `AGENTS.md` only when the user explicitly asks; otherwise keep durable conventions in the `docs/` system.
 
 <!-- BEGIN:docs-system-rules -->
 # This is NOT the docs system you know

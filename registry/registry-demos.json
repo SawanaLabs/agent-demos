@@ -19,6 +19,10 @@
     {
       "slug": "multi-agent-explorer",
       "reason": "Copy the feature slice and route entries; shadcn registry packaging is not published yet."
+    },
+    {
+      "slug": "agent-ux-primitives",
+      "reason": "UI-only showcase of agent UX primitives; not yet packaged as a registry item because the copy boundary needs a dedicated consumer-side AI Elements + shadcn setup path."
     }
   ],
   "demos": [

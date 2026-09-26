@@ -68,6 +68,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./quality/resource-abuse-privacy-review.md | Resource Abuse and Privacy Review | Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity. | 2026-06-04 |
 | ./quality/ultracite.md | Ultracite | Durable conventions for the repository's Ultracite and Biome quality gate. | 2026-06-08 |
 | ./repo/DOCS.md | Repo Knowledge Protocol | Domain-level language, reading path, and boundary principles for repository layout and workspace workflow. | 2026-05-26 |
+| ./repo/branch-workflow.md | Branch Workflow | Durable conventions for dedicated worker branches and the pull-request path into main. | 2026-09-24 |
 | ./repo/database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./repo/index.md | Repo | Navigation for repository layout and workflow knowledge. | 2026-05-21 |
 | ./repo/monorepo.md | Monorepo | Durable conventions for the pnpm and Turborepo workspace structure. | 2026-06-02 |
@@ -76,5 +77,5 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./research/text-model-cost-research.md | 文本模型标价与任务成本研究 | GPT-4.1 mini、GPT-5 mini 与 GPT-5.6 Luna 的官方标价、Artificial Analysis 任务成本与比较边界。 | 2026-09-21 |
 | ./telemetry/DOCS.md | Telemetry Knowledge Protocol | Domain language and hard boundaries for deployed product analytics and runtime error logging. | 2026-08-17 |
 | ./telemetry/index.md | Telemetry | Navigation for deployed product analytics and runtime error logging knowledge. | 2026-08-17 |
-| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-20 |
+| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-22 |
 <!-- END:docs-generated-catalog -->

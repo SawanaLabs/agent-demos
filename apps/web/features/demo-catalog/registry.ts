@@ -1,3 +1,4 @@
+import { agentUxPrimitivesDemoMeta } from "@/features/agent-ux-primitives/demo-meta";
 import { canvasAgentDemoMeta } from "@/features/canvas-agent/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
@@ -42,6 +43,7 @@ export const demoPatternLabels: Record<DemoPattern, string> = {
 };
 
 export const demoCatalogEntries: DemoCatalogEntry[] = [
+  agentUxPrimitivesDemoMeta,
   foundationChatDemoMeta,
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,

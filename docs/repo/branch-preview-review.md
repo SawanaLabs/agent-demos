@@ -17,6 +17,16 @@ updateAt: 2026-09-26
 - When a branch is pushed, Vercel creates a preview deployment and exposes a stable branch URL of the form `<project>-git-<branch>-<scope>.vercel.app`. That URL always points to the latest deployment on that branch.
 - Sawana will open that branch URL to review what is about to ship, especially when a new Agent Demo or a visible site change is about to land.
 
+## Concrete Values for This Repo
+
+- **Vercel project**: `ai-sdk-6-ai-elements-demos`
+- **Vercel scope / team slug**: `multicul-lives-projects`
+- **Production alias**: `agent-demos.hsawana9.com`
+- **Branch URL template**: `https://ai-sdk-6-ai-elements-demos-git-<branch>-multicul-lives-projects.vercel.app`
+- **Demo page on a branch**: append the demo path, e.g. `…/demos/<demo-slug>`
+
+When handing a URL to Sawana, always resolve the branch name into this template — do not leave `<project>` / `<scope>` placeholders, and do not guess a different scope.
+
 ## Working Rules
 
 - Agents preparing work for review push the branch to the connected Git remote so Vercel builds the preview. A draft PR is acceptable when it helps surface the preview link.

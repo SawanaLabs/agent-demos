@@ -15,6 +15,10 @@
     {
       "slug": "feedback-agent",
       "reason": "Copy the feature slice and route entries; shadcn registry packaging is not published yet."
+    },
+    {
+      "slug": "multi-agent-explorer",
+      "reason": "Copy the feature slice and route entries; shadcn registry packaging is not published yet."
     }
   ],
   "demos": [

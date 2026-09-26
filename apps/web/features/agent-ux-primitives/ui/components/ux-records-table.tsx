@@ -65,7 +65,7 @@ export function UxRecordsTable({ className }: { className?: string }) {
 
   return (
     <div className={cn("w-full overflow-x-auto", className)}>
-      <table className="w-full min-w-[480px] border-collapse text-left">
+      <table className="w-full border-collapse text-left">
         <thead>
           <tr>
             <th className="border-b px-2.5 py-2 font-medium text-[12px] text-muted-foreground">

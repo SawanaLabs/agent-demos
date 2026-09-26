@@ -87,12 +87,7 @@ export function UxDiffTable({ className }: { className?: string }) {
           </button>
         </div>
 
-        <table className="w-full table-fixed border-collapse text-left">
-          <colgroup>
-            <col className="w-[34%]" />
-            <col className="w-[30%]" />
-            <col className="w-[36%]" />
-          </colgroup>
+        <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b">
               {["Flavor", "Category", "Supplier"].map((heading) => (
@@ -136,7 +131,7 @@ export function UxDiffTable({ className }: { className?: string }) {
                   </td>
                   <td
                     className={cn(
-                      "whitespace-nowrap px-3 py-2 text-[12.5px] transition-colors duration-300",
+                      "px-3 py-2 text-[12.5px] transition-colors duration-300",
                       struck
                         ? "text-status-danger-600 line-through decoration-status-danger-500/50 dark:text-status-danger-300"
                         : "text-muted-foreground"

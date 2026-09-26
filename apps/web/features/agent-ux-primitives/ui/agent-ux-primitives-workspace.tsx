@@ -182,7 +182,10 @@ export function AgentUxPrimitivesWorkspace() {
     <div className="grid gap-6 p-4 md:grid-cols-2 md:p-6">
       {sections.map((section) => (
         <section
-          className={cn("flex flex-col gap-3", section.wide && "md:col-span-2")}
+          className={cn(
+            "flex min-w-0 flex-col gap-3",
+            section.wide && "md:col-span-2"
+          )}
           id={section.id}
           key={section.id}
         >

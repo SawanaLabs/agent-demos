@@ -11,7 +11,7 @@ export function AgentUxPrimitivesScreen() {
         badges={["ui-only", "copyable"]}
         breadcrumbTitle="Agent UX Primitives"
         headerFrame="card"
-        summary="A copyable showcase of agent UX primitives — prompt bar, thinking trace, streaming text, tool chips, and approval card — rebuilt on top of our shadcn + ai-elements base. Interaction patterns inspired by beautifului.dev; no source copied. Each component is self-contained and can be lifted into any compatible Next.js + shadcn + ai-elements project."
+        summary="A copyable showcase of all 19 beautifului.dev-inspired agent UX primitives — prompt bar, thinking trace, streaming text, chat, tables, nav, search, and more — rebuilt on top of our shadcn + ai-elements base. No source copied; each component is self-contained and can be lifted into any compatible Next.js + shadcn + ai-elements project."
         title="Agent UX primitives, ready to lift"
         workspaceClassName="lg:h-auto"
       >

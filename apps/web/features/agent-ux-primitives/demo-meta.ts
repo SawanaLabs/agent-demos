@@ -20,6 +20,6 @@ export const agentUxPrimitivesDemoMeta: DemoCatalogEntry = {
   publishedAt: "2026-09-26T10:00:00+08:00",
   status: "ready",
   summary:
-    "A copyable showcase of agent-UX primitives — interactive prompt bar, thinking trace, streaming text, tool-call chips, approval card, task rows, context cards, and a pixel loader — implemented on our ai-elements and shadcn base with beautifului.dev-inspired interaction patterns.",
+    "A copyable showcase of all 19 beautifului.dev-inspired agent-UX primitives — from prompt bar, thinking trace, and streaming text to tables, nav, search, and selection actions — implemented on our ai-elements and shadcn base.",
   title: "Agent UX Primitives",
 };

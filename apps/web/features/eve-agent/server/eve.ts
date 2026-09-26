@@ -34,7 +34,17 @@ export class EvePackageUnavailableError extends Error {
 async function importEveModule(): Promise<EveAgentModule> {
   const specifier: string = EVE_PACKAGE_SPECIFIER;
 
-  return (await import(specifier)) as EveAgentModule;
+  // Use Function constructor to bypass Turbopack/webpack static analysis:
+  // both bundlers will try to resolve `import(specifier)` at build time and
+  // fail when `eve` isn't installed — which is the *expected* state for this
+  // roadmap demo. Constructing the specifier opaquely lets the runtime
+  // resolve (or fail) lazily via `resolveEveSupport`'s missing-package path.
+  const dynamicImport = new Function(
+    "specifier",
+    "return import(specifier)"
+  ) as (s: string) => Promise<unknown>;
+
+  return (await dynamicImport(specifier)) as EveAgentModule;
 }
 
 function isModuleNotFound(error: unknown) {

@@ -23,6 +23,7 @@ describe("site analytics event contract", () => {
       "loop-agent": ["send_message"],
       "mcp-agent": ["send_message"],
       "minimal-chat-agent": ["send_message"],
+      "multi-agent-explorer": ["send_message"],
       "multimodal-chatbot": ["send_message"],
       "object-generation": ["generate_object"],
       "openai-agents-sdk-demo": ["send_message"],

@@ -73,6 +73,7 @@ describe("demo catalog registry", () => {
 
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(slugs).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -93,12 +94,14 @@ describe("demo catalog registry", () => {
       "openai-agents-sdk-demo",
       "trace-eval-agent",
       "ultra-chatbot-agent",
+      "multi-agent-explorer",
       "eve-agent",
     ]);
   });
 
   it("derives ready and roadmap groups from the shared catalog entries", () => {
     expect(readyDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -119,6 +122,7 @@ describe("demo catalog registry", () => {
       "openai-agents-sdk-demo",
       "trace-eval-agent",
       "ultra-chatbot-agent",
+      "multi-agent-explorer",
       "eve-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
@@ -141,6 +145,7 @@ describe("demo gallery visuals", () => {
     );
 
     expect(asciiEntries.map((entry) => entry.slug)).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -161,6 +166,7 @@ describe("demo gallery visuals", () => {
       "openai-agents-sdk-demo",
       "trace-eval-agent",
       "ultra-chatbot-agent",
+      "multi-agent-explorer",
       "eve-agent",
     ]);
     expect(
@@ -180,6 +186,11 @@ describe("demo gallery visuals", () => {
         slug: entry.slug,
       }))
     ).toEqual([
+      {
+        accent: "indigo",
+        label: "UX primitives",
+        slug: "agent-ux-primitives",
+      },
       {
         accent: "sky",
         label: "Base chat",
@@ -279,6 +290,11 @@ describe("demo gallery visuals", () => {
         accent: "violet",
         label: "App-shape port",
         slug: "ultra-chatbot-agent",
+      },
+      {
+        accent: "indigo",
+        label: "Lead + fan-out",
+        slug: "multi-agent-explorer",
       },
       {
         accent: "violet",

@@ -1,3 +1,4 @@
+import { agentUxPrimitivesDemoMeta } from "@/features/agent-ux-primitives/demo-meta";
 import { canvasAgentDemoMeta } from "@/features/canvas-agent/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
@@ -16,6 +17,7 @@ import { langGraphAgentDemoMeta } from "@/features/langgraph-agent/demo-meta";
 import { loopAgentDemoMeta } from "@/features/loop-agent/demo-meta";
 import { mcpAgentDemoMeta } from "@/features/mcp-agent/demo-meta";
 import { minimalChatAgentDemoMeta } from "@/features/minimal-chat-agent/demo-meta";
+import { multiAgentExplorerDemoMeta } from "@/features/multi-agent-explorer/demo-meta";
 import { multimodalChatbotDemoMeta } from "@/features/multimodal-chatbot/demo-meta";
 import { objectGenerationDemoMeta } from "@/features/object-generation/demo-meta";
 import { openAiAgentsSdkDemoMeta } from "@/features/openai-agents-sdk-demo/demo-meta";
@@ -42,6 +44,7 @@ export const demoPatternLabels: Record<DemoPattern, string> = {
 };
 
 export const demoCatalogEntries: DemoCatalogEntry[] = [
+  agentUxPrimitivesDemoMeta,
   foundationChatDemoMeta,
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
@@ -62,6 +65,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   openAiAgentsSdkDemoMeta,
   traceEvalAgentDemoMeta,
   ultraChatbotAgentDemoMeta,
+  multiAgentExplorerDemoMeta,
   eveAgentDemoMeta,
 ];
 

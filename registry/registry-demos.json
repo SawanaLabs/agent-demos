@@ -15,6 +15,10 @@
     {
       "slug": "feedback-agent",
       "reason": "Copy the feature slice and route entries; shadcn registry packaging is not published yet."
+    },
+    {
+      "slug": "eve-agent",
+      "reason": "eve runtime mounts the agent as a peer Vercel service via withEve in vercel.ts; the filesystem agent lives under agents/service-triage/ and is not yet packaged for registry export."
     }
   ],
   "demos": [

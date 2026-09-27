@@ -5,9 +5,9 @@ export const eveAgentDemoMeta: DemoCatalogEntry = {
     accent: "violet",
     ascii: [
       "╭───────────╮",
-      "│ ┌─think─┐ │",
+      "│ ┌───────┐ │",
       "│ ↓       │ │",
-      "│ obs   act │",
+      "│ ◇     ▶ │ │",
       "│ └◄──────┘ │",
       "╰───────────╯",
     ].join("\n"),

@@ -57,12 +57,6 @@ const samplePrompts = [
   "Compare the regions hosting billing and media-pipeline.",
 ] as const;
 
-const eveStatusLabels = {
-  failed: "eve package failed to load",
-  missing: "eve package not installed",
-  ready: "eve package loaded",
-} as const;
-
 function getToolStatusLabel(state: string) {
   if (state === "output-available") {
     return "Completed";
@@ -139,21 +133,7 @@ function ToolCallCard({ part }: { part: ProjectedToolPart }) {
   );
 }
 
-export interface EveAgentWorkspaceProps {
-  chatModel: string;
-  eveStatus: "failed" | "missing" | "ready";
-  isChatAvailable: boolean;
-  nodeVersion: string;
-  setupMessage: string | null;
-}
-
-export function EveAgentWorkspace({
-  chatModel,
-  eveStatus,
-  isChatAvailable,
-  nodeVersion,
-  setupMessage,
-}: EveAgentWorkspaceProps) {
+export function EveAgentWorkspace() {
   const {
     clearError,
     error,
@@ -173,15 +153,6 @@ export function EveAgentWorkspace({
   return (
     <div className="grid min-h-[72svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_19rem]">
       <Card className="min-h-[72svh] gap-0 overflow-hidden bg-background py-0 text-base text-foreground leading-normal lg:h-full lg:min-h-0">
-        {isChatAvailable ? null : (
-          <>
-            <div className="px-4 py-3 text-muted-foreground text-xs/relaxed">
-              {setupMessage}
-            </div>
-            <Separator />
-          </>
-        )}
-
         <Conversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
@@ -230,7 +201,7 @@ export function EveAgentWorkspace({
                 {error ? (
                   <ConversationErrorMessage
                     error={error}
-                    isRetryDisabled={isBusy || !isChatAvailable}
+                    isRetryDisabled={isBusy}
                     onRetry={retryConversationError}
                   />
                 ) : null}
@@ -252,7 +223,7 @@ export function EveAgentWorkspace({
             <PromptInput onSubmit={({ text }) => sendMessage({ text })}>
               <PromptInputBody>
                 <PromptInputTextarea
-                  disabled={!isChatAvailable || isBusy}
+                  disabled={isBusy}
                   placeholder="Ask about a service, its region, or current health."
                 />
               </PromptInputBody>
@@ -286,10 +257,7 @@ export function EveAgentWorkspace({
                       Retry
                     </Button>
                   ) : null}
-                  <PromptInputSubmit
-                    disabled={!isChatAvailable}
-                    status={status}
-                  />
+                  <PromptInputSubmit disabled={false} status={status} />
                 </div>
               </PromptInputFooter>
             </PromptInput>
@@ -299,7 +267,7 @@ export function EveAgentWorkspace({
                 {samplePrompts.map((prompt) => (
                   <Button
                     className="h-auto min-h-16 justify-start whitespace-normal px-3 py-2 text-left text-xs/relaxed"
-                    disabled={!isChatAvailable || isBusy}
+                    disabled={isBusy}
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}
                     type="button"
@@ -348,17 +316,16 @@ export function EveAgentWorkspace({
               </div>
             </div>
           </div>
-          <Separator />
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Runtime
+              Workspace
             </p>
-            <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
+            <p className="mt-1 font-medium text-sm">agents/service-triage</p>
             <p className="mt-1 break-all font-mono text-muted-foreground text-xs">
-              {chatModel}
+              /eve/service-triage/v1/*
             </p>
             <p className="mt-1 text-muted-foreground text-xs">
-              {eveStatusLabels[eveStatus]}
+              openai/gpt-5-mini · via AI Gateway
             </p>
           </div>
         </div>

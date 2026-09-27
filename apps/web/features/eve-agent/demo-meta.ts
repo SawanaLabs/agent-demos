@@ -14,10 +14,12 @@ export const eveAgentDemoMeta: DemoCatalogEntry = {
     label: "Eve agent loop",
   },
   pattern: "loop",
+  publishedAt: "2026-09-27",
   slug: "eve-agent",
   source: "vercel/eve",
-  status: "roadmap",
+  status: "ready",
+  href: "/demos/eve-agent",
   summary:
-    "WIP: a service-triage chat agent on Vercel's eve framework (beta) that looks up services, checks region health, and answers through the eve agent loop. The slice, route, and workspace are complete; the eve package install and adapter verification are pending.",
+    "A service-triage chat agent on Vercel's eve framework — agent files live in agents/service-triage/ (filesystem-first: agent.ts, instructions.md, tools/), deployed as a peer Vercel service via withEve in vercel.ts, reachable at /eve/service-triage/v1/*.",
   title: "Eve Agent",
 };

@@ -10,3 +10,5 @@ allowBuilds:
   onnxruntime-node: false
   protobufjs: false
   sharp: true
+minimumReleaseAgeExclude:
+  - eve@0.67.1

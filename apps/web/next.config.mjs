@@ -1,6 +1,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { withEve } from "eve/next";
+
 const webDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(webDirectory, "../..");
 const workspaceSkillTraceIncludes = [
@@ -31,4 +33,4 @@ const nextConfig = {
   transpilePackages: ["@workspace/ui"],
 };
 
-export default nextConfig;
+export default withEve(nextConfig, { eveRoot: repoRoot });

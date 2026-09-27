@@ -8,6 +8,7 @@ import type {
   ReadyDemoCatalogEntry,
   RoadmapDemoCatalogEntry,
 } from "@/features/demo-catalog/types";
+import { eveAgentDemoMeta } from "@/features/eve-agent/demo-meta";
 import { feedbackAgentDemoMeta } from "@/features/feedback-agent/demo-meta";
 import { foundationChatDemoMeta } from "@/features/foundation-chat/demo-meta";
 import { generativeUiDemoMeta } from "@/features/generative-ui/demo-meta";
@@ -65,6 +66,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   traceEvalAgentDemoMeta,
   ultraChatbotAgentDemoMeta,
   multiAgentExplorerDemoMeta,
+  eveAgentDemoMeta,
 ];
 
 export const readyDemoCatalogEntries: ReadyDemoCatalogEntry[] =

@@ -6,7 +6,9 @@ allowBuilds:
   core-js-pure: true
   esbuild: true
   msw: true
-  node-liblzma: true
+  node-liblzma: false
   onnxruntime-node: false
   protobufjs: false
   sharp: true
+minimumReleaseAgeExclude:
+  - eve@0.67.1

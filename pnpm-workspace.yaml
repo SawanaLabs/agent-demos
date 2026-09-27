@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "agents/*"
 allowBuilds:
   '@mongodb-js/zstd': true
   core-js-pure: true

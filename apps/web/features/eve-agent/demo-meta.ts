@@ -14,7 +14,7 @@ export const eveAgentDemoMeta: DemoCatalogEntry = {
     label: "Eve agent loop",
   },
   pattern: "loop",
-  publishedAt: "2026-09-27",
+  publishedAt: "2026-09-27T14:00:00+08:00",
   slug: "eve-agent",
   source: "vercel/eve",
   status: "ready",

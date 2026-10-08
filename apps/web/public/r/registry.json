@@ -3217,6 +3217,113 @@
       },
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure AI Gateway, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families.",
       "type": "registry:block"
+    },
+    {
+      "name": "cloudflare-ai-gateway",
+      "title": "Cloudflare AI Gateway",
+      "description": "AI SDK 6 image generation and reference editing through Cloudflare native OpenAI and Google routes, with request receipts and explicit cost estimates.",
+      "dependencies": [
+        "ai@^6.0.188",
+        "@ai-sdk/openai@^3.0.65",
+        "@ai-sdk/google@^3.0.65",
+        "zod@^4.4.3",
+        "server-only",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "input",
+        "label",
+        "textarea"
+      ],
+      "files": [
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/env.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/env-source.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/receipt.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/receipt.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/generate.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/generate.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/runtime.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-screen.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-workspace.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-results.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-results.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/use-gateway-workspace.ts",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/use-gateway-workspace.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/app/demos/cloudflare-ai-gateway/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/cloudflare-ai-gateway/page.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/app/api/demos/cloudflare-ai-gateway/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/cloudflare-ai-gateway/route.ts"
+        }
+      ],
+      "envVars": {
+        "CLOUDFLARE_ACCOUNT_ID": "",
+        "CLOUDFLARE_AI_GATEWAY_ID": "",
+        "CLOUDFLARE_AI_GATEWAY_TOKEN": "",
+        "CLOUDFLARE_AI_GATEWAY_AUTH_MODE": "byok",
+        "CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS": "",
+        "CLOUDFLARE_OPENAI_API_KEY": "",
+        "CLOUDFLARE_GOOGLE_API_KEY": "",
+        "CLOUDFLARE_API_TOKEN": ""
+      },
+      "docs": "Install into a shadcn Next.js App Router project. Open /demos/cloudflare-ai-gateway. The default request BYOK mode needs provider keys; stored-byok and unified-billing remove provider headers. Cost log lookup is optional and estimated, with actual charge unavailable. Registry source contains no host telemetry or usage gate.",
+      "type": "registry:block"
     }
   ]
 }

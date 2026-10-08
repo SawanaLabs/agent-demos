@@ -12,6 +12,7 @@ export interface RuntimeErrorContext {
     | "window_error";
   readonly demo_slug?:
     | "canvas-agent"
+    | "cloudflare-ai-gateway"
     | "customer-memory-agent"
     | "feedback-agent"
     | "foundation-chat"
@@ -64,6 +65,7 @@ interface RuntimeErrorLoggerOptions<Events extends readonly string[]> {
 const labelPattern = /^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$/u;
 const allowedDemoSlugs = new Set([
   "canvas-agent",
+  "cloudflare-ai-gateway",
   "customer-memory-agent",
   "feedback-agent",
   "foundation-chat",

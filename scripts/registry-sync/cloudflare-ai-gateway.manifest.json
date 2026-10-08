@@ -1,0 +1,204 @@
+{
+  "demo": "cloudflare-ai-gateway",
+  "entries": [
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/contract.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/contract.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/env.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/env-source.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env-source.ts",
+      "transforms": [
+        {
+          "from": "import { env as appEnv } from \"@/env\";\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "function getGatewayAppEnv() {\n  return appEnv;\n}",
+          "to": "function getGatewayAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Consumer apps supply their own server environment.\n  return process.env;\n}",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/receipt.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/receipt.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/generate.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/generate.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/runtime.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/runtime.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/ui/gateway-screen.tsx",
+      "target": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-screen.tsx",
+      "transforms": [
+        {
+          "from": "from \"../server/env\";",
+          "to": "from \"@/lib/cloudflare-ai-gateway/server/env\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/ui/gateway-workspace.tsx",
+      "target": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-workspace.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/input\";",
+          "to": "from \"@/components/ui/input\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/label\";",
+          "to": "from \"@/components/ui/label\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"@workspace/ui/components/textarea\";",
+          "to": "from \"@/components/ui/textarea\";",
+          "expectedMatches": 1
+        },
+        {
+          "from": "from \"../contract\";",
+          "to": "from \"@/lib/cloudflare-ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/ui/gateway-results.tsx",
+      "target": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/gateway-results.tsx",
+      "transforms": [
+        {
+          "from": "from \"../contract\";",
+          "to": "from \"@/lib/cloudflare-ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/features/cloudflare-ai-gateway/ui/use-gateway-workspace.ts",
+      "target": "registry/cloudflare-ai-gateway/components/cloudflare-ai-gateway/use-gateway-workspace.ts",
+      "transforms": [
+        {
+          "from": "from \"../contract\";",
+          "to": "from \"@/lib/cloudflare-ai-gateway/contract\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
+      "source": "apps/web/app/demos/cloudflare-ai-gateway/page.tsx",
+      "target": "registry/cloudflare-ai-gateway/app/demos/cloudflare-ai-gateway/page.tsx",
+      "transforms": [
+        {
+          "from": "from \"@/features/cloudflare-ai-gateway/ui/gateway-screen\";",
+          "to": "from \"@/components/cloudflare-ai-gateway/gateway-screen\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ export const acceptedDemoActionHeader = "x-agent-demo-action";
 
 export const demoActionCatalog = {
   "canvas-agent": ["send_message"],
+  "cloudflare-ai-gateway": ["generate_image"],
   "customer-memory-agent": ["compact_context", "send_message"],
   "feedback-agent": ["send_message"],
   "foundation-chat": ["send_message"],

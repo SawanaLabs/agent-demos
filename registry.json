@@ -19,6 +19,7 @@
     "registry/mcp-agent/registry.json",
     "registry/openai-agents-sdk-demo/registry.json",
     "registry/langgraph-agent/registry.json",
-    "registry/ultra-chatbot-agent/registry.json"
+    "registry/ultra-chatbot-agent/registry.json",
+    "registry/cloudflare-ai-gateway/registry.json"
   ]
 }

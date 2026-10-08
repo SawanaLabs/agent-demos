@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { canvasAgentDemoMeta } from "../canvas-agent/demo-meta.ts";
+import { cloudflareAiGatewayDemoMeta } from "../cloudflare-ai-gateway/demo-meta.ts";
 import { customerMemoryAgentDemoMeta } from "../customer-memory-agent/demo-meta.ts";
 import { feedbackAgentDemoMeta } from "../feedback-agent/demo-meta.ts";
 import { foundationChatDemoMeta } from "../foundation-chat/demo-meta.ts";
@@ -56,6 +57,7 @@ const currentDemoCatalogEntries = [
   openAiAgentsSdkDemoMeta,
   traceEvalAgentDemoMeta,
   ultraChatbotAgentDemoMeta,
+  cloudflareAiGatewayDemoMeta,
 ];
 
 test("current registry manifest classifies every ready catalog demo", () => {
@@ -65,7 +67,7 @@ test("current registry manifest classifies every ready catalog demo", () => {
   });
 
   assert.equal(availability.mainlineRegistryDemo.slug, "foundation-chat");
-  assert.equal(availability.publicRegistryDemos.length, 17);
+  assert.equal(availability.publicRegistryDemos.length, 18);
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),

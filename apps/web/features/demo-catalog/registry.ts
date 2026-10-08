@@ -1,4 +1,5 @@
 import { canvasAgentDemoMeta } from "@/features/canvas-agent/demo-meta";
+import { cloudflareAiGatewayDemoMeta } from "@/features/cloudflare-ai-gateway/demo-meta";
 import { customerMemoryAgentDemoMeta } from "@/features/customer-memory-agent/demo-meta";
 import type {
   DemoCatalogEntry,
@@ -61,6 +62,7 @@ export const demoCatalogEntries: DemoCatalogEntry[] = [
   openAiAgentsSdkDemoMeta,
   traceEvalAgentDemoMeta,
   ultraChatbotAgentDemoMeta,
+  cloudflareAiGatewayDemoMeta,
 ];
 
 export const readyDemoCatalogEntries: ReadyDemoCatalogEntry[] =

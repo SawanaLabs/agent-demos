@@ -1,4 +1,5 @@
 import { createEnv } from "@t3-oss/env-nextjs";
+import { keys as cloudflareGateway } from "@/features/cloudflare-ai-gateway/server/keys";
 import { keys as langGraphAgent } from "@/features/langgraph-agent/server/keys";
 import { keys as aiGateway } from "@/features/shared/ai-gateway/server/keys";
 import { keys as cron } from "@/features/shared/cron/server/keys";
@@ -14,6 +15,7 @@ function createAppEnv() {
   return createEnv({
     extends: [
       aiGateway(),
+      cloudflareGateway(),
       cron(),
       database(),
       langGraphAgent(),

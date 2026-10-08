@@ -10,6 +10,7 @@ describe("site analytics event contract", () => {
   it("keeps the first demo action vocabulary finite and low-cardinality", () => {
     expect(demoActionCatalog).toEqual({
       "canvas-agent": ["send_message"],
+      "cloudflare-ai-gateway": ["generate_image"],
       "customer-memory-agent": ["compact_context", "send_message"],
       "feedback-agent": ["send_message"],
       "foundation-chat": ["send_message"],

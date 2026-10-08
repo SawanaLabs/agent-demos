@@ -137,6 +137,13 @@
       "registryPath": "registry/ultra-chatbot-agent/registry.json",
       "publicRegistry": true,
       "setup": "Complete full-stack Ultra install. Configure AI Gateway, Postgres, Redis, Vercel Blob, and Vercel Sandbox credentials. AI Gateway, Postgres, and Redis drive the main chat happy path; Blob and Sandbox drive Ultra uploads and sandbox execution."
+    },
+    {
+      "slug": "cloudflare-ai-gateway",
+      "title": "Cloudflare AI Gateway",
+      "registryPath": "registry/cloudflare-ai-gateway/registry.json",
+      "publicRegistry": true,
+      "setup": "Cloudflare native provider routes. Configure account ID, gateway ID and gateway token; choose request BYOK, stored BYOK or Unified Billing. No Vercel Gateway credentials required."
     }
   ]
 }

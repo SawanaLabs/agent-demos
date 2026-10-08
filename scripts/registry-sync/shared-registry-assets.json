@@ -16,12 +16,50 @@
           "to": "  const major = Number(match?.[1]);\n  const minor = Number(match?.[2]);\n  const patch = Number(match?.[3]);",
           "expectedMatches": 1
         }
+      ],
+      "demos": [
+        "foundation-chat",
+        "rag-chatbot",
+        "multimodal-chatbot",
+        "object-generation",
+        "generative-ui",
+        "minimal-chat-agent",
+        "customer-memory-agent",
+        "streaming-chat-shell",
+        "loop-agent",
+        "trace-eval-agent",
+        "persistent-agent",
+        "sandbox-agent",
+        "skills-agent",
+        "mcp-agent",
+        "openai-agents-sdk-demo",
+        "langgraph-agent",
+        "ultra-chatbot-agent"
       ]
     },
     {
       "name": "ai-elements-prompt-input",
       "source": "registry/_shared/components/ai-elements/prompt-input.tsx",
-      "target": "components/ai-elements/prompt-input.tsx"
+      "target": "components/ai-elements/prompt-input.tsx",
+      "demos": [
+        "foundation-chat",
+        "rag-chatbot",
+        "multimodal-chatbot",
+        "object-generation",
+        "generative-ui",
+        "minimal-chat-agent",
+        "customer-memory-agent",
+        "streaming-chat-shell",
+        "loop-agent",
+        "trace-eval-agent",
+        "persistent-agent",
+        "sandbox-agent",
+        "skills-agent",
+        "mcp-agent",
+        "openai-agents-sdk-demo",
+        "langgraph-agent",
+        "ultra-chatbot-agent"
+      ]
     },
     {
       "name": "demo-breadcrumb",
@@ -31,7 +69,8 @@
         "langgraph-agent",
         "minimal-chat-agent",
         "openai-agents-sdk-demo",
-        "ultra-chatbot-agent"
+        "ultra-chatbot-agent",
+        "cloudflare-ai-gateway"
       ],
       "source": "apps/web/components/demo-breadcrumb.tsx",
       "target": "components/demo-breadcrumb.tsx",
@@ -57,7 +96,8 @@
         "langgraph-agent",
         "minimal-chat-agent",
         "openai-agents-sdk-demo",
-        "ultra-chatbot-agent"
+        "ultra-chatbot-agent",
+        "cloudflare-ai-gateway"
       ],
       "source": "apps/web/components/demo-workspace-shell.tsx",
       "target": "components/demo-workspace-shell.tsx",

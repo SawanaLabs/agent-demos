@@ -1,0 +1,112 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "cloudflare-ai-gateway",
+      "type": "registry:block",
+      "title": "Cloudflare AI Gateway",
+      "description": "AI SDK 6 image generation and reference editing through Cloudflare native OpenAI and Google routes, with request receipts and explicit cost estimates.",
+      "dependencies": [
+        "ai@^6.0.188",
+        "@ai-sdk/openai@^3.0.65",
+        "@ai-sdk/google@^3.0.65",
+        "zod@^4.4.3",
+        "server-only",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils",
+        "badge",
+        "breadcrumb",
+        "button",
+        "card",
+        "input",
+        "label",
+        "textarea"
+      ],
+      "envVars": {
+        "CLOUDFLARE_ACCOUNT_ID": "",
+        "CLOUDFLARE_AI_GATEWAY_ID": "",
+        "CLOUDFLARE_AI_GATEWAY_TOKEN": "",
+        "CLOUDFLARE_AI_GATEWAY_AUTH_MODE": "byok",
+        "CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS": "",
+        "CLOUDFLARE_OPENAI_API_KEY": "",
+        "CLOUDFLARE_GOOGLE_API_KEY": "",
+        "CLOUDFLARE_API_TOKEN": ""
+      },
+      "files": [
+        {
+          "path": "lib/cloudflare-ai-gateway/contract.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/cloudflare-ai-gateway/server/env.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/env.ts"
+        },
+        {
+          "path": "lib/cloudflare-ai-gateway/server/env-source.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/env-source.ts"
+        },
+        {
+          "path": "lib/cloudflare-ai-gateway/server/receipt.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/receipt.ts"
+        },
+        {
+          "path": "lib/cloudflare-ai-gateway/server/generate.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/generate.ts"
+        },
+        {
+          "path": "lib/cloudflare-ai-gateway/server/runtime.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/runtime.ts"
+        },
+        {
+          "path": "components/cloudflare-ai-gateway/gateway-screen.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-screen.tsx"
+        },
+        {
+          "path": "components/cloudflare-ai-gateway/gateway-workspace.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-workspace.tsx"
+        },
+        {
+          "path": "components/cloudflare-ai-gateway/gateway-results.tsx",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/gateway-results.tsx"
+        },
+        {
+          "path": "components/cloudflare-ai-gateway/use-gateway-workspace.ts",
+          "type": "registry:component",
+          "target": "@components/cloudflare-ai-gateway/use-gateway-workspace.ts"
+        },
+        {
+          "path": "app/demos/cloudflare-ai-gateway/page.tsx",
+          "type": "registry:page",
+          "target": "app/demos/cloudflare-ai-gateway/page.tsx"
+        },
+        {
+          "path": "components/demo-workspace-shell.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "components/demo-breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-breadcrumb.tsx"
+        },
+        {
+          "path": "app/api/demos/cloudflare-ai-gateway/route.ts",
+          "type": "registry:page",
+          "target": "app/api/demos/cloudflare-ai-gateway/route.ts"
+        }
+      ],
+      "docs": "Install into a shadcn Next.js App Router project. Open /demos/cloudflare-ai-gateway. The default request BYOK mode needs provider keys; stored-byok and unified-billing remove provider headers. Cost log lookup is optional and estimated, with actual charge unavailable. Registry source contains no host telemetry or usage gate."
+    }
+  ]
+}

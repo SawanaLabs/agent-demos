@@ -7,11 +7,12 @@ function getGatewayAppEnv() {
 }
 
 const source = getGatewayAppEnv();
+const gateway = z
+  .enum(imageGateways)
+  .default("cloudflare")
+  .parse(source.IMAGE_GATEWAY || undefined);
 export const env = {
-  IMAGE_GATEWAY: z
-    .enum(imageGateways)
-    .default("cloudflare")
-    .parse(source.IMAGE_GATEWAY || undefined),
+  IMAGE_GATEWAY: gateway,
   AI_GATEWAY_API_KEY: source.AI_GATEWAY_API_KEY || undefined,
   CLOUDFLARE_ACCOUNT_ID: source.CLOUDFLARE_ACCOUNT_ID || undefined,
   CLOUDFLARE_AI_GATEWAY_ID: source.CLOUDFLARE_AI_GATEWAY_ID || undefined,
@@ -19,7 +20,11 @@ export const env = {
   CLOUDFLARE_AI_GATEWAY_AUTH_MODE: z
     .enum(authModes)
     .default("byok")
-    .parse(source.CLOUDFLARE_AI_GATEWAY_AUTH_MODE || undefined),
+    .parse(
+      gateway === "cloudflare"
+        ? source.CLOUDFLARE_AI_GATEWAY_AUTH_MODE || undefined
+        : undefined
+    ),
   CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS:
     source.CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS || undefined,
   CLOUDFLARE_OPENAI_API_KEY: source.CLOUDFLARE_OPENAI_API_KEY || undefined,

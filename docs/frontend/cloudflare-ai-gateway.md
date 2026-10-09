@@ -20,6 +20,8 @@ The external Interface is `ImageGenerator = (request: GatewayRequest) => Promise
 
 `IMAGE_GATEWAY=cloudflare|vercel` selects the Adapter and defaults to `cloudflare`. Restart or redeploy after changing environment configuration. Invalid values fail environment validation. A programmatic caller can construct either Adapter with the discriminated `ImageGeneratorConfig` from `server/config.ts`.
 
+Cloudflare authentication mode is validated only when Cloudflare is selected, in both the host environment contract and the portable environment adapter. Selecting Vercel ignores unused Cloudflare authentication configuration; selecting Cloudflare still rejects invalid modes.
+
 `server/generate.ts` keeps the two Adapters private and shares the generation Implementation. It hides model ID mapping, credentials, SDK model construction, reference encoding, request identity and cost retrieval. Both Adapters accept logical model IDs `gpt-image-2` and `gemini-3.1-flash-image`; Vercel maps these to `openai/gpt-image-2` and `google/gemini-3.1-flash-image`. Changing the gateway leaves prompts, references, image output and the caller unchanged.
 
 The Interface returns image bytes as base64 plus media type and a receipt. It has no storage, credit or history effects. Provider failures throw `GatewayGenerationError` with the receipt and original cause; a text-only Gemini response is an explicit error. Model calls have a 120-second timeout, no application retry and no application gateway fallback. Cost retrieval adds at most five seconds; missing or failed cost evidence is returned explicitly without discarding an image.
@@ -63,7 +65,7 @@ Cloudflare's current Unified Billing documentation states a 5% charge on purchas
 Keep these fields distinct:
 
 - `gateway` identifies the selected Adapter; `requestedModel` is the logical model ID. `provider` is the requested `openai` or `google` provider; lookup record metadata identifies the provider reported by the gateway.
-- `gatewayRequestId` is Cloudflare’s `cf-aig-log-id` or Vercel’s `providerMetadata.gateway.generationId`. Vercel errors also preserve `generationId` from the SDK cause chain. Cloudflare `eventId` and `cacheStatus` come from response headers. Missing values stay null.
+- `gatewayRequestId` is Cloudflare’s `cf-aig-log-id` or Vercel’s `providerMetadata.gateway.generationId`. Vercel image middleware captures the ID before AI SDK can discard metadata on an empty-image error. Vercel errors also preserve `generationId` from the SDK cause chain. Cloudflare `eventId` and `cacheStatus` come from response headers. Missing values stay null.
 - `providerRequestId` comes from the `x-request-id` header when present.
 - `providerResponseId` and `servedModel` come only from Google's raw `responseId` and `modelVersion`. Missing values stay null. AI SDK-generated IDs and requested model names are excluded from these fields.
 - `credentialMode` is the configured Cloudflare request mode or `gateway-managed` for Vercel. `costLookup.isByok` preserves Vercel’s lookup evidence; Cloudflare leaves it null. Request mode alone does not establish the resolved credential source.

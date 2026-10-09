@@ -378,6 +378,33 @@ describe("ImageGenerator Seam (real SDKs, synthetic HTTP responses)", () => {
     expect(result.receipt.actualCostUsd).toBeNull();
     expect(result.receipt.credentialMode).toBe("gateway-managed");
   });
+});
+
+describe("ImageGenerator error receipts", () => {
+  it("keeps Vercel request identity and cost when the SDK rejects an empty image response", async () => {
+    const transport = vi.fn(async (url: string | URL | Request) =>
+      Response.json(
+        String(url).includes("/v1/generation?")
+          ? generationInfo()
+          : {
+              images: [],
+              providerMetadata: { gateway: { generationId: "gen-1" } },
+            }
+      )
+    );
+    await expect(
+      run({ model: "gpt-image-2", prompt: "Mug" }, vercelConfig, transport)
+    ).rejects.toMatchObject({
+      name: "GatewayGenerationError",
+      receipt: {
+        gateway: "vercel",
+        gatewayRequestId: "gen-1",
+        httpStatus: 200,
+        costLookup: { status: "available", reportedUsd: 0.01 },
+      },
+      cause: { name: "AI_NoImageGeneratedError" },
+    });
+  });
 
   it("keeps Vercel error IDs without retrying or switching gateways", async () => {
     const transport = vi.fn(async (url: string | URL | Request) =>

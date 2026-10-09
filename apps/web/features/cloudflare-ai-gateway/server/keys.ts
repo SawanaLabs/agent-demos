@@ -22,7 +22,9 @@ export const keys = () =>
       CLOUDFLARE_AI_GATEWAY_ID: process.env.CLOUDFLARE_AI_GATEWAY_ID,
       CLOUDFLARE_AI_GATEWAY_TOKEN: process.env.CLOUDFLARE_AI_GATEWAY_TOKEN,
       CLOUDFLARE_AI_GATEWAY_AUTH_MODE:
-        process.env.CLOUDFLARE_AI_GATEWAY_AUTH_MODE,
+        process.env.IMAGE_GATEWAY === "vercel"
+          ? undefined
+          : process.env.CLOUDFLARE_AI_GATEWAY_AUTH_MODE,
       CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS:
         process.env.CLOUDFLARE_AI_GATEWAY_BYOK_ALIAS,
       CLOUDFLARE_OPENAI_API_KEY: process.env.CLOUDFLARE_OPENAI_API_KEY,

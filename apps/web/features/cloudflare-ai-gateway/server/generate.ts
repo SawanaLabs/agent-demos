@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
-import { createGateway, generateImage, generateText } from "ai";
+import { createGateway, generateImage, generateText, wrapImageModel } from "ai";
 import { z } from "zod";
 import {
   type CostLookup,
@@ -133,22 +133,34 @@ function vercelAdapter(
       return response;
     },
   });
+  function captureResult(metadata: unknown) {
+    const parsed = z
+      .object({
+        gateway: z.object({ generationId: z.string().optional() }).optional(),
+      })
+      .safeParse(metadata);
+    receipt.gatewayRequestId = parsed.success
+      ? (parsed.data.gateway?.generationId ?? null)
+      : null;
+  }
   return {
-    imageModel: gateway.image("openai/gpt-image-2"),
+    imageModel: wrapImageModel({
+      model: gateway.image("openai/gpt-image-2"),
+      middleware: {
+        specificationVersion: "v3",
+        async wrapGenerate({ doGenerate }) {
+          const result = await doGenerate();
+          // generateImage discards provider metadata when it rejects an empty result.
+          captureResult(result.providerMetadata);
+          return result;
+        },
+      },
+    }),
     languageModel: gateway("google/gemini-3.1-flash-image"),
     providerOptions: {
       gateway: { only: [receipt.provider] },
     },
-    captureResult(metadata: unknown) {
-      const parsed = z
-        .object({
-          gateway: z.object({ generationId: z.string().optional() }).optional(),
-        })
-        .safeParse(metadata);
-      receipt.gatewayRequestId = parsed.success
-        ? (parsed.data.gateway?.generationId ?? null)
-        : null;
-    },
+    captureResult,
     captureError(cause: unknown) {
       // AI SDK may wrap a gateway error. Keep the gateway's generation ID.
       const visited = new Set<unknown>();

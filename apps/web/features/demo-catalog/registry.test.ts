@@ -73,6 +73,7 @@ describe("demo catalog registry", () => {
 
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(slugs).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -94,11 +95,14 @@ describe("demo catalog registry", () => {
       "trace-eval-agent",
       "ultra-chatbot-agent",
       "cloudflare-ai-gateway",
+      "multi-agent-explorer",
+      "eve-agent",
     ]);
   });
 
   it("derives ready and roadmap groups from the shared catalog entries", () => {
     expect(readyDemoCatalogEntries.map((entry) => entry.slug)).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -120,6 +124,8 @@ describe("demo catalog registry", () => {
       "trace-eval-agent",
       "ultra-chatbot-agent",
       "cloudflare-ai-gateway",
+      "multi-agent-explorer",
+      "eve-agent",
     ]);
     expect(roadmapDemoCatalogEntries.map((entry) => entry.slug)).toEqual([]);
   });
@@ -141,6 +147,7 @@ describe("demo gallery visuals", () => {
     );
 
     expect(asciiEntries.map((entry) => entry.slug)).toEqual([
+      "agent-ux-primitives",
       "foundation-chat",
       "rag-chatbot",
       "multimodal-chatbot",
@@ -162,6 +169,8 @@ describe("demo gallery visuals", () => {
       "trace-eval-agent",
       "ultra-chatbot-agent",
       "cloudflare-ai-gateway",
+      "multi-agent-explorer",
+      "eve-agent",
     ]);
     expect(
       asciiEntries.every((entry) =>
@@ -180,6 +189,11 @@ describe("demo gallery visuals", () => {
         slug: entry.slug,
       }))
     ).toEqual([
+      {
+        accent: "indigo",
+        label: "UX primitives",
+        slug: "agent-ux-primitives",
+      },
       {
         accent: "sky",
         label: "Base chat",
@@ -284,6 +298,16 @@ describe("demo gallery visuals", () => {
         accent: "amber",
         label: "Image gateway",
         slug: "cloudflare-ai-gateway",
+      },
+      {
+        accent: "indigo",
+        label: "Lead + fan-out",
+        slug: "multi-agent-explorer",
+      },
+      {
+        accent: "violet",
+        label: "Eve agent loop",
+        slug: "eve-agent",
       },
     ]);
   });

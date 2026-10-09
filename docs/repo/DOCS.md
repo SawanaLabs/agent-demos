@@ -11,6 +11,7 @@ updateAt: 2026-05-26
 - Read this file before changing workspace layout, package boundaries, root scripts, Turborepo tasks, workspace package exports, or dependency ownership.
 - For concrete workspace packages, root commands, Turbo tasks, and database package env loading, read [Monorepo](./monorepo.md) after this file.
 - For schema sync, migration policy, or Drizzle command behavior, read [Database Workflow](./database-workflow.md) before touching the shared database.
+- For branch ownership, remote branch lifecycle, or the merge path into `main`, read [Branch Workflow](./branch-workflow.md) before committing or opening pull requests.
 
 ## Domain Language
 
@@ -32,3 +33,4 @@ updateAt: 2026-05-26
 - Update this file when workspace ownership, package boundary policy, root workflow policy, or package export policy changes.
 - Update [Monorepo](./monorepo.md) when workspace packages, root scripts, Turbo tasks, or database package environment loading changes.
 - Update [Database Workflow](./database-workflow.md) when schema sync policy, Drizzle command usage, or database escalation rules change.
+- Update [Branch Workflow](./branch-workflow.md) when worker branch assignments or the merge path into `main` change.

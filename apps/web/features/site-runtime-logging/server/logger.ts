@@ -22,6 +22,7 @@ export interface RuntimeErrorContext {
     | "loop-agent"
     | "mcp-agent"
     | "minimal-chat-agent"
+    | "multi-agent-explorer"
     | "multimodal-chatbot"
     | "object-generation"
     | "openai-agents-sdk-demo"
@@ -75,6 +76,7 @@ const allowedDemoSlugs = new Set([
   "loop-agent",
   "mcp-agent",
   "minimal-chat-agent",
+  "multi-agent-explorer",
   "multimodal-chatbot",
   "object-generation",
   "openai-agents-sdk-demo",

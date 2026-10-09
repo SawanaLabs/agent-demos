@@ -69,6 +69,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./quality/resource-abuse-privacy-review.md | Resource Abuse and Privacy Review | Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity. | 2026-06-04 |
 | ./quality/ultracite.md | Ultracite | Durable conventions for the repository's Ultracite and Biome quality gate. | 2026-06-08 |
 | ./repo/DOCS.md | Repo Knowledge Protocol | Domain-level language, reading path, and boundary principles for repository layout and workspace workflow. | 2026-05-26 |
+| ./repo/branch-workflow.md | Branch Workflow | Durable conventions for dedicated worker branches and the pull-request path into main. | 2026-09-24 |
 | ./repo/database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./repo/index.md | Repo | Navigation for repository layout and workflow knowledge. | 2026-05-21 |
 | ./repo/monorepo.md | Monorepo | Durable conventions for the pnpm and Turborepo workspace structure. | 2026-06-02 |

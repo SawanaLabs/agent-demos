@@ -421,6 +421,16 @@ export default function Page() {
             </div>
           ) : null}
         </section>
+
+        <footer className="border-foreground/10 border-t pt-6 pb-12 text-muted-foreground text-sm">
+          An open-source project by{" "}
+          <a
+            className="text-foreground underline underline-offset-4"
+            href="https://github.com/SawanaLabs"
+          >
+            Sawana Labs
+          </a>
+        </footer>
       </div>
     </main>
   );

@@ -3,9 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { agentUxPrimitivesDemoMeta } from "../agent-ux-primitives/demo-meta.ts";
 import { canvasAgentDemoMeta } from "../canvas-agent/demo-meta.ts";
 import { cloudflareAiGatewayDemoMeta } from "../cloudflare-ai-gateway/demo-meta.ts";
 import { customerMemoryAgentDemoMeta } from "../customer-memory-agent/demo-meta.ts";
+import { eveAgentDemoMeta } from "../eve-agent/demo-meta.ts";
 import { feedbackAgentDemoMeta } from "../feedback-agent/demo-meta.ts";
 import { foundationChatDemoMeta } from "../foundation-chat/demo-meta.ts";
 import { generativeUiDemoMeta } from "../generative-ui/demo-meta.ts";
@@ -14,6 +16,7 @@ import { langGraphAgentDemoMeta } from "../langgraph-agent/demo-meta.ts";
 import { loopAgentDemoMeta } from "../loop-agent/demo-meta.ts";
 import { mcpAgentDemoMeta } from "../mcp-agent/demo-meta.ts";
 import { minimalChatAgentDemoMeta } from "../minimal-chat-agent/demo-meta.ts";
+import { multiAgentExplorerDemoMeta } from "../multi-agent-explorer/demo-meta.ts";
 import { multimodalChatbotDemoMeta } from "../multimodal-chatbot/demo-meta.ts";
 import { objectGenerationDemoMeta } from "../object-generation/demo-meta.ts";
 import { openAiAgentsSdkDemoMeta } from "../openai-agents-sdk-demo/demo-meta.ts";
@@ -37,6 +40,7 @@ const currentRegistryManifest = JSON.parse(
   fs.readFileSync(path.join(repoRoot, "registry/registry-demos.json"), "utf8")
 );
 const currentDemoCatalogEntries = [
+  agentUxPrimitivesDemoMeta,
   foundationChatDemoMeta,
   ragChatbotDemoMeta,
   multimodalChatbotDemoMeta,
@@ -58,6 +62,8 @@ const currentDemoCatalogEntries = [
   traceEvalAgentDemoMeta,
   ultraChatbotAgentDemoMeta,
   cloudflareAiGatewayDemoMeta,
+  multiAgentExplorerDemoMeta,
+  eveAgentDemoMeta,
 ];
 
 test("current registry manifest classifies every ready catalog demo", () => {
@@ -71,7 +77,14 @@ test("current registry manifest classifies every ready catalog demo", () => {
   assert.deepEqual(availability.privateRegistryDemos, []);
   assert.deepEqual(
     availability.omittedReadyDemos.map((demo) => demo.slug).sort(),
-    ["canvas-agent", "feedback-agent", "image-workflow-agent"]
+    [
+      "agent-ux-primitives",
+      "canvas-agent",
+      "eve-agent",
+      "feedback-agent",
+      "image-workflow-agent",
+      "multi-agent-explorer",
+    ]
   );
 });
 

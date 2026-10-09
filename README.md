@@ -2,6 +2,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+Agent Demos is an open-source project by [Sawana Labs](https://github.com/SawanaLabs).
+
 Agent Demos turns agent prototypes into deployable apps.
 
 Pick a production-ready demo slice, hand the guide to Codex, and ship a working Next.js agent app in about an hour. If you already have a LangGraph agent, use it as the launch path to a real web product.

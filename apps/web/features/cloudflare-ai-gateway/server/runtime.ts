@@ -6,8 +6,8 @@ import {
   maximumReferenceBytes,
   maximumReferences,
 } from "../contract";
-import { getCloudflareConfig, getGatewaySetup } from "./env";
-import { GatewayGenerationError, generateGatewayImage } from "./generate";
+import { getGatewaySetup, getImageGeneratorConfig } from "./env";
+import { createImageGenerator, GatewayGenerationError } from "./generate";
 
 const responseHeaders = { "Cache-Control": "no-store" };
 
@@ -72,10 +72,10 @@ export async function handleGatewayImageRequest(
         mediaType: file.type,
       }))
     );
-    const result = await generateGatewayImage(
-      { ...parsed.data, references },
-      getCloudflareConfig(parsed.data.model)
+    const generate = createImageGenerator(
+      getImageGeneratorConfig(parsed.data.model)
     );
+    const result = await generate({ ...parsed.data, references });
     return Response.json(result, { headers: responseHeaders });
   } catch (error) {
     if (error instanceof GatewayGenerationError) {

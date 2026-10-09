@@ -1,24 +1,26 @@
 import "server-only";
 import {
-  type authModes,
   type GatewayRequest,
   type GatewaySetup,
   gatewayModels,
 } from "../contract";
+import type { ImageGeneratorConfig } from "./config";
 import { env } from "./env-source";
 
-export interface CloudflareConfig {
-  accountId: string;
-  apiToken?: string;
-  authMode: (typeof authModes)[number];
-  byokAlias?: string;
-  gatewayId: string;
-  gatewayToken: string;
-  googleKey?: string;
-  openaiKey?: string;
-}
-
 export function getGatewaySetup(): GatewaySetup {
+  if (env.IMAGE_GATEWAY === "vercel") {
+    const missing = env.AI_GATEWAY_API_KEY ? [] : ["AI_GATEWAY_API_KEY"];
+    return {
+      gateway: "vercel",
+      authMode: "gateway-managed",
+      missing,
+      models: gatewayModels.map((id) => ({
+        id,
+        available: missing.length === 0,
+        missing,
+      })),
+    };
+  }
   const required = [
     "CLOUDFLARE_ACCOUNT_ID",
     "CLOUDFLARE_AI_GATEWAY_ID",
@@ -37,12 +39,18 @@ export function getGatewaySetup(): GatewaySetup {
     ];
     return { id, available: modelMissing.length === 0, missing: modelMissing };
   });
-  return { authMode, missing, models };
+  return { gateway: "cloudflare", authMode, missing, models };
 }
 
-export function getCloudflareConfig(
+export function getImageGeneratorConfig(
   model: GatewayRequest["model"]
-): CloudflareConfig {
+): ImageGeneratorConfig {
+  if (env.IMAGE_GATEWAY === "vercel") {
+    if (!env.AI_GATEWAY_API_KEY) {
+      throw new Error("Configure AI_GATEWAY_API_KEY on the server.");
+    }
+    return { gateway: "vercel", apiKey: env.AI_GATEWAY_API_KEY };
+  }
   const setup = getGatewaySetup().models.find((entry) => entry.id === model);
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
   const gatewayId = env.CLOUDFLARE_AI_GATEWAY_ID;
@@ -51,6 +59,7 @@ export function getCloudflareConfig(
     throw new Error(`Configure ${setup?.missing.join(", ")} on the server.`);
   }
   return {
+    gateway: "cloudflare",
     accountId,
     gatewayId,
     gatewayToken,

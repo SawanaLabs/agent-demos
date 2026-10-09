@@ -1,8 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
-import type { CloudflareConfig } from "./env";
-import { generateGatewayImage } from "./generate";
+import type { GatewayRequest } from "../contract";
+import type { CloudflareConfig, ImageGeneratorConfig } from "./config";
+import { createImageGenerator } from "./generate";
+
+function run(
+  input: GatewayRequest,
+  config: ImageGeneratorConfig,
+  transport: typeof fetch
+) {
+  return createImageGenerator(config, { fetch: transport })(input);
+}
 
 const config: CloudflareConfig = {
+  gateway: "cloudflare",
   accountId: "account",
   gatewayId: "images",
   gatewayToken: "gateway-secret",
@@ -18,139 +28,6 @@ const headers = {
   "x-request-id": "provider-1",
 };
 
-describe("Cloudflare image transport contract (synthetic provider responses)", () => {
-  it("uses native OpenAI Images generation and preserves the receipt without inventing cost", async () => {
-    const transport = vi.fn(async () =>
-      Response.json(
-        {
-          created: 1,
-          data: [{ b64_json: png }],
-          usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
-        },
-        { headers }
-      )
-    );
-    const result = await generateGatewayImage(
-      { model: "gpt-image-2", prompt: "A red mug" },
-      config,
-      transport
-    );
-    const [url, init] = transport.mock.calls[0] as unknown as [
-      string,
-      RequestInit,
-    ];
-    expect(url).toBe(
-      "https://gateway.ai.cloudflare.com/v1/account/images/openai/images/generations"
-    );
-    expect(JSON.parse(init.body as string)).toMatchObject({
-      model: "gpt-image-2",
-      n: 1,
-      quality: "low",
-      output_format: "jpeg",
-    });
-    expect(new Headers(init.headers).get("authorization")).toBe(
-      "Bearer openai-secret"
-    );
-    expect(new Headers(init.headers).get("cf-aig-no-wholesale")).toBe("true");
-    expect(result.receipt).toMatchObject({
-      logId: "log-1",
-      eventId: "event-1",
-      providerRequestId: "provider-1",
-      actualCostUsd: null,
-      usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
-    });
-    expect(result.receipt.costLookup.status).toBe("not-configured");
-    expect(result.images).toHaveLength(1);
-  });
-
-  it("uses multipart OpenAI image editing with reference bytes", async () => {
-    const transport = vi.fn(async () =>
-      Response.json({ data: [{ b64_json: png }] }, { headers })
-    );
-    await generateGatewayImage(
-      {
-        model: "gpt-image-2",
-        prompt: "Make it blue",
-        references: [
-          { bytes: Buffer.from(png, "base64"), mediaType: "image/png" },
-        ],
-      },
-      config,
-      transport
-    );
-    const [url, init] = transport.mock.calls[0] as unknown as [
-      string,
-      RequestInit,
-    ];
-    expect(url).toContain("/openai/images/edits");
-    const body = init.body as FormData;
-    expect(body.get("model")).toBe("gpt-image-2");
-    const file = body.get("image") as File;
-    expect(Buffer.from(await file.arrayBuffer()).toString("base64")).toBe(png);
-  });
-
-  it("uses native Gemini generateContent with inline reference images and IMAGE output", async () => {
-    const transport = vi.fn(async () =>
-      Response.json(
-        {
-          candidates: [
-            {
-              content: {
-                role: "model",
-                parts: [{ inlineData: { mimeType: "image/png", data: png } }],
-              },
-              finishReason: "STOP",
-            },
-          ],
-          usageMetadata: {
-            promptTokenCount: 10,
-            candidatesTokenCount: 20,
-            totalTokenCount: 30,
-          },
-          modelVersion: "gemini-3.1-flash-image",
-          responseId: "gemini-response",
-        },
-        { headers }
-      )
-    );
-    const result = await generateGatewayImage(
-      {
-        model: "gemini-3.1-flash-image",
-        prompt: "Make it blue",
-        references: [
-          { bytes: Buffer.from(png, "base64"), mediaType: "image/png" },
-        ],
-      },
-      config,
-      transport
-    );
-    const [url, init] = transport.mock.calls[0] as unknown as [
-      string,
-      RequestInit,
-    ];
-    expect(url).toBe(
-      "https://gateway.ai.cloudflare.com/v1/account/images/google-ai-studio/v1beta/models/gemini-3.1-flash-image:generateContent"
-    );
-    expect(JSON.parse(init.body as string)).toMatchObject({
-      generationConfig: {
-        responseModalities: ["IMAGE"],
-        imageConfig: { imageSize: "1K" },
-      },
-      contents: [
-        {
-          parts: [
-            { text: "Make it blue" },
-            { inlineData: { mimeType: "image/png", data: png } },
-          ],
-        },
-      ],
-    });
-    expect(result.images[0]?.mediaType).toBe("image/png");
-    expect(result.receipt.providerResponseId).toBe("gemini-response");
-    expect(result.receipt.servedModel).toBe("gemini-3.1-flash-image");
-  });
-});
-
 describe("Gateway credentials, failures and estimated costs", () => {
   it.each([
     "stored-byok",
@@ -159,7 +36,7 @@ describe("Gateway credentials, failures and estimated costs", () => {
     const transport = vi.fn(async () =>
       Response.json({ data: [{ b64_json: png }] })
     );
-    await generateGatewayImage(
+    await run(
       { model: "gpt-image-2", prompt: "Mug" },
       { ...config, authMode },
       transport
@@ -192,13 +69,13 @@ describe("Gateway credentials, failures and estimated costs", () => {
       )
     );
     await expect(
-      generateGatewayImage(
-        { model: "gpt-image-2", prompt: "Mug" },
-        config,
-        transport
-      )
+      run({ model: "gpt-image-2", prompt: "Mug" }, config, transport)
     ).rejects.toMatchObject({
-      receipt: { logId: "log-1", httpStatus: 403, actualCostUsd: null },
+      receipt: {
+        gatewayRequestId: "log-1",
+        httpStatus: 403,
+        actualCostUsd: null,
+      },
     });
     expect(transport).toHaveBeenCalledTimes(1);
   });
@@ -218,15 +95,11 @@ describe("Gateway credentials, failures and estimated costs", () => {
       )
     );
     await expect(
-      generateGatewayImage(
-        { model: "gemini-3.1-flash-image", prompt: "Mug" },
-        config,
-        transport
-      )
+      run({ model: "gemini-3.1-flash-image", prompt: "Mug" }, config, transport)
     ).rejects.toMatchObject({
       message: "The model returned no image.",
       receipt: {
-        logId: "log-1",
+        gatewayRequestId: "log-1",
         httpStatus: 200,
         providerResponseId: null,
         servedModel: null,
@@ -254,7 +127,7 @@ describe("Gateway credentials, failures and estimated costs", () => {
           })
         : Response.json({ data: [{ b64_json: png }] }, { headers })
     );
-    const result = await generateGatewayImage(
+    const result = await run(
       { model: "gpt-image-2", prompt: "Mug" },
       { ...config, apiToken: "management-secret" },
       transport
@@ -269,5 +142,266 @@ describe("Gateway credentials, failures and estimated costs", () => {
     expect(transport.mock.calls[1]?.[0]).toBe(
       "https://api.cloudflare.com/client/v4/accounts/account/ai-gateway/gateways/images/logs/log-1"
     );
+  });
+});
+
+const vercelConfig: ImageGeneratorConfig = {
+  gateway: "vercel",
+  apiKey: "vercel-secret",
+};
+const cases = [config, vercelConfig].flatMap((settings) =>
+  (["gpt-image-2", "gemini-3.1-flash-image"] as const).flatMap((model) =>
+    [false, true].map((references) => ({
+      settings,
+      gateway: settings.gateway,
+      model,
+      references,
+    }))
+  )
+);
+
+function modelResponse(
+  gateway: ImageGeneratorConfig["gateway"],
+  model: GatewayRequest["model"]
+) {
+  if (gateway === "vercel") {
+    const providerMetadata = { gateway: { generationId: "gen-1" } };
+    return model === "gpt-image-2"
+      ? {
+          images: [png],
+          providerMetadata,
+          usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+        }
+      : {
+          content: [{ type: "file", mediaType: "image/png", data: png }],
+          finishReason: { unified: "stop", raw: "STOP" },
+          usage: { inputTokens: { total: 10 }, outputTokens: { total: 20 } },
+          providerMetadata,
+        };
+  }
+  return model === "gpt-image-2"
+    ? {
+        data: [{ b64_json: png }],
+        usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+      }
+    : {
+        candidates: [
+          {
+            content: {
+              role: "model",
+              parts: [{ inlineData: { mimeType: "image/png", data: png } }],
+            },
+            finishReason: "STOP",
+          },
+        ],
+        usageMetadata: {
+          promptTokenCount: 10,
+          candidatesTokenCount: 20,
+          totalTokenCount: 30,
+        },
+        modelVersion: "gemini-3.1-flash-image",
+        responseId: "gemini-response",
+      };
+}
+
+function generationInfo() {
+  return {
+    data: {
+      id: "gen-1",
+      total_cost: 0.01,
+      upstream_inference_cost: 0,
+      usage: 0.01,
+      created_at: "2026-10-09T00:00:00Z",
+      model: "openai/gpt-image-2",
+      is_byok: false,
+      provider_name: "openai",
+      streamed: false,
+      finish_reason: "stop",
+      latency: 100,
+      generation_time: 200,
+      native_tokens_prompt: 10,
+      native_tokens_completion: 20,
+      native_tokens_reasoning: 0,
+      native_tokens_cached: 0,
+      native_tokens_cache_creation: 0,
+      billable_web_search_calls: 0,
+    },
+  };
+}
+
+describe("ImageGenerator Seam (real SDKs, synthetic HTTP responses)", () => {
+  it.each(
+    cases
+  )("$gateway / $model / references=$references shares the caller contract", async ({
+    settings,
+    model,
+    references,
+  }) => {
+    const transport = vi.fn(async (url: string | URL | Request) =>
+      String(url).includes("/v1/generation?")
+        ? Response.json(
+            {
+              error: { message: "not ingested", type: "invalid_request_error" },
+            },
+            { status: 404 }
+          )
+        : Response.json(modelResponse(settings.gateway, model), { headers })
+    );
+    const generate = createImageGenerator(settings, { fetch: transport });
+    const result = await generate({
+      model,
+      prompt: "Make the mug blue",
+      quality: "high",
+      size: "1024x1536",
+      imageSize: "2K",
+      aspectRatio: "2:3",
+      ...(references
+        ? {
+            references: [
+              { bytes: Buffer.from(png, "base64"), mediaType: "image/png" },
+            ],
+          }
+        : {}),
+    });
+    expect(result.images).toEqual([{ base64: png, mediaType: "image/png" }]);
+    expect(result.receipt).toMatchObject({
+      gateway: settings.gateway,
+      requestedModel: model,
+      actualCostUsd: null,
+      gatewayRequestId: settings.gateway === "cloudflare" ? "log-1" : "gen-1",
+      httpStatus: 200,
+      usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+    });
+    const [url, init] = transport.mock.calls[0] as unknown as [
+      string,
+      RequestInit,
+    ];
+    if (settings.gateway === "vercel") {
+      expect(url).toBe(
+        `https://ai-gateway.vercel.sh/v3/ai/${model === "gpt-image-2" ? "image-model" : "language-model"}`
+      );
+      expect(
+        new Headers(init.headers).get(
+          model === "gpt-image-2" ? "ai-model-id" : "ai-language-model-id"
+        )
+      ).toBe(`${model === "gpt-image-2" ? "openai" : "google"}/${model}`);
+      expect(new Headers(init.headers).get("authorization")).toBe(
+        "Bearer vercel-secret"
+      );
+      const body = JSON.parse(init.body as string);
+      expect(body.providerOptions.gateway.only).toEqual([
+        model === "gpt-image-2" ? "openai" : "google",
+      ]);
+      if (model === "gpt-image-2") {
+        expect(body).toMatchObject({
+          prompt: "Make the mug blue",
+          size: "1024x1536",
+          n: 1,
+          providerOptions: {
+            openai: { quality: "high", outputFormat: "jpeg" },
+          },
+        });
+        if (references) {
+          expect(body.files[0].data).toBe(png);
+        }
+      } else {
+        expect(body.providerOptions.google).toMatchObject({
+          responseModalities: ["IMAGE"],
+          imageConfig: { imageSize: "2K", aspectRatio: "2:3" },
+        });
+        if (references) {
+          expect(body.prompt[0].content[1]).toMatchObject({
+            type: "file",
+            data: `data:image/png;base64,${png}`,
+            mediaType: "image/png",
+          });
+        }
+      }
+      expect(result.receipt.costLookup.status).toBe("pending");
+    } else if (model === "gpt-image-2") {
+      expect(url).toBe(
+        `https://gateway.ai.cloudflare.com/v1/account/images/openai/images/${references ? "edits" : "generations"}`
+      );
+      expect(new Headers(init.headers).get("authorization")).toBe(
+        "Bearer openai-secret"
+      );
+      if (references) {
+        const body = init.body as FormData;
+        expect(body.get("quality")).toBe("high");
+        expect(body.get("size")).toBe("1024x1536");
+        expect(
+          Buffer.from(await (body.get("image") as File).arrayBuffer()).toString(
+            "base64"
+          )
+        ).toBe(png);
+      }
+    } else {
+      expect(url).toBe(
+        "https://gateway.ai.cloudflare.com/v1/account/images/google-ai-studio/v1beta/models/gemini-3.1-flash-image:generateContent"
+      );
+      const body = JSON.parse(init.body as string);
+      expect(body.generationConfig).toMatchObject({
+        responseModalities: ["IMAGE"],
+        imageConfig: { imageSize: "2K", aspectRatio: "2:3" },
+      });
+      if (references) {
+        expect(body.contents[0].parts[1].inlineData).toEqual({
+          data: png,
+          mimeType: "image/png",
+        });
+      }
+      expect(result.receipt.servedModel).toBe("gemini-3.1-flash-image");
+    }
+    expect(JSON.stringify(result)).not.toContain("secret");
+  });
+
+  it("reports Vercel cost separately from Cloudflare estimates and final billing", async () => {
+    const transport = vi.fn(async (url: string | URL | Request) =>
+      Response.json(
+        String(url).includes("/v1/generation?")
+          ? generationInfo()
+          : modelResponse("vercel", "gpt-image-2")
+      )
+    );
+    const result = await run(
+      { model: "gpt-image-2", prompt: "Mug" },
+      vercelConfig,
+      transport
+    );
+    expect(result.receipt.costLookup).toMatchObject({
+      source: "vercel-generation",
+      status: "available",
+      reportedUsd: 0.01,
+      estimateUsd: null,
+      isByok: false,
+    });
+    expect(result.receipt.actualCostUsd).toBeNull();
+    expect(result.receipt.credentialMode).toBe("gateway-managed");
+  });
+
+  it("keeps Vercel error IDs without retrying or switching gateways", async () => {
+    const transport = vi.fn(async (url: string | URL | Request) =>
+      String(url).includes("/v1/generation?")
+        ? Response.json(generationInfo())
+        : Response.json(
+            {
+              error: { message: "denied", type: "invalid_request_error" },
+              generationId: "gen-1",
+            },
+            { status: 403 }
+          )
+    );
+    await expect(
+      run({ model: "gpt-image-2", prompt: "Mug" }, vercelConfig, transport)
+    ).rejects.toMatchObject({
+      receipt: {
+        gateway: "vercel",
+        gatewayRequestId: "gen-1",
+        httpStatus: 403,
+      },
+    });
+    expect(
+      transport.mock.calls.filter(([url]) => String(url).includes("/v3/ai/"))
+    ).toHaveLength(1);
   });
 });

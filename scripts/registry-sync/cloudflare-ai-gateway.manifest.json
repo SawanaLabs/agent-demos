@@ -14,6 +14,18 @@
       ]
     },
     {
+      "source": "apps/web/features/cloudflare-ai-gateway/server/config.ts",
+      "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/config.ts",
+      "forbidPatternsAfterTransform": [
+        "@workspace/",
+        "@/features/",
+        "@/env",
+        "site-usage-gate",
+        "site-analytics",
+        "site-runtime-logging"
+      ]
+    },
+    {
       "source": "apps/web/features/cloudflare-ai-gateway/server/env.ts",
       "target": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env.ts",
       "forbidPatternsAfterTransform": [

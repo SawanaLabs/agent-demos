@@ -4,7 +4,7 @@ export const cloudflareAiGatewayDemoMeta: DemoCatalogEntry = {
   slug: "cloudflare-ai-gateway",
   title: "Cloudflare AI Gateway",
   summary:
-    "Generate and edit images with GPT Image 2 or Gemini 3.1 Flash Image through Cloudflare's native provider routes.",
+    "Generate and edit images through interchangeable Cloudflare and Vercel AI Gateway adapters using the same request contract.",
   pattern: "multimodal",
   status: "ready",
   publishedAt: "2026-10-08T18:00:00+08:00",

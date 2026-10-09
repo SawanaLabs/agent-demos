@@ -1,8 +1,8 @@
 # Cloudflare AI Gateway
 
-Generate images and edit reference photos through Cloudflare's native OpenAI and Google provider routes. This independent feature uses AI SDK 6 `generateImage` for GPT Image 2 and `generateText` image files for Gemini 3.1 Flash Image.
+Generate images and edit reference photos through interchangeable Cloudflare and Vercel AI Gateway Adapters. This independent feature uses AI SDK 6 `generateImage` for GPT Image 2 and `generateText` image files for Gemini 3.1 Flash Image.
 
-Open `/demos/cloudflare-ai-gateway`. Select a model, enter a prompt, optionally attach references, then generate and download the returned images. The server reports Cloudflare request IDs, provider metadata, usage and optional log cost estimates. Actual billed cost remains unavailable.
+Open `/demos/cloudflare-ai-gateway`. Select a model, enter a prompt, optionally attach references, then generate and download the returned images. The server reports the selected gateway, normalized request IDs, usage and cost evidence. Cloudflare log cost is estimated; Vercel generation cost is gateway-reported. Actual billed cost remains unavailable.
 
 ```text
 cloudflare-ai-gateway/
@@ -11,8 +11,9 @@ cloudflare-ai-gateway/
   server/
     keys.ts             # Host environment validation, excluded from registry
     env-source.ts       # Consumer environment adapter
-    env.ts
-    generate.ts         # Native AI SDK provider calls
+    env.ts              # Server-owned Adapter selection
+    config.ts           # ImageGenerator Interface and configuration
+    generate.ts         # Factory, shared generation and two private Adapters
     receipt.ts          # Response metadata and optional log lookup
     runtime.ts          # Multipart route handler
   ui/
@@ -22,9 +23,24 @@ cloudflare-ai-gateway/
     use-gateway-workspace.ts
 ```
 
+The Seam has one call:
+
+```ts
+import { createImageGenerator } from "./server/generate";
+import { getImageGeneratorConfig } from "./server/env";
+
+const generate = createImageGenerator(getImageGeneratorConfig("gpt-image-2"));
+const result = await generate({ model: "gpt-image-2", prompt: "A red mug" });
+```
+
+Set `IMAGE_GATEWAY=vercel` with `AI_GATEWAY_API_KEY`, or `IMAGE_GATEWAY=cloudflare` (default) with the configuration below. Restart after changing the environment. Both Adapters use the same request/result Interface; errors carry receipts. Application retries and gateway fallback are disabled.
+
 Configure these server-only variables in `.env.local`:
 
 ```dotenv
+IMAGE_GATEWAY=cloudflare
+# Only needed when IMAGE_GATEWAY=vercel:
+AI_GATEWAY_API_KEY=
 CLOUDFLARE_ACCOUNT_ID=
 CLOUDFLARE_AI_GATEWAY_ID=
 CLOUDFLARE_AI_GATEWAY_TOKEN=

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const gatewayModels = ["gpt-image-2", "gemini-3.1-flash-image"] as const;
+export const imageGateways = ["cloudflare", "vercel"] as const;
 export const authModes = ["byok", "stored-byok", "unified-billing"] as const;
 export const imageMediaTypes = [
   "image/jpeg",
@@ -22,7 +23,8 @@ export type GatewayRequest = z.input<typeof gatewayRequestSchema> & {
   references?: { bytes: Uint8Array; mediaType: string }[];
 };
 export interface GatewaySetup {
-  authMode: (typeof authModes)[number];
+  authMode: (typeof authModes)[number] | "gateway-managed";
+  gateway: (typeof imageGateways)[number];
   missing: string[];
   models: {
     id: (typeof gatewayModels)[number];
@@ -34,6 +36,7 @@ export interface CostLookup {
   customCost: boolean | null;
   estimateUsd: number | null;
   httpStatus: number | null;
+  isByok: boolean | null;
   log: {
     id: string;
     model: string;
@@ -44,10 +47,11 @@ export interface CostLookup {
     tokens_out?: number;
     success?: boolean;
   } | null;
-  source: "cloudflare-log";
+  reportedUsd: number | null;
+  source: "cloudflare-log" | "vercel-generation";
   status:
     | "not-configured"
-    | "missing-log-id"
+    | "missing-request-id"
     | "available"
     | "pending"
     | "failed";
@@ -56,11 +60,12 @@ export interface GatewayReceipt {
   actualCostUsd: null;
   cacheStatus: string | null;
   costLookup: CostLookup;
-  credentialMode: (typeof authModes)[number];
+  credentialMode: GatewaySetup["authMode"];
   eventId: string | null;
+  gateway: (typeof imageGateways)[number];
+  gatewayRequestId: string | null;
   httpStatus: number | null;
-  logId: string | null;
-  provider: "openai" | "google-ai-studio";
+  provider: "openai" | "google";
   providerRequestId: string | null;
   providerResponseId: string | null;
   requestedModel: (typeof gatewayModels)[number];

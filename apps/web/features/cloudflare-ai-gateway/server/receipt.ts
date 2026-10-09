@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { CostLookup, GatewayReceipt } from "../contract";
-import type { CloudflareConfig } from "./env";
+import type { CloudflareConfig } from "./config";
 
 const logSchema = z.object({
   success: z.literal(true),
@@ -18,11 +18,16 @@ const logSchema = z.object({
   }),
 });
 
-export function emptyCostLookup(status: CostLookup["status"]): CostLookup {
+export function emptyCostLookup(
+  status: CostLookup["status"],
+  source: CostLookup["source"] = "cloudflare-log"
+): CostLookup {
   return {
     status,
-    source: "cloudflare-log",
+    source,
     estimateUsd: null,
+    reportedUsd: null,
+    isByok: null,
     customCost: null,
     httpStatus: null,
     log: null,
@@ -31,7 +36,7 @@ export function emptyCostLookup(status: CostLookup["status"]): CostLookup {
 
 export function captureResponse(receipt: GatewayReceipt, response: Response) {
   receipt.httpStatus = response.status;
-  receipt.logId = response.headers.get("cf-aig-log-id");
+  receipt.gatewayRequestId = response.headers.get("cf-aig-log-id");
   receipt.eventId = response.headers.get("cf-aig-event-id");
   receipt.cacheStatus = response.headers.get("cf-aig-cache-status");
   receipt.providerRequestId = response.headers.get("x-request-id");
@@ -46,7 +51,7 @@ export async function lookupGatewayCost(
     return emptyCostLookup("not-configured");
   }
   if (!logId) {
-    return emptyCostLookup("missing-log-id");
+    return emptyCostLookup("missing-request-id");
   }
   let httpStatus: number | null = null;
   try {
@@ -70,6 +75,8 @@ export async function lookupGatewayCost(
       status: "available",
       source: "cloudflare-log",
       estimateUsd: cost ?? null,
+      reportedUsd: null,
+      isByok: null,
       customCost: customCost ?? null,
       httpStatus,
       log,

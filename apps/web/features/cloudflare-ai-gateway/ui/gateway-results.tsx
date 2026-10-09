@@ -2,21 +2,24 @@ import Image from "next/image";
 import type { GatewayReceipt, GatewayResult } from "../contract";
 
 function Receipt({ receipt }: { receipt: GatewayReceipt }) {
+  let cost = `Cost: unavailable (${receipt.costLookup.status}).`;
+  if (receipt.costLookup.reportedUsd !== null) {
+    cost = `Vercel generation cost: $${receipt.costLookup.reportedUsd.toFixed(6)}.`;
+  } else if (receipt.costLookup.estimateUsd !== null) {
+    cost = `Cloudflare log estimate: $${receipt.costLookup.estimateUsd.toFixed(6)}.`;
+  }
   return (
     <details className="border-border border-t pt-4 text-sm">
       <summary className="cursor-pointer font-medium">
         Request receipt and cost
       </summary>
       <div className="mt-3 space-y-2 text-muted-foreground">
+        <p>Actual charge: unavailable. {cost}</p>
         <p>
-          Actual charge: unavailable.{" "}
-          {receipt.costLookup.estimateUsd === null
-            ? `Cost estimate: unavailable (${receipt.costLookup.status}).`
-            : `Cloudflare log estimate: $${receipt.costLookup.estimateUsd.toFixed(6)}.`}
-        </p>
-        <p>
-          The log cost is an estimate. Confirm charges in your billing
-          dashboard.
+          {receipt.gateway === "cloudflare"
+            ? "Cloudflare log costs are estimates. "
+            : ""}
+          Confirm charges in your billing dashboard.
         </p>
         <pre className="overflow-x-auto bg-muted p-3 text-xs">
           {JSON.stringify(receipt, null, 2)}
@@ -87,7 +90,7 @@ export function GatewayResults({
             <figcaption>
               <a
                 className="inline-flex border border-border px-4 py-2 text-sm hover:bg-muted"
-                download={`cloudflare-image-${index + 1}.${extension}`}
+                download={`${result.receipt.gateway}-image-${index + 1}.${extension}`}
                 href={url}
               >
                 Download image {result.images.length > 1 ? index + 1 : ""}

@@ -6,10 +6,10 @@ export function GatewayScreen() {
   const setup = getGatewaySetup();
   return (
     <DemoWorkspaceShell
-      badges={[setup.authMode]}
+      badges={[setup.gateway, setup.authMode]}
       breadcrumbTitle="Cloudflare AI Gateway"
-      summary="Create an image or edit reference photos with GPT Image 2 and Gemini 3.1 Flash Image."
-      title="Cloudflare AI Gateway"
+      summary="Create and edit images with GPT Image 2 or Gemini 3.1 Flash Image through your selected gateway."
+      title="Image gateway migration"
     >
       <GatewayWorkspace setup={setup} />
     </DemoWorkspaceShell>

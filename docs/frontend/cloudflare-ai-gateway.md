@@ -1,7 +1,7 @@
 ---
 title: Cloudflare AI Gateway
-description: Native AI SDK image routes, credential modes, cost evidence and Gender Swap migration boundaries.
-updateAt: 2026-10-08
+description: Interchangeable image generator Seam, Vercel and Cloudflare Adapters, credentials and cost semantics.
+updateAt: 2026-10-09
 ---
 
 # Cloudflare AI Gateway
@@ -10,9 +10,21 @@ updateAt: 2026-10-08
 
 `apps/web/features/cloudflare-ai-gateway/` owns the contract, generation, receipts and UI. The app page and API route under `apps/web/app/` are thin adapters. The API wrapper adds the host's existing image-generation usage gate and analytics. Registry consumers receive the portable handler with no host telemetry or metering.
 
-`scripts/registry-sync/cloudflare-ai-gateway.manifest.json` projects the feature into `registry/cloudflare-ai-gateway/`. Shared assets include only the workspace shell and breadcrumb. This feature does not import the Vercel gateway contract or require `AI_GATEWAY_API_KEY`.
+`scripts/registry-sync/cloudflare-ai-gateway.manifest.json` projects the feature into `registry/cloudflare-ai-gateway/`. Shared assets include only the workspace shell and breadcrumb. This feature owns its request contract. The Cloudflare Adapter has no Vercel credential requirement; the Vercel Adapter uses `AI_GATEWAY_API_KEY`.
 
 References are snapshotted with `arrayBuffer()` before React state, previews or uploads. Accept at most four PNG, JPEG or WebP files, 3 MB combined, leaving room below Vercel's 4.5 MB request-body limit. The first release returns base64 images and offers browser downloads. It does not add storage, queues or persisted generation tasks.
+
+## ImageGenerator Seam
+
+The external Interface is `ImageGenerator = (request: GatewayRequest) => Promise<GatewayResult>`, exported by `server/generate.ts`. Construct it with `createImageGenerator(config)` at the composition point. The portable multipart handler selects server configuration once per request and invokes that same Interface. Configuration is server-owned; the browser cannot choose a gateway or send credentials.
+
+`IMAGE_GATEWAY=cloudflare|vercel` selects the Adapter and defaults to `cloudflare`. Restart or redeploy after changing environment configuration. Invalid values fail environment validation. A programmatic caller can construct either Adapter with the discriminated `ImageGeneratorConfig` from `server/config.ts`.
+
+`server/generate.ts` keeps the two Adapters private and shares the generation Implementation. It hides model ID mapping, credentials, SDK model construction, reference encoding, request identity and cost retrieval. Both Adapters accept logical model IDs `gpt-image-2` and `gemini-3.1-flash-image`; Vercel maps these to `openai/gpt-image-2` and `google/gemini-3.1-flash-image`. Changing the gateway leaves prompts, references, image output and the caller unchanged.
+
+The Interface returns image bytes as base64 plus media type and a receipt. It has no storage, credit or history effects. Provider failures throw `GatewayGenerationError` with the receipt and original cause; a text-only Gemini response is an explicit error. Model calls have a 120-second timeout, no application retry and no application gateway fallback. Cost retrieval adds at most five seconds; missing or failed cost evidence is returned explicitly without discarding an image.
+
+This Module's Depth comes from one generation call hiding those differences. It provides Leverage to callers and tests and keeps gateway changes local (Locality). It remains feature-local: no global provider registration framework or generic plugin system.
 
 ## Native routes and model identity
 
@@ -28,11 +40,11 @@ Cloudflare's unified catalog labels the Google image entry `google/nano-banana-2
 
 The newer `/accounts/{account}/ai/run` catalog API has a Cloudflare-specific input/output envelope and may return `gatewayMetadata.keySource`. That envelope does not match the two native SDK calls implemented here. Adopting it would need a separate adapter and live acceptance.
 
-All model requests use `maxRetries: 0`, `cf-aig-max-attempts: 1` and `cf-aig-skip-cache: true`. There is no gateway or provider fallback in application code. The 120-second model timeout is below the route's 180-second maximum. Gateway dashboard policies can still influence the request and must be checked during live acceptance.
+Both Adapters use `maxRetries: 0`. Cloudflare also sets `cf-aig-max-attempts: 1` and `cf-aig-skip-cache: true`. Vercel sets `providerOptions.gateway.only` to the requested `openai` or `google` provider and configures no fallback model. There is no gateway or provider fallback in application code. The 120-second model timeout is below the route's 180-second maximum. Gateway dashboard policies can still influence the request and must be checked during live acceptance.
 
 ## Credentials and payment
 
-All credentials stay on the server. Client setup data contains variable names and readiness booleans.
+All credentials stay on the server. Client setup data contains the selected gateway, variable names and readiness booleans. With `IMAGE_GATEWAY=vercel`, configure only `AI_GATEWAY_API_KEY` for this Module; credential selection is gateway-managed. The Cloudflare modes below apply when `IMAGE_GATEWAY=cloudflare`.
 
 | `CLOUDFLARE_AI_GATEWAY_AUTH_MODE` | Provider header | Unified Billing fallback | Required server configuration |
 | --- | --- | --- | --- |
@@ -50,22 +62,25 @@ Cloudflare's current Unified Billing documentation states a 5% charge on purchas
 
 Keep these fields distinct:
 
-- `requestedModel` is the native ID submitted by the application.
-- `logId`, `eventId` and `cacheStatus` come from `cf-aig-*` response headers when present.
+- `gateway` identifies the selected Adapter; `requestedModel` is the logical model ID. `provider` is the requested `openai` or `google` provider; lookup record metadata identifies the provider reported by the gateway.
+- `gatewayRequestId` is Cloudflare’s `cf-aig-log-id` or Vercel’s `providerMetadata.gateway.generationId`. Vercel errors also preserve `generationId` from the SDK cause chain. Cloudflare `eventId` and `cacheStatus` come from response headers. Missing values stay null.
 - `providerRequestId` comes from the `x-request-id` header when present.
 - `providerResponseId` and `servedModel` come only from Google's raw `responseId` and `modelVersion`. Missing values stay null. AI SDK-generated IDs and requested model names are excluded from these fields.
-- `credentialMode` is the configured request mode. Native responses do not establish the actual credential source.
+- `credentialMode` is the configured Cloudflare request mode or `gateway-managed` for Vercel. `costLookup.isByok` preserves Vercel’s lookup evidence; Cloudflare leaves it null. Request mode alone does not establish the resolved credential source.
 - `usage` contains AI SDK-reported input, output and total tokens. Missing usage stays null.
 - `costLookup.estimateUsd` is the optional AI Gateway log `cost`. Cloudflare describes this value as an estimate. `customCost` preserves the API's indicator when available.
-- `actualCostUsd` stays null. Neither SDK usage nor AI Gateway log cost establishes the actual billed charge.
+- `costLookup.reportedUsd` is Vercel’s `getGenerationInfo().totalCost`, with source `vercel-generation`. Cloudflare estimates use source `cloudflare-log` and leave `reportedUsd` null.
+- `actualCostUsd` stays null. Reported gateway costs and estimates stay separate from final billing.
 
-The optional lookup calls `GET /accounts/{account}/ai-gateway/gateways/{gateway}/logs/{logId}` once with a five-second timeout. A 404 is `pending`; absent management credentials are `not-configured`; missing response IDs are `missing-log-id`; other lookup failures are explicit `failed`. A completed image survives a cost lookup failure and carries that status. Only selected log metadata is returned, excluding prompt and response payload fields.
+The optional lookup calls `GET /accounts/{account}/ai-gateway/gateways/{gateway}/logs/{logId}` once with a five-second timeout. A 404 is `pending`; absent management credentials are `not-configured`; missing response IDs are `missing-request-id`; other lookup failures are explicit `failed`. A completed image survives a cost lookup failure and carries that status. Only selected log metadata is returned, excluding prompt and response payload fields.
 
-Error responses from the native generation call retain the request receipt with its HTTP status and available IDs. A Gemini response containing text and no image is an explicit generation error. The UI clears previous results before a new request, displays failures and makes receipts expandable.
+Vercel uses the official SDK’s `getGenerationInfo({id})` once with a five-second transport timeout. A 404 is `pending`, a missing ID is `missing-request-id`, and other lookup failures are `failed`. This slice has no durable retry worker.
+
+Error responses from the generation call retain the request receipt with its HTTP status and available IDs. A Gemini response containing text and no image is an explicit generation error. The UI clears previous results before a new request, displays failures and makes receipts expandable.
 
 ## Gender Swap migration
 
-The reference repository is read-only for this work. Its current OpenAI `generateImage` and Google `generateText` calls can retain their quality, size, reference-image and resolution inputs while replacing the provider construction with this feature's native Cloudflare providers.
+The reference repository is read-only for this work. Its existing `dependencies.generate(request)` is the integration Seam: inject the selected `ImageGenerator` there and preserve task, credit, history and storage behavior. Adapt its production input/output contract explicitly; its nine-reference allowance and automatic sizing exceed this demo’s contract. Its current OpenAI `generateImage` and Google `generateText` calls can retain their quality, size, reference-image and resolution inputs while replacing the provider construction with this feature's native Cloudflare providers.
 
 Its task and cost layers need explicit changes before migration:
 
@@ -81,15 +96,19 @@ Documentation and synthetic transport tests establish the integration shape. The
 
 ## Verification boundary
 
-Synthetic transport tests exercise the installed SDKs against fabricated HTTP responses. They check request paths, multipart and inline references, native image parsing, provider-key stripping, no retry on failure, missing image errors, cost estimate labeling and log payload exclusion. They are not live model calls.
+The 2026-10-09 contract tests exercise the same `createImageGenerator(config)(request)` Interface for both Adapters, two models and prompt-only/reference inputs. They also cover credential stripping, errors, identity and cost semantics. Synthetic transport tests exercise the installed SDKs against fabricated HTTP responses. They check request paths, multipart and inline references, native image parsing, provider-key stripping, no retry on failure, missing image errors, cost estimate labeling and log payload exclusion. They are not live model calls.
 
 A fresh shadcn consumer must install the generated registry item through the CLI, typecheck, build and open the demo. When server credentials are absent, acceptance is limited to setup visibility, model controls, reference previews and disabled generation. A fixture-based result check can verify preview/download rendering, but must be reported separately from real model acceptance.
 
 The 2026-10-08 local acceptance passed unit tests, typechecks, production builds, the registry schema, this feature's projection and public export checks. A fresh Next.js consumer installed the published item with the official shadcn CLI, then passed typecheck and production build. Host and consumer browsers verified setup, model controls and reference previews. A browser-only synthetic response verified a 640 × 480 result, expandable receipt, mobile layout without horizontal overflow and a downloaded file whose SHA-256 matched the fixture. No live model request was made because the required credentials were absent.
 
+The 2026-10-09 Seam acceptance passed all 938 unit tests, full typecheck/lint, host and consumer production builds, the official shadcn installation and this feature’s projection/export checks. A consumer restarted under both gateway configurations showed the corresponding setup and returned the expected missing-credential 503. Browser-only synthetic responses verified both cost labels, gateway-specific download names and a 390px layout without horizontal overflow. Live model calls remain zero.
+
 The whole-repository registry synchronization check still reports existing drift in older shared gateway contracts, Generative UI and LangGraph projections. Those unrelated files were preserved. The host's local API also requires its existing trusted Vercel edge identity; the portable consumer API independently verified the expected 503 missing-configuration response.
 
 ## Official references
+
+- [Vercel provider routing](https://vercel.com/docs/ai-gateway/models-and-providers/provider-options), [generation lookup](https://vercel.com/docs/ai-gateway/observability-and-spend/usage)
 
 - [Cloudflare OpenAI native provider](https://developers.cloudflare.com/ai-gateway/usage/providers/openai/)
 - [Cloudflare Google AI Studio native provider](https://developers.cloudflare.com/ai-gateway/usage/providers/google-ai-studio/)

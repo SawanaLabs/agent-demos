@@ -3221,7 +3221,7 @@
     {
       "name": "cloudflare-ai-gateway",
       "title": "Cloudflare AI Gateway",
-      "description": "AI SDK 6 image generation and reference editing through Cloudflare native OpenAI and Google routes, with request receipts and explicit cost estimates.",
+      "description": "Image generation and reference editing with interchangeable Cloudflare and Vercel AI Gateway adapters, a common request contract and explicit cost receipts.",
       "dependencies": [
         "ai@^6.0.188",
         "@ai-sdk/openai@^3.0.65",
@@ -3245,6 +3245,11 @@
           "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/contract.ts",
           "type": "registry:lib",
           "target": "@lib/cloudflare-ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/config.ts",
+          "type": "registry:lib",
+          "target": "@lib/cloudflare-ai-gateway/server/config.ts"
         },
         {
           "path": "registry/cloudflare-ai-gateway/lib/cloudflare-ai-gateway/server/env.ts",
@@ -3313,6 +3318,8 @@
         }
       ],
       "envVars": {
+        "IMAGE_GATEWAY": "cloudflare",
+        "AI_GATEWAY_API_KEY": "",
         "CLOUDFLARE_ACCOUNT_ID": "",
         "CLOUDFLARE_AI_GATEWAY_ID": "",
         "CLOUDFLARE_AI_GATEWAY_TOKEN": "",
@@ -3322,7 +3329,7 @@
         "CLOUDFLARE_GOOGLE_API_KEY": "",
         "CLOUDFLARE_API_TOKEN": ""
       },
-      "docs": "Install into a shadcn Next.js App Router project. Open /demos/cloudflare-ai-gateway. The default request BYOK mode needs provider keys; stored-byok and unified-billing remove provider headers. Cost log lookup is optional and estimated, with actual charge unavailable. Registry source contains no host telemetry or usage gate.",
+      "docs": "Install into a shadcn Next.js App Router project. Open /demos/cloudflare-ai-gateway. IMAGE_GATEWAY selects cloudflare (default) or vercel; Vercel requires AI_GATEWAY_API_KEY. Cloudflare supports byok, stored-byok and unified-billing. Receipts distinguish estimated log costs from reported Vercel generation costs. Registry source contains no host telemetry or usage gate.",
       "type": "registry:block"
     }
   ]

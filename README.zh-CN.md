@@ -2,6 +2,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+Agent Demos 是 [Sawana Labs](https://github.com/SawanaLabs) 的开源项目。
+
 Agent Demos 帮你把 agent 原型变成可上线应用。
 
 选一个生产可用 demo 切片，把指南交给 Codex，约 1 小时内跑通并部署一个 Next.js agent app。已有 LangGraph Agent，也可以用它快速接到真实 Web 产品界面。

@@ -422,7 +422,7 @@ export default function Page() {
           ) : null}
         </section>
 
-        <footer className="border-foreground/10 border-t pt-6 text-muted-foreground text-sm">
+        <footer className="border-foreground/10 border-t pt-6 pb-12 text-muted-foreground text-sm">
           An open-source project by{" "}
           <a
             className="text-foreground underline underline-offset-4"

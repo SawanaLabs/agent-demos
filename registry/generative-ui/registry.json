@@ -98,6 +98,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"

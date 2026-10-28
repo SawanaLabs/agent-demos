@@ -51,6 +51,13 @@ function getTextContent(message: UIMessage) {
     .join("\n");
 }
 
+function getLatestAssistantText(messages: UIMessage[]) {
+  const assistant = [...messages]
+    .reverse()
+    .find((message) => message.role === "assistant");
+  return assistant ? getTextContent(assistant) : "";
+}
+
 function formatDateTime(value: string | null) {
   if (!value) {
     return "Pending";
@@ -264,25 +271,27 @@ export function PersistentAgentWorkspace({
     sendMessage,
     setMessages,
     status,
+    stop,
   } = useChat({
     id: chatId,
     messages: initialSession?.messages ?? [],
     resume: initialSession?.chat.activeStreamId != null,
     transport: createPersistentAgentTransport(),
   });
+  useEffect(
+    () => () => {
+      stop();
+    },
+    [stop]
+  );
   const retryConversationError = useConversationErrorRetry({
     clearError,
     regenerate,
   });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
-  const latestAssistant = [...messages]
-    .reverse()
-    .find((message) => message.role === "assistant");
   const latestMessageRole = messages.at(-1)?.role;
-  const latestAssistantText = latestAssistant
-    ? getTextContent(latestAssistant)
-    : "";
+  const latestAssistantText = getLatestAssistantText(messages);
   const showThinking = isBusy && latestAssistantText.length === 0;
   const showResumeThinking = shouldShowResumeThinking({
     initialSession,

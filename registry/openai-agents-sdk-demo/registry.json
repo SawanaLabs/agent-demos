@@ -99,6 +99,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"

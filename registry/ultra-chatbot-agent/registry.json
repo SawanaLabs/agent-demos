@@ -243,6 +243,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/ultra-chatbot-agent/resume-pending-state.ts",
           "type": "registry:component",
           "target": "@components/ultra-chatbot-agent/resume-pending-state.ts"

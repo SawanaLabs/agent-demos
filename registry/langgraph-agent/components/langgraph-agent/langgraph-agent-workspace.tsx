@@ -173,9 +173,9 @@ function GraphProgressPanel({
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
                       {isStreaming ? (
-                        <CircleDotDashedIcon className="size-4 shrink-0 text-emerald-600" />
+                        <CircleDotDashedIcon className="size-4 shrink-0 text-status-success-600" />
                       ) : (
-                        <CircleCheckIcon className="size-4 shrink-0 text-emerald-600" />
+                        <CircleCheckIcon className="size-4 shrink-0 text-status-success-600" />
                       )}
                       <span className="truncate font-medium text-sm">
                         {event.node}

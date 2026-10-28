@@ -10,6 +10,7 @@ import {
 } from "@workspace/ui/components/card";
 import { Crosshair, ExternalLink, Inbox, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useBeforeDemoSessionReset } from "@/components/demo-session";
 import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
 import { FeedbackCapture } from "./feedback-capture";
@@ -45,6 +46,11 @@ export function FeedbackWorkspace({
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
+  useBeforeDemoSessionReset(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("identity");
+    window.history.replaceState({}, "", url);
+  });
   const refresh = useCallback(async () => {
     const result = await requestJson<{ feedback: FeedbackSummary[] }>();
     setItems(result.feedback);

@@ -2,7 +2,7 @@
 
 import { Chat, useChat } from "@ai-sdk/react";
 import { type ChatStatus, DefaultChatTransport, type UIMessage } from "ai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CreateDemoChatOptions {
   api: string;
@@ -46,6 +46,12 @@ export function useDemoChat<TMessage extends UIMessage = UIMessage>(
     return createDemoChat<TMessage>({ api: options.api });
   });
   const controller = useChat({ chat });
+  useEffect(
+    () => () => {
+      chat.stop();
+    },
+    [chat]
+  );
   const hasMessages = controller.messages.length > 0;
   const isBusy = isDemoChatBusyStatus(controller.status);
 

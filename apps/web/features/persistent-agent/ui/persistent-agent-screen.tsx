@@ -25,6 +25,7 @@ export function PersistentAgentScreen({
         "Redis resume",
       ]}
       breadcrumbTitle="Persistent & Resume Agent"
+      sessionResetHref="/demos/persistent-agent"
       summary={
         <>
           This demo focuses on one contract: a chat becomes an addressable

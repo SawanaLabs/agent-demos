@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
+import { DemoSession, DemoSessionResetButton } from "@/components/demo-session";
 
 type DemoWorkspaceHeaderFrame = "header" | "card";
 
@@ -15,7 +16,9 @@ interface DemoWorkspaceShellProps {
   contentClassName?: string;
   headerClassName?: string;
   headerFrame?: DemoWorkspaceHeaderFrame;
+  isSessionResetDisabled?: boolean;
   maxWidthClassName?: string;
+  sessionResetHref?: string;
   summary: ReactNode;
   summaryClassName?: string;
   title: string;
@@ -24,10 +27,10 @@ interface DemoWorkspaceShellProps {
 }
 
 const defaultHeaderClassName =
-  "grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end";
+  "flex flex-col gap-4 border border-foreground/10 bg-background px-4 py-5";
 
 const cardHeaderClassName =
-  "grid gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal md:grid-cols-[minmax(0,1fr)_auto] md:items-end";
+  "flex flex-col gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal";
 
 export function DemoWorkspaceShell({
   badges = [],
@@ -37,7 +40,9 @@ export function DemoWorkspaceShell({
   contentClassName,
   headerClassName,
   headerFrame = "header",
+  isSessionResetDisabled = false,
   maxWidthClassName = "max-w-7xl",
+  sessionResetHref,
   summary,
   summaryClassName = "max-w-3xl",
   title,
@@ -46,11 +51,14 @@ export function DemoWorkspaceShell({
 }: DemoWorkspaceShellProps) {
   const headerContent = (
     <>
-      <div className="space-y-2">
-        <DemoBreadcrumb
-          className={breadcrumbClassName}
-          title={breadcrumbTitle ?? title}
-        />
+      <div className="min-w-0 space-y-2">
+        <div className="flex items-start justify-between gap-4">
+          <DemoBreadcrumb
+            className={breadcrumbClassName}
+            title={breadcrumbTitle ?? title}
+          />
+          <DemoSessionResetButton disabled={isSessionResetDisabled} />
+        </div>
         <h1
           className={cn("font-medium text-2xl tracking-tight", titleClassName)}
         >
@@ -79,30 +87,32 @@ export function DemoWorkspaceShell({
   );
 
   return (
-    <main className="min-h-svh bg-background text-foreground">
-      <div
-        className={cn(
-          "mx-auto flex w-full flex-col gap-6 px-4 py-6 md:px-6",
-          maxWidthClassName,
-          contentClassName
-        )}
-      >
-        {headerFrame === "card" ? (
-          <Card className={cn(cardHeaderClassName, headerClassName)}>
-            {headerContent}
-          </Card>
-        ) : (
-          <header className={cn(defaultHeaderClassName, headerClassName)}>
-            {headerContent}
-          </header>
-        )}
+    <DemoSession resetHref={sessionResetHref}>
+      <main className="min-h-svh bg-background text-foreground">
+        <div
+          className={cn(
+            "mx-auto flex w-full flex-col gap-6 px-4 py-6 md:px-6",
+            maxWidthClassName,
+            contentClassName
+          )}
+        >
+          {headerFrame === "card" ? (
+            <Card className={cn(cardHeaderClassName, headerClassName)}>
+              {headerContent}
+            </Card>
+          ) : (
+            <header className={cn(defaultHeaderClassName, headerClassName)}>
+              {headerContent}
+            </header>
+          )}
 
-        {workspaceClassName ? (
-          <div className={workspaceClassName}>{children}</div>
-        ) : (
-          children
-        )}
-      </div>
-    </main>
+          {workspaceClassName ? (
+            <div className={workspaceClassName}>{children}</div>
+          ) : (
+            children
+          )}
+        </div>
+      </main>
+    </DemoSession>
   );
 }

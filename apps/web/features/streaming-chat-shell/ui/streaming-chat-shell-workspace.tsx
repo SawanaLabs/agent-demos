@@ -35,7 +35,7 @@ import {
 } from "@workspace/ui/components/collapsible";
 import { cn } from "@workspace/ui/lib/utils";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -503,6 +503,13 @@ export function StreamingChatShellWorkspace({
           api: "/api/demos/streaming-chat-shell",
         }),
       })
+  );
+
+  useEffect(
+    () => () => {
+      chat.stop();
+    },
+    [chat]
   );
 
   return (

@@ -25,5 +25,7 @@ describe("DemoWorkspaceShell", () => {
     expect(markup).toContain("gpt-5-mini");
     expect(markup).toContain("lg:h-svh");
     expect(markup).toContain('data-testid="workspace-slot"');
+    expect(markup).toContain("Clear session");
+    expect(markup).toContain('type="button"');
   });
 });

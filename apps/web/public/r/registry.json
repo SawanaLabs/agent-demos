@@ -69,6 +69,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/foundation-chat/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/foundation-chat/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -542,6 +547,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/generative-ui/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/generative-ui/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -678,6 +688,11 @@
           "path": "registry/minimal-chat-agent/components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
         },
         {
           "path": "registry/minimal-chat-agent/components/demo-breadcrumb.tsx",
@@ -2060,6 +2075,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/openai-agents-sdk-demo/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/openai-agents-sdk-demo/components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
@@ -2380,6 +2400,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/langgraph-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/langgraph-agent/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -2664,6 +2689,11 @@
           "path": "registry/ultra-chatbot-agent/components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
         },
         {
           "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/resume-pending-state.ts",
@@ -3305,6 +3335,11 @@
           "path": "registry/cloudflare-ai-gateway/components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
         },
         {
           "path": "registry/cloudflare-ai-gateway/components/demo-breadcrumb.tsx",

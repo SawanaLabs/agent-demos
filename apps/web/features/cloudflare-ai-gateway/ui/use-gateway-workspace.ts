@@ -4,6 +4,7 @@ import {
   type ChangeEvent,
   type SyntheticEvent,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -29,6 +30,8 @@ export function useGatewayWorkspace(setup: GatewaySetup) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
   const selectedSetup = setup.models.find((entry) => entry.id === model);
   if (!selectedSetup) {
     throw new Error("Missing model setup.");
@@ -90,10 +93,13 @@ export function useGatewayWorkspace(setup: GatewaySetup) {
     setError(null);
     setFailureReceipt(null);
     setResult(null);
+    const controller = new AbortController();
+    requestRef.current = controller;
     try {
       const response = await fetch("/api/demos/cloudflare-ai-gateway", {
         method: "POST",
         body: form,
+        signal: controller.signal,
       });
       const body = (await response.json()) as GatewayResult & {
         error?: string;

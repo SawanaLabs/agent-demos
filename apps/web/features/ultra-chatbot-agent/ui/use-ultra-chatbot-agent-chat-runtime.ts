@@ -135,6 +135,12 @@ export function useUltraChatbotAgentChatRuntime(input: {
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     transport,
   });
+  useEffect(
+    () => () => {
+      stop();
+    },
+    [stop]
+  );
   const retryConversationError = useConversationErrorRetry({
     clearError,
     regenerate,

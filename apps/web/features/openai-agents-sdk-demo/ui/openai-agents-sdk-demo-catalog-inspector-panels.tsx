@@ -1,6 +1,7 @@
 import { Badge } from "@workspace/ui/components/badge";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ReactNode } from "react";
+import { PageText } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoGuardrailCatalogEntry } from "../server/guardrails";
 import type { OpenAiAgentsSdkDemoToolCatalogEntry } from "../server/tools";
@@ -57,7 +58,7 @@ function OpenAiAgentsSdkDemoGuardrailsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Guardrails
+        <PageText>{"Guardrails"}</PageText>
       </p>
       <div className="mt-2 space-y-2">
         {guardrailCatalog.map((item) => (
@@ -73,7 +74,7 @@ function OpenAiAgentsSdkDemoGuardrailsPanel({
                 className="border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300"
                 variant="outline"
               >
-                Evaluated this run
+                <PageText>{"Evaluated this run"}</PageText>
               </Badge>
             ) : null}
           </OpenAiAgentsSdkDemoCatalogCard>
@@ -91,7 +92,7 @@ function OpenAiAgentsSdkDemoApprovalsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Approvals
+        <PageText>{"Approvals"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow
@@ -143,7 +144,7 @@ function OpenAiAgentsSdkDemoResultsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Results
+        <PageText>{"Results"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow
@@ -190,7 +191,9 @@ function OpenAiAgentsSdkDemoResultsPanel({
         />
         <div className="space-y-2 pt-1">
           <div>
-            <p className="text-muted-foreground text-xs">Final output</p>
+            <p className="text-muted-foreground text-xs">
+              <PageText>{"Final output"}</PageText>
+            </p>
             <p className="mt-1 text-xs/relaxed">
               {lastResultSummary?.finalOutputPreview ??
                 "No settled result preview yet"}
@@ -212,7 +215,7 @@ function OpenAiAgentsSdkDemoToolsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Tools
+        <PageText>{"Tools"}</PageText>
       </p>
       <div className="mt-2 space-y-2">
         {toolCatalog.map((item) => (
@@ -228,7 +231,7 @@ function OpenAiAgentsSdkDemoToolsPanel({
                 className="border-status-success-500/30 bg-status-success-500/10 text-status-success-700 dark:text-status-success-300"
                 variant="outline"
               >
-                Used this run
+                <PageText>{"Used this run"}</PageText>
               </Badge>
             ) : null}
           </OpenAiAgentsSdkDemoCatalogCard>
@@ -246,7 +249,7 @@ function OpenAiAgentsSdkDemoGuideCoveragePanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Guide Coverage
+        <PageText>{"Guide Coverage"}</PageText>
       </p>
       <div className="mt-2 space-y-2">
         {guideCoverageWithCurrentRun.map((item) => (
@@ -287,10 +290,12 @@ function OpenAiAgentsSdkDemoGuideCoveragePanel({
                 className={cn(getStatusClassName(item.currentRunStatus))}
                 variant="outline"
               >
-                Run: {getRunStatusLabel(item.currentRunStatus)}
+                <PageText>{"Run: "}</PageText>
+                {getRunStatusLabel(item.currentRunStatus)}
               </Badge>
               <Badge variant="outline">
-                Provider: {item.providerCapabilityStatus}
+                <PageText>{"Provider: "}</PageText>
+                {item.providerCapabilityStatus}
               </Badge>
             </div>
           </div>

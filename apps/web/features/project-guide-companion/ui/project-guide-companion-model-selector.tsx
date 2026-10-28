@@ -13,6 +13,7 @@ import {
   ModelSelectorTrigger,
 } from "@workspace/ui/components/ai-elements/model-selector";
 import { ChevronDown } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { ProjectGuideCompanionModel } from "../model-catalog";
 
@@ -31,6 +32,8 @@ export function ProjectGuideCompanionModelSelector({
   selectedChatModel: string;
   selectedModel: ProjectGuideCompanionModel | undefined;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <ModelSelector onOpenChange={onOpenChange} open={isOpen}>
       <ModelSelectorTrigger className="inline-flex h-7 max-w-[13rem] items-center gap-2 border border-input px-2 text-xs">
@@ -40,10 +43,15 @@ export function ProjectGuideCompanionModelSelector({
         </span>
         <ChevronDown className="size-3 shrink-0" />
       </ModelSelectorTrigger>
-      <ModelSelectorContent className="sm:max-w-md" title="Select model">
-        <ModelSelectorInput placeholder="Search models..." />
+      <ModelSelectorContent
+        className="sm:max-w-md"
+        title={pageCopy("Select model")}
+      >
+        <ModelSelectorInput placeholder={pageCopy("Search models...")} />
         <ModelSelectorList>
-          <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+          <ModelSelectorEmpty>
+            <PageText>{"No models found."}</PageText>
+          </ModelSelectorEmpty>
           <ModelSelectorGroup heading="Available models">
             {models.map((model) => (
               <ModelSelectorItem

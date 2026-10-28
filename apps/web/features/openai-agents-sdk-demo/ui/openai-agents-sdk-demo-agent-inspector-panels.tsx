@@ -1,4 +1,5 @@
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoHandoffCatalogEntry } from "../server/handoffs";
 import type {
@@ -65,7 +66,7 @@ function OpenAiAgentsSdkDemoHandoffsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Handoffs
+        <PageText>{"Handoffs"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Configured" value={handoffCatalog.length} />
@@ -110,7 +111,7 @@ function OpenAiAgentsSdkDemoMcpPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        MCP
+        <PageText>{"MCP"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Transport" value={mcpProfile.transport} />
@@ -168,7 +169,7 @@ function OpenAiAgentsSdkDemoSandboxPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Sandbox
+        <PageText>{"Sandbox"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Client" value={sandboxProfile.clientBackend} />
@@ -213,7 +214,9 @@ function OpenAiAgentsSdkDemoSandboxPanel({
             values={sandboxProfile.sdkPrimitives}
           />
           <div>
-            <p className="text-muted-foreground text-xs">Persisted sessions</p>
+            <p className="text-muted-foreground text-xs">
+              <PageText>{"Persisted sessions"}</PageText>
+            </p>
             <p className="mt-1 text-xs/relaxed">
               {lastSandboxSummary?.persistedSessionCount ?? 0}
             </p>
@@ -234,7 +237,7 @@ function OpenAiAgentsSdkDemoTracingPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Tracing
+        <PageText>{"Tracing"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow
@@ -310,7 +313,7 @@ function OpenAiAgentsSdkDemoModelPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Model
+        <PageText>{"Model"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Model" value={modelProfile.model} />

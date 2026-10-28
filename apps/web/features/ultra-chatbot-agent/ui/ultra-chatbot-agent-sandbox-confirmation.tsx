@@ -11,6 +11,7 @@ import {
   ConfirmationTitle,
 } from "@workspace/ui/components/ai-elements/confirmation";
 import type { ToolUIPart } from "ai";
+import { PageText } from "@/components/page-copy";
 import type { UltraChatbotAgentSandboxApprovalResponseHandler } from "./ultra-chatbot-agent-sandbox-approval";
 
 interface SandboxApprovalToolInput {
@@ -58,12 +59,17 @@ export function UltraChatbotAgentSandboxConfirmation({
       className="border-status-warning-500/30 bg-status-warning-500/5"
       state={part.state}
     >
-      <ConfirmationTitle>Enable sandbox for this chat?</ConfirmationTitle>
+      <ConfirmationTitle>
+        <PageText>{"Enable sandbox for this chat?"}</PageText>
+      </ConfirmationTitle>
       <ConfirmationRequest>
         <div className="space-y-2 text-sm">
           <p>
-            The agent needs sandbox-backed tools before it can continue with
-            this request.
+            <PageText>
+              {
+                "The agent needs sandbox-backed tools before it can continue with this request."
+              }
+            </PageText>
           </p>
           {input.reason ? (
             <p className="text-muted-foreground">{input.reason}</p>
@@ -84,12 +90,18 @@ export function UltraChatbotAgentSandboxConfirmation({
       </ConfirmationRequest>
       <ConfirmationAccepted>
         <CheckCircleIcon className="size-4" />
-        <span>Sandbox is enabled for this chat. The agent can continue.</span>
+        <span>
+          <PageText>
+            {"Sandbox is enabled for this chat. The agent can continue."}
+          </PageText>
+        </span>
       </ConfirmationAccepted>
       <ConfirmationRejected>
         <XCircleIcon className="size-4" />
         <span>
-          Sandbox stayed disabled. The agent will continue without it.
+          <PageText>
+            {"Sandbox stayed disabled. The agent will continue without it."}
+          </PageText>
         </span>
       </ConfirmationRejected>
       <ConfirmationActions>
@@ -105,7 +117,7 @@ export function UltraChatbotAgentSandboxConfirmation({
           variant="outline"
         >
           <XCircleIcon className="size-3.5" />
-          Keep disabled
+          <PageText>{"Keep disabled"}</PageText>
         </ConfirmationAction>
         <ConfirmationAction
           disabled={isPending}
@@ -118,7 +130,7 @@ export function UltraChatbotAgentSandboxConfirmation({
           }}
         >
           <CheckCircleIcon className="size-3.5" />
-          Enable sandbox
+          <PageText>{"Enable sandbox"}</PageText>
         </ConfirmationAction>
       </ConfirmationActions>
     </Confirmation>

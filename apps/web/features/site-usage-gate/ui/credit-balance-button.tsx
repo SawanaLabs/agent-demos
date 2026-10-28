@@ -10,6 +10,7 @@ import {
 } from "@workspace/ui/components/popover";
 import { Coins, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 import {
   type creditPriceList,
   messageCreditCost,
@@ -100,14 +101,22 @@ export function CreditBalanceButton() {
         className="max-h-[min(32rem,var(--available-height))] w-80 max-w-[calc(100vw-2rem)] gap-4 overflow-y-auto p-4"
       >
         <div className="space-y-1">
-          <PopoverTitle>Your demo credits</PopoverTitle>
+          <PopoverTitle>
+            <PageText>{"Your demo credits"}</PageText>
+          </PopoverTitle>
           <PopoverDescription>
-            One shared allowance across all demos for your visitor identity.
+            <PageText>
+              {
+                "One shared allowance across all demos for your visitor identity."
+              }
+            </PageText>
           </PopoverDescription>
         </div>
         {error && (
           <div className="space-y-2" role="alert">
-            <p>Could not load your credit balance.</p>
+            <p>
+              <PageText>{"Could not load your credit balance."}</PageText>
+            </p>
             <Button
               disabled={loading}
               onClick={() => {
@@ -117,7 +126,7 @@ export function CreditBalanceButton() {
               variant="outline"
             >
               <RefreshCw className="size-3.5" />
-              Try again
+              <PageText>{"Try again"}</PageText>
             </Button>
           </div>
         )}
@@ -129,7 +138,9 @@ export function CreditBalanceButton() {
                   {balance.remainingUnits}
                 </span>
                 <span className="ml-2 text-muted-foreground">
-                  of {balance.allowanceUnits} credits left
+                  <PageText>{"of "}</PageText>
+                  {balance.allowanceUnits}
+                  <PageText>{" credits left"}</PageText>
                 </span>
               </p>
               <div className="h-1.5 overflow-hidden bg-muted">
@@ -145,7 +156,9 @@ export function CreditBalanceButton() {
               </p>
             </div>
             <div className="border-t pt-3">
-              <p className="mb-2 font-medium">How credits are used</p>
+              <p className="mb-2 font-medium">
+                <PageText>{"How credits are used"}</PageText>
+              </p>
               <dl className="space-y-2">
                 {balance.prices.map((price, index) => (
                   <div
@@ -154,7 +167,7 @@ export function CreditBalanceButton() {
                   >
                     <dt className="text-muted-foreground">{price.label}</dt>
                     <dd className="shrink-0 tabular-nums">
-                      {index === 0 ? "" : "+"}
+                      <PageText>{index === 0 ? "" : "+"}</PageText>
                       {price.credits}
                     </dd>
                   </div>
@@ -162,20 +175,33 @@ export function CreditBalanceButton() {
               </dl>
             </div>
             <p className="text-muted-foreground text-xs/relaxed">
-              A message with one generated image uses{" "}
-              {messageCreditCost + resourceCreditCosts.image_generation}{" "}
-              credits. Workflows add up the nodes they execute. Reused results
-              and regular canvas edits cost no extra credits. Canvas Agent chat
-              is free; its generated images cost{" "}
-              {resourceCreditCosts.image_generation} credits each.
+              <PageText>{"A message with one generated image uses"}</PageText>
+              <PageText> </PageText>
+              {messageCreditCost + resourceCreditCosts.image_generation}
+              <PageText> </PageText>
+              <PageText>
+                {
+                  "credits. Workflows add up the nodes they execute. Reused results and regular canvas edits cost no extra credits. Canvas Agent chat is free; its generated images cost"
+                }
+              </PageText>
+              <PageText> </PageText>
+              {resourceCreditCosts.image_generation}
+              <PageText>{" credits each."}</PageText>
             </p>
             <p className="text-muted-foreground text-xs/relaxed">
-              Generation attempts use credits even if the provider fails.
-              Credits refresh automatically; unused credits do not carry over.
+              <PageText>
+                {
+                  "Generation attempts use credits even if the provider fails. Credits refresh automatically; unused credits do not carry over."
+                }
+              </PageText>
             </p>
           </>
         )}
-        {!(error || balance) && <p role="status">Loading your credits…</p>}
+        {!(error || balance) && (
+          <p role="status">
+            <PageText>{"Loading your credits…"}</PageText>
+          </p>
+        )}
       </PopoverContent>
     </Popover>
   );

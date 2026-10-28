@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { ImageResultNodeData } from "../model/workflow-engine";
 
@@ -135,6 +136,8 @@ export function ImageWorkflowAgentCanvasControls({
   resultStatus,
   revision,
 }: ImageWorkflowAgentCanvasControlsProps) {
+  const pageCopy = usePageCopy();
+
   const actionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [activeActionIndex, setActiveActionIndex] = useState(0);
   const enabledActions = [canAddReference, canReset, canRun] as const;
@@ -171,9 +174,14 @@ export function ImageWorkflowAgentCanvasControls({
         position="top-left"
       >
         <div className="flex items-center gap-1.5 border border-border bg-background/95 p-1 shadow-sm backdrop-blur">
-          <Badge variant="outline">Revision {revision}</Badge>
           <Badge variant="outline">
-            {hasReference ? "Reference attached" : "Prompt only"}
+            <PageText>{"Revision "}</PageText>
+            {revision}
+          </Badge>
+          <Badge variant="outline">
+            <PageText>
+              {hasReference ? "Reference attached" : "Prompt only"}
+            </PageText>
           </Badge>
           <Badge variant="outline">{resultStatus}</Badge>
         </div>
@@ -184,7 +192,7 @@ export function ImageWorkflowAgentCanvasControls({
         position="bottom-center"
       >
         <div
-          aria-label="Workflow actions"
+          aria-label={pageCopy("Workflow actions")}
           aria-orientation="horizontal"
           className="flex items-center gap-1 border border-border bg-background/95 p-1.5 shadow-lg backdrop-blur"
           role="toolbar"
@@ -194,7 +202,7 @@ export function ImageWorkflowAgentCanvasControls({
               actionRefs.current[0] = node;
             }}
             disabled={!canAddReference}
-            label="Add reference"
+            label={pageCopy("Add reference")}
             onClick={onAddReference}
             onFocus={() => setActiveActionIndex(0)}
             onKeyDown={createKeyboardHandler(0)}
@@ -207,7 +215,7 @@ export function ImageWorkflowAgentCanvasControls({
               actionRefs.current[1] = node;
             }}
             disabled={!canReset}
-            label="Reset workflow"
+            label={pageCopy("Reset workflow")}
             onClick={onReset}
             onFocus={() => setActiveActionIndex(1)}
             onKeyDown={createKeyboardHandler(1)}
@@ -221,7 +229,7 @@ export function ImageWorkflowAgentCanvasControls({
               actionRefs.current[2] = node;
             }}
             disabled={!canRun}
-            label="Run workflow"
+            label={pageCopy("Run workflow")}
             onClick={onRun}
             onFocus={() => setActiveActionIndex(2)}
             onKeyDown={createKeyboardHandler(2)}

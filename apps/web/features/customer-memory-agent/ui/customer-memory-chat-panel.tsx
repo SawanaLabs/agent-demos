@@ -39,6 +39,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -118,17 +119,23 @@ function AssistantMessageText({
   onRetryTurn: () => Promise<void>;
   text: string;
 }) {
+  const pageCopy = usePageCopy();
+
   if (text.length > 0) {
     return <MessageResponse>{text}</MessageResponse>;
   }
 
   if (isStreaming) {
-    return <Shimmer className="text-sm">Thinking...</Shimmer>;
+    return <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>;
   }
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-muted-foreground text-sm">
-      <span>Something went wrong while the agent was working.</span>
+      <span>
+        <PageText>
+          {"Something went wrong while the agent was working."}
+        </PageText>
+      </span>
       <Button
         onClick={() => {
           onRetryTurn();
@@ -138,7 +145,7 @@ function AssistantMessageText({
         variant="outline"
       >
         <ArrowClockwiseIcon className="size-3.5" />
-        Retry turn
+        <PageText>{"Retry turn"}</PageText>
       </Button>
     </div>
   );
@@ -204,7 +211,7 @@ export function CustomerMemoryChatPanel({
   onStopChat,
 }: CustomerMemoryChatPanelProps) {
   return (
-    <section className="flex min-h-[74svh] flex-col border border-foreground/10 bg-background xl:h-full xl:min-h-0">
+    <section className="flex min-h-[74svh] min-w-0 flex-col border border-foreground/10 bg-background xl:h-full xl:min-h-0">
       {isChatAvailable ? null : (
         <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
           {setupMessage}
@@ -300,6 +307,8 @@ function CustomerMemoryConversationContent({
   session: CustomerMemorySessionData | null;
   sessionErrorMessage: string | null;
 }) {
+  const pageCopy = usePageCopy();
+
   const hasErrors = Boolean(chatErrorMessage || sessionErrorMessage);
 
   if (messages.length === 0 && !hasErrors) {
@@ -309,9 +318,11 @@ function CustomerMemoryConversationContent({
 
     return (
       <ConversationEmptyState
-        description="Talk to one customer thread, let the agent write durable memories through a tool call, then inspect the saved memories and handoff compaction on the right."
+        description={pageCopy(
+          "Talk to one customer thread, let the agent write durable memories through a tool call, then inspect the saved memories and handoff compaction on the right."
+        )}
         icon={<DatabaseIcon className="size-5" />}
-        title="Customer memory workspace is ready"
+        title={pageCopy("Customer memory workspace is ready")}
       />
     );
   }
@@ -377,7 +388,7 @@ function CustomerMemoryConversationContent({
       {sessionErrorMessage ? (
         <ConversationErrorMessage
           error={sessionErrorMessage}
-          title="Customer memory session failed"
+          title={"Customer memory session failed"}
         />
       ) : null}
       {chatErrorMessage ? (
@@ -404,17 +415,21 @@ function CustomerMemoryContextCheckpoint({
   messageCount: number;
   state: "completed" | "pending";
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <Checkpoint className="my-1 w-full gap-2 text-muted-foreground text-xs">
       <span className="h-px flex-1 bg-border" />
       <ScrollIcon className="size-4 shrink-0" />
       {state === "pending" ? (
         <Shimmer className="shrink-0 font-medium">
-          Compacting customer context...
+          {pageCopy("Compacting customer context...")}
         </Shimmer>
       ) : (
         <span className="shrink-0 font-medium">
-          Context compacted - {messageCount} messages summarized
+          <PageText>{"Context compacted - "}</PageText>
+          {messageCount}
+          <PageText>{" messages summarized"}</PageText>
         </span>
       )}
     </Checkpoint>
@@ -454,6 +469,8 @@ function CustomerMemoryComposer({
   onSendPrompt: (text: string) => Promise<void>;
   onStopChat: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   const compactionMessageCount = messages.filter(
     hasCustomerMemoryMessageContent
   ).length;
@@ -477,15 +494,23 @@ function CustomerMemoryComposer({
               }
               placeholder={
                 isReadonlyAccount
-                  ? "This demo account is read-only. Switch to Demo Sandbox to create your own private thread."
-                  : "Ask for an update, share a durable customer fact, or tell the agent about a promise that should be remembered later."
+                  ? pageCopy(
+                      "This demo account is read-only. Switch to Demo Sandbox to create your own private thread."
+                    )
+                  : pageCopy(
+                      "Ask for an update, share a durable customer fact, or tell the agent about a promise that should be remembered later."
+                    )
               }
             />
           </PromptInputBody>
           <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Persistent thread</Badge>
-              <Badge variant="outline">Agent memory tool</Badge>
+              <Badge variant="outline">
+                <PageText>{"Persistent thread"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Agent memory tool"}</PageText>
+              </Badge>
               <Badge variant="outline">{chatModel}</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -508,7 +533,7 @@ function CustomerMemoryComposer({
                   variant="outline"
                 >
                   <StopIcon className="size-3.5" />
-                  Stop
+                  <PageText>{"Stop"}</PageText>
                 </Button>
               ) : null}
               {messages.length > 0 ? (
@@ -522,7 +547,7 @@ function CustomerMemoryComposer({
                   variant="outline"
                 >
                   <ArrowClockwiseIcon className="size-3.5" />
-                  Retry
+                  <PageText>{"Retry"}</PageText>
                 </Button>
               ) : null}
               <PromptInputSubmit
@@ -539,7 +564,7 @@ function CustomerMemoryComposer({
           <div className="flex flex-wrap gap-2">
             {samplePrompts.map((prompt) => (
               <Button
-                className="max-w-full justify-start text-left"
+                className="h-auto max-w-full justify-start whitespace-normal text-left"
                 disabled={
                   !isReady ||
                   isBusy ||
@@ -555,7 +580,7 @@ function CustomerMemoryComposer({
                 type="button"
                 variant="outline"
               >
-                {prompt}
+                <PageText>{prompt}</PageText>
               </Button>
             ))}
           </div>

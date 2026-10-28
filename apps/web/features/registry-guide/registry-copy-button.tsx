@@ -3,8 +3,11 @@
 import { Button } from "@workspace/ui/components/button";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { usePageCopy } from "@/components/page-copy";
 
 export function RegistryCopyButton({ value }: { value: string }) {
+  const pageCopy = usePageCopy();
+
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
@@ -34,10 +37,10 @@ export function RegistryCopyButton({ value }: { value: string }) {
 
   return (
     <Button
-      aria-label={copied ? "Copied" : "Copy command"}
+      aria-label={copied ? pageCopy("Copied") : pageCopy("Copy command")}
       onClick={copyValue}
       size="icon-sm"
-      title={copied ? "Copied" : "Copy command"}
+      title={copied ? pageCopy("Copied") : pageCopy("Copy command")}
       type="button"
       variant="ghost"
     >

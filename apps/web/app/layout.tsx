@@ -1,4 +1,6 @@
 import { Geist, JetBrains_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 
 import "@workspace/ui/globals.css";
 import { cn } from "@workspace/ui/lib/utils";
@@ -9,6 +11,8 @@ import { ProjectGuideCompanion } from "@/features/project-guide-companion/ui/pro
 import { readSiteAnalyticsConfig } from "@/features/site-analytics/server/config";
 import { SiteAnalyticsRoot } from "@/features/site-analytics/ui/site-analytics-root";
 import { SiteUsageGateProvider } from "@/features/site-usage-gate/ui/site-usage-gate-provider";
+import { LanguageSwitch } from "@/i18n/language-switch";
+import { SitePageCopy } from "@/i18n/site-page-copy";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -20,11 +24,12 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   const analyticsConfig = readSiteAnalyticsConfig({
     isVercel: env.VERCEL === "1",
     nodeEnvironment: env.NODE_ENV,
@@ -41,19 +46,24 @@ export default function RootLayout({
         "font-mono",
         jetbrainsMono.variable
       )}
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
     >
       <body>
-        <SiteAnalyticsRoot config={analyticsConfig}>
-          <ThemeProvider>
-            <SiteUsageGateProvider>
-              {children}
-              <ThemeToggle />
-              <ProjectGuideCompanion />
-            </SiteUsageGateProvider>
-          </ThemeProvider>
-        </SiteAnalyticsRoot>
+        <NextIntlClientProvider>
+          <SitePageCopy>
+            <SiteAnalyticsRoot config={analyticsConfig}>
+              <ThemeProvider>
+                <SiteUsageGateProvider>
+                  {children}
+                  <ThemeToggle />
+                  <LanguageSwitch />
+                  <ProjectGuideCompanion />
+                </SiteUsageGateProvider>
+              </ThemeProvider>
+            </SiteAnalyticsRoot>
+          </SitePageCopy>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

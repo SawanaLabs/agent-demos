@@ -20,6 +20,7 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
 import type { ReactNode } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
@@ -102,6 +103,8 @@ export function UltraChatbotAgentMessages({
   status,
   votesByMessageId,
 }: UltraChatbotAgentMessagesProps) {
+  const pageCopy = usePageCopy();
+
   const lastMessageId = messages.at(-1)?.id;
 
   return (
@@ -142,7 +145,7 @@ export function UltraChatbotAgentMessages({
       {showResumeThinking ? (
         <Message from="assistant">
           <MessageContent className="w-full min-w-0 max-w-3xl">
-            <Shimmer className="text-sm">Thinking...</Shimmer>
+            <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
           </MessageContent>
         </Message>
       ) : null}
@@ -246,7 +249,7 @@ function UltraChatbotAgentMessage({
             type="button"
             variant="outline"
           >
-            Edit
+            <PageText>{"Edit"}</PageText>
           </Button>
         </div>
       ) : null}
@@ -261,6 +264,8 @@ function UltraChatbotAgentMessageBody({
   messageId: string;
   plan: UltraChatbotAgentMessageRenderPlan;
 }) {
+  const pageCopy = usePageCopy();
+
   if (plan.bodyKind === "text") {
     return (
       <div className="space-y-4">
@@ -287,7 +292,7 @@ function UltraChatbotAgentMessageBody({
   }
 
   if (plan.bodyKind === "thinking") {
-    return <Shimmer className="text-sm">Thinking...</Shimmer>;
+    return <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>;
   }
 
   if (plan.bodyKind === "tool-only" || plan.bodyKind === "source-only") {
@@ -295,7 +300,9 @@ function UltraChatbotAgentMessageBody({
   }
 
   return (
-    <p className="text-muted-foreground text-sm">Waiting for visible output.</p>
+    <p className="text-muted-foreground text-sm">
+      <PageText>{"Waiting for visible output."}</PageText>
+    </p>
   );
 }
 
@@ -343,10 +350,10 @@ function UltraChatbotAgentMessageEditForm({
           type="button"
           variant="outline"
         >
-          Save and replay
+          <PageText>{"Save and replay"}</PageText>
         </Button>
         <Button onClick={onCancelEdit} size="sm" type="button" variant="ghost">
-          Cancel
+          <PageText>{"Cancel"}</PageText>
         </Button>
       </div>
     </div>
@@ -389,34 +396,40 @@ function UltraChatbotAgentMessageFeedback({
   onVote: (type: "down" | "up") => void | Promise<void>;
   plan: UltraChatbotAgentMessageRenderPlan;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="mt-3 flex items-center gap-2">
       <Button
-        aria-label="Helpful"
+        aria-label={pageCopy("Helpful")}
         disabled={plan.isVotePending}
         onClick={() => onVote("up")}
         size="sm"
-        title="Helpful"
+        title={pageCopy("Helpful")}
         type="button"
         variant={plan.currentVote === true ? "secondary" : "outline"}
       >
         {getHelpfulButtonIcon(plan)}
         {plan.currentVote === true && !plan.isHelpfulPending ? (
-          <span>Helpful</span>
+          <span>
+            <PageText>{"Helpful"}</PageText>
+          </span>
         ) : null}
       </Button>
       <Button
-        aria-label="Needs work"
+        aria-label={pageCopy("Needs work")}
         disabled={plan.isVotePending}
         onClick={() => onVote("down")}
         size="sm"
-        title="Needs work"
+        title={pageCopy("Needs work")}
         type="button"
         variant={plan.currentVote === false ? "secondary" : "outline"}
       >
         {getNeedsWorkButtonIcon(plan)}
         {plan.currentVote === false && !plan.isNeedsWorkPending ? (
-          <span>Needs work</span>
+          <span>
+            <PageText>{"Needs work"}</PageText>
+          </span>
         ) : null}
       </Button>
     </div>

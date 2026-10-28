@@ -18,6 +18,7 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import type { UIMessage } from "ai";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { getPreviewOutput, sanitizePreviewText } from "./preview-state";
 import {
   getReasoningText,
@@ -39,6 +40,8 @@ export function SandboxAgentAssistantTrace({
   message,
   onOpenPreview,
 }: SandboxAgentAssistantTraceProps) {
+  const pageCopy = usePageCopy();
+
   const reasoningText = getReasoningText(message);
   const toolParts = getToolParts(message);
   const preview = getPreviewOutput(toolParts);
@@ -59,7 +62,9 @@ export function SandboxAgentAssistantTrace({
   if (hasText) {
     bodyContent = <MessageResponse>{text}</MessageResponse>;
   } else if (showBodyThinking) {
-    bodyContent = <Shimmer className="text-sm">Thinking...</Shimmer>;
+    bodyContent = (
+      <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
+    );
   }
 
   return (
@@ -74,7 +79,7 @@ export function SandboxAgentAssistantTrace({
       {writtenFiles.length > 0 ? (
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Generated files
+            <PageText>{"Generated files"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {writtenFiles.map((filePath) => (
@@ -108,7 +113,10 @@ export function SandboxAgentAssistantTrace({
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{preview.directory ?? "."}</Badge>
-            <Badge variant="outline">port {preview.port ?? 3000}</Badge>
+            <Badge variant="outline">
+              <PageText>{"port "}</PageText>
+              {preview.port ?? 3000}
+            </Badge>
             {preview.entryPath ? (
               <Badge variant="secondary">{preview.entryPath}</Badge>
             ) : null}
@@ -121,7 +129,7 @@ export function SandboxAgentAssistantTrace({
             variant="outline"
           >
             <GlobeHemisphereWestIcon className="size-4" />
-            Open preview
+            <PageText>{"Open preview"}</PageText>
           </Button>
         </div>
       ) : null}

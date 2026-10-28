@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import { configuredTools } from "./sandbox-agent-model";
 
@@ -20,7 +21,7 @@ export function SandboxRuntimeSidebar({
       <div className="space-y-5">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Runtime
+            <PageText>{"Runtime"}</PageText>
           </p>
           <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           <p className="mt-1 text-muted-foreground text-sm">
@@ -30,7 +31,7 @@ export function SandboxRuntimeSidebar({
 
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Configured tools
+            <PageText>{"Configured tools"}</PageText>
           </p>
           {configuredTools.map((tool) => (
             <div
@@ -47,23 +48,35 @@ export function SandboxRuntimeSidebar({
 
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Preview contract
+            <PageText>{"Preview contract"}</PageText>
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Badge variant="secondary">port {previewPort}</Badge>
-            <Badge variant="secondary">HTML / CSS / JS</Badge>
-            <Badge variant="secondary">live iframe</Badge>
+            <Badge variant="secondary">
+              <PageText>{"port "}</PageText>
+              {previewPort}
+            </Badge>
+            <Badge variant="secondary">
+              <PageText>{"HTML / CSS / JS"}</PageText>
+            </Badge>
+            <Badge variant="secondary">
+              <PageText>{"live iframe"}</PageText>
+            </Badge>
           </div>
         </div>
 
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Source core
+            <PageText>{"Source core"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            The model writes code in a persistent sandbox workspace, uses bash
-            and direct file tools for iteration, then calls{" "}
-            <code>startPreview</code> to publish the generated prototype.
+            <PageText>
+              {
+                "The model writes code in a persistent sandbox workspace, uses bash and direct file tools for iteration, then calls"
+              }
+            </PageText>
+            <PageText> </PageText>
+            <code>startPreview</code>
+            <PageText>{" to publish the generated prototype."}</PageText>
           </p>
         </div>
       </div>

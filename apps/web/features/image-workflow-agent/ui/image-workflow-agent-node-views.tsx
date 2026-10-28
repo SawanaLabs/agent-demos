@@ -23,6 +23,7 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { Trash2Icon, UploadIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useRef } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type {
   ImageGeneratorNode,
@@ -57,8 +58,12 @@ export function ReferenceImageNodeView({
     <Node className="w-[20rem]" handles={{ source: true, target: false }}>
       <NodeHeader>
         <div className="space-y-1">
-          <NodeTitle>Reference Image</NodeTitle>
-          <NodeDescription>Optional source material for edits.</NodeDescription>
+          <NodeTitle>
+            <PageText>{"Reference Image"}</PageText>
+          </NodeTitle>
+          <NodeDescription>
+            <PageText>{"Optional source material for edits."}</PageText>
+          </NodeDescription>
         </div>
         <NodeAction>
           <Button
@@ -74,7 +79,9 @@ export function ReferenceImageNodeView({
       </NodeHeader>
       <NodeContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor={`${node.id}-label`}>Label</Label>
+          <Label htmlFor={`${node.id}-label`}>
+            <PageText>{"Label"}</PageText>
+          </Label>
           <Input
             disabled={disabled}
             id={`${node.id}-label`}
@@ -92,7 +99,9 @@ export function ReferenceImageNodeView({
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label htmlFor={`${node.id}-upload`}>Image</Label>
+            <Label htmlFor={`${node.id}-upload`}>
+              <PageText>{"Image"}</PageText>
+            </Label>
             {image ? <Badge variant="outline">{image.mediaType}</Badge> : null}
           </div>
           {image ? (
@@ -106,7 +115,7 @@ export function ReferenceImageNodeView({
             />
           ) : (
             <div className="rounded-md border border-border border-dashed bg-muted/40 px-4 py-8 text-center text-muted-foreground text-sm">
-              Upload one image up to 4 MiB.
+              <PageText>{"Upload one image up to 4 MiB."}</PageText>
             </div>
           )}
           <div className="flex items-center gap-2">
@@ -129,7 +138,7 @@ export function ReferenceImageNodeView({
               variant="outline"
             >
               <UploadIcon className="size-4" />
-              Upload
+              <PageText>{"Upload"}</PageText>
             </Button>
             {image ? (
               <Button
@@ -140,7 +149,7 @@ export function ReferenceImageNodeView({
                 variant="ghost"
               >
                 <XIcon className="size-4" />
-                Clear
+                <PageText>{"Clear"}</PageText>
               </Button>
             ) : null}
           </div>
@@ -169,25 +178,35 @@ export function ImageGeneratorNodeView({
   onPromptChange,
   onPromptCommit,
 }: ImageGeneratorNodeViewProps) {
+  const pageCopy = usePageCopy();
+
   const promptAtFocus = useRef(node.data.prompt);
 
   return (
     <Node className="w-[22rem]" handles={{ source: true, target: true }}>
       <NodeHeader>
         <div className="space-y-1">
-          <NodeTitle>Image Generator</NodeTitle>
-          <NodeDescription>Required prompt and aspect ratio.</NodeDescription>
+          <NodeTitle>
+            <PageText>{"Image Generator"}</PageText>
+          </NodeTitle>
+          <NodeDescription>
+            <PageText>{"Required prompt and aspect ratio."}</PageText>
+          </NodeDescription>
         </div>
       </NodeHeader>
       <NodeContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Image model</Label>
+          <Label>
+            <PageText>{"Image model"}</PageText>
+          </Label>
           <Badge className="max-w-full truncate" variant="outline">
             {imageModel}
           </Badge>
         </div>
         <div className="space-y-2">
-          <Label>Aspect ratio</Label>
+          <Label>
+            <PageText>{"Aspect ratio"}</PageText>
+          </Label>
           <Select
             disabled={disabled}
             onValueChange={(value) => {
@@ -208,7 +227,9 @@ export function ImageGeneratorNodeView({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor={`${node.id}-prompt`}>Prompt</Label>
+          <Label htmlFor={`${node.id}-prompt`}>
+            <PageText>{"Prompt"}</PageText>
+          </Label>
           <Textarea
             disabled={disabled}
             id={`${node.id}-prompt`}
@@ -221,7 +242,9 @@ export function ImageGeneratorNodeView({
             onFocus={(event) => {
               promptAtFocus.current = event.target.value;
             }}
-            placeholder="Describe the image to generate or the edit to apply."
+            placeholder={pageCopy(
+              "Describe the image to generate or the edit to apply."
+            )}
             value={node.data.prompt}
           />
         </div>
@@ -235,9 +258,11 @@ export function ImageResultNodeView({ node }: { node: ImageResultNode }) {
     <Node className="w-[20rem]" handles={{ source: false, target: true }}>
       <NodeHeader>
         <div className="space-y-1">
-          <NodeTitle>Image Result</NodeTitle>
+          <NodeTitle>
+            <PageText>{"Image Result"}</PageText>
+          </NodeTitle>
           <NodeDescription>
-            Latest workflow output and run state.
+            <PageText>{"Latest workflow output and run state."}</PageText>
           </NodeDescription>
         </div>
         <NodeAction>
@@ -266,9 +291,11 @@ export function ImageResultNodeView({ node }: { node: ImageResultNode }) {
           />
         ) : (
           <div className="rounded-md border border-border border-dashed bg-muted/40 px-4 py-10 text-center text-muted-foreground text-sm">
-            {node.data.status === "running"
-              ? "Generating the image."
-              : "Run the workflow to produce the final image."}
+            <PageText>
+              {node.data.status === "running"
+                ? "Generating the image."
+                : "Run the workflow to produce the final image."}
+            </PageText>
           </div>
         )}
       </NodeContent>

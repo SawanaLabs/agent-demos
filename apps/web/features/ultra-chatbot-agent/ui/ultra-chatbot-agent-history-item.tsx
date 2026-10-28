@@ -15,6 +15,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 import type { UltraChatbotAgentChatRecord } from "../server/chat-store";
 
@@ -99,14 +100,21 @@ export function UltraChatbotAgentHistoryItem({
           </Button>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+              <AlertDialogTitle>
+                <PageText>{"Delete this chat?"}</PageText>
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This removes the conversation, votes, and thread artifacts for
-                this visitor. The action cannot be undone.
+                <PageText>
+                  {
+                    "This removes the conversation, votes, and thread artifacts for this visitor. The action cannot be undone."
+                  }
+                </PageText>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>
+                <PageText>{"Cancel"}</PageText>
+              </AlertDialogCancel>
               <AlertDialogAction
                 disabled={isDeleting}
                 onClick={() => {
@@ -115,7 +123,7 @@ export function UltraChatbotAgentHistoryItem({
                 }}
                 variant="destructive"
               >
-                Delete
+                <PageText>{"Delete"}</PageText>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

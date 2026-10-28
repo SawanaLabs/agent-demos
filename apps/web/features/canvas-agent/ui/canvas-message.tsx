@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Message,
   MessageContent,
@@ -12,6 +13,7 @@ import {
 import { Button } from "@workspace/ui/components/button";
 import { isToolUIPart, type UIMessage } from "ai";
 import Image from "next/image";
+import { PageText } from "@/components/page-copy";
 import { questionSchema } from "../model/chat-attachments";
 import { CanvasTool } from "./canvas-tool";
 
@@ -88,7 +90,9 @@ export function CanvasMessage({
                 isStreaming={streaming && part.state === "streaming"}
                 key={key}
               >
-                <ReasoningTrigger>思考过程</ReasoningTrigger>
+                <ReasoningTrigger>
+                  <PageText>{"思考过程"}</PageText>
+                </ReasoningTrigger>
                 <ReasoningContent>{part.text}</ReasoningContent>
               </Reasoning>
             );

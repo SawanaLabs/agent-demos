@@ -6,6 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@workspace/ui/components/collapsible";
 import { ChevronRightIcon, FileTextIcon } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 import { toolResultsSchema } from "../model/tool-results";
 import { CanvasContent, CanvasDownloads } from "./canvas-content";
 import { CanvasImage } from "./canvas-image";
@@ -22,7 +23,9 @@ export function CanvasToolResults({ results }: { results: unknown }) {
           <p className="font-medium text-sm">
             {label}
             {reused ? (
-              <span className="ml-2 text-muted-foreground text-xs">已复用</span>
+              <span className="ml-2 text-muted-foreground text-xs">
+                <PageText>{"已复用"}</PageText>
+              </span>
             ) : null}
           </p>
           {content.image ? (
@@ -32,7 +35,7 @@ export function CanvasToolResults({ results }: { results: unknown }) {
             <Collapsible>
               <CollapsibleTrigger className="group flex w-full items-center gap-2 rounded-sm border p-2 text-left text-sm">
                 <FileTextIcon aria-hidden="true" className="size-4 shrink-0" />
-                查看文本
+                <PageText>{"查看文本"}</PageText>
                 <ChevronRightIcon
                   aria-hidden="true"
                   className="ml-auto size-4 transition-transform group-aria-expanded:rotate-90"

@@ -32,6 +32,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { type ChatStatus, isToolUIPart, type UIMessage } from "ai";
 import { LoaderCircleIcon } from "lucide-react";
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 import type { ImageResultNode } from "../model/workflow-engine";
@@ -84,9 +85,11 @@ function WorkflowMessage({
         ))}
         {!text && toolParts.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            {isStreaming
-              ? "Working through the workflow."
-              : "Waiting for visible output."}
+            <PageText>
+              {isStreaming
+                ? "Working through the workflow."
+                : "Waiting for visible output."}
+            </PageText>
           </p>
         ) : null}
       </MessageContent>
@@ -108,9 +111,13 @@ function ManualRunProgress() {
             className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground"
           />
           <div>
-            <p className="font-medium text-sm">Generating image</p>
+            <p className="font-medium text-sm">
+              <PageText>{"Generating image"}</PageText>
+            </p>
             <p className="mt-1 text-muted-foreground text-xs/relaxed">
-              Running the current workflow. This can take a moment.
+              <PageText>
+                {"Running the current workflow. This can take a moment."}
+              </PageText>
             </p>
           </div>
         </div>
@@ -133,15 +140,21 @@ function SetupGuidance({
       className="space-y-2 border-foreground/10 border-b bg-muted/20 px-4 py-3 text-sm"
       role="status"
     >
-      <p className="font-medium">Setup required</p>
+      <p className="font-medium">
+        <PageText>{"Setup required"}</PageText>
+      </p>
       {getSetupGuidanceLines(setupState.issues).map((issue) => (
         <p className="text-muted-foreground text-xs" key={issue}>
           {issue}
         </p>
       ))}
       <p className="break-all text-muted-foreground text-xs">
-        Node: {setupState.nodeVersion} · Chat: {setupState.config.chatModel} ·
-        Image: {setupState.config.imageModel}
+        <PageText>{"Node: "}</PageText>
+        {setupState.nodeVersion}
+        <PageText>{" · Chat: "}</PageText>
+        {setupState.config.chatModel}
+        <PageText>{" · Image: "}</PageText>
+        {setupState.config.imageModel}
       </p>
     </div>
   );
@@ -182,13 +195,19 @@ export function ImageWorkflowAgentChatRail({
   status,
   suggestions,
 }: ImageWorkflowAgentChatRailProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden border border-foreground/10 bg-background">
       <div className="flex items-center justify-between border-foreground/10 border-b px-4 py-3">
         <div>
-          <h2 className="font-medium text-sm">Workflow chat</h2>
+          <h2 className="font-medium text-sm">
+            <PageText>{"Workflow chat"}</PageText>
+          </h2>
           <p className="text-muted-foreground text-xs">
-            Ask for graph edits or run the image workflow.
+            <PageText>
+              {"Ask for graph edits or run the image workflow."}
+            </PageText>
           </p>
         </div>
         <Badge variant="outline">{status}</Badge>
@@ -212,10 +231,18 @@ export function ImageWorkflowAgentChatRail({
             <ConversationEmptyState
               description={
                 isChatAvailable
-                  ? "Use chat for higher-level workflow edits. The assistant must mutate the same validated graph you can edit manually."
-                  : "Configure the required AI Gateway credentials before using workflow chat."
+                  ? pageCopy(
+                      "Use chat for higher-level workflow edits. The assistant must mutate the same validated graph you can edit manually."
+                    )
+                  : pageCopy(
+                      "Configure the required AI Gateway credentials before using workflow chat."
+                    )
               }
-              title={isChatAvailable ? "Chat is ready" : "Chat unavailable"}
+              title={
+                isChatAvailable
+                  ? pageCopy("Chat is ready")
+                  : pageCopy("Chat unavailable")
+              }
             />
           )}
           {isManualRunPending ? <ManualRunProgress /> : null}
@@ -229,7 +256,7 @@ export function ImageWorkflowAgentChatRail({
           {manualError && !isManualRunPending ? (
             <ConversationErrorMessage
               error={manualError}
-              title="Workflow action failed"
+              title={"Workflow action failed"}
             />
           ) : null}
         </ConversationContent>
@@ -259,13 +286,19 @@ export function ImageWorkflowAgentChatRail({
             <PromptInputBody>
               <PromptInputTextarea
                 disabled={!isChatAvailable || isBusy}
-                placeholder="Ask the agent to edit the graph, adjust the prompt, or run the workflow."
+                placeholder={pageCopy(
+                  "Ask the agent to edit the graph, adjust the prompt, or run the workflow."
+                )}
               />
             </PromptInputBody>
             <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">Graph-aware</Badge>
-                <Badge variant="outline">One turn at a time</Badge>
+                <Badge variant="outline">
+                  <PageText>{"Graph-aware"}</PageText>
+                </Badge>
+                <Badge variant="outline">
+                  <PageText>{"One turn at a time"}</PageText>
+                </Badge>
               </div>
               <PromptInputSubmit
                 disabled={!isChatAvailable}

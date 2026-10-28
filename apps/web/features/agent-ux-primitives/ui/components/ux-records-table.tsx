@@ -4,6 +4,7 @@ import { Checkbox } from "@workspace/ui/components/checkbox";
 import { cn } from "@workspace/ui/lib/utils";
 import { HeartIcon, LinkIcon, PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import {
   compareRows,
   ROWS,
@@ -29,6 +30,8 @@ import { HeaderCell, WebsiteLink } from "./ux-records-table-parts";
  */
 
 export function UxRecordsTable({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<{ dir: 1 | -1; key: SortKey }>({
     dir: 1,
@@ -71,27 +74,27 @@ export function UxRecordsTable({ className }: { className?: string }) {
             <th className="border-b px-2.5 py-2 font-medium text-[12px] text-muted-foreground">
               <span className="flex items-center gap-2">
                 <Checkbox
-                  aria-label="Select all companies"
+                  aria-label={pageCopy("Select all companies")}
                   checked={allSelected}
                   indeterminate={partiallySelected}
                   onCheckedChange={toggleAll}
                 />
-                Company
+                <PageText>{"Company"}</PageText>
               </span>
             </th>
             <HeaderCell
               icon={<LinkIcon className="size-3" />}
-              label="Last interaction"
+              label={pageCopy("Last interaction")}
               onSort={() => toggleSort("last")}
               sorted={sort.key === "last" ? sort.dir : 0}
             />
             <HeaderCell
               icon={<HeartIcon className="size-3" />}
-              label="Connection"
+              label={pageCopy("Connection")}
               onSort={() => toggleSort("strength")}
               sorted={sort.key === "strength" ? sort.dir : 0}
             />
-            <HeaderCell label="Website" />
+            <HeaderCell label={pageCopy("Website")} />
           </tr>
         </thead>
         <tbody>
@@ -154,8 +157,9 @@ export function UxRecordsTable({ className }: { className?: string }) {
             <td className="px-2.5 py-2 text-[12px] text-muted-foreground">
               <span className="font-medium text-foreground tabular-nums">
                 {rows.length}
-              </span>{" "}
-              count
+              </span>
+              <PageText> </PageText>
+              <PageText>{"count"}</PageText>
             </td>
             <td className="px-2.5 py-2" colSpan={3}>
               <button
@@ -163,7 +167,7 @@ export function UxRecordsTable({ className }: { className?: string }) {
                 type="button"
               >
                 <PlusIcon className="size-3" />
-                New property
+                <PageText>{"New property"}</PageText>
               </button>
             </td>
           </tr>

@@ -2,6 +2,7 @@
 
 import { FileTextIcon } from "@phosphor-icons/react";
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifact-state";
 import { UltraChatbotAgentDocumentBrowser } from "./ultra-chatbot-agent-document-browser";
@@ -35,13 +36,18 @@ export function UltraChatbotAgentArtifact({
           <div className="flex items-center gap-2">
             <FileTextIcon className="size-4 text-muted-foreground" />
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Artifact
+              <PageText>{"Artifact"}</PageText>
             </p>
-            <Badge variant="outline">text</Badge>
+            <Badge variant="outline">
+              <PageText>{"text"}</PageText>
+            </Badge>
           </div>
           <p className="mt-1 text-sm">
-            Companion browser for the Ultra artifact port. Open any document
-            into a dedicated detail dialog.
+            <PageText>
+              {
+                "Companion browser for the Ultra artifact port. Open any document into a dedicated detail dialog."
+              }
+            </PageText>
           </p>
         </div>
         <UltraChatbotAgentDocumentBrowser

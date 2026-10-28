@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 import { ROWS, statusFor, TICK_MS } from "./ux-task-rows-data";
 import { StatusBadge, StatusPill } from "./ux-task-rows-parts";
 
@@ -131,7 +132,7 @@ export function UxTaskRows({ className }: { className?: string }) {
           onClick={replay}
           type="button"
         >
-          Replay run
+          <PageText>{"Replay run"}</PageText>
         </button>
       </div>
     </div>

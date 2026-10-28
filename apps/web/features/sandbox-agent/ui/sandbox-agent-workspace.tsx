@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import { PageText } from "@/components/page-copy";
 
 import { SandboxConversationPane } from "./sandbox-conversation-pane";
 import { SandboxPreviewPane } from "./sandbox-preview-pane";
@@ -27,7 +28,7 @@ export function SandboxAgentWorkspace({
   const workspace = useSandboxAgentWorkspaceViewModel();
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid min-h-[70svh] min-w-0 grid-cols-1 gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -45,8 +46,12 @@ export function SandboxAgentWorkspace({
           >
             <div className="border-foreground/10 border-b px-4 py-2">
               <TabsList className="grid w-fit grid-cols-2">
-                <TabsTrigger value="conversation">Conversation</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
+                <TabsTrigger value="conversation">
+                  <PageText>{"Conversation"}</PageText>
+                </TabsTrigger>
+                <TabsTrigger value="preview">
+                  <PageText>{"Preview"}</PageText>
+                </TabsTrigger>
               </TabsList>
             </div>
 

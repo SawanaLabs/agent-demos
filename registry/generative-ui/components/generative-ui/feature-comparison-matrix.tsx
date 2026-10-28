@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Table2Icon } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 
 import type {
   FeatureComparisonInput,
@@ -85,9 +86,13 @@ function renderPendingComparison() {
       <div className="flex items-center justify-between gap-3 border-foreground/10 border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Table2Icon className="size-4 text-muted-foreground" />
-          <span className="font-medium text-sm">Preparing comparison</span>
+          <span className="font-medium text-sm">
+            <PageText>{"Preparing comparison"}</PageText>
+          </span>
         </div>
-        <Badge variant="outline">Working</Badge>
+        <Badge variant="outline">
+          <PageText>{"Working"}</PageText>
+        </Badge>
       </div>
       <div className="space-y-2 p-4">
         <div className="h-3 w-2/3 rounded bg-muted" />
@@ -100,7 +105,7 @@ function renderPendingComparison() {
 function renderComparisonError() {
   return (
     <section className="not-prose rounded-md border border-destructive/30 bg-destructive/5 p-4 text-destructive text-sm">
-      Comparison output could not be finalized.
+      <PageText>{"Comparison output could not be finalized."}</PageText>
     </section>
   );
 }
@@ -155,7 +160,9 @@ function renderScoreCell(
 ) {
   if (!score) {
     return renderState === "final" ? (
-      <span className="text-muted-foreground">No score</span>
+      <span className="text-muted-foreground">
+        <PageText>{"No score"}</PageText>
+      </span>
     ) : (
       <SkeletonLine className="w-3/4" />
     );
@@ -217,7 +224,7 @@ function renderComparisonContent(
           <TableHeader>
             <TableRow>
               <TableHead className="w-44 whitespace-normal break-words">
-                Criterion
+                <PageText>{"Criterion"}</PageText>
               </TableHead>
               {visibleOptions.map((option, index) => {
                 const optionName = getGeneratedString(option?.name);

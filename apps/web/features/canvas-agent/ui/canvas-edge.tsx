@@ -9,6 +9,7 @@ import {
   getBezierPath,
 } from "@xyflow/react";
 import { UnplugIcon } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 
 type CanvasConnection = Edge<{ busy: boolean; disconnect: () => void }>;
 
@@ -42,7 +43,7 @@ export function CanvasEdgeView(props: EdgeProps<CanvasConnection>) {
               variant="outline"
             >
               <UnplugIcon className="size-4" />
-              断开连接
+              <PageText>{"断开连接"}</PageText>
             </Button>
           </div>
         </EdgeLabelRenderer>

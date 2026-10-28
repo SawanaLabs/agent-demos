@@ -38,6 +38,7 @@ import {
   WaypointsIcon,
 } from "lucide-react";
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -72,6 +73,8 @@ export function MultiAgentExplorerWorkspace({
   nodeVersion,
   setupMessage,
 }: MultiAgentExplorerWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -122,9 +125,11 @@ export function MultiAgentExplorerWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask a research question. The lead agent will decompose it into subtopics, fan them out to parallel explorer subagents, then synthesize a report while you watch the fan-out happen."
+                description={pageCopy(
+                  "Ask a research question. The lead agent will decompose it into subtopics, fan them out to parallel explorer subagents, then synthesize a report while you watch the fan-out happen."
+                )}
                 icon={<WaypointsIcon className="size-5" />}
-                title="One lead, many explorers"
+                title={pageCopy("One lead, many explorers")}
               />
             )}
           </ConversationContent>
@@ -138,15 +143,23 @@ export function MultiAgentExplorerWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask a research question for the lead to fan out to explorer subagents."
+                  placeholder={pageCopy(
+                    "Ask a research question for the lead to fan out to explorer subagents."
+                  )}
                 />
               </PromptInputBody>
               <Separator className="mt-3" />
               <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">Lead orchestrator</Badge>
-                  <Badge variant="outline">2–4 explorers</Badge>
-                  <Badge variant="outline">Mock corpus</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Lead orchestrator"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"2–4 explorers"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Mock corpus"}</PageText>
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   {isBusy ? (
@@ -157,7 +170,7 @@ export function MultiAgentExplorerWorkspace({
                       variant="outline"
                     >
                       <SquareIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -168,7 +181,7 @@ export function MultiAgentExplorerWorkspace({
                       variant="outline"
                     >
                       <RefreshCwIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -183,7 +196,7 @@ export function MultiAgentExplorerWorkspace({
               <div className="mt-3 grid gap-2 md:grid-cols-3">
                 {samplePrompts.map((prompt) => (
                   <Button
-                    className="h-auto min-h-16 justify-start whitespace-normal px-3 py-2 text-left text-xs/relaxed"
+                    className="h-auto min-h-16 max-w-full justify-start whitespace-normal px-3 py-2 text-left text-xs/relaxed"
                     disabled={!isChatAvailable || isBusy}
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}
@@ -191,7 +204,7 @@ export function MultiAgentExplorerWorkspace({
                     variant="outline"
                   >
                     <CompassIcon className="size-3.5 shrink-0" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -204,12 +217,14 @@ export function MultiAgentExplorerWorkspace({
         <div className="space-y-5">
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Lead → fan-out → synthesize
+              <PageText>{"Lead → fan-out → synthesize"}</PageText>
             </p>
             <p className="mt-2 text-muted-foreground text-sm/relaxed">
-              A hand-rolled orchestration layer on the Vercel AI SDK. One lead
-              agent plans, explorer subagents run their own tool loops in
-              parallel, and the lead merges their findings.
+              <PageText>
+                {
+                  "A hand-rolled orchestration layer on the Vercel AI SDK. One lead agent plans, explorer subagents run their own tool loops in parallel, and the lead merges their findings."
+                }
+              </PageText>
             </p>
           </div>
           <Separator />
@@ -217,30 +232,45 @@ export function MultiAgentExplorerWorkspace({
             <div className="flex items-start gap-2">
               <ListChecksIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">Plan</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"Plan"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  The lead decomposes the question into 2–4 disjoint subtopics
-                  with generateObject.
+                  <PageText>
+                    {
+                      "The lead decomposes the question into 2–4 disjoint subtopics with generateObject."
+                    }
+                  </PageText>
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <WaypointsIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">Fan-out</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"Fan-out"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Each subtopic gets an explorer subagent with isolated context
-                  and its own streamText loop.
+                  <PageText>
+                    {
+                      "Each subtopic gets an explorer subagent with isolated context and its own streamText loop."
+                    }
+                  </PageText>
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <FileTextIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">Synthesize</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"Synthesize"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  The lead streams a report built from the explorers' compact
-                  findings.
+                  <PageText>
+                    {
+                      "The lead streams a report built from the explorers' compact findings."
+                    }
+                  </PageText>
                 </p>
               </div>
             </div>
@@ -248,24 +278,33 @@ export function MultiAgentExplorerWorkspace({
           <Separator />
           <div className="space-y-3">
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Explorer tools
+              <PageText>{"Explorer tools"}</PageText>
             </p>
             <div className="flex items-start gap-2">
               <SearchIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">search_notes</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"search_notes"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Scored keyword lookup over a deterministic agent-design
-                  corpus.
+                  <PageText>
+                    {
+                      "Scored keyword lookup over a deterministic agent-design corpus."
+                    }
+                  </PageText>
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <BookOpenIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">read_note</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"read_note"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Reads one note in full so explorers can cite it.
+                  <PageText>
+                    {"Reads one note in full so explorers can cite it."}
+                  </PageText>
                 </p>
               </div>
             </div>
@@ -273,7 +312,7 @@ export function MultiAgentExplorerWorkspace({
           <Separator />
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
             <p className="mt-1 break-all font-mono text-muted-foreground text-xs">
@@ -329,7 +368,7 @@ function ExplorerMessage({ isBusy, isLast, message }: ExplorerMessageProps) {
         ) : null}
         {projection.text || hasOrchestrationParts ? null : (
           <p className="text-muted-foreground text-sm">
-            Waiting for visible output.
+            <PageText>{"Waiting for visible output."}</PageText>
           </p>
         )}
       </MessageContent>

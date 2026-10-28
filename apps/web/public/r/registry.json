@@ -107,6 +107,11 @@
           "path": "registry/foundation-chat/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/foundation-chat/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -605,6 +610,11 @@
           "path": "registry/generative-ui/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/generative-ui/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -753,6 +763,11 @@
           "path": "registry/minimal-chat-agent/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -2333,6 +2348,11 @@
           "path": "registry/openai-agents-sdk-demo/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -2478,6 +2498,11 @@
           "path": "registry/langgraph-agent/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/langgraph-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -3259,6 +3284,11 @@
           "path": "registry/ultra-chatbot-agent/components/demo-conversation.tsx",
           "type": "registry:component",
           "target": "@components/demo-conversation.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -3380,6 +3410,11 @@
           "path": "registry/cloudflare-ai-gateway/app/api/demos/cloudflare-ai-gateway/route.ts",
           "type": "registry:page",
           "target": "app/api/demos/cloudflare-ai-gateway/route.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {

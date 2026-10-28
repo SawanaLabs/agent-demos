@@ -1,8 +1,10 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
 import { Pencil, Undo2 } from "lucide-react";
 import Image from "next/image";
 import { type PointerEvent, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { Capture, DrawStroke } from "../client/capture";
 
 export function ScreenshotEditor({
@@ -16,6 +18,8 @@ export function ScreenshotEditor({
   onPaths: (paths: DrawStroke[]) => void;
   disabled: boolean;
 }) {
+  const pageCopy = usePageCopy();
+
   const [color, setColor] = useState(capture.color);
   const [drawing, setDrawing] = useState(false);
   const [stroke, setStroke] = useState("");
@@ -60,7 +64,9 @@ export function ScreenshotEditor({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-muted-foreground text-xs">Screenshot preview</p>
+        <p className="text-muted-foreground text-xs">
+          <PageText>{"Screenshot preview"}</PageText>
+        </p>
         <div className="flex flex-wrap items-center gap-1">
           <Button
             aria-pressed={drawing}
@@ -70,7 +76,7 @@ export function ScreenshotEditor({
             variant={drawing ? "secondary" : "ghost"}
           >
             <Pencil size={14} />
-            Draw
+            <PageText>{"Draw"}</PageText>
           </Button>
           {[
             { name: "Primary", value: capture.color },
@@ -100,7 +106,7 @@ export function ScreenshotEditor({
             </Button>
           ))}
           <Button
-            aria-label="Undo last stroke"
+            aria-label={pageCopy("Undo last stroke")}
             disabled={disabled || !paths.length}
             onClick={() => onPaths(paths.slice(0, -1))}
             size="icon-sm"
@@ -123,7 +129,7 @@ export function ScreenshotEditor({
           width={width}
         />
         <button
-          aria-label="Draw on screenshot"
+          aria-label={pageCopy("Draw on screenshot")}
           className={`absolute inset-0 ${drawing ? "cursor-crosshair touch-none" : "pointer-events-none"}`}
           disabled={disabled || !drawing}
           onPointerCancel={() => {
@@ -158,7 +164,9 @@ export function ScreenshotEditor({
       </div>
       {drawing ? (
         <p className="text-muted-foreground text-xs">
-          Draw on the image. Use Undo to remove the last stroke.
+          <PageText>
+            {"Draw on the image. Use Undo to remove the last stroke."}
+          </PageText>
         </p>
       ) : null}
     </div>

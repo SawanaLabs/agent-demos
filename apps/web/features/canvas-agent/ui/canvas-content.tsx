@@ -3,6 +3,7 @@
 import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PageText } from "@/components/page-copy";
 import type { CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
 import { CanvasImage } from "./canvas-image";
@@ -27,7 +28,9 @@ export function CanvasContent({
         </div>
       ) : null}
       {content.image || content.text ? null : (
-        <p className="text-muted-foreground text-xs">等待上游内容</p>
+        <p className="text-muted-foreground text-xs">
+          <PageText>{"等待上游内容"}</PageText>
+        </p>
       )}
     </div>
   );
@@ -59,7 +62,7 @@ export function CanvasDownloads({
           title={label}
         >
           <DownloadIcon aria-hidden="true" className="size-3.5" />
-          {extension === "gif" ? "下载 GIF" : "下载图片"}
+          <PageText>{extension === "gif" ? "下载 GIF" : "下载图片"}</PageText>
         </a>
       ) : null}
       {content.text ? (
@@ -76,7 +79,7 @@ export function CanvasDownloads({
             title={label}
           >
             <DownloadIcon aria-hidden="true" className="size-3.5" />
-            下载文本
+            <PageText>{"下载文本"}</PageText>
           </a>
         </>
       ) : null}

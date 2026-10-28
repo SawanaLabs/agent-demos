@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import type { UltraChatbotAgentKnowledgeBaseResult } from "./ultra-chatbot-agent-message-parts";
 
@@ -36,15 +37,22 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
     <article className="w-full space-y-4 border border-foreground/15 bg-background px-5 py-5">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">Knowledge base</Badge>
-          <Badge variant={result.answerable ? "secondary" : "outline"}>
-            {result.answerable ? "Grounded" : "Low confidence"}
+          <Badge variant="outline">
+            <PageText>{"Knowledge base"}</PageText>
           </Badge>
-          <Badge variant="secondary">{result.sources.length} sources</Badge>
+          <Badge variant={result.answerable ? "secondary" : "outline"}>
+            <PageText>
+              {result.answerable ? "Grounded" : "Low confidence"}
+            </PageText>
+          </Badge>
+          <Badge variant="secondary">
+            {result.sources.length}
+            <PageText>{" sources"}</PageText>
+          </Badge>
         </div>
         <div>
           <p className="text-muted-foreground text-xs uppercase tracking-[0.24em]">
-            Query
+            <PageText>{"Query"}</PageText>
           </p>
           <h3 className="mt-2 text-balance font-medium text-lg">
             {result.query}
@@ -58,7 +66,7 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
       {result.snippets.length > 0 ? (
         <div className="space-y-3">
           <p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.24em]">
-            Retrieved snippets
+            <PageText>{"Retrieved snippets"}</PageText>
           </p>
           <div className="grid gap-3">
             {keyedSnippets.map(({ key, snippet }) => (
@@ -84,7 +92,7 @@ export function UltraChatbotAgentKnowledgeBaseResultCard({
       {result.sources.length > 0 ? (
         <div className="space-y-2 border-foreground/10 border-t pt-4">
           <p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.24em]">
-            Resources
+            <PageText>{"Resources"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {keyedSources.map(({ key, source }) => (

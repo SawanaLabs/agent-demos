@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
 import {
   Tooltip,
@@ -13,6 +14,7 @@ import {
   WorkflowIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { usePageCopy } from "@/components/page-copy";
 
 const destinations = [
   { href: "/demos/canvas-agent", label: "Canvas Agent", icon: WorkflowIcon },
@@ -31,9 +33,14 @@ export function CanvasSidebar({
 }: {
   navigate: (href: string) => Promise<void>;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <aside className="flex w-14 shrink-0 flex-col items-center py-2 sm:w-[72px]">
-      <nav aria-label="Demo 导航" className="flex flex-col items-center gap-2">
+      <nav
+        aria-label={pageCopy("Demo 导航")}
+        className="flex flex-col items-center gap-2"
+      >
         {destinations.map(({ href, label, icon: Icon }, index) => (
           <div
             className={
@@ -45,7 +52,7 @@ export function CanvasSidebar({
               <TooltipTrigger
                 render={
                   <Button
-                    aria-label={label}
+                    aria-label={pageCopy(label)}
                     className="size-10 rounded-xl sm:size-11"
                     nativeButton={false}
                     render={
@@ -68,7 +75,7 @@ export function CanvasSidebar({
                 <Icon className="size-5" />
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={12}>
-                {label}
+                {pageCopy(label)}
               </TooltipContent>
             </Tooltip>
           </div>

@@ -68,11 +68,13 @@ import {
 import { type ReactNode, useMemo } from "react";
 
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
 import {
   ConversationErrorMessage,
   useConversationErrorRetry,
 } from "@/features/shared/chat/ui/conversation-error-message";
+import { getLoopAgentSamplePrompts } from "./loop-agent-sample-prompts";
 import { useLoopAgentChat } from "./use-loop-agent-chat";
 
 function getTextContent(message: UIMessage) {
@@ -187,11 +189,18 @@ function HumanApprovalConfirmation({
       className="border-status-warning-500/30 bg-status-warning-500/5"
       state={part.state}
     >
-      <ConfirmationTitle>Human approval checkpoint</ConfirmationTitle>
+      <ConfirmationTitle>
+        <PageText>{"Human approval checkpoint"}</PageText>
+      </ConfirmationTitle>
       <ConfirmationRequest>
         <div className="space-y-2 text-sm">
           <p>
-            Approve {priority} priority {action} for {target}?
+            <PageText>{"Approve "}</PageText>
+            {priority}
+            <PageText>{" priority "}</PageText>
+            {action}
+            <PageText>{" for "}</PageText>
+            {target}?
           </p>
           {input.customerUpdate ? (
             <p className="text-muted-foreground">{input.customerUpdate}</p>
@@ -207,11 +216,19 @@ function HumanApprovalConfirmation({
       </ConfirmationRequest>
       <ConfirmationAccepted>
         <CheckCircleIcon className="size-4" />
-        <span>Approved. The agent can execute the escalation handoff.</span>
+        <span>
+          <PageText>
+            {"Approved. The agent can execute the escalation handoff."}
+          </PageText>
+        </span>
       </ConfirmationAccepted>
       <ConfirmationRejected>
         <XCircleIcon className="size-4" />
-        <span>Rejected. The agent will continue without escalating.</span>
+        <span>
+          <PageText>
+            {"Rejected. The agent will continue without escalating."}
+          </PageText>
+        </span>
       </ConfirmationRejected>
       <ConfirmationActions>
         <ConfirmationAction
@@ -225,7 +242,7 @@ function HumanApprovalConfirmation({
           variant="outline"
         >
           <XCircleIcon className="size-3.5" />
-          Reject
+          <PageText>{"Reject"}</PageText>
         </ConfirmationAction>
         <ConfirmationAction
           onClick={() =>
@@ -237,7 +254,7 @@ function HumanApprovalConfirmation({
           }
         >
           <CheckCircleIcon className="size-3.5" />
-          Approve
+          <PageText>{"Approve"}</PageText>
         </ConfirmationAction>
       </ConfirmationActions>
     </Confirmation>
@@ -267,6 +284,8 @@ function AssistantTrace({
   onApprovalResponse,
   triage,
 }: AssistantTraceProps) {
+  const pageCopy = usePageCopy();
+
   const text = getTextContent(message);
   const reasoningText = getReasoningText(message);
   const toolParts = getToolParts(message);
@@ -282,7 +301,9 @@ function AssistantTrace({
   if (hasText) {
     bodyContent = <MessageResponse>{text}</MessageResponse>;
   } else if (showBodyThinking) {
-    bodyContent = <Shimmer className="text-sm">Thinking...</Shimmer>;
+    bodyContent = (
+      <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
+    );
   }
 
   return (
@@ -299,7 +320,9 @@ function AssistantTrace({
           className="rounded-md border border-foreground/10 bg-muted/20 px-3 py-3"
           defaultOpen
         >
-          <ChainOfThoughtHeader>Verification steps</ChainOfThoughtHeader>
+          <ChainOfThoughtHeader>
+            <PageText>{"Verification steps"}</PageText>
+          </ChainOfThoughtHeader>
           <ChainOfThoughtContent>
             {triage.toolBatches.map((batch) => (
               <ChainOfThoughtStep
@@ -320,7 +343,7 @@ function AssistantTrace({
 
             <ChainOfThoughtStep
               description={`${triage.recommendation.priority} priority ${triage.recommendation.action} for ${triage.caseId}.`}
-              label="Prepare recommendation"
+              label={pageCopy("Prepare recommendation")}
               status={text ? "complete" : "active"}
             />
           </ChainOfThoughtContent>
@@ -338,14 +361,14 @@ function AssistantTrace({
             {part.type === "dynamic-tool" ? (
               <ToolHeader
                 state={part.state}
-                title="Support Triage Tool"
+                title={pageCopy("Support Triage Tool")}
                 toolName={part.toolName}
                 type={part.type}
               />
             ) : (
               <ToolHeader
                 state={part.state}
-                title="Support Triage Tool"
+                title={pageCopy("Support Triage Tool")}
                 type={part.type}
               />
             )}
@@ -369,6 +392,8 @@ export function LoopAgentWorkspace({
   setupMessage,
   triage,
 }: LoopAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     addToolApprovalResponse,
     clearError,
@@ -386,16 +411,12 @@ export function LoopAgentWorkspace({
     regenerate,
   });
   const samplePrompts = useMemo(
-    () => [
-      `Triage ${triage.caseId} and explain the tool sequence.`,
-      `Triage ${triage.caseId} and show which lookups ran in parallel before the SLA decision.`,
-      `Triage ${triage.caseId}, request human approval before escalation, then finalize.`,
-    ],
-    [triage.caseId]
+    () => getLoopAgentSamplePrompts(triage.caseId, pageCopy),
+    [pageCopy, triage.caseId]
   );
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid min-h-[70svh] min-w-0 grid-cols-1 gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -441,9 +462,11 @@ export function LoopAgentWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask the agent to triage the default support case and inspect which tools run before the final recommendation."
+                description={pageCopy(
+                  "Ask the agent to triage the default support case and inspect which tools run before the final recommendation."
+                )}
                 icon={<GitBranchIcon className="size-5" />}
-                title="Support triage loop is ready"
+                title={pageCopy("Support triage loop is ready")}
               />
             )}
           </ConversationContent>
@@ -456,14 +479,22 @@ export function LoopAgentWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask the agent to triage the default support case."
+                  placeholder={pageCopy(
+                    "Ask the agent to triage the default support case."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">ToolLoopAgent</Badge>
-                  <Badge variant="outline">Tools</Badge>
-                  <Badge variant="outline">Human approval</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"ToolLoopAgent"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Tools"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Human approval"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -475,7 +506,7 @@ export function LoopAgentWorkspace({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -486,7 +517,7 @@ export function LoopAgentWorkspace({
                       variant="outline"
                     >
                       <ArrowClockwiseIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -499,8 +530,9 @@ export function LoopAgentWorkspace({
 
             {hasMessages ? null : (
               <div className="mt-3 flex flex-wrap gap-2">
-                {samplePrompts.map((prompt) => (
+                {samplePrompts.map(({ prompt, label }) => (
                   <Button
+                    className="h-auto max-w-full whitespace-normal text-left"
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}
                     size="sm"
@@ -508,7 +540,7 @@ export function LoopAgentWorkspace({
                     variant="outline"
                   >
                     <WrenchIcon className="size-3.5" />
-                    {prompt}
+                    {label}
                   </Button>
                 ))}
               </div>
@@ -521,14 +553,14 @@ export function LoopAgentWorkspace({
         <div className="space-y-5">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Active case
+              <PageText>{"Active case"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{triage.caseId}</p>
             <p className="mt-1 text-muted-foreground text-sm">
@@ -538,7 +570,7 @@ export function LoopAgentWorkspace({
 
           <div className="grid gap-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Tool plan
+              <PageText>{"Tool plan"}</PageText>
             </p>
             {triage.toolBatches.map((batch) => (
               <div
@@ -562,7 +594,7 @@ export function LoopAgentWorkspace({
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Recommendation
+              <PageText>{"Recommendation"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">
               {triage.recommendation.action} / {triage.recommendation.priority}

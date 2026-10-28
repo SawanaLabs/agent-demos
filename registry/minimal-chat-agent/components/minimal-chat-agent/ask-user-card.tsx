@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { MessageCircleQuestionIcon, SendIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { AskUserInput, AskUserOutput } from "@/lib/minimal-chat-agent/tools";
 import { buildAskUserOutput } from "@/components/minimal-chat-agent/ask-user-state";
@@ -26,6 +27,8 @@ export function AskUserCard({
   input,
   onSubmit,
 }: AskUserCardProps) {
+  const pageCopy = usePageCopy();
+
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const output = useMemo(
@@ -38,14 +41,19 @@ export function AskUserCard({
       <CardHeader className="gap-2 pb-3">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2 font-medium text-base">
-            <MessageCircleQuestionIcon className="size-4 text-primary" />A quick
-            decision from you
+            <MessageCircleQuestionIcon className="size-4 text-primary" />
+            <PageText>{"A quick decision from you"}</PageText>
           </CardTitle>
-          <Badge variant="outline">Human in the loop</Badge>
+          <Badge variant="outline">
+            <PageText>{"Human in the loop"}</PageText>
+          </Badge>
         </div>
         <p className="text-muted-foreground text-sm/relaxed">
-          The agent paused instead of guessing. Answer every question to
-          continue the same tool loop.
+          <PageText>
+            {
+              "The agent paused instead of guessing. Answer every question to continue the same tool loop."
+            }
+          </PageText>
         </p>
       </CardHeader>
       <CardContent>
@@ -105,7 +113,7 @@ export function AskUserCard({
                     [index]: event.target.value,
                   }));
                 }}
-                placeholder="Or type a custom answer"
+                placeholder={pageCopy("Or type a custom answer")}
                 value={
                   question.choices.includes(answers[index] ?? "")
                     ? ""
@@ -120,7 +128,9 @@ export function AskUserCard({
             type="submit"
           >
             <SendIcon className="size-4" />
-            {isSubmitting ? "Continuing…" : "Continue agent run"}
+            <PageText>
+              {isSubmitting ? "Continuing…" : "Continue agent run"}
+            </PageText>
           </Button>
         </form>
       </CardContent>

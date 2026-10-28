@@ -7,6 +7,7 @@ import {
   MonitorIcon,
   SparklesIcon,
 } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 import type { CanvasNode } from "../model/graph";
 
 const entries = [
@@ -36,7 +37,7 @@ export function CanvasToolbar({
           variant="ghost"
         >
           <Icon className="size-4" />
-          {label}
+          <PageText>{label}</PageText>
         </Button>
       ))}
     </div>

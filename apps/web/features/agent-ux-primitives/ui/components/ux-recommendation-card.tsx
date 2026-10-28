@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
+import { PageText } from "@/components/page-copy";
 import {
   OPTIONS,
   type UxRecommendationOption,
@@ -67,7 +68,7 @@ export function UxRecommendationCard({ className }: { className?: string }) {
     >
       <div className="p-3.5">
         <span className="font-semibold text-[13px] text-foreground">
-          Want me to place this restock order?
+          <PageText>{"Want me to place this restock order?"}</PageText>
         </span>
         <p
           className="mt-1.5 min-h-12 text-[13px] text-muted-foreground leading-relaxed"
@@ -87,7 +88,7 @@ export function UxRecommendationCard({ className }: { className?: string }) {
         <div className="overflow-hidden">
           <div className="border-t bg-muted/40 px-2 py-2">
             <p className="px-1.5 pb-1 font-medium text-[11px] text-muted-foreground">
-              Other options
+              <PageText>{"Other options"}</PageText>
             </p>
             {others.map(({ i, option }) => (
               <button
@@ -133,7 +134,7 @@ export function UxRecommendationCard({ className }: { className?: string }) {
             onClick={() => setOpen((value) => !value)}
             type="button"
           >
-            Alternatives
+            <PageText>{"Alternatives"}</PageText>
           </button>
           <button
             className={cn(
@@ -148,7 +149,7 @@ export function UxRecommendationCard({ className }: { className?: string }) {
             {accepted ? (
               <>
                 <CheckIcon className="size-3.5" />
-                Accepted
+                <PageText>{"Accepted"}</PageText>
               </>
             ) : (
               active.cta

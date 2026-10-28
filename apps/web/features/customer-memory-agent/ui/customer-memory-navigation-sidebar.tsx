@@ -5,6 +5,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText } from "@/components/page-copy";
 
 import type { CustomerMemoryProfile } from "../customer-profiles";
 import type { CustomerMemorySessionData } from "../session-data";
@@ -48,7 +49,7 @@ function CustomerMemoryAccountContextSkeleton() {
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Account context
+        <PageText>{"Account context"}</PageText>
       </p>
       <div className="space-y-2">
         <Skeleton className="h-4 w-full" />
@@ -133,7 +134,7 @@ function CustomerMemoryCustomerList({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Customers
+        <PageText>{"Customers"}</PageText>
       </p>
       <div className="grid gap-2">
         {customers.map((customer) => {
@@ -165,9 +166,11 @@ function CustomerMemoryCustomerList({
               >
                 <span>{customer.industry}</span>
                 <span>
-                  {customer.accessMode === "shared_readonly"
-                    ? "Read only"
-                    : "Writable"}
+                  <PageText>
+                    {customer.accessMode === "shared_readonly"
+                      ? "Read only"
+                      : "Writable"}
+                  </PageText>
                 </span>
               </div>
             </button>
@@ -201,7 +204,7 @@ function CustomerMemoryThreadList({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-          Threads
+          <PageText>{"Threads"}</PageText>
         </p>
         <Button
           disabled={!isReady || isBusy || isSessionLoading || isReadonlyAccount}
@@ -213,7 +216,7 @@ function CustomerMemoryThreadList({
           variant="outline"
         >
           <PlusIcon className="size-3.5" />
-          New
+          <PageText>{"New"}</PageText>
         </Button>
       </div>
 
@@ -248,7 +251,7 @@ function CustomerMemoryThreadListContent({
   if (!session?.threads.length) {
     return (
       <p className="text-muted-foreground text-sm/relaxed">
-        No threads loaded yet.
+        <PageText>{"No threads loaded yet."}</PageText>
       </p>
     );
   }
@@ -283,7 +286,8 @@ function CustomerMemoryThreadListContent({
               <Badge variant="outline">{thread.messageCount}</Badge>
             </div>
             <p className="text-muted-foreground text-xs/relaxed">
-              Updated {formatShortDate(thread.updatedAt)}
+              <PageText>{"Updated "}</PageText>
+              {formatShortDate(thread.updatedAt)}
             </p>
           </button>
         );
@@ -310,7 +314,7 @@ function CustomerMemoryAccountContext({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Account context
+        <PageText>{"Account context"}</PageText>
       </p>
       <p className="text-sm/relaxed">{session.customer.accountSummary}</p>
       <ul className="space-y-2 text-muted-foreground text-sm/relaxed">

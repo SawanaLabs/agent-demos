@@ -3,6 +3,7 @@
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import type { ReactNode } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { TraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import type { TraceEvalSnapshot } from "../model/trace-eval-snapshot";
@@ -45,9 +46,11 @@ export function TraceEvalAgentRuntimeSidebar({
   runtimeState,
   snapshot,
 }: TraceEvalAgentRuntimeSidebarProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <aside className="space-y-4 lg:min-h-0 lg:overflow-y-auto">
-      <SidebarSection title="Meta">
+      <SidebarSection title={pageCopy("Meta")}>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">{runtimeState.statusLabel}</Badge>
           <Badge variant="outline">{runtimeState.chatModel}</Badge>
@@ -55,43 +58,75 @@ export function TraceEvalAgentRuntimeSidebar({
         </div>
         <dl className="space-y-2 text-sm">
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Runtime</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Runtime"}</PageText>
+            </dt>
             <dd>{runtimeState.nodeVersion}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Score</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Score"}</PageText>
+            </dt>
             <dd>{formatRunScore(runOutcome, snapshot.score)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Judge</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Judge"}</PageText>
+            </dt>
             <dd>{formatJudgeState(judge, runOutcome)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Judge stage</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Judge stage"}</PageText>
+            </dt>
             <dd>{formatJudgeStage(judge)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Latency</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Latency"}</PageText>
+            </dt>
             <dd>{formatDuration(snapshot.durationMs)}</dd>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Usage</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"Usage"}</PageText>
+            </dt>
             <dd>{formatTokenCount(snapshot.totalTokens)}</dd>
           </div>
         </dl>
       </SidebarSection>
 
-      <SidebarSection title="Eval policy">
+      <SidebarSection title={pageCopy("Eval policy")}>
         <ul className="space-y-2 text-muted-foreground text-sm/relaxed">
-          <li>Use live search before finalizing current facts.</li>
-          <li>Keep at least two source links on grounded answers.</li>
-          <li>Prefer concise synthesis over copied snippets.</li>
-          <li>Flag uncertainty when evidence is incomplete.</li>
-          <li>Judge both final-answer quality and full-run quality.</li>
+          <li>
+            <PageText>
+              {"Use live search before finalizing current facts."}
+            </PageText>
+          </li>
+          <li>
+            <PageText>
+              {"Keep at least two source links on grounded answers."}
+            </PageText>
+          </li>
+          <li>
+            <PageText>
+              {"Prefer concise synthesis over copied snippets."}
+            </PageText>
+          </li>
+          <li>
+            <PageText>
+              {"Flag uncertainty when evidence is incomplete."}
+            </PageText>
+          </li>
+          <li>
+            <PageText>
+              {"Judge both final-answer quality and full-run quality."}
+            </PageText>
+          </li>
         </ul>
       </SidebarSection>
 
-      <SidebarSection title="Suggestions">
+      <SidebarSection title={pageCopy("Suggestions")}>
         <div className="space-y-2">
           {traceEvalAgentSamplePrompts.map((item) => (
             <Button

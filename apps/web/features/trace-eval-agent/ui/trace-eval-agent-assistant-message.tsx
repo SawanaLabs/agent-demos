@@ -21,6 +21,7 @@ import {
   ToolOutput,
 } from "@workspace/ui/components/ai-elements/tool";
 import type { UIMessage } from "ai";
+import { usePageCopy } from "@/components/page-copy";
 
 import { buildTraceEvalSnapshot } from "../model/trace-eval-snapshot";
 import {
@@ -40,6 +41,8 @@ export function TraceEvalAgentAssistantMessage({
   isStreaming,
   message,
 }: TraceEvalAgentAssistantMessageProps) {
+  const pageCopy = usePageCopy();
+
   const reasoning = getReasoningText(message);
   const answer = getTextContent(message);
   const toolParts = getToolParts(message).filter(hasVisibleToolPayload);
@@ -97,7 +100,9 @@ export function TraceEvalAgentAssistantMessage({
       ) : null}
 
       {hasAnswer ? <MessageResponse>{answer}</MessageResponse> : null}
-      {showThinking ? <Shimmer className="text-sm">Thinking...</Shimmer> : null}
+      {showThinking ? (
+        <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
+      ) : null}
     </div>
   );
 }

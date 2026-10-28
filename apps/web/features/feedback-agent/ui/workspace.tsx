@@ -14,6 +14,7 @@ import {
   DemoSessionResetButton,
   useBeforeDemoSessionReset,
 } from "@/components/demo-session";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
 import { FeedbackCapture } from "./feedback-capture";
@@ -42,6 +43,8 @@ export function FeedbackWorkspace({
   available: boolean;
   aiAvailable: boolean;
 }) {
+  const pageCopy = usePageCopy();
+
   const [launcherLocale, setLauncherLocale] =
     useState<keyof typeof launcherLabels>("en");
   const [items, setItems] = useState<FeedbackSummary[]>([]);
@@ -161,10 +164,11 @@ export function FeedbackWorkspace({
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Inbox size={16} />
-                Your feedback<Badge variant="secondary">{items.length}</Badge>
+                <PageText>{"Your feedback"}</PageText>
+                <Badge variant="secondary">{items.length}</Badge>
               </CardTitle>
               <Button
-                aria-label="Refresh feedback"
+                aria-label={pageCopy("Refresh feedback")}
                 disabled={busy || !available}
                 onClick={() => run(refresh)}
                 size="icon"
@@ -176,7 +180,7 @@ export function FeedbackWorkspace({
           </CardHeader>
           <CardContent className="flex min-h-0 flex-1 flex-col gap-4">
             <label className="flex flex-col gap-2 text-sm">
-              Launcher language
+              <PageText>{"Launcher language"}</PageText>
               <select
                 className="rounded-md border bg-background p-2"
                 onChange={(event) =>
@@ -200,7 +204,7 @@ export function FeedbackWorkspace({
               onClick={captureController.open}
             >
               <Crosshair size={16} />
-              Feedback
+              <PageText>{"Feedback"}</PageText>
             </Button>
             <div className="rr-block min-h-24 flex-1 space-y-2 overflow-y-auto">
               {items.length ? (
@@ -220,19 +224,26 @@ export function FeedbackWorkspace({
                 ))
               ) : (
                 <div className="py-8 text-muted-foreground text-sm leading-relaxed">
-                  <p>No feedback yet.</p>
+                  <p>
+                    <PageText>{"No feedback yet."}</PageText>
+                  </p>
                   <p className="mt-2">
-                    Click Feedback, select something on the sample page, and
-                    describe what should change.
+                    <PageText>
+                      {
+                        "Click Feedback, select something on the sample page, and describe what should change."
+                      }
+                    </PageText>
                   </p>
                 </div>
               )}
             </div>
             <div className="space-y-3 border-t pt-4 text-muted-foreground text-xs leading-relaxed">
               <p>
-                Private to this browser. Reports expire after 7 days.
-                Screenshots are optional; turn them off before sending private
-                content.
+                <PageText>
+                  {
+                    "Private to this browser. Reports expire after 7 days. Screenshots are optional; turn them off before sending private content."
+                  }
+                </PageText>
               </p>
               <a
                 className="flex items-center gap-1 underline"
@@ -240,7 +251,7 @@ export function FeedbackWorkspace({
                 rel="noreferrer"
                 target="_blank"
               >
-                Use Make This Better directly
+                <PageText>{"Use Make This Better directly"}</PageText>
                 <ExternalLink size={12} />
               </a>
               <a
@@ -249,7 +260,7 @@ export function FeedbackWorkspace({
                 rel="noreferrer"
                 target="_blank"
               >
-                Copy this Agent Demo
+                <PageText>{"Copy this Agent Demo"}</PageText>
                 <ExternalLink size={12} />
               </a>
             </div>
@@ -264,7 +275,9 @@ export function FeedbackWorkspace({
             onBack={() => setSelected(null)}
           />
           {available ? null : (
-            <p role="status">The feedback inbox is unavailable.</p>
+            <p role="status">
+              <PageText>{"The feedback inbox is unavailable."}</PageText>
+            </p>
           )}
           {error ? (
             <p className="text-destructive text-sm" role="alert">
@@ -300,16 +313,20 @@ function FeedbackWorkspaceHeader({
     <div className="flex items-start justify-between gap-3">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <p className="text-muted-foreground text-sm">
-          {isReportOpen
-            ? "Report and captured evidence"
-            : "Try it on this page"}
+          <PageText>
+            {isReportOpen
+              ? "Report and captured evidence"
+              : "Try it on this page"}
+          </PageText>
         </p>
         {isReportOpen ? (
           <Button onClick={onBack} size="sm" variant="outline">
-            Back to sample page
+            <PageText>{"Back to sample page"}</PageText>
           </Button>
         ) : (
-          <Badge variant="outline">Live capture</Badge>
+          <Badge variant="outline">
+            <PageText>{"Live capture"}</PageText>
+          </Badge>
         )}
       </div>
       <DemoSessionResetButton />

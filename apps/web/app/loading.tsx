@@ -1,4 +1,5 @@
 import { Skeleton } from "@workspace/ui/components/skeleton";
+import { PageText } from "@/components/page-copy";
 
 const gallerySkeletonKeys = [
   "recommended-demo",
@@ -16,7 +17,7 @@ export default function Loading() {
         <section className="grid gap-6 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-              Agent Demos
+              <PageText>{"Agent Demos"}</PageText>
             </p>
             <Skeleton className="h-10 w-full max-w-2xl" />
             <Skeleton className="h-16 w-full max-w-3xl" />

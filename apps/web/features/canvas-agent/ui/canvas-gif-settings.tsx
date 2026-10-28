@@ -1,11 +1,15 @@
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { CanvasNodeData } from "./canvas-node";
 
 export function CanvasGifSettings({ data }: { data: CanvasNodeData }) {
+  const pageCopy = usePageCopy();
   const settings = data.node.gif ?? { rows: 2, columns: 2, fps: 4 };
   return (
     <div className="space-y-3">
       <p className="text-muted-foreground text-xs">
-        连接一张网格图，按从左到右、从上到下的顺序切帧并循环播放。
+        <PageText>
+          {"连接一张网格图，按从左到右、从上到下的顺序切帧并循环播放。"}
+        </PageText>
       </p>
       <div className="nodrag grid grid-cols-3 gap-2">
         {(
@@ -16,9 +20,11 @@ export function CanvasGifSettings({ data }: { data: CanvasNodeData }) {
           ] as const
         ).map(({ key, label, values }) => (
           <label className="space-y-1 text-xs" key={key}>
-            <span>{label}</span>
+            <span>
+              <PageText>{label}</PageText>
+            </span>
             <select
-              aria-label={label}
+              aria-label={pageCopy(label)}
               className="block w-full rounded-md border bg-background p-1"
               disabled={data.busy}
               onChange={(event) =>

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import {
   isSourceOption,
   type PickerMode,
@@ -145,12 +146,14 @@ function PickerPanel({
   return (
     <div className="absolute inset-x-2 bottom-full z-20 mb-2 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md">
       <div className="border-b px-3 py-1.5 text-[11px] text-muted-foreground uppercase tracking-[0.12em]">
-        {pickerMode === "sources" ? "Attach a source" : "Run a command"}
+        <PageText>
+          {pickerMode === "sources" ? "Attach a source" : "Run a command"}
+        </PageText>
       </div>
       <ul className="max-h-56 overflow-y-auto py-1">
         {options.length === 0 ? (
           <li className="px-3 py-2 text-muted-foreground text-xs">
-            No matches.
+            <PageText>{"No matches."}</PageText>
           </li>
         ) : (
           options.map((option, index) => {
@@ -190,7 +193,9 @@ function PickerPanel({
         )}
       </ul>
       <div className="border-t px-3 py-1.5 text-[11px] text-muted-foreground">
-        ↑↓ to navigate · Enter to accept · Esc to dismiss
+        <PageText>
+          {"↑↓ to navigate · Enter to accept · Esc to dismiss"}
+        </PageText>
       </div>
     </div>
   );
@@ -266,6 +271,8 @@ function FooterToolbar({
   onSelectModel,
   onSubmit,
 }: FooterToolbarProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="flex items-center justify-between gap-2 border-t px-2.5 py-2">
       <div className="flex items-center gap-1">
@@ -297,7 +304,7 @@ function FooterToolbar({
           </DropdownMenuContent>
         </DropdownMenu>
         <Button
-          aria-label="Attach source"
+          aria-label={pageCopy("Attach source")}
           className="h-7 w-7 text-muted-foreground"
           onClick={onAttachSource}
           size="icon"
@@ -309,7 +316,7 @@ function FooterToolbar({
       </div>
       <div className="flex items-center gap-1">
         <Button
-          aria-label="Voice input"
+          aria-label={pageCopy("Voice input")}
           className="h-7 w-7 text-muted-foreground"
           size="icon"
           type="button"
@@ -318,7 +325,7 @@ function FooterToolbar({
           <MicIcon className="size-3.5" />
         </Button>
         <Button
-          aria-label="Send"
+          aria-label={pageCopy("Send")}
           className="h-7 w-7 rounded-lg"
           disabled={!canSubmit}
           onClick={onSubmit}

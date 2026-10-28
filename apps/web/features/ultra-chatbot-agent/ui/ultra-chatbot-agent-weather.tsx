@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 export interface UltraChatbotAgentWeatherData {
   cityName?: string;
@@ -59,11 +60,15 @@ export function UltraChatbotAgentWeather({
 
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="border border-foreground/10 px-3 py-2">
-          <p className="text-muted-foreground">Sunrise</p>
+          <p className="text-muted-foreground">
+            <PageText>{"Sunrise"}</PageText>
+          </p>
           <p className="mt-1">{formatWeatherTime(weather.daily.sunrise[0])}</p>
         </div>
         <div className="border border-foreground/10 px-3 py-2">
-          <p className="text-muted-foreground">Sunset</p>
+          <p className="text-muted-foreground">
+            <PageText>{"Sunset"}</PageText>
+          </p>
           <p className="mt-1">{formatWeatherTime(weather.daily.sunset[0])}</p>
         </div>
       </div>

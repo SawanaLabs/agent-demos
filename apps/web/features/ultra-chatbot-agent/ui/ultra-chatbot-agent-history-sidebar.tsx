@@ -7,6 +7,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 import type {
   UltraChatbotAgentChatRecord,
@@ -191,9 +192,11 @@ export function UltraChatbotAgentHistorySidebar({
         <div className="flex min-w-0 items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              History
+              <PageText>{"History"}</PageText>
             </p>
-            <p className="mt-1 font-medium text-sm">Visitor-owned chats</p>
+            <p className="mt-1 font-medium text-sm">
+              <PageText>{"Visitor-owned chats"}</PageText>
+            </p>
           </div>
           <Badge variant="outline">{historyPage.chats.length}</Badge>
         </div>
@@ -203,7 +206,7 @@ export function UltraChatbotAgentHistorySidebar({
             className={cn(buttonVariants({ size: "sm", variant: "outline" }))}
             href={toRootPath()}
           >
-            New chat
+            <PageText>{"New chat"}</PageText>
           </Link>
           <Button
             disabled={isDeleting || historyPage.chats.length === 0}
@@ -213,7 +216,7 @@ export function UltraChatbotAgentHistorySidebar({
             variant="outline"
           >
             <TrashIcon className="size-3.5" />
-            Clear all
+            <PageText>{"Clear all"}</PageText>
           </Button>
         </div>
 
@@ -234,7 +237,7 @@ export function UltraChatbotAgentHistorySidebar({
             ))
           ) : (
             <p className="text-muted-foreground text-sm">
-              No persisted chats for this visitor yet.
+              <PageText>{"No persisted chats for this visitor yet."}</PageText>
             </p>
           )}
         </div>
@@ -248,7 +251,7 @@ export function UltraChatbotAgentHistorySidebar({
             variant="outline"
           >
             <ArrowClockwiseIcon className="size-3.5" />
-            {isLoadingMore ? "Loading..." : "Load more"}
+            <PageText>{isLoadingMore ? "Loading..." : "Load more"}</PageText>
           </Button>
         ) : null}
       </div>

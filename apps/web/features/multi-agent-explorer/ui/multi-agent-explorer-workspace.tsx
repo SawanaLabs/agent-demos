@@ -196,7 +196,7 @@ export function MultiAgentExplorerWorkspace({
               <div className="mt-3 grid gap-2 md:grid-cols-3">
                 {samplePrompts.map((prompt) => (
                   <Button
-                    className="h-auto min-h-16 justify-start whitespace-normal px-3 py-2 text-left text-xs/relaxed"
+                    className="h-auto min-h-16 max-w-full justify-start whitespace-normal px-3 py-2 text-left text-xs/relaxed"
                     disabled={!isChatAvailable || isBusy}
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}

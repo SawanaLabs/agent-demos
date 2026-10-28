@@ -88,8 +88,8 @@ export function TraceEvalAgentWorkspace({
   }
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_22rem]">
+    <div className="grid min-h-[70svh] min-w-0 grid-cols-1 gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="grid min-h-[70svh] min-w-0 grid-cols-1 gap-4 lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_22rem]">
         <div className="flex min-h-[30rem] flex-col border border-foreground/10 bg-background lg:min-h-0">
           {runtimeState.isChatAvailable ? null : (
             <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -209,7 +209,7 @@ export function TraceEvalAgentWorkspace({
                 <div className="mt-3 flex flex-wrap gap-2">
                   {traceEvalAgentSamplePrompts.map((item) => (
                     <Button
-                      className="h-auto whitespace-normal text-left [overflow-wrap:anywhere]"
+                      className="h-auto max-w-full whitespace-normal text-left [overflow-wrap:anywhere]"
                       key={item.prompt}
                       onClick={() => {
                         handleSendMessage(item.prompt);
@@ -219,7 +219,7 @@ export function TraceEvalAgentWorkspace({
                       variant="outline"
                     >
                       <MagnifyingGlassIcon className="size-3.5" />
-                      {item.label}
+                      <PageText>{item.label}</PageText>
                     </Button>
                   ))}
                 </div>

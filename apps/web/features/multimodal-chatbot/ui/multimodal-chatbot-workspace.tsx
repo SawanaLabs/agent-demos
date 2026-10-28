@@ -328,6 +328,7 @@ function MultimodalSamplePrompts({
     <div className="mt-3 flex flex-wrap gap-2">
       {prompts.map((prompt) => (
         <Button
+          className="h-auto max-w-full whitespace-normal text-left"
           key={prompt}
           onClick={() => onSendSamplePrompt(prompt)}
           size="sm"

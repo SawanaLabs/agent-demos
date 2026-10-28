@@ -1545,6 +1545,13 @@
     "We promised Acme a rewritten launch note after legal review on Monday%2E Save that and reply%2E": "We promised Acme a rewritten launch note after legal review on Monday. Save that and reply.",
     "How should I answer if Acme asks whether a campaign claim is safe to publish?": "How should I answer if Acme asks whether a campaign claim is safe to publish?",
     "Open demo": "Open demo",
-    "Opening%2E%2E%2E": "Opening..."
+    "Opening%2E%2E%2E": "Opening...",
+    "Agent 正在处理…": "The agent is working…",
+    "请求已发送，等待 Agent 响应…": "Request sent. Waiting for the agent…",
+    "说出想法，一起搭建工作流": "Share an idea and build a workflow together",
+    "已停止，可继续完成": "Stopped. Continue when ready",
+    "正在执行：": "Running: ",
+    "Agent 回复中断，可继续对话": "Agent response interrupted. You can continue chatting",
+    "操作未完成": "Operation incomplete"
   }
 }

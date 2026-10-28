@@ -319,7 +319,7 @@
     "Companion browser for the Ultra artifact port%2E Open any document into a dedicated detail dialog%2E": "Ultra 产物的配套浏览器。可在独立详情对话框中打开文档。",
     "Company": "公司",
     "Compare Langfuse, Braintrust, and OpenTelemetry for AI agent tracing and evaluation in a Next%2Ejs product team%2E": "对比 Langfuse、Braintrust 和 OpenTelemetry 在 Next.js 产品团队中进行 AI Agent 追踪与评估的适用性。",
-    "Compare Langfuse, Braintrust, and OpenTelemetry today": "对比当前 Langfuse、Braintrust 和 OpenTelemetry",
+    "Compare Langfuse, Braintrust, and OpenTelemetry today": "对比当前的 Langfuse、Braintrust 和 OpenTelemetry",
     "Compare orchestrator-worker fan-out with a sequential pipeline for a research assistant%2E": "对比研究助手中的编排者与执行者并行模式，以及顺序流水线。",
     "Compare RAG, tool calling, and workflow agents for a support chatbot%2E": "对比支持聊天机器人中 RAG、工具调用和工作流 Agent 的用途。",
     "Compare the current AI app builder options for a small SaaS team%2E": "对比当前适合小型 SaaS 团队的 AI 应用构建工具。",
@@ -1396,7 +1396,7 @@
     "What should change?": "需要修改什么？",
     "What stands out in this image?": "这张图片有哪些值得注意的地方？",
     "What would make paid limits useful?": "怎样的额度会让付费方案对你有用？",
-    "When is AI Gateway web_search enough?": "什么时候 AI Gateway web_search 就够了？",
+    "When is AI Gateway web_search enough?": "什么时候只用 AI Gateway web_search 就够了？",
     "When should a lead agent fan out to parallel subagents instead of handling research itself?": "主 Agent 何时应该将研究分配给并行子 Agent？",
     "Whether claims in the answer stay faithful to the visible sources%2E": "答案中的论点是否忠于可见来源。",
     "Whether the answer names uncertainty, missing context, or conflicting evidence when needed%2E": "答案是否在需要时指出不确定性、缺失上下文或冲突证据。",
@@ -1545,6 +1545,13 @@
     "We promised Acme a rewritten launch note after legal review on Monday%2E Save that and reply%2E": "我们承诺在周一法务审核后，向 Acme 提供重写的发布说明。请保存这条信息并回复。",
     "How should I answer if Acme asks whether a campaign claim is safe to publish?": "如果 Acme 询问某项活动声明是否可以发布，我应该如何回复？",
     "Open demo": "打开 Demo",
-    "Opening%2E%2E%2E": "正在打开…"
+    "Opening%2E%2E%2E": "正在打开…",
+    "Agent 正在处理…": "Agent 正在处理…",
+    "请求已发送，等待 Agent 响应…": "请求已发送，等待 Agent 响应…",
+    "说出想法，一起搭建工作流": "说出想法，一起搭建工作流",
+    "已停止，可继续完成": "已停止，可继续完成",
+    "正在执行：": "正在执行：",
+    "Agent 回复中断，可继续对话": "Agent 回复中断，可继续对话",
+    "操作未完成": "操作未完成"
   }
 }

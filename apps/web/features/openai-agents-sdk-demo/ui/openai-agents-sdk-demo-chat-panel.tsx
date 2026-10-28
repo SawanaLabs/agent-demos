@@ -326,6 +326,7 @@ function OpenAiAgentsSdkDemoComposer({
           <div className="mt-3 flex flex-wrap gap-2">
             {openAiAgentsSdkDemoSamplePrompts.map((prompt) => (
               <Button
+                className="h-auto max-w-full whitespace-normal text-left"
                 disabled={!isChatAvailable || hasPendingApproval || isBusy}
                 key={prompt}
                 onClick={() => onSendMessage(prompt)}

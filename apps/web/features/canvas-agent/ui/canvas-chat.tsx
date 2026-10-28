@@ -54,22 +54,22 @@ export function CanvasChat({
   const activeLabel = controller.graph.nodes.find(
     (node) => node.id === controller.activeNode
   )?.label;
-  let activity = "Agent 正在处理…";
+  let activity = pageCopy("Agent 正在处理…");
   if (controller.status === "submitted") {
-    activity = "请求已发送，等待 Agent 响应…";
+    activity = pageCopy("请求已发送，等待 Agent 响应…");
   }
   if (activeLabel) {
-    activity = `正在执行：${activeLabel}`;
+    activity = `${pageCopy("正在执行：")}${activeLabel}`;
   }
-  let heading = "说出想法，一起搭建工作流";
+  let heading = pageCopy("说出想法，一起搭建工作流");
   if (controller.stopped) {
-    heading = "已停止，可继续完成";
+    heading = pageCopy("已停止，可继续完成");
   }
   if (agentBusy) {
     heading = activity;
   }
   if (error) {
-    heading = failureTitle(controller.chatFailed);
+    heading = pageCopy(failureTitle(controller.chatFailed));
   }
   return (
     <section

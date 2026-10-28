@@ -431,7 +431,7 @@ export function GenerativeUiWorkspace({
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {generativeUiSamplePrompts.map((prompt) => (
                   <Button
-                    className="h-auto justify-start whitespace-normal py-2 text-left"
+                    className="h-auto max-w-full justify-start whitespace-normal py-2 text-left"
                     disabled={!isChatAvailable || isBusy}
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}

@@ -431,6 +431,7 @@ export function LangGraphAgentWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {langGraphAgentSamplePrompts.map((prompt) => (
                   <Button
+                    className="h-auto max-w-full whitespace-normal text-left"
                     disabled={!canStartChatTurn}
                     key={prompt}
                     onClick={() => sendChatMessage(prompt)}

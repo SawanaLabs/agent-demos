@@ -285,6 +285,7 @@ function StreamingComposer({
           <div className="flex flex-wrap gap-2">
             {streamingChatShellSamplePrompts.map((prompt) => (
               <Button
+                className="h-auto max-w-full whitespace-normal text-left"
                 key={prompt}
                 onClick={() => {
                   handleSend(prompt);

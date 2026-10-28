@@ -361,7 +361,7 @@ export function PersistentAgentWorkspace({
   }
 
   return (
-    <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid min-h-[70svh] min-w-0 grid-cols-1 gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
@@ -449,6 +449,7 @@ export function PersistentAgentWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {persistentAgentSamplePrompts.map((prompt) => (
                   <Button
+                    className="h-auto max-w-full whitespace-normal text-left"
                     key={prompt}
                     onClick={() => {
                       handleSubmit(prompt);

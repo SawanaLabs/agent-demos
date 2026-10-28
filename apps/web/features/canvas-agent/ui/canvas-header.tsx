@@ -28,7 +28,7 @@ export function CanvasHeader({
 
   const importInput = useRef<HTMLInputElement>(null);
   return (
-    <header className="flex min-h-[72px] shrink-0 flex-wrap items-center justify-between gap-y-2 py-3 pr-16">
+    <header className="flex min-h-[72px] shrink-0 flex-wrap items-center justify-between gap-y-2 py-3 pt-14 pr-4 sm:pt-3 sm:pr-44">
       <div className="flex min-w-0 items-center">
         <Link
           aria-label={pageCopy("返回 Agent Demos")}

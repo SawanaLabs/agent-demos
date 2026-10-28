@@ -211,7 +211,7 @@ export function CustomerMemoryChatPanel({
   onStopChat,
 }: CustomerMemoryChatPanelProps) {
   return (
-    <section className="flex min-h-[74svh] flex-col border border-foreground/10 bg-background xl:h-full xl:min-h-0">
+    <section className="flex min-h-[74svh] min-w-0 flex-col border border-foreground/10 bg-background xl:h-full xl:min-h-0">
       {isChatAvailable ? null : (
         <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
           {setupMessage}
@@ -564,7 +564,7 @@ function CustomerMemoryComposer({
           <div className="flex flex-wrap gap-2">
             {samplePrompts.map((prompt) => (
               <Button
-                className="max-w-full justify-start text-left"
+                className="h-auto max-w-full justify-start whitespace-normal text-left"
                 disabled={
                   !isReady ||
                   isBusy ||

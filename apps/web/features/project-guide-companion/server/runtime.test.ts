@@ -29,7 +29,7 @@ describe("project guide companion runtime", () => {
         AI_GATEWAY_API_KEY: "test-key",
       })
     ).toMatchObject({
-      chatModel: "zai/glm-5",
+      chatModel: "openai/gpt-5.6-luna",
       isChatAvailable: true,
       statusLabel: "Ready",
     });

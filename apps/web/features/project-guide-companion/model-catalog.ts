@@ -9,6 +9,13 @@ export interface ProjectGuideCompanionModel {
 const projectGuideCompanionModels = [
   {
     description: "Default project-docs companion model.",
+    id: "openai/gpt-5.6-luna",
+    kind: "reasoning",
+    name: "GPT-5.6 Luna",
+    provider: "openai",
+  },
+  {
+    description: "GLM chat model for project-docs answers.",
     id: "zai/glm-5",
     kind: "chat",
     name: "GLM-5",
@@ -34,7 +41,7 @@ export type ProjectGuideCompanionModelId =
   (typeof projectGuideCompanionModels)[number]["id"];
 
 export const DEFAULT_PROJECT_GUIDE_COMPANION_MODEL =
-  "zai/glm-5" satisfies ProjectGuideCompanionModelId;
+  "openai/gpt-5.6-luna" satisfies ProjectGuideCompanionModelId;
 
 const projectGuideCompanionModelIdSet = new Set<string>(
   projectGuideCompanionModels.map((model) => model.id)

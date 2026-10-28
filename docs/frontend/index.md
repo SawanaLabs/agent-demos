@@ -73,7 +73,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 | ./multimodal-chatbot.md | Multi-Modal Chatbot | Durable conventions for the image and PDF chat demo, including local QA boundaries for page-render hangs. | 2026-06-02 |
 | ./openai-agents-sdk-demo.md | OpenAI Agents SDK Demo | Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway. | 2026-06-16 |
 | ./persistent-agent.md | Persistent & Resume Agent | Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams. | 2026-06-01 |
-| ./project-guide-companion.md | Project Guide Companion | Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface. | 2026-06-16 |
+| ./project-guide-companion.md | Project Guide Companion | Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface. | 2026-10-28 |
 | ./rag-chatbot.md | RAG Chatbot | Stable source-core, indexing, retrieval, and grounded-answer conventions for the RAG Chatbot demo. | 2026-06-08 |
 | ./registry-sync.md | Registry Sync | Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries. | 2026-06-04 |
 | ./sandbox-agent.md | Sandbox Agent | Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo. | 2026-06-03 |

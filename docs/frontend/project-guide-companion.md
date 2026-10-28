@@ -1,7 +1,7 @@
 ---
 title: Project Guide Companion
 description: Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface.
-updateAt: 2026-06-16
+updateAt: 2026-10-28
 ---
 
 # Project Guide Companion
@@ -58,7 +58,7 @@ updateAt: 2026-06-16
 - Companion model-backed turns still consume the existing **Site Usage Gate** allowance. The usage dialog should watch `429` responses from `/api/project-guide-companion` in addition to `/api/demos/*`.
 - Homepage strategy: show the companion prominently enough to greet first-time visitors and invite them to understand the project.
 - On the homepage, default to a fixed bottom-right **Companion Compass** plus one short **Companion Reveal**. Open the chat panel only after the visitor clicks or taps.
-- Keep `Ask AI` visible beside the **Companion Compass** on tablet and desktop launchers. On mobile, show `Ask AI` only while the first-session **Companion Reveal** is visible; dismissing that reveal collapses the launcher back to the compass icon.
+- Keep `Ask AI` visible to the right of the **Companion Compass** on all launcher sizes, including mobile, after the **Companion Reveal** is dismissed.
 - Do not rewrite the homepage into a chatbot-first landing page for the first version. The **Demo Gallery** remains the primary homepage structure.
 - On desktop, open the companion as a bottom-right floating panel around 380-420px wide with a maximum height near 70vh.
 - On mobile, open the companion as a bottom drawer so the chat remains usable on narrow screens.
@@ -80,7 +80,7 @@ updateAt: 2026-06-16
 - The **Companion Context Window** length is 30 minutes. The visible transcript may stay available until the browser tab session ends, but only the 30-minute window should be sent as model context.
 - The model replay projection should keep user text, assistant answer text, and useful source summaries, while excluding raw MCP JSON and expanded tool payloads from history context.
 - Provide a clear-history affordance inside the companion panel so visitors can discard tab-local context when the conversation drifts or the browser is shared.
-- Expose a compact model selector in the composer footer. The default model is `zai/glm-5`, with `openai/gpt-4.1-mini` and `openai/gpt-5-mini` as selectable alternatives.
+- Expose a compact model selector in the composer footer. The default model is GPT-5.6 Luna (`openai/gpt-5.6-luna`), with `zai/glm-5`, `openai/gpt-4.1-mini`, and `openai/gpt-5-mini` as selectable alternatives.
 - Label selector options by model purpose, currently `chat` or `reasoning`, rather than latency or cost claims. Use measured performance or billing evidence before exposing those dimensions in the UI.
 - Render Project Docs MCP tool use with a custom **Companion Tool Line**, not the full `mcp-agent` workspace `Tool` card.
 - While a docs tool is running, show a single shimmering line such as a searching/reading status rather than an expanded parameter panel.

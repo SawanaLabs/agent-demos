@@ -97,6 +97,11 @@
           "path": "registry/foundation-chat/lib/foundation-chat/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/runtime.ts"
+        },
+        {
+          "path": "registry/foundation-chat/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -585,6 +590,11 @@
           "path": "registry/generative-ui/lib/generative-ui/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/generative-ui/runtime.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -723,6 +733,11 @@
           "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/minimal-chat-agent/runtime.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -2293,6 +2308,11 @@
           "path": "registry/openai-agents-sdk-demo/docs/frontend/openai-agents-sdk-demo.md",
           "type": "registry:file",
           "target": "docs/frontend/openai-agents-sdk-demo.md"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -2428,6 +2448,11 @@
           "path": "registry/langgraph-agent/lib/langgraph-agent/server/stream-normalizer.ts",
           "type": "registry:lib",
           "target": "@lib/langgraph-agent/server/stream-normalizer.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -3199,6 +3224,11 @@
           "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/skills-agent/server/workspace.ts",
           "type": "registry:lib",
           "target": "@lib/ultra-chatbot-agent/skills-agent/server/workspace.ts"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {
@@ -3315,6 +3345,11 @@
           "path": "registry/cloudflare-ai-gateway/app/api/demos/cloudflare-ai-gateway/route.ts",
           "type": "registry:page",
           "target": "app/api/demos/cloudflare-ai-gateway/route.ts"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "envVars": {

@@ -332,6 +332,11 @@
           "path": "docs/frontend/openai-agents-sdk-demo.md",
           "type": "registry:file",
           "target": "docs/frontend/openai-agents-sdk-demo.md"
+        },
+        {
+          "path": "components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. The main local happy path needs AI_GATEWAY_API_KEY and runs through the installed chat route. Native realtime voice, SIP, Twilio, and Cloudflare transport lanes are included in source and require OPENAI_API_KEY plus their public transport wiring before live verification."

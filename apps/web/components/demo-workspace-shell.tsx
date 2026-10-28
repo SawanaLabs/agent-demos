@@ -2,8 +2,8 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ReactNode } from "react";
-
 import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
+import { PageText } from "@/components/page-copy";
 
 type DemoWorkspaceHeaderFrame = "header" | "card";
 
@@ -54,7 +54,7 @@ export function DemoWorkspaceShell({
         <h1
           className={cn("font-medium text-2xl tracking-tight", titleClassName)}
         >
-          {title}
+          <PageText>{title}</PageText>
         </h1>
         <p
           className={cn(
@@ -62,7 +62,11 @@ export function DemoWorkspaceShell({
             summaryClassName
           )}
         >
-          {summary}
+          {typeof summary === "string" ? (
+            <PageText>{summary}</PageText>
+          ) : (
+            summary
+          )}
         </p>
       </div>
 

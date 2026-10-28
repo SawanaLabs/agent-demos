@@ -111,6 +111,11 @@
           "path": "app/api/demos/cloudflare-ai-gateway/route.ts",
           "type": "registry:page",
           "target": "app/api/demos/cloudflare-ai-gateway/route.ts"
+        },
+        {
+          "path": "components/page-copy.tsx",
+          "type": "registry:component",
+          "target": "@components/page-copy.tsx"
         }
       ],
       "docs": "Install into a shadcn Next.js App Router project. Open /demos/cloudflare-ai-gateway. IMAGE_GATEWAY selects cloudflare (default) or vercel; Vercel requires AI_GATEWAY_API_KEY. Cloudflare supports byok, stored-byok and unified-billing. Receipts distinguish estimated log costs from reported Vercel generation costs. Registry source contains no host telemetry or usage gate."

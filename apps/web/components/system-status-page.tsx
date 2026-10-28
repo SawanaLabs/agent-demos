@@ -12,6 +12,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { HomeIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PageText } from "@/components/page-copy";
 
 interface SystemStatusPageProps {
   actions?: ReactNode;
@@ -40,10 +41,10 @@ export function SystemStatusPage({
             className="font-medium text-foreground text-sm tracking-normal"
             href="/"
           >
-            Agent Demos
+            <PageText>{"Agent Demos"}</PageText>
           </Link>
           <Badge variant={tone === "destructive" ? "destructive" : "outline"}>
-            {badge}
+            <PageText>{badge}</PageText>
           </Badge>
         </header>
 
@@ -61,17 +62,18 @@ export function SystemStatusPage({
               {icon}
             </EmptyMedia>
             <EmptyTitle className="max-w-2xl text-balance text-2xl sm:text-3xl">
-              {title}
+              <PageText>{title}</PageText>
             </EmptyTitle>
             <EmptyDescription className="max-w-lg text-sm">
-              {description}
+              <PageText>{description}</PageText>
             </EmptyDescription>
           </EmptyHeader>
 
           <EmptyContent>
             {reference ? (
               <p className="border border-border bg-muted px-2.5 py-1.5 font-mono text-muted-foreground text-xs">
-                Error reference: {reference}
+                <PageText>{"Error reference: "}</PageText>
+                {reference}
               </p>
             ) : null}
 
@@ -85,7 +87,7 @@ export function SystemStatusPage({
                 href="/"
               >
                 <HomeIcon className="size-3.5" />
-                Home
+                <PageText>{"Home"}</PageText>
               </Link>
             </div>
           </EmptyContent>

@@ -25,6 +25,7 @@ import { Button } from "@workspace/ui/components/button";
 import { TabsContent } from "@workspace/ui/components/tabs";
 import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -62,6 +63,8 @@ export function SandboxConversationPane({
   samplePrompts,
   status,
 }: SandboxConversationPaneProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <TabsContent className="mt-0 min-h-0 flex-1" value="conversation">
       <div className="flex h-full min-h-0 flex-col">
@@ -102,9 +105,11 @@ export function SandboxConversationPane({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask the agent to scaffold a static frontend prototype, edit files in the sandbox workspace, and expose a live preview."
+                description={pageCopy(
+                  "Ask the agent to scaffold a static frontend prototype, edit files in the sandbox workspace, and expose a live preview."
+                )}
                 icon={<WrenchIcon className="size-5" />}
-                title="Prototype workspace is ready"
+                title={pageCopy("Prototype workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -117,13 +122,19 @@ export function SandboxConversationPane({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Describe a frontend prototype you want to build in the sandbox."
+                  placeholder={pageCopy(
+                    "Describe a frontend prototype you want to build in the sandbox."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">ToolLoopAgent</Badge>
-                  <Badge variant="outline">Vercel Sandbox</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"ToolLoopAgent"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Vercel Sandbox"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -135,7 +146,7 @@ export function SandboxConversationPane({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -145,7 +156,7 @@ export function SandboxConversationPane({
                       type="button"
                       variant="outline"
                     >
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -168,7 +179,7 @@ export function SandboxConversationPane({
                     variant="outline"
                   >
                     <WrenchIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>

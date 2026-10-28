@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { UltraChatbotAgentResearchReportResult } from "./ultra-chatbot-agent-message-parts";
 
@@ -30,12 +31,19 @@ export function UltraChatbotAgentResearchReport({
 }: {
   report: UltraChatbotAgentResearchReportResult;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <article className="w-full space-y-5 border border-foreground/15 bg-background px-5 py-5">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">Research report</Badge>
-          <Badge variant="secondary">{report.sources.length} sources</Badge>
+          <Badge variant="outline">
+            <PageText>{"Research report"}</PageText>
+          </Badge>
+          <Badge variant="secondary">
+            {report.sources.length}
+            <PageText>{" sources"}</PageText>
+          </Badge>
         </div>
         <div>
           <p className="text-muted-foreground text-xs uppercase tracking-[0.24em]">
@@ -51,16 +59,22 @@ export function UltraChatbotAgentResearchReport({
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <ReportSection items={report.keyFindings} title="Key findings" />
-        <ReportSection items={report.recommendations} title="Recommendations" />
+        <ReportSection
+          items={report.keyFindings}
+          title={pageCopy("Key findings")}
+        />
+        <ReportSection
+          items={report.recommendations}
+          title={pageCopy("Recommendations")}
+        />
       </div>
 
-      <ReportSection items={report.risks} title="Risks" />
+      <ReportSection items={report.risks} title={pageCopy("Risks")} />
 
       {report.sources.length > 0 ? (
         <div className="space-y-2 border-foreground/10 border-t pt-4">
           <p className="font-medium text-muted-foreground text-xs uppercase tracking-[0.24em]">
-            Resources
+            <PageText>{"Resources"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {report.sources.map((source) => {

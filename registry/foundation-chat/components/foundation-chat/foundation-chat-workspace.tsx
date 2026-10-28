@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
 import { BotIcon, RefreshCwIcon, SquareIcon } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -59,6 +60,8 @@ export function FoundationChatWorkspace({
   nodeVersion,
   setupMessage,
 }: FoundationChatWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -107,7 +110,7 @@ export function FoundationChatWorkspace({
                           <MessageResponse>{text}</MessageResponse>
                         ) : (
                           <p className="text-muted-foreground text-sm">
-                            Waiting for visible output.
+                            <PageText>{"Waiting for visible output."}</PageText>
                           </p>
                         )}
                       </MessageContent>
@@ -124,9 +127,11 @@ export function FoundationChatWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask about the project, the stack, or any capability you want to turn into the next demo."
+                description={pageCopy(
+                  "Ask about the project, the stack, or any capability you want to turn into the next demo."
+                )}
                 icon={<BotIcon className="size-5" />}
-                title="Foundation workspace is ready"
+                title={pageCopy("Foundation workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -140,14 +145,20 @@ export function FoundationChatWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask this demo to explain the stack or help shape the next agent."
+                  placeholder={pageCopy(
+                    "Ask this demo to explain the stack or help shape the next agent."
+                  )}
                 />
               </PromptInputBody>
               <Separator className="mt-3" />
               <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">AI SDK 6</Badge>
-                  <Badge variant="outline">Gateway</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"AI SDK 6"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Gateway"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -159,7 +170,7 @@ export function FoundationChatWorkspace({
                       variant="outline"
                     >
                       <SquareIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -170,7 +181,7 @@ export function FoundationChatWorkspace({
                       variant="outline"
                     >
                       <RefreshCwIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -193,7 +204,7 @@ export function FoundationChatWorkspace({
                     variant="outline"
                   >
                     <BotIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -206,27 +217,32 @@ export function FoundationChatWorkspace({
         <div className="space-y-4">
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Contract
+              <PageText>{"Contract"}</PageText>
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              This slot proves the minimum copy-paste baseline: Next.js route,
-              AI Gateway provider wiring, AI Elements workspace, and explicit
-              setup errors.
+              <PageText>
+                {
+                  "This slot proves the minimum copy-paste baseline: Next.js route, AI Gateway provider wiring, AI Elements workspace, and explicit setup errors."
+                }
+              </PageText>
             </p>
           </div>
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Demo role
+              <PageText>{"Demo role"}</PageText>
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              Future demos can duplicate this slice and replace only feature
-              logic, route path, metadata, and model behavior.
+              <PageText>
+                {
+                  "Future demos can duplicate this slice and replace only feature logic, route path, metadata, and model behavior."
+                }
+              </PageText>
             </p>
           </div>
         </div>

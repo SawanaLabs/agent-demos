@@ -5,6 +5,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Spinner } from "@workspace/ui/components/spinner";
 import Link from "next/link";
+import { PageText } from "@/components/page-copy";
 
 import { ultraChatbotAgentKnowledgeSource } from "../knowledge-source";
 import type { UltraChatbotAgentChatSession } from "../server/chat-store";
@@ -109,7 +110,7 @@ export function UltraChatbotAgentSessionSidebar({
             variant="outline"
           >
             <ArrowClockwiseIcon className="size-3.5" />
-            Retry resume
+            <PageText>{"Retry resume"}</PageText>
           </Button>
         ) : null}
       </div>
@@ -126,17 +127,19 @@ function UltraChatbotAgentSessionHeader({
     <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
       <div className="min-w-0">
         <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-          Session
+          <PageText>{"Session"}</PageText>
         </p>
         <p className="mt-1 font-medium text-sm">
-          {initialSession ? "Restored route" : "New route promotion"}
+          <PageText>
+            {initialSession ? "Restored route" : "New route promotion"}
+          </PageText>
         </p>
       </div>
       <Link
         className="inline-flex h-8 items-center justify-center border border-foreground/10 px-3 text-sm transition-colors hover:border-foreground/30"
         href="/demos/ultra-chatbot-agent"
       >
-        New chat
+        <PageText>{"New chat"}</PageText>
       </Link>
     </div>
   );
@@ -151,20 +154,20 @@ function UltraChatbotAgentRouteMeta({
     <>
       <div>
         <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-          Chat ID
+          <PageText>{"Chat ID"}</PageText>
         </p>
         <p className="mt-1 break-all font-mono text-xs">{chatMeta.id}</p>
       </div>
       <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-1">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Created
+            <PageText>{"Created"}</PageText>
           </p>
           <p className="mt-1 text-sm">{formatDateTime(chatMeta.createdAt)}</p>
         </div>
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Updated
+            <PageText>{"Updated"}</PageText>
           </p>
           <p className="mt-1 text-sm">{formatDateTime(chatMeta.updatedAt)}</p>
         </div>
@@ -181,7 +184,7 @@ function UltraChatbotAgentModelMeta({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Current model
+        <PageText>{"Current model"}</PageText>
       </p>
       <p className="mt-1 text-sm">{selectedModel?.name}</p>
       <p className="mt-1 text-muted-foreground text-xs/relaxed">
@@ -199,7 +202,7 @@ function UltraChatbotAgentCapabilityBadges({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Capabilities
+        <PageText>{"Capabilities"}</PageText>
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Badge
@@ -207,12 +210,18 @@ function UltraChatbotAgentCapabilityBadges({
             chatMeta.capabilities.sandboxEnabled ? "secondary" : "outline"
           }
         >
-          {chatMeta.capabilities.sandboxEnabled
-            ? "Sandbox enabled"
-            : "Sandbox locked"}
+          <PageText>
+            {chatMeta.capabilities.sandboxEnabled
+              ? "Sandbox enabled"
+              : "Sandbox locked"}
+          </PageText>
         </Badge>
-        <Badge variant="outline">Preindexed RAG</Badge>
-        <Badge variant="outline">Project Docs MCP</Badge>
+        <Badge variant="outline">
+          <PageText>{"Preindexed RAG"}</PageText>
+        </Badge>
+        <Badge variant="outline">
+          <PageText>{"Project Docs MCP"}</PageText>
+        </Badge>
       </div>
     </div>
   );
@@ -236,12 +245,14 @@ function UltraChatbotAgentSandboxPanel({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Sandbox
+            <PageText>{"Sandbox"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            {chatMeta.capabilities.sandboxEnabled
-              ? "Enabled for this chat"
-              : "Approval required"}
+            <PageText>
+              {chatMeta.capabilities.sandboxEnabled
+                ? "Enabled for this chat"
+                : "Approval required"}
+            </PageText>
           </p>
         </div>
         {chatMeta.capabilities.sandboxEnabled ? (
@@ -249,9 +260,11 @@ function UltraChatbotAgentSandboxPanel({
         ) : null}
       </div>
       <p className="mt-2 text-muted-foreground text-xs/relaxed">
-        Sandbox unlocks repo-local reads, shell execution, and skill-backed
-        tools for this route. HITL approvals and this switch share the same
-        per-chat capability state.
+        <PageText>
+          {
+            "Sandbox unlocks repo-local reads, shell execution, and skill-backed tools for this route. HITL approvals and this switch share the same per-chat capability state."
+          }
+        </PageText>
       </p>
       {sandboxError ? (
         <p className="mt-2 text-destructive text-xs/relaxed">{sandboxError}</p>
@@ -290,7 +303,7 @@ function UltraChatbotAgentKnowledgePanel() {
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Knowledge source
+        <PageText>{"Knowledge source"}</PageText>
       </p>
       <p className="mt-1 text-sm">{ultraChatbotAgentKnowledgeSource.title}</p>
       <p className="mt-1 text-muted-foreground text-xs/relaxed">
@@ -303,7 +316,7 @@ function UltraChatbotAgentKnowledgePanel() {
           rel="noreferrer"
           target="_blank"
         >
-          Open PDF
+          <PageText>{"Open PDF"}</PageText>
         </Link>
         <Link
           className="inline-flex h-8 items-center justify-center border border-foreground/10 px-3 text-sm transition-colors hover:border-foreground/30"
@@ -311,7 +324,7 @@ function UltraChatbotAgentKnowledgePanel() {
           rel="noreferrer"
           target="_blank"
         >
-          Source page
+          <PageText>{"Source page"}</PageText>
         </Link>
       </div>
     </div>
@@ -322,11 +335,14 @@ function UltraChatbotAgentPortContractPanel() {
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Port contract
+        <PageText>{"Port contract"}</PageText>
       </p>
       <p className="mt-1 text-sm">
-        This slice keeps the route identity, visitor isolation, resumable
-        streaming, model selection, and the first document companion surface.
+        <PageText>
+          {
+            "This slice keeps the route identity, visitor isolation, resumable streaming, model selection, and the first document companion surface."
+          }
+        </PageText>
       </p>
     </div>
   );
@@ -340,14 +356,19 @@ function UltraChatbotAgentRuntimePanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Runtime
+        <PageText>{"Runtime"}</PageText>
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Badge variant="outline">
-          Node {nodeVersion.replace(nodeVersionPrefixPattern, "")}
+          <PageText>{"Node "}</PageText>
+          {nodeVersion.replace(nodeVersionPrefixPattern, "")}
         </Badge>
-        <Badge variant="outline">HTTP-only cookie</Badge>
-        <Badge variant="outline">Redis resume</Badge>
+        <Badge variant="outline">
+          <PageText>{"HTTP-only cookie"}</PageText>
+        </Badge>
+        <Badge variant="outline">
+          <PageText>{"Redis resume"}</PageText>
+        </Badge>
       </div>
     </div>
   );

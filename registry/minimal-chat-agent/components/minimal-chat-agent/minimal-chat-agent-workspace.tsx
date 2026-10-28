@@ -46,6 +46,7 @@ import {
   StarIcon,
   WorkflowIcon,
 } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -105,9 +106,11 @@ function WebSearchCard({ part }: { part: ProjectedWebSearchPart }) {
           <SearchIcon className="size-4" />
         </span>
         <div>
-          <p className="font-medium text-sm">Provider-native web search</p>
+          <p className="font-medium text-sm">
+            <PageText>{"Provider-native web search"}</PageText>
+          </p>
           <p className="text-muted-foreground text-xs">
-            Retrieval runs inside the model provider.
+            <PageText>{"Retrieval runs inside the model provider."}</PageText>
           </p>
         </div>
       </div>
@@ -149,14 +152,20 @@ function GithubRepoCard({ part }: { part: ProjectedGithubRepoPart }) {
             rel="noreferrer"
             target="_blank"
           >
-            Open repository
+            <PageText>{"Open repository"}</PageText>
           </a>
           <span className="flex items-center gap-1">
             <StarIcon className="size-3" />
             {result.stars.toLocaleString()}
           </span>
-          <span>{result.forks.toLocaleString()} forks</span>
-          <span>{result.openIssues.toLocaleString()} open issues</span>
+          <span>
+            {result.forks.toLocaleString()}
+            <PageText>{" forks"}</PageText>
+          </span>
+          <span>
+            {result.openIssues.toLocaleString()}
+            <PageText>{" open issues"}</PageText>
+          </span>
           <span>{result.language}</span>
         </div>
       ) : null}
@@ -174,7 +183,9 @@ function AnsweredAskUserCard({ part }: { part: ProjectedAskUserPart }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <MessageCircleQuestionIcon className="size-4" />
-          <p className="font-medium text-sm">Clarifying answers received</p>
+          <p className="font-medium text-sm">
+            <PageText>{"Clarifying answers received"}</PageText>
+          </p>
         </div>
         <ToolStatusBadge state={part.state} />
       </div>
@@ -203,6 +214,8 @@ export function MinimalChatAgentWorkspace({
   nodeVersion,
   setupMessage,
 }: MinimalChatAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     addToolOutput,
     clearError,
@@ -310,7 +323,7 @@ export function MinimalChatAgentWorkspace({
                         ) : null}
                         {projection.text || hasToolParts ? null : (
                           <p className="text-muted-foreground text-sm">
-                            Waiting for visible output.
+                            <PageText>{"Waiting for visible output."}</PageText>
                           </p>
                         )}
                       </MessageContent>
@@ -336,9 +349,11 @@ export function MinimalChatAgentWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask for live information, inspect a public GitHub repository, or let the agent pause for structured clarification."
+                description={pageCopy(
+                  "Ask for live information, inspect a public GitHub repository, or let the agent pause for structured clarification."
+                )}
                 icon={<WorkflowIcon className="size-5" />}
-                title="One chat, three tool boundaries"
+                title={pageCopy("One chat, three tool boundaries")}
               />
             )}
           </ConversationContent>
@@ -356,17 +371,25 @@ export function MinimalChatAgentWorkspace({
                   }
                   placeholder={
                     pendingAskUserPart
-                      ? "Answer the questions above to continue."
-                      : "Ask the agent to search, inspect a repository, or clarify a decision."
+                      ? pageCopy("Answer the questions above to continue.")
+                      : pageCopy(
+                          "Ask the agent to search, inspect a repository, or clarify a decision."
+                        )
                   }
                 />
               </PromptInputBody>
               <Separator className="mt-3" />
               <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">OpenAI hosted search</Badge>
-                  <Badge variant="outline">GitHub REST</Badge>
-                  <Badge variant="outline">HITL</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"OpenAI hosted search"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"GitHub REST"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"HITL"}</PageText>
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   {isBusy ? (
@@ -377,7 +400,7 @@ export function MinimalChatAgentWorkspace({
                       variant="outline"
                     >
                       <SquareIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages && !pendingAskUserPart ? (
@@ -388,7 +411,7 @@ export function MinimalChatAgentWorkspace({
                       variant="outline"
                     >
                       <RefreshCwIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -411,7 +434,7 @@ export function MinimalChatAgentWorkspace({
                     variant="outline"
                   >
                     <BotIcon className="size-3.5 shrink-0" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -424,11 +447,14 @@ export function MinimalChatAgentWorkspace({
         <div className="space-y-5">
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Minimal agent loop
+              <PageText>{"Minimal agent loop"}</PageText>
             </p>
             <p className="mt-2 text-muted-foreground text-sm/relaxed">
-              The model chooses tools, receives structured results, and keeps
-              streaming until the task is complete or a human answer is needed.
+              <PageText>
+                {
+                  "The model chooses tools, receives structured results, and keeps streaming until the task is complete or a human answer is needed."
+                }
+              </PageText>
             </p>
           </div>
           <Separator />
@@ -436,28 +462,41 @@ export function MinimalChatAgentWorkspace({
             <div className="flex items-start gap-2">
               <SearchIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">web_search</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"web_search"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  OpenAI hosted retrieval with streamed source parts.
+                  <PageText>
+                    {"OpenAI hosted retrieval with streamed source parts."}
+                  </PageText>
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <GitForkIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">github_repo</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"github_repo"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  A server tool that reads public repository metadata.
+                  <PageText>
+                    {"A server tool that reads public repository metadata."}
+                  </PageText>
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <MessageCircleQuestionIcon className="mt-0.5 size-4 shrink-0" />
               <div>
-                <p className="font-medium text-sm">ask_user</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"ask_user"}</PageText>
+                </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  An unexecuted tool whose output comes from the questionnaire
-                  UI.
+                  <PageText>
+                    {
+                      "An unexecuted tool whose output comes from the questionnaire UI."
+                    }
+                  </PageText>
                 </p>
               </div>
             </div>
@@ -465,7 +504,7 @@ export function MinimalChatAgentWorkspace({
           <Separator />
           <div>
             <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
             <p className="mt-1 break-all font-mono text-muted-foreground text-xs">

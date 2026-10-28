@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RefreshCcwIcon } from "lucide-react";
 import { useCallback } from "react";
+import { PageText } from "@/components/page-copy";
 
 interface ConversationErrorMessageProps {
   className?: string;
@@ -53,7 +54,9 @@ export function ConversationErrorMessage({
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="font-medium text-sm">{title}</p>
+            <p className="font-medium text-sm">
+              <PageText>{title}</PageText>
+            </p>
             <p className="mt-1 break-words text-xs/relaxed opacity-90">
               {errorMessage}
             </p>
@@ -70,7 +73,7 @@ export function ConversationErrorMessage({
               variant="destructive"
             >
               <RefreshCcwIcon className="size-3.5" />
-              {retryLabel}
+              <PageText>{retryLabel}</PageText>
             </Button>
           ) : null}
         </div>

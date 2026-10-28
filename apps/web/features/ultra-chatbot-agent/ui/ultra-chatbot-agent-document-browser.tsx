@@ -4,6 +4,7 @@ import { FileCodeIcon, FileTextIcon } from "@phosphor-icons/react";
 import { Shimmer } from "@workspace/ui/components/ai-elements/shimmer";
 import { Badge } from "@workspace/ui/components/badge";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
 import { UltraChatbotAgentArtifactActions } from "./ultra-chatbot-agent-artifact-actions";
@@ -30,6 +31,8 @@ export function UltraChatbotAgentDocumentBrowser({
   refreshToken: number;
   selectedDocumentId: string | null;
 }) {
+  const pageCopy = usePageCopy();
+
   const [documents, setDocuments] = useState<UltraChatbotAgentDocumentRecord[]>(
     []
   );
@@ -97,13 +100,16 @@ export function UltraChatbotAgentDocumentBrowser({
 
   if (isDocumentsLoading) {
     documentBrowserContent = (
-      <Shimmer className="text-sm">Loading documents...</Shimmer>
+      <Shimmer className="text-sm">{pageCopy("Loading documents...")}</Shimmer>
     );
   } else if (documents.length === 0) {
     documentBrowserContent = (
       <div className="border border-foreground/10 border-dashed px-3 py-4 text-muted-foreground text-xs/relaxed">
-        Create a scratch doc to exercise the versioned document route and the
-        artifact dialog.
+        <PageText>
+          {
+            "Create a scratch doc to exercise the versioned document route and the artifact dialog."
+          }
+        </PageText>
       </div>
     );
   } else {
@@ -130,7 +136,9 @@ export function UltraChatbotAgentDocumentBrowser({
                       <span className="truncate text-sm">{document.title}</span>
                     </div>
                     {selectedDocumentId === document.id ? (
-                      <Badge variant="secondary">Open</Badge>
+                      <Badge variant="secondary">
+                        <PageText>{"Open"}</PageText>
+                      </Badge>
                     ) : null}
                   </div>
                   <p className="mt-1 text-muted-foreground text-xs">
@@ -152,11 +160,14 @@ export function UltraChatbotAgentDocumentBrowser({
       <div className="space-y-3">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Artifacts
+            <PageText>{"Artifacts"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            Browse code and document artifacts created in this thread. Open one
-            to inspect or edit it in a dedicated detail dialog.
+            <PageText>
+              {
+                "Browse code and document artifacts created in this thread. Open one to inspect or edit it in a dedicated detail dialog."
+              }
+            </PageText>
           </p>
         </div>
         <UltraChatbotAgentArtifactActions

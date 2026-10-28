@@ -16,6 +16,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 
 ## Subdomains
 
+- [Page Localization](./page-localization.md): English and Chinese page copy, persistent language selection, and portable demo boundaries.
 - [Cloudflare AI Gateway](./cloudflare-ai-gateway.md): ImageGenerator Seam, interchangeable Vercel and Cloudflare Adapters, credentials and cost semantics.
 
 - [Feedback Agent](./feedback-agent.md): Native shadcn capture UI, private inbox, AI triage, and upstream migration boundaries.
@@ -72,6 +73,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 | ./minimal-chat-agent.md | Minimal Chat Agent | Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output. | 2026-09-20 |
 | ./multimodal-chatbot.md | Multi-Modal Chatbot | Durable conventions for the image and PDF chat demo, including local QA boundaries for page-render hangs. | 2026-06-02 |
 | ./openai-agents-sdk-demo.md | OpenAI Agents SDK Demo | Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway. | 2026-06-16 |
+| ./page-localization.md | Page Localization | Chinese and English page copy, language persistence, and portable demo boundaries. | 2026-10-28 |
 | ./persistent-agent.md | Persistent & Resume Agent | Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams. | 2026-06-01 |
 | ./project-guide-companion.md | Project Guide Companion | Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface. | 2026-10-28 |
 | ./rag-chatbot.md | RAG Chatbot | Stable source-core, indexing, retrieval, and grounded-answer conventions for the RAG Chatbot demo. | 2026-06-08 |

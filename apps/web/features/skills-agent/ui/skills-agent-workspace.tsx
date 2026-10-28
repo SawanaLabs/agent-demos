@@ -43,6 +43,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { isReasoningUIPart, isToolUIPart, type UIMessage } from "ai";
 import { useMemo } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import {
   ConversationErrorMessage,
   useConversationErrorRetry,
@@ -154,6 +155,8 @@ function AssistantTrace({
   isStreaming,
   message,
 }: AssistantTraceProps) {
+  const pageCopy = usePageCopy();
+
   const text = getTextContent(message);
   const reasoningText = getReasoningText(message);
   const toolParts = getToolParts(message);
@@ -171,7 +174,9 @@ function AssistantTrace({
   if (hasText) {
     bodyContent = <MessageResponse>{text}</MessageResponse>;
   } else if (showBodyThinking) {
-    bodyContent = <Shimmer className="text-sm">Thinking...</Shimmer>;
+    bodyContent = (
+      <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
+    );
   }
 
   return (
@@ -186,7 +191,7 @@ function AssistantTrace({
       {activatedSkills.length > 0 ? (
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Activated skills
+            <PageText>{"Activated skills"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {activatedSkills.map((skillName) => (
@@ -206,7 +211,9 @@ function AssistantTrace({
               key={`${artifact.path}-${artifact.content?.length ?? 0}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="font-medium text-sm">Draft artifact</p>
+                <p className="font-medium text-sm">
+                  <PageText>{"Draft artifact"}</PageText>
+                </p>
                 <Badge variant="outline">{artifact.path}</Badge>
               </div>
               <pre className="overflow-x-auto whitespace-pre-wrap text-xs/relaxed">
@@ -260,6 +267,8 @@ export function SkillsAgentWorkspace({
   sandboxProvider,
   setupMessage,
 }: SkillsAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -345,9 +354,11 @@ export function SkillsAgentWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask the agent to challenge a rough idea, align durable context, and turn that workflow into a reusable skill draft."
+                description={pageCopy(
+                  "Ask the agent to challenge a rough idea, align durable context, and turn that workflow into a reusable skill draft."
+                )}
                 icon={<HammerIcon className="size-5" />}
-                title="Idea-to-skill workspace is ready"
+                title={pageCopy("Idea-to-skill workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -360,13 +371,19 @@ export function SkillsAgentWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!canStartChatTurn}
-                  placeholder="Describe a rough idea or ask for a reusable skill draft."
+                  placeholder={pageCopy(
+                    "Describe a rough idea or ask for a reusable skill draft."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">ToolLoopAgent</Badge>
-                  <Badge variant="outline">Vercel Sandbox</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"ToolLoopAgent"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Vercel Sandbox"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -378,7 +395,7 @@ export function SkillsAgentWorkspace({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -390,7 +407,7 @@ export function SkillsAgentWorkspace({
                       variant="outline"
                     >
                       <ArrowClockwiseIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -413,7 +430,7 @@ export function SkillsAgentWorkspace({
                     variant="outline"
                   >
                     <WrenchIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -426,7 +443,7 @@ export function SkillsAgentWorkspace({
         <div className="space-y-5">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <Badge className="mt-2" variant="secondary">
               {environmentLabel}
@@ -438,7 +455,7 @@ export function SkillsAgentWorkspace({
 
           <div className="space-y-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Available skills
+              <PageText>{"Available skills"}</PageText>
             </p>
             {availableSkills.map((skill) => (
               <div
@@ -455,7 +472,7 @@ export function SkillsAgentWorkspace({
 
           <div className="space-y-2">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Configured tools
+              <PageText>{"Configured tools"}</PageText>
             </p>
             {configuredTools.map((tool) => (
               <div
@@ -472,24 +489,32 @@ export function SkillsAgentWorkspace({
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Artifact targets
+              <PageText>{"Artifact targets"}</PageText>
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Badge variant="secondary">artifacts/CONTEXT.md</Badge>
               <Badge variant="secondary">
-                artifacts/&lt;skill&gt;/SKILL.md
+                <PageText>{"artifacts/CONTEXT.md"}</PageText>
+              </Badge>
+              <Badge variant="secondary">
+                <PageText>{"artifacts/<skill>/SKILL.md"}</PageText>
               </Badge>
             </div>
           </div>
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Source core
+              <PageText>{"Source core"}</PageText>
             </p>
             <p className="mt-1 text-sm">
-              The model starts from skill metadata, calls <code>skill</code> for
-              full instructions, then uses sandbox tools for file and shell
-              work.
+              <PageText>
+                {"The model starts from skill metadata, calls "}
+              </PageText>
+              <code>skill</code>
+              <PageText>
+                {
+                  " for full instructions, then uses sandbox tools for file and shell work."
+                }
+              </PageText>
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { Textarea } from "@workspace/ui/components/textarea";
 import Image from "next/image";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { GatewaySetup } from "../contract";
 import { GatewayResults } from "./gateway-results";
 import { useGatewayWorkspace } from "./use-gateway-workspace";
@@ -13,6 +14,8 @@ const selectClassName =
   "h-9 w-full border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
+  const pageCopy = usePageCopy();
+
   const state = useGatewayWorkspace(setup);
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
@@ -21,7 +24,9 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
         onSubmit={state.generate}
       >
         <div className="space-y-2">
-          <Label htmlFor="gateway-model">Model</Label>
+          <Label htmlFor="gateway-model">
+            <PageText>{"Model"}</PageText>
+          </Label>
           <select
             className={selectClassName}
             disabled={state.busy}
@@ -32,14 +37,18 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
             }
             value={state.model}
           >
-            <option value="gpt-image-2">OpenAI GPT Image 2</option>
+            <option value="gpt-image-2">
+              <PageText>{"OpenAI GPT Image 2"}</PageText>
+            </option>
             <option value="gemini-3.1-flash-image">
-              Google Gemini 3.1 Flash Image
+              <PageText>{"Google Gemini 3.1 Flash Image"}</PageText>
             </option>
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="gateway-prompt">Prompt</Label>
+          <Label htmlFor="gateway-prompt">
+            <PageText>{"Prompt"}</PageText>
+          </Label>
           <Textarea
             className="min-h-36"
             dir="auto"
@@ -48,7 +57,9 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
             maxLength={5000}
             name="prompt"
             onChange={(event) => state.setPrompt(event.target.value)}
-            placeholder="Describe an image, or the change to make to your reference photos."
+            placeholder={pageCopy(
+              "Describe an image, or the change to make to your reference photos."
+            )}
             required
             value={state.prompt}
           />
@@ -62,13 +73,15 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
             type="button"
             variant="ghost"
           >
-            Use example prompt
+            <PageText>{"Use example prompt"}</PageText>
           </Button>
         </div>
         {state.model === "gpt-image-2" ? (
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="gateway-quality">Quality</Label>
+              <Label htmlFor="gateway-quality">
+                <PageText>{"Quality"}</PageText>
+              </Label>
               <select
                 className={selectClassName}
                 defaultValue="low"
@@ -76,13 +89,21 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
                 id="gateway-quality"
                 name="quality"
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="low">
+                  <PageText>{"Low"}</PageText>
+                </option>
+                <option value="medium">
+                  <PageText>{"Medium"}</PageText>
+                </option>
+                <option value="high">
+                  <PageText>{"High"}</PageText>
+                </option>
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gateway-size">Size</Label>
+              <Label htmlFor="gateway-size">
+                <PageText>{"Size"}</PageText>
+              </Label>
               <select
                 className={selectClassName}
                 defaultValue="1024x1024"
@@ -90,16 +111,24 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
                 id="gateway-size"
                 name="size"
               >
-                <option>1024x1024</option>
-                <option>1024x1536</option>
-                <option>1536x1024</option>
+                <option>
+                  <PageText>{"1024x1024"}</PageText>
+                </option>
+                <option>
+                  <PageText>{"1024x1536"}</PageText>
+                </option>
+                <option>
+                  <PageText>{"1536x1024"}</PageText>
+                </option>
               </select>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="gateway-image-size">Resolution</Label>
+              <Label htmlFor="gateway-image-size">
+                <PageText>{"Resolution"}</PageText>
+              </Label>
               <select
                 className={selectClassName}
                 defaultValue="1K"
@@ -107,13 +136,21 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
                 id="gateway-image-size"
                 name="imageSize"
               >
-                <option>1K</option>
-                <option>2K</option>
-                <option>4K</option>
+                <option>
+                  <PageText>{"1K"}</PageText>
+                </option>
+                <option>
+                  <PageText>{"2K"}</PageText>
+                </option>
+                <option>
+                  <PageText>{"4K"}</PageText>
+                </option>
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gateway-aspect-ratio">Aspect ratio</Label>
+              <Label htmlFor="gateway-aspect-ratio">
+                <PageText>{"Aspect ratio"}</PageText>
+              </Label>
               <select
                 className={selectClassName}
                 defaultValue="1:1"
@@ -131,7 +168,9 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
           </div>
         )}
         <div className="space-y-2">
-          <Label htmlFor="gateway-reference">Reference photos (optional)</Label>
+          <Label htmlFor="gateway-reference">
+            <PageText>{"Reference photos (optional)"}</PageText>
+          </Label>
           <Input
             accept="image/png,image/jpeg,image/webp"
             disabled={state.busy || state.preparing}
@@ -141,7 +180,9 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
             type="file"
           />
           <p className="text-muted-foreground text-xs">
-            Up to 4 photos, 3 MB total. Describe the edits in your prompt.
+            <PageText>
+              {"Up to 4 photos, 3 MB total. Describe the edits in your prompt."}
+            </PageText>
           </p>
           {state.references.length > 0 ? (
             <div className="space-y-2">
@@ -164,14 +205,15 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
                 type="button"
                 variant="ghost"
               >
-                Clear references
+                <PageText>{"Clear references"}</PageText>
               </Button>
             </div>
           ) : null}
         </div>
         {state.selectedSetup.available ? null : (
           <p className="break-words text-muted-foreground text-sm">
-            Server setup required: {state.selectedSetup.missing.join(", ")}.
+            <PageText>{"Server setup required: "}</PageText>
+            {state.selectedSetup.missing.join(", ")}.
           </p>
         )}
         <Button
@@ -184,7 +226,9 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
           }
           type="submit"
         >
-          {state.busy ? "Generating image…" : "Generate image"}
+          <PageText>
+            {state.busy ? "Generating image…" : "Generate image"}
+          </PageText>
         </Button>
       </form>
       <GatewayResults

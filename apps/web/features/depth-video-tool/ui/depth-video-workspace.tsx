@@ -13,6 +13,7 @@ import {
 import { Progress, ProgressLabel } from "@workspace/ui/components/progress";
 import Link from "next/link";
 import type { ChangeEvent, DragEvent, RefObject } from "react";
+import { PageText } from "@/components/page-copy";
 
 import {
   DEPTH_VIDEO_MAX_DURATION_SECONDS,
@@ -110,42 +111,54 @@ function DepthVideoIntro({
           href="/"
         >
           <ArrowLeftIcon className="size-4" />
-          Agent Demos
+          <PageText>{"Agent Demos"}</PageText>
         </Link>
         <div className="flex items-center gap-2 text-muted-foreground text-xs">
           <LockKeyIcon className="size-3.5 text-primary" />
-          Local processing
+          <PageText>{"Local processing"}</PageText>
         </div>
       </header>
 
       <section className="grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
         <div>
           <h1 className="max-w-4xl text-balance font-medium text-4xl tracking-[-0.04em] sm:text-5xl lg:text-6xl">
-            Turn a shot into spatial motion.
+            <PageText>{"Turn a shot into spatial motion."}</PageText>
           </h1>
           <p className="mt-4 max-w-2xl text-pretty text-muted-foreground text-sm/relaxed sm:text-base/relaxed">
-            Convert a short video into a grayscale depth reference. Near pixels
-            become light, distant pixels become dark, and the original motion
-            and camera path remain readable to video models.
+            <PageText>
+              {
+                "Convert a short video into a grayscale depth reference. Near pixels become light, distant pixels become dark, and the original motion and camera path remain readable to video models."
+              }
+            </PageText>
           </p>
         </div>
         <div className="grid grid-cols-3 border border-border text-xs">
           <div className="border-border border-r p-3">
-            <p className="text-muted-foreground">Sweet spot</p>
+            <p className="text-muted-foreground">
+              <PageText>{"Sweet spot"}</PageText>
+            </p>
             <p className="mt-2 text-foreground text-lg">
-              {DEPTH_VIDEO_RECOMMENDED_DURATION_SECONDS}s
+              {DEPTH_VIDEO_RECOMMENDED_DURATION_SECONDS}
+              <PageText>{"s"}</PageText>
             </p>
           </div>
           <div className="border-border border-r p-3">
-            <p className="text-muted-foreground">Hard limit</p>
+            <p className="text-muted-foreground">
+              <PageText>{"Hard limit"}</PageText>
+            </p>
             <p className="mt-2 text-foreground text-lg">
-              {DEPTH_VIDEO_MAX_DURATION_SECONDS}s
+              {DEPTH_VIDEO_MAX_DURATION_SECONDS}
+              <PageText>{"s"}</PageText>
             </p>
           </div>
           <div className="p-3">
-            <p className="text-muted-foreground">Compute</p>
+            <p className="text-muted-foreground">
+              <PageText>{"Compute"}</PageText>
+            </p>
             <p className="mt-2 truncate text-foreground text-sm">
-              {runtimeDevice === "webgpu" ? "WebGPU" : "CPU"}
+              <PageText>
+                {runtimeDevice === "webgpu" ? "WebGPU" : "CPU"}
+              </PageText>
             </p>
           </div>
         </div>
@@ -171,7 +184,9 @@ function SourceVideoPanel(props: DepthVideoWorkspaceProps) {
   return (
     <div className="relative flex min-h-[24rem] flex-col border-border border-b lg:border-r lg:border-b-0">
       <div className="flex items-center justify-between border-border border-b px-4 py-3 text-xs">
-        <span>Source video</span>
+        <span>
+          <PageText>{"Source video"}</PageText>
+        </span>
         <span className="text-muted-foreground">
           {metadata
             ? `${metadata.width}×${metadata.height} · ${formatDuration(metadata.duration)}`
@@ -218,13 +233,18 @@ function SourceVideoPanel(props: DepthVideoWorkspaceProps) {
             type="button"
           >
             <UploadSimpleIcon className="size-7 text-primary" />
-            <span className="mt-5 text-base">Drop a short clip here</span>
+            <span className="mt-5 text-base">
+              <PageText>{"Drop a short clip here"}</PageText>
+            </span>
             <span className="mt-2 max-w-sm text-muted-foreground text-xs/relaxed">
-              Five seconds is usually enough. Clips over fifteen seconds stop
-              before model loading.
+              <PageText>
+                {
+                  "Five seconds is usually enough. Clips over fifteen seconds stop before model loading."
+                }
+              </PageText>
             </span>
             <span className="mt-5 border border-border px-3 py-2 text-xs transition-colors group-hover:border-primary">
-              Choose video
+              <PageText>{"Choose video"}</PageText>
             </span>
           </button>
         )}
@@ -239,8 +259,12 @@ function DepthOutputPanel(props: DepthVideoWorkspaceProps) {
   return (
     <div className="relative flex min-h-[24rem] flex-col">
       <div className="flex items-center justify-between border-border border-b px-4 py-3 text-xs">
-        <span>Depth output</span>
-        <span className="text-muted-foreground">Near / light · Far / dark</span>
+        <span>
+          <PageText>{"Depth output"}</PageText>
+        </span>
+        <span className="text-muted-foreground">
+          <PageText>{"Near / light · Far / dark"}</PageText>
+        </span>
       </div>
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-background p-4">
         {outputUrl && status === "done" ? (
@@ -278,7 +302,7 @@ function EmptyDepthPreview() {
         ))}
       </div>
       <p className="relative bg-background/80 px-3 py-2 text-muted-foreground text-xs">
-        Depth preview waits for a source clip
+        <PageText>{"Depth preview waits for a source clip"}</PageText>
       </p>
     </div>
   );
@@ -370,7 +394,7 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
         className="block text-muted-foreground text-xs"
         htmlFor="analysis-fps"
       >
-        Depth samples
+        <PageText>{"Depth samples"}</PageText>
         <NativeSelect
           className="mt-2 w-full [&_select]:border-border [&_select]:bg-background [&_select]:text-foreground"
           disabled={processing}
@@ -380,9 +404,15 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
           }
           value={analysisFramesPerSecond}
         >
-          <NativeSelectOption value={6}>6 fps · faster</NativeSelectOption>
-          <NativeSelectOption value={12}>12 fps · balanced</NativeSelectOption>
-          <NativeSelectOption value={24}>24 fps · precise</NativeSelectOption>
+          <NativeSelectOption value={6}>
+            <PageText>{"6 fps · faster"}</PageText>
+          </NativeSelectOption>
+          <NativeSelectOption value={12}>
+            <PageText>{"12 fps · balanced"}</PageText>
+          </NativeSelectOption>
+          <NativeSelectOption value={24}>
+            <PageText>{"24 fps · precise"}</PageText>
+          </NativeSelectOption>
         </NativeSelect>
       </label>
 
@@ -395,7 +425,7 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
             variant="outline"
           >
             <XIcon />
-            Clear
+            <PageText>{"Clear"}</PageText>
           </Button>
         ) : null}
         {processing ? (
@@ -405,7 +435,7 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
             size="lg"
             variant="outline"
           >
-            Cancel
+            <PageText>{"Cancel"}</PageText>
           </Button>
         ) : null}
         {status === "done" && outputUrl ? (
@@ -415,7 +445,8 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
             render={
               <a download={downloadName} href={outputUrl}>
                 <DownloadSimpleIcon />
-                Download {resultMeta?.extension.toUpperCase()}
+                <PageText>{"Download "}</PageText>
+                {resultMeta?.extension.toUpperCase()}
               </a>
             }
             size="lg"
@@ -427,7 +458,7 @@ function ProcessingActions(props: DepthVideoWorkspaceProps) {
             onClick={handleProcess}
             size="lg"
           >
-            Build depth video
+            <PageText>{"Build depth video"}</PageText>
           </Button>
         )}
       </div>

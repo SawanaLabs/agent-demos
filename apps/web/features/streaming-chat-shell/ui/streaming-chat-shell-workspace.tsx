@@ -36,6 +36,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useCallback, useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -112,6 +113,8 @@ function StreamingTranscript({
   isChatAvailable,
   setupMessage,
 }: StreamingTranscriptProps) {
+  const pageCopy = usePageCopy();
+
   const { clearError, error, messages, regenerate, status } = useChat({ chat });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
@@ -146,7 +149,7 @@ function StreamingTranscript({
                         <MessageResponse>{text}</MessageResponse>
                       ) : (
                         <p className="text-muted-foreground text-sm">
-                          Waiting for visible output.
+                          <PageText>{"Waiting for visible output."}</PageText>
                         </p>
                       )}
                     </MessageContent>
@@ -164,9 +167,11 @@ function StreamingTranscript({
             </>
           ) : (
             <ConversationEmptyState
-              description="Send a prompt, then inspect how the same chat history can be replayed as a developer-side SSE trace."
+              description={pageCopy(
+                "Send a prompt, then inspect how the same chat history can be replayed as a developer-side SSE trace."
+              )}
               icon={<RobotIcon className="size-5" />}
-              title="Developer replay shell is ready"
+              title={pageCopy("Developer replay shell is ready")}
             />
           )}
         </ConversationContent>
@@ -184,6 +189,8 @@ function StreamingComposer({
   onAudienceChange,
   supportedAudiences,
 }: StreamingComposerProps) {
+  const pageCopy = usePageCopy();
+
   const { messages, regenerate, sendMessage, status, stop } = useChat({ chat });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
@@ -231,13 +238,19 @@ function StreamingComposer({
           <PromptInputBody>
             <PromptInputTextarea
               disabled={!isChatAvailable || isBusy}
-              placeholder="Send a prompt, then inspect the replay trace on the right."
+              placeholder={pageCopy(
+                "Send a prompt, then inspect the replay trace on the right."
+              )}
             />
           </PromptInputBody>
           <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Custom body</Badge>
-              <Badge variant="outline">Shared useChat</Badge>
+              <Badge variant="outline">
+                <PageText>{"Custom body"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Shared useChat"}</PageText>
+              </Badge>
               <Badge variant="outline">{chatModel}</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -249,7 +262,7 @@ function StreamingComposer({
                   variant="outline"
                 >
                   <StopIcon className="size-3.5" />
-                  Stop
+                  <PageText>{"Stop"}</PageText>
                 </Button>
               ) : null}
               {hasMessages ? (
@@ -260,7 +273,7 @@ function StreamingComposer({
                   variant="outline"
                 >
                   <ArrowClockwiseIcon className="size-3.5" />
-                  Retry
+                  <PageText>{"Retry"}</PageText>
                 </Button>
               ) : null}
               <PromptInputSubmit disabled={!isChatAvailable} status={status} />
@@ -281,7 +294,7 @@ function StreamingComposer({
                 variant="outline"
               >
                 <BroadcastIcon className="size-3.5" />
-                {prompt}
+                <PageText>{prompt}</PageText>
               </Button>
             ))}
           </div>
@@ -319,10 +332,14 @@ function ReplayPromptCard({
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{getAudienceLabel(audience)}</Badge>
           <Badge variant="outline">
-            {entry.replayMessages.length} messages
+            {entry.replayMessages.length}
+            <PageText>{" messages"}</PageText>
           </Badge>
           {events.length > 0 ? (
-            <Badge variant="outline">{events.length} events</Badge>
+            <Badge variant="outline">
+              {events.length}
+              <PageText>{" events"}</PageText>
+            </Badge>
           ) : null}
         </div>
 
@@ -335,10 +352,11 @@ function ReplayPromptCard({
             variant="outline"
           >
             <BroadcastIcon className="size-3.5" />
-            Replay prompt turn
+            <PageText>{"Replay prompt turn"}</PageText>
           </Button>
           <p className="text-muted-foreground text-xs/relaxed">
-            Correlated user prompt: "{entry.promptText}"
+            <PageText>{'Correlated user prompt: "'}</PageText>
+            {entry.promptText}"
           </p>
         </div>
 
@@ -350,14 +368,14 @@ function ReplayPromptCard({
 
         {status === "loading" ? (
           <p className="text-muted-foreground text-xs/relaxed">
-            Reading the custom event stream...
+            <PageText>{"Reading the custom event stream..."}</PageText>
           </p>
         ) : null}
 
         {traceText ? (
           <div className="space-y-2">
             <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Reconstructed text
+              <PageText>{"Reconstructed text"}</PageText>
             </p>
             <div className="rounded-md bg-muted/50 px-3 py-3 text-sm/relaxed">
               {traceText}
@@ -373,11 +391,14 @@ function ReplayPromptCard({
             <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-3 py-2 text-left">
               <div className="space-y-1">
                 <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                  Parsed events
+                  <PageText>{"Parsed events"}</PageText>
                 </p>
                 <p className="text-muted-foreground text-xs/relaxed">
-                  Inspect the raw replay events only when you need the full
-                  sequence.
+                  <PageText>
+                    {
+                      "Inspect the raw replay events only when you need the full sequence."
+                    }
+                  </PageText>
                 </p>
               </div>
               <CaretDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -414,6 +435,8 @@ function StreamingDeveloperTrace({
   audience,
   chat,
 }: StreamingDeveloperTraceProps) {
+  const pageCopy = usePageCopy();
+
   const { messages } = useChat({ chat });
   const replayEntries = useMemo(
     () => getReplayPromptEntries(messages),
@@ -427,10 +450,15 @@ function StreamingDeveloperTrace({
     <Collapsible className="border border-foreground/10" defaultOpen={false}>
       <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left">
         <div className="space-y-1">
-          <p className="font-medium text-sm">Replayable developer trace</p>
+          <p className="font-medium text-sm">
+            <PageText>{"Replayable developer trace"}</PageText>
+          </p>
           <p className="text-muted-foreground text-xs/relaxed">
-            Replay assistant turns from the thread state that existed at each
-            user prompt.
+            <PageText>
+              {
+                "Replay assistant turns from the thread state that existed at each user prompt."
+              }
+            </PageText>
           </p>
         </div>
         <CaretDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -439,26 +467,34 @@ function StreamingDeveloperTrace({
       <CollapsibleContent className="space-y-4 border-foreground/10 border-t px-4 py-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{getAudienceLabel(audience)}</Badge>
-          <Badge variant="outline">{messages.length} thread messages</Badge>
-          <Badge variant="outline">{replayEntries.length} user prompts</Badge>
+          <Badge variant="outline">
+            {messages.length}
+            <PageText>{" thread messages"}</PageText>
+          </Badge>
+          <Badge variant="outline">
+            {replayEntries.length}
+            <PageText>{" user prompts"}</PageText>
+          </Badge>
         </div>
 
         {hasMessages ? null : (
           <p className="text-muted-foreground text-xs/relaxed">
-            Send a prompt to generate replayable prompt turns.
+            <PageText>
+              {"Send a prompt to generate replayable prompt turns."}
+            </PageText>
           </p>
         )}
 
         {latestEntry ? (
           <div className="space-y-2">
             <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Correlated user prompt
+              <PageText>{"Correlated user prompt"}</PageText>
             </p>
             <ReplayPromptCard
               audience={audience}
               defaultOpen
               entry={latestEntry}
-              title="Correlated user prompt"
+              title={pageCopy("Correlated user prompt")}
             />
           </div>
         ) : null}
@@ -466,7 +502,7 @@ function StreamingDeveloperTrace({
         {historyEntries.length > 0 ? (
           <div className="space-y-2">
             <p className="font-medium text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              History prompt
+              <PageText>{"History prompt"}</PageText>
             </p>
             <div className="space-y-3">
               {historyEntries.map((entry) => (
@@ -474,7 +510,7 @@ function StreamingDeveloperTrace({
                   audience={audience}
                   entry={entry}
                   key={entry.id}
-                  title="History prompt"
+                  title={pageCopy("History prompt")}
                 />
               ))}
             </div>
@@ -529,35 +565,44 @@ export function StreamingChatShellWorkspace({
           <div className="space-y-4">
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Runtime
+                <PageText>{"Runtime"}</PageText>
               </p>
               <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Request contract
+                <PageText>{"Request contract"}</PageText>
               </p>
               <p className="mt-1 text-sm">
-                Each request can carry feature-local metadata, while the main
-                chat surface stays on the shared AI SDK transport contract.
+                <PageText>
+                  {
+                    "Each request can carry feature-local metadata, while the main chat surface stays on the shared AI SDK transport contract."
+                  }
+                </PageText>
               </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Shared state
+                <PageText>{"Shared state"}</PageText>
               </p>
               <p className="mt-1 text-sm">
-                Transcript, composer, retry flow, and replay trace all read from
-                the same `Chat` instance.
+                <PageText>
+                  {
+                    "Transcript, composer, retry flow, and replay trace all read from the same `Chat` instance."
+                  }
+                </PageText>
               </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Developer value
+                <PageText>{"Developer value"}</PageText>
               </p>
               <p className="mt-1 text-sm">
-                The same conversation can be replayed as a plain SSE stream for
-                debugging, inspection, and secondary developer tooling.
+                <PageText>
+                  {
+                    "The same conversation can be replayed as a plain SSE stream for debugging, inspection, and secondary developer tooling."
+                  }
+                </PageText>
               </p>
             </div>
           </div>

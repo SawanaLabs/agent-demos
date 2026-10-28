@@ -25,13 +25,17 @@ import {
   DialogTitle,
 } from "@workspace/ui/components/dialog";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoVoiceProfile } from "../server/voice";
 import {
   createOpenAiAgentsSdkDemoVoiceAgentBundle,
   getOpenAiAgentsSdkDemoVoiceLaneProfile,
 } from "../voice-lane";
-import { getOpenAiAgentsSdkDemoVoiceHistorySummary } from "./openai-agents-sdk-demo-voice-utils";
+import {
+  getOpenAiAgentsSdkDemoVoiceHistorySummary,
+  getVoicePanelStatusLabel,
+} from "./openai-agents-sdk-demo-voice-utils";
 import {
   getOpenAiAgentsSdkDemoVoicePrimarySummary,
   openAiAgentsSdkDemoWorkspaceLayout,
@@ -49,22 +53,6 @@ interface PendingVoiceApproval {
   arguments: string | null;
   toolName: string;
   type: "function_approval" | "mcp_approval_request";
-}
-
-function getVoicePanelStatusLabel(status: VoiceConnectionStatus) {
-  if (status === "connected") {
-    return "Connected";
-  }
-
-  if (status === "connecting") {
-    return "Connecting";
-  }
-
-  if (status === "error") {
-    return "Error";
-  }
-
-  return "Disconnected";
 }
 
 function getVoicePanelStatusClassName(status: VoiceConnectionStatus) {
@@ -106,6 +94,8 @@ export function OpenAiAgentsSdkDemoVoicePanel({
   onUsageChange: (used: boolean) => void;
   voiceProfile: OpenAiAgentsSdkDemoVoiceProfile;
 }) {
+  const pageCopy = usePageCopy();
+
   const laneProfile = getOpenAiAgentsSdkDemoVoiceLaneProfile();
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -440,7 +430,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   className="border-status-warning-500/30 bg-status-warning-500/10 text-status-warning-700 dark:text-status-warning-300"
                   variant="outline"
                 >
-                  Approval pending
+                  <PageText>{"Approval pending"}</PageText>
                 </Badge>
               ) : null}
             </div>
@@ -455,7 +445,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 variant="outline"
               >
                 <MicrophoneIcon className="size-3.5 shrink-0" />
-                <span className="truncate">Connect</span>
+                <span className="truncate">
+                  <PageText>{"Connect"}</PageText>
+                </span>
               </Button>
               <Button
                 className="min-w-0 justify-start"
@@ -470,7 +462,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 ) : (
                   <MicrophoneIcon className="size-3.5 shrink-0" />
                 )}
-                <span className="truncate">Mute</span>
+                <span className="truncate">
+                  <PageText>{"Mute"}</PageText>
+                </span>
               </Button>
               <Button
                 className="min-w-0 justify-start"
@@ -481,7 +475,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 variant="outline"
               >
                 <StopCircleIcon className="size-3.5 shrink-0" />
-                <span className="truncate">Interrupt</span>
+                <span className="truncate">
+                  <PageText>{"Interrupt"}</PageText>
+                </span>
               </Button>
               <Button
                 className="min-w-0 justify-start"
@@ -495,7 +491,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 variant="outline"
               >
                 <PhoneDisconnectIcon className="size-3.5 shrink-0" />
-                <span className="truncate">Disconnect</span>
+                <span className="truncate">
+                  <PageText>{"Disconnect"}</PageText>
+                </span>
               </Button>
             </div>
           </div>
@@ -517,10 +515,17 @@ export function OpenAiAgentsSdkDemoVoicePanel({
           <DialogHeader className="border-foreground/10 border-b px-5 py-4">
             <div className="flex flex-wrap items-start justify-between gap-3 pr-10">
               <div className="space-y-1">
-                <DialogTitle>Voice Agents</DialogTitle>
+                <DialogTitle>
+                  <PageText>{"Voice Agents"}</PageText>
+                </DialogTitle>
                 <DialogDescription>
-                  Official browser path: <code>RealtimeSession</code> over{" "}
-                  <code>OpenAIRealtimeWebRTC</code>, backed by{" "}
+                  <PageText>{"Official browser path: "}</PageText>
+                  <code>RealtimeSession</code>
+                  <PageText>{" over"}</PageText>
+                  <PageText> </PageText>
+                  <code>OpenAIRealtimeWebRTC</code>
+                  <PageText>{", backed by"}</PageText>
+                  <PageText> </PageText>
                   <code>{voiceProfile.browserTransport.routePath}</code>.
                 </DialogDescription>
               </div>
@@ -549,7 +554,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   variant="outline"
                 >
                   <MicrophoneIcon className="size-3.5" />
-                  Connect
+                  <PageText>{"Connect"}</PageText>
                 </Button>
                 <Button
                   disabled={connectionStatus !== "connected"}
@@ -563,7 +568,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   ) : (
                     <MicrophoneIcon className="size-3.5" />
                   )}
-                  {isMuted ? "Unmute" : "Mute"}
+                  <PageText>{isMuted ? "Unmute" : "Mute"}</PageText>
                 </Button>
                 <Button
                   disabled={connectionStatus !== "connected"}
@@ -573,7 +578,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   variant="outline"
                 >
                   <StopCircleIcon className="size-3.5" />
-                  Interrupt
+                  <PageText>{"Interrupt"}</PageText>
                 </Button>
                 <Button
                   disabled={
@@ -586,57 +591,81 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   variant="outline"
                 >
                   <PhoneDisconnectIcon className="size-3.5" />
-                  Disconnect
+                  <PageText>{"Disconnect"}</PageText>
                 </Button>
               </div>
 
               <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <div className="space-y-3 border border-foreground/10 px-3 py-3 text-sm">
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Model</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Model"}</PageText>
+                    </span>
                     <span>{voiceProfile.browserTransport.sessionModel}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Voice</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Voice"}</PageText>
+                    </span>
                     <span>{voiceProfile.browserTransport.sessionVoice}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Muted</span>
-                    <span>{isMuted ? "yes" : "no"}</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Muted"}</PageText>
+                    </span>
+                    <span>
+                      <PageText>{isMuted ? "yes" : "no"}</PageText>
+                    </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-muted-foreground">
-                      Audio playback
+                      <PageText>{"Audio playback"}</PageText>
                     </span>
-                    <span>{isAudioPlaying ? "active" : "idle"}</span>
+                    <span>
+                      <PageText>{isAudioPlaying ? "active" : "idle"}</PageText>
+                    </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Agent turn</span>
-                    <span>{isAgentResponding ? "running" : "idle"}</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Agent turn"}</PageText>
+                    </span>
+                    <span>
+                      <PageText>
+                        {isAgentResponding ? "running" : "idle"}
+                      </PageText>
+                    </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">History items</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"History items"}</PageText>
+                    </span>
                     <span>{historyItemCount}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Last handoff</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Last handoff"}</PageText>
+                    </span>
                     <span className="max-w-[10rem] text-right">
                       {lastHandoffLabel ?? "none yet"}
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">Last tool</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"Last tool"}</PageText>
+                    </span>
                     <span className="max-w-[10rem] text-right">
                       {lastToolCallLabel ?? "none yet"}
                     </span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-muted-foreground">MCP tools</span>
+                    <span className="text-muted-foreground">
+                      <PageText>{"MCP tools"}</PageText>
+                    </span>
                     <span>{availableMcpToolCount}</span>
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-muted-foreground">
-                      Last transport event
+                      <PageText>{"Last transport event"}</PageText>
                     </span>
                     <span className="max-w-[10rem] text-right">
                       {lastEventType ?? "none yet"}
@@ -647,7 +676,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 <div className="space-y-3 border border-foreground/10 px-3 py-3 text-sm">
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                      Latest user transcript
+                      <PageText>{"Latest user transcript"}</PageText>
                     </p>
                     <p className="min-h-12 text-sm/relaxed">
                       {lastUserTranscript ?? "No user transcript yet."}
@@ -655,7 +684,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                      Latest assistant transcript
+                      <PageText>{"Latest assistant transcript"}</PageText>
                     </p>
                     <p className="min-h-12 text-sm/relaxed">
                       {lastAssistantTranscript ??
@@ -668,10 +697,11 @@ export function OpenAiAgentsSdkDemoVoicePanel({
               <div className="space-y-2 border border-foreground/10 px-3 py-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                    Realtime tools and approvals
+                    <PageText>{"Realtime tools and approvals"}</PageText>
                   </p>
                   <Badge variant="outline">
-                    {laneProfile.toolNames.length} tools
+                    {laneProfile.toolNames.length}
+                    <PageText>{" tools"}</PageText>
                   </Badge>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -684,10 +714,14 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                 {pendingApproval ? (
                   <div className="space-y-2 border border-status-warning-500/30 bg-status-warning-500/10 px-3 py-3">
                     <p className="font-medium text-sm">
-                      Pending approval: {pendingApproval.toolName}
+                      <PageText>{"Pending approval: "}</PageText>
+                      {pendingApproval.toolName}
                     </p>
                     <p className="text-muted-foreground text-xs">
-                      Agent: {pendingApproval.agentName} · Kind:{" "}
+                      <PageText>{"Agent: "}</PageText>
+                      {pendingApproval.agentName}
+                      <PageText>{" · Kind:"}</PageText>
+                      <PageText> </PageText>
                       {pendingApproval.type}
                     </p>
                     <p className="text-xs/relaxed">
@@ -701,7 +735,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                         type="button"
                         variant="outline"
                       >
-                        Approve
+                        <PageText>{"Approve"}</PageText>
                       </Button>
                       <Button
                         onClick={() => void rejectPendingToolCall()}
@@ -709,21 +743,24 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                         type="button"
                         variant="outline"
                       >
-                        Reject
+                        <PageText>{"Reject"}</PageText>
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-xs">
-                    No pending approval. Ask the voice agent to publish a
-                    research summary to trigger the official approval event.
+                    <PageText>
+                      {
+                        "No pending approval. Ask the voice agent to publish a research summary to trigger the official approval event."
+                      }
+                    </PageText>
                   </p>
                 )}
               </div>
 
               <div className="space-y-2 border border-foreground/10 px-3 py-3 text-sm">
                 <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                  Suggested smoke prompts
+                  <PageText>{"Suggested smoke prompts"}</PageText>
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {laneProfile.recommendedSmokePrompts.map((prompt) => (
@@ -733,7 +770,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                       onClick={() => setTextInput(prompt)}
                       type="button"
                     >
-                      {prompt}
+                      <PageText>{prompt}</PageText>
                     </button>
                   ))}
                 </div>
@@ -742,7 +779,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
               <div className="space-y-2 border border-foreground/10 px-3 py-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
-                    Realtime event feed
+                    <PageText>{"Realtime event feed"}</PageText>
                   </p>
                   <Badge variant="outline">
                     {laneProfile.transportEscapeHatch}
@@ -762,8 +799,11 @@ export function OpenAiAgentsSdkDemoVoicePanel({
 
               <div className="space-y-2">
                 <p className="text-muted-foreground text-xs">
-                  You can speak after connecting, or send one text turn over the
-                  same realtime session for a quick deterministic smoke test.
+                  <PageText>
+                    {
+                      "You can speak after connecting, or send one text turn over the same realtime session for a quick deterministic smoke test."
+                    }
+                  </PageText>
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <input
@@ -776,7 +816,9 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                         sendTextTurn();
                       }
                     }}
-                    placeholder="Send a short text turn over RealtimeSession after connect."
+                    placeholder={pageCopy(
+                      "Send a short text turn over RealtimeSession after connect."
+                    )}
                     value={textInput}
                   />
                   <Button
@@ -790,7 +832,7 @@ export function OpenAiAgentsSdkDemoVoicePanel({
                     variant="outline"
                   >
                     <WaveformIcon className="size-3.5" />
-                    Send text
+                    <PageText>{"Send text"}</PageText>
                   </Button>
                 </div>
               </div>
@@ -804,11 +846,12 @@ export function OpenAiAgentsSdkDemoVoicePanel({
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <Badge variant="outline">
                   <SpeakerHighIcon className="size-3.5" />
-                  WebRTC audio
+                  <PageText>{"WebRTC audio"}</PageText>
                 </Badge>
                 <Badge variant="outline">
                   <WaveformIcon className="size-3.5" />
-                  RealtimeSession.connect({"{ apiKey }"})
+                  <PageText>{"RealtimeSession.connect("}</PageText>
+                  <PageText>{"{ apiKey }"}</PageText>)
                 </Badge>
               </div>
             </div>

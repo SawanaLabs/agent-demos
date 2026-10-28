@@ -15,6 +15,7 @@ import {
   TestSuiteName,
   TestSuiteStats,
 } from "@workspace/ui/components/ai-elements/test-results";
+import { PageText } from "@/components/page-copy";
 
 import type { TraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import type { TraceEvalSnapshot } from "../model/trace-eval-snapshot";
@@ -43,9 +44,11 @@ export function TraceEvalAgentEvalPanel({
       >
         <TestResultsHeader>
           <div>
-            <h2 className="font-medium text-sm">Eval</h2>
+            <h2 className="font-medium text-sm">
+              <PageText>{"Eval"}</PageText>
+            </h2>
             <p className="text-muted-foreground text-xs">
-              Deterministic gate and LLM judge
+              <PageText>{"Deterministic gate and LLM judge"}</PageText>
             </p>
           </div>
         </TestResultsHeader>
@@ -73,9 +76,11 @@ export function TraceEvalAgentEvalPanel({
       >
         <TestResultsHeader>
           <div>
-            <h2 className="font-medium text-sm">Eval</h2>
+            <h2 className="font-medium text-sm">
+              <PageText>{"Eval"}</PageText>
+            </h2>
             <p className="text-muted-foreground text-xs">
-              Deterministic gate and LLM judge
+              <PageText>{"Deterministic gate and LLM judge"}</PageText>
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -125,9 +130,11 @@ export function TraceEvalAgentEvalPanel({
       >
         <TestResultsHeader>
           <div>
-            <h2 className="font-medium text-sm">Eval</h2>
+            <h2 className="font-medium text-sm">
+              <PageText>{"Eval"}</PageText>
+            </h2>
             <p className="text-muted-foreground text-xs">
-              Deterministic gate and LLM judge
+              <PageText>{"Deterministic gate and LLM judge"}</PageText>
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -179,9 +186,11 @@ export function TraceEvalAgentEvalPanel({
     >
       <TestResultsHeader>
         <div>
-          <h2 className="font-medium text-sm">Eval</h2>
+          <h2 className="font-medium text-sm">
+            <PageText>{"Eval"}</PageText>
+          </h2>
           <p className="text-muted-foreground text-xs">
-            Deterministic gate and LLM judge
+            <PageText>{"Deterministic gate and LLM judge"}</PageText>
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -193,12 +202,16 @@ export function TraceEvalAgentEvalPanel({
       <TestResultsContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Gate score</span>
+            <span className="text-muted-foreground">
+              <PageText>{"Gate score"}</PageText>
+            </span>
             <span className="font-medium">{formatScore(snapshot.score)}</span>
           </div>
           {judge.result ? (
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Judge score</span>
+              <span className="text-muted-foreground">
+                <PageText>{"Judge score"}</PageText>
+              </span>
               <span className="font-medium">
                 {formatScore(judge.result.overallScore)}
               </span>
@@ -207,7 +220,9 @@ export function TraceEvalAgentEvalPanel({
           {judge.status === "running" ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3 text-xs">
-                <span className="text-muted-foreground">Judge progress</span>
+                <span className="text-muted-foreground">
+                  <PageText>{"Judge progress"}</PageText>
+                </span>
                 <span className="font-medium">
                   {formatScore(getJudgeProgressValue(judge))}
                 </span>
@@ -358,8 +373,11 @@ function renderJudgeContent(
           <div className="flex-1">
             <TestName />
             <p className="text-muted-foreground text-xs/relaxed">
-              The run is still streaming. The judge starts after the research
-              answer completes.
+              <PageText>
+                {
+                  "The run is still streaming. The judge starts after the research answer completes."
+                }
+              </PageText>
             </p>
           </div>
         </Test>
@@ -373,8 +391,11 @@ function renderJudgeContent(
           <div className="flex-1">
             <TestName />
             <p className="text-muted-foreground text-xs/relaxed">
-              The judge only runs after a completed research answer is
-              available. Retry the run to generate an answer before scoring it.
+              <PageText>
+                {
+                  "The judge only runs after a completed research answer is available. Retry the run to generate an answer before scoring it."
+                }
+              </PageText>
             </p>
           </div>
         </Test>
@@ -387,7 +408,9 @@ function renderJudgeContent(
         <div className="flex-1">
           <TestName />
           <p className="text-muted-foreground text-xs/relaxed">
-            The judge starts after the research answer finishes.
+            <PageText>
+              {"The judge starts after the research answer finishes."}
+            </PageText>
           </p>
         </div>
       </Test>

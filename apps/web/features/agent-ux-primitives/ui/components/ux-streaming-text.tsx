@@ -4,6 +4,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxStreamingText — a paragraph that streams itself in char-by-char.
@@ -38,6 +39,8 @@ export function UxStreamingText({
   autoStart = true,
   className,
 }: UxStreamingTextProps) {
+  const pageCopy = usePageCopy();
+
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(autoStart);
   const timerRef = useRef<number | null>(null);
@@ -76,12 +79,16 @@ export function UxStreamingText({
       </p>
       <div className="mt-3 flex items-center justify-between border-t pt-2.5">
         <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
-          {done ? "streamed" : "streaming"} · {cursor}/{text.length} chars
+          <PageText>{done ? "streamed" : "streaming"}</PageText> · {cursor}/
+          {text.length}
+          <PageText>{" chars"}</PageText>
         </span>
         <div className="flex items-center gap-1">
           {done ? null : (
             <Button
-              aria-label={playing ? "Pause stream" : "Resume stream"}
+              aria-label={
+                playing ? pageCopy("Pause stream") : pageCopy("Resume stream")
+              }
               className="h-7 w-7"
               onClick={() => setPlaying((value) => !value)}
               size="icon"
@@ -96,7 +103,7 @@ export function UxStreamingText({
             </Button>
           )}
           <Button
-            aria-label="Restart stream"
+            aria-label={pageCopy("Restart stream")}
             className="h-7 gap-1 px-2 text-[12px]"
             onClick={restart}
             size="sm"
@@ -104,7 +111,7 @@ export function UxStreamingText({
             variant="ghost"
           >
             <RotateCcwIcon className="size-3.5" />
-            Replay
+            <PageText>{"Replay"}</PageText>
           </Button>
         </div>
       </div>

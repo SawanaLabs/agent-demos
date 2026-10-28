@@ -2,6 +2,7 @@
 
 import { Button } from "@workspace/ui/components/button";
 import { type ReactNode, useEffect, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 import { trackDemoAction } from "../client/browser";
 import {
@@ -92,7 +93,7 @@ export function SiteAnalyticsBoundary({
           type="button"
           variant="outline"
         >
-          Privacy choices
+          <PageText>{"Privacy choices"}</PageText>
         </Button>
       );
     }

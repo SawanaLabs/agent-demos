@@ -1,10 +1,12 @@
 "use client";
+
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Crosshair, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { describeTarget } from "../client/capture";
 import type { Annotation } from "../upstream/types";
 import styles from "./feedback-mobile.module.css";
@@ -20,6 +22,8 @@ export function ElementPicker({
   onSelect: (annotation?: Annotation) => void;
   onCancel: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   const [target, setTarget] = useState<{ rect: DOMRect; name: string } | null>(
     null
   );
@@ -109,14 +113,18 @@ export function ElementPicker({
           )}
           <div className="min-w-0 flex-1" role="status">
             <p>
-              {capturing
-                ? "Capturing this view…"
-                : "Select an element on the page"}
+              <PageText>
+                {capturing
+                  ? "Capturing this view…"
+                  : "Select an element on the page"}
+              </PageText>
             </p>
             <p className={`${styles.pickerHint} text-muted-foreground text-xs`}>
-              {capturing
-                ? "Your screenshot will open for review."
-                : "Click a target, or use Tab and Enter. Escape cancels."}
+              <PageText>
+                {capturing
+                  ? "Your screenshot will open for review."
+                  : "Click a target, or use Tab and Enter. Escape cancels."}
+              </PageText>
             </p>
             {error ? (
               <p className="text-destructive" role="alert">
@@ -130,10 +138,10 @@ export function ElementPicker({
             size="sm"
             variant="outline"
           >
-            Whole page
+            <PageText>{"Whole page"}</PageText>
           </Button>
           <Button
-            aria-label="Cancel capture"
+            aria-label={pageCopy("Cancel capture")}
             onClick={onCancel}
             size="icon"
             variant="ghost"

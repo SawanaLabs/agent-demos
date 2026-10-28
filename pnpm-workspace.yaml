@@ -3,6 +3,8 @@ packages:
   - "packages/*"
 allowBuilds:
   '@mongodb-js/zstd': true
+  '@parcel/watcher': true
+  '@swc/core': true
   core-js-pure: true
   esbuild: true
   msw: true
@@ -12,3 +14,7 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - eve@0.67.1
+
+overrides:
+  "@types/react": 19.2.14
+  "@types/react-dom": 19.2.3

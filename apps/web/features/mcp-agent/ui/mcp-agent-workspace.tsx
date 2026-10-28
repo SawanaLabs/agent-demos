@@ -22,6 +22,7 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -50,6 +51,8 @@ export function McpAgentWorkspace({
   nodeVersion,
   setupMessage,
 }: McpAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -128,9 +131,11 @@ export function McpAgentWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask about project docs, demo planning, or the local Next.js runtime. The agent will choose the relevant MCP tools without a mode switch."
+                description={pageCopy(
+                  "Ask about project docs, demo planning, or the local Next.js runtime. The agent will choose the relevant MCP tools without a mode switch."
+                )}
                 icon={<WrenchIcon className="size-5" />}
-                title="MCP tool workspace is ready"
+                title={pageCopy("MCP tool workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -143,13 +148,19 @@ export function McpAgentWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!canStartChatTurn}
-                  placeholder="Ask about project docs, demos, or local Next.js runtime state."
+                  placeholder={pageCopy(
+                    "Ask about project docs, demos, or local Next.js runtime state."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">ToolLoopAgent</Badge>
-                  <Badge variant="outline">MCP</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"ToolLoopAgent"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"MCP"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -161,7 +172,7 @@ export function McpAgentWorkspace({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -172,7 +183,7 @@ export function McpAgentWorkspace({
                       type="button"
                       variant="outline"
                     >
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -195,7 +206,7 @@ export function McpAgentWorkspace({
                     variant="outline"
                   >
                     <WrenchIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>

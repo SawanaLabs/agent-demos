@@ -4,6 +4,7 @@ import { Slider } from "@workspace/ui/components/slider";
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxFineTuneCard — a compact inspector that edits a live preview.
@@ -53,6 +54,8 @@ function SliderRow({
 }
 
 export function UxFineTuneCard({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [radius, setRadius] = useState(DEFAULTS.radius);
   const [opacity, setOpacity] = useState(DEFAULTS.opacity);
   const edited = radius !== DEFAULTS.radius || opacity !== DEFAULTS.opacity;
@@ -66,31 +69,33 @@ export function UxFineTuneCard({ className }: { className?: string }) {
     >
       <div className="flex items-center justify-between border-b px-3 py-2">
         <span className="font-medium text-[13px] text-foreground">
-          Flavor card
+          <PageText>{"Flavor card"}</PageText>
         </span>
         {edited ? (
           <span className="flex items-center gap-1.5 font-medium text-[12px] text-status-success-600 dark:text-status-success-300">
             <CheckIcon className="size-3" />
-            Edited
+            <PageText>{"Edited"}</PageText>
           </span>
         ) : (
           <span className="flex items-center gap-1.5 font-medium text-[12px] text-muted-foreground">
             <SparklesIcon className="size-3" />
-            Adjust
+            <PageText>{"Adjust"}</PageText>
           </span>
         )}
       </div>
 
       <div className="flex flex-col gap-2.5 border-b px-3 py-2.5">
-        <p className="font-medium text-[12.5px] text-foreground">Layout</p>
+        <p className="font-medium text-[12.5px] text-foreground">
+          <PageText>{"Layout"}</PageText>
+        </p>
         <SliderRow
-          label="Radius"
+          label={pageCopy("Radius")}
           max={64}
           onChange={setRadius}
           value={radius}
         />
         <SliderRow
-          label="Opacity"
+          label={pageCopy("Opacity")}
           max={100}
           onChange={setOpacity}
           value={opacity}
@@ -98,7 +103,9 @@ export function UxFineTuneCard({ className }: { className?: string }) {
       </div>
 
       <div className="flex items-center justify-between px-3 py-2.5">
-        <span className="text-[12px] text-muted-foreground">Preview</span>
+        <span className="text-[12px] text-muted-foreground">
+          <PageText>{"Preview"}</PageText>
+        </span>
         {edited ? (
           <button
             className="text-[11.5px] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
@@ -108,7 +115,7 @@ export function UxFineTuneCard({ className }: { className?: string }) {
             }}
             type="button"
           >
-            Reset
+            <PageText>{"Reset"}</PageText>
           </button>
         ) : null}
       </div>
@@ -118,7 +125,9 @@ export function UxFineTuneCard({ className }: { className?: string }) {
           style={{ borderRadius: radius, opacity: opacity / 100 }}
         >
           <span className="font-medium text-[11px] text-muted-foreground">
-            {radius}px · {opacity}%
+            {radius}
+            <PageText>{"px · "}</PageText>
+            {opacity}%
           </span>
         </div>
       </div>

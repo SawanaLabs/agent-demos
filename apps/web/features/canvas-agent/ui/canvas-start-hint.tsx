@@ -1,3 +1,4 @@
+import { PageText } from "@/components/page-copy";
 import type { useCanvasAgent } from "./use-canvas-agent";
 
 export function CanvasStartHint({
@@ -28,7 +29,7 @@ export function CanvasStartHint({
             '"Chalkboard SE", "Segoe Print", "Kaiti SC", "Comic Sans MS", cursive',
         }}
       >
-        从这里开始！
+        <PageText>{"从这里开始！"}</PageText>
       </p>
       <svg
         aria-hidden="true"

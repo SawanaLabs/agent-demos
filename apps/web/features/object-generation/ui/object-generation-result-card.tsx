@@ -4,6 +4,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Progress } from "@workspace/ui/components/progress";
 import { cn } from "@workspace/ui/lib/utils";
 import type { DeepPartial } from "ai";
+import { PageText } from "@/components/page-copy";
 
 import type { ObjectGenerationResult } from "../schema";
 
@@ -80,14 +81,19 @@ export function ObjectGenerationResultCard({
           </Badge>
         ) : null}
         {riskScore === null ? null : (
-          <Badge variant="outline">Risk {riskScore}/100</Badge>
+          <Badge variant="outline">
+            <PageText>{"Risk "}</PageText>
+            {riskScore}/100
+          </Badge>
         )}
       </div>
 
       {riskScore === null ? null : (
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs">
-            <span>Risk score</span>
+            <span>
+              <PageText>{"Risk score"}</PageText>
+            </span>
             <span className="ml-auto text-muted-foreground tabular-nums">
               {riskScore}
             </span>
@@ -99,7 +105,7 @@ export function ObjectGenerationResultCard({
       {result?.summary ? (
         <section className="space-y-1">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Summary
+            <PageText>{"Summary"}</PageText>
           </p>
           <p className="text-sm/relaxed">{result.summary}</p>
         </section>
@@ -108,7 +114,7 @@ export function ObjectGenerationResultCard({
       {categories.length > 0 ? (
         <section className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Categories
+            <PageText>{"Categories"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {categories.map((category, index) => (
@@ -132,7 +138,7 @@ export function ObjectGenerationResultCard({
       {findings.length > 0 ? (
         <section className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Findings
+            <PageText>{"Findings"}</PageText>
           </p>
           <div className="space-y-2">
             {findings.map((finding, index) => (
@@ -167,7 +173,7 @@ export function ObjectGenerationResultCard({
       {evidence.length > 0 ? (
         <section className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Evidence
+            <PageText>{"Evidence"}</PageText>
           </p>
           <div className="space-y-2">
             {evidence.map((item, index) => (
@@ -202,7 +208,7 @@ export function ObjectGenerationResultCard({
       {result?.recommendedAction ? (
         <section className="space-y-1">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Recommended action
+            <PageText>{"Recommended action"}</PageText>
           </p>
           <p className="text-sm/relaxed">{result.recommendedAction}</p>
         </section>
@@ -211,7 +217,7 @@ export function ObjectGenerationResultCard({
       {openQuestions.length > 0 ? (
         <section className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Open questions
+            <PageText>{"Open questions"}</PageText>
           </p>
           <ul className="space-y-2 text-sm/relaxed">
             {openQuestions.map((question, index) => (

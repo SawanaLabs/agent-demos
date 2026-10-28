@@ -1,4 +1,5 @@
 "use client";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import "@workspace/ui/globals.css";
 
@@ -15,6 +16,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   function retryApplication() {
     reset();
     window.location.reload();
@@ -39,14 +42,16 @@ export default function GlobalError({
               type="button"
             >
               <RefreshCcwIcon className="size-3.5" />
-              Retry
+              <PageText>{"Retry"}</PageText>
             </Button>
           }
           badge="Application error"
-          description="The application failed while loading. Retry will reload the page state; if it keeps failing, return to the home page."
+          description={pageCopy(
+            "The application failed while loading. Retry will reload the page state; if it keeps failing, return to the home page."
+          )}
           icon={<TriangleAlertIcon className="size-5" />}
           reference={error.digest}
-          title="Something went wrong"
+          title={pageCopy("Something went wrong")}
           tone="destructive"
         />
       </body>

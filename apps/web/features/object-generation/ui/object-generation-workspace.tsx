@@ -36,6 +36,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { FileUIPart } from "ai";
 import { useMemo, useRef } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -71,6 +72,8 @@ export function ObjectGenerationWorkspace({
   nodeVersion,
   setupMessage,
 }: ObjectGenerationWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     composerError,
@@ -123,7 +126,9 @@ export function ObjectGenerationWorkspace({
                             <MessageResponse>{entry.prompt}</MessageResponse>
                           ) : (
                             <p className="text-muted-foreground text-sm">
-                              Attachment-only object generation request.
+                              <PageText>
+                                {"Attachment-only object generation request."}
+                              </PageText>
                             </p>
                           )}
 
@@ -157,15 +162,19 @@ export function ObjectGenerationWorkspace({
                           {entry.liveStatus === "streaming" ? null : (
                             <div className="flex justify-end">
                               <Button
-                                aria-label="Regenerate this object from the same prompt and attachments"
+                                aria-label={pageCopy(
+                                  "Regenerate this object from the same prompt and attachments"
+                                )}
                                 onClick={() => retryReview(entry)}
                                 size="sm"
-                                title="Runs the same request again and generates a new result."
+                                title={pageCopy(
+                                  "Runs the same request again and generates a new result."
+                                )}
                                 type="button"
                                 variant="outline"
                               >
                                 <ArrowClockwiseIcon className="size-3.5" />
-                                Regenerate object
+                                <PageText>{"Regenerate object"}</PageText>
                               </Button>
                             </div>
                           )}
@@ -182,15 +191,17 @@ export function ObjectGenerationWorkspace({
                 {composerError ? (
                   <ConversationErrorMessage
                     error={composerError}
-                    title="Message could not be sent"
+                    title={pageCopy("Message could not be sent")}
                   />
                 ) : null}
               </>
             ) : (
               <ConversationEmptyState
-                description="Send text, screenshots, or PDFs. The assistant message streams a structured object directly into the thread."
+                description={pageCopy(
+                  "Send text, screenshots, or PDFs. The assistant message streams a structured object directly into the thread."
+                )}
                 icon={<ShieldCheckIcon className="size-5" />}
-                title="Object generation workspace is ready"
+                title={pageCopy("Object generation workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -226,7 +237,9 @@ export function ObjectGenerationWorkspace({
                 ) : null}
                 <PromptInputTextarea
                   disabled={!isReviewAvailable || isLoading}
-                  placeholder="Describe the object you want, attach images or PDFs, and watch the structured object stream into the assistant message."
+                  placeholder={pageCopy(
+                    "Describe the object you want, attach images or PDFs, and watch the structured object stream into the assistant message."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
@@ -247,10 +260,14 @@ export function ObjectGenerationWorkspace({
                     variant="outline"
                   >
                     <PaperclipIcon className="size-3.5" />
-                    Attach
+                    <PageText>{"Attach"}</PageText>
                   </Button>
-                  <Badge variant="outline">Structured output</Badge>
-                  <Badge variant="outline">useObject</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Structured output"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"useObject"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -262,7 +279,7 @@ export function ObjectGenerationWorkspace({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -286,7 +303,7 @@ export function ObjectGenerationWorkspace({
                     type="button"
                     variant="outline"
                   >
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -298,26 +315,32 @@ export function ObjectGenerationWorkspace({
       <aside className="grid min-w-0 content-start gap-4 border border-foreground/10 bg-background px-4 py-4 lg:min-h-0 lg:overflow-y-auto">
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Runtime
+            <PageText>{"Runtime"}</PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline">
-              {isReviewAvailable ? "Ready" : "Setup required"}
+              <PageText>
+                {isReviewAvailable ? "Ready" : "Setup required"}
+              </PageText>
             </Badge>
             <Badge variant="outline">{chatModel}</Badge>
             <Badge variant="outline">
-              Node {nodeVersion.replace(/^v/, "")}
+              <PageText>{"Node "}</PageText>
+              {nodeVersion.replace(/^v/, "")}
             </Badge>
           </div>
         </div>
 
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Input contract
+            <PageText>{"Input contract"}</PageText>
           </p>
           <p className="text-muted-foreground text-sm/relaxed">
-            One request can combine freeform text with image and PDF
-            attachments. The backend streams a single structured object.
+            <PageText>
+              {
+                "One request can combine freeform text with image and PDF attachments. The backend streams a single structured object."
+              }
+            </PageText>
           </p>
           <div className="flex flex-wrap gap-2">
             {acceptedMediaTypes.map((mediaType) => (
@@ -330,12 +353,14 @@ export function ObjectGenerationWorkspace({
 
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-            Output shape
+            <PageText>{"Output shape"}</PageText>
           </p>
           <p className="text-muted-foreground text-sm/relaxed">
-            The assistant card is driven by a streamed object with decision,
-            risk score, findings, evidence, recommended action, and open
-            questions.
+            <PageText>
+              {
+                "The assistant card is driven by a streamed object with decision, risk score, findings, evidence, recommended action, and open questions."
+              }
+            </PageText>
           </p>
         </div>
       </aside>

@@ -37,6 +37,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import type { RefObject } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -72,6 +73,8 @@ function MultimodalConversation({
   messages,
   onRetryChatError,
 }: MultimodalConversationProps) {
+  const pageCopy = usePageCopy();
+
   const hasErrors = Boolean(chatErrorMessage || composerError);
 
   return (
@@ -92,15 +95,17 @@ function MultimodalConversation({
             {composerError ? (
               <ConversationErrorMessage
                 error={composerError}
-                title="Message could not be sent"
+                title={pageCopy("Message could not be sent")}
               />
             ) : null}
           </>
         ) : (
           <ConversationEmptyState
-            description="Attach an image or PDF, ask a question, and inspect how the same chat surface handles ad-hoc multimodal context without preindexing."
+            description={pageCopy(
+              "Attach an image or PDF, ask a question, and inspect how the same chat surface handles ad-hoc multimodal context without preindexing."
+            )}
             icon={<ImagesIcon className="size-5" />}
-            title="Multi-modal workspace is ready"
+            title={pageCopy("Multi-modal workspace is ready")}
           />
         )}
       </ConversationContent>
@@ -146,7 +151,7 @@ function MultimodalMessage({ message }: { message: UIMessage }) {
 
         {!text && fileParts.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            Waiting for visible output.
+            <PageText>{"Waiting for visible output."}</PageText>
           </p>
         ) : null}
       </MessageContent>
@@ -187,6 +192,8 @@ function MultimodalComposer({
   onSendSamplePrompt,
   onStopChat,
 }: MultimodalComposerProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="border-foreground/10 border-t px-4 py-4">
       <div className="mx-auto w-full max-w-3xl">
@@ -202,13 +209,19 @@ function MultimodalComposer({
             />
             <PromptInputTextarea
               disabled={!isChatAvailable || isBusy}
-              placeholder="Ask about an uploaded image or PDF. The message will carry the files inline to the model."
+              placeholder={pageCopy(
+                "Ask about an uploaded image or PDF. The message will carry the files inline to the model."
+              )}
             />
           </PromptInputBody>
           <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Multimodal</Badge>
-              <Badge variant="outline">Image + PDF</Badge>
+              <Badge variant="outline">
+                <PageText>{"Multimodal"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Image + PDF"}</PageText>
+              </Badge>
               <Badge variant="outline">{chatModel}</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -228,7 +241,7 @@ function MultimodalComposer({
                 variant="outline"
               >
                 <PaperclipIcon className="size-3.5" />
-                Attach
+                <PageText>{"Attach"}</PageText>
               </Button>
               {isBusy ? (
                 <Button
@@ -238,7 +251,7 @@ function MultimodalComposer({
                   variant="outline"
                 >
                   <StopIcon className="size-3.5" />
-                  Stop
+                  <PageText>{"Stop"}</PageText>
                 </Button>
               ) : null}
               {hasMessages ? (
@@ -249,7 +262,7 @@ function MultimodalComposer({
                   variant="outline"
                 >
                   <ArrowClockwiseIcon className="size-3.5" />
-                  Retry
+                  <PageText>{"Retry"}</PageText>
                 </Button>
               ) : null}
               <PromptInputSubmit disabled={!isChatAvailable} status={status} />
@@ -322,7 +335,7 @@ function MultimodalSamplePrompts({
           variant="outline"
         >
           <ImagesIcon className="size-3.5" />
-          {prompt}
+          <PageText>{prompt}</PageText>
         </Button>
       ))}
     </div>
@@ -341,22 +354,25 @@ function MultimodalSidebar({
       <div className="space-y-4">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Runtime
+            <PageText>{"Runtime"}</PageText>
           </p>
           <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
         </div>
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Input contract
+            <PageText>{"Input contract"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            This workspace sends image and PDF attachments inline as message
-            parts, matching the official AI SDK multimodal guide.
+            <PageText>
+              {
+                "This workspace sends image and PDF attachments inline as message parts, matching the official AI SDK multimodal guide."
+              }
+            </PageText>
           </p>
         </div>
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Accepted media
+            <PageText>{"Accepted media"}</PageText>
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {acceptedMediaTypes.map((mediaType) => (
@@ -368,11 +384,14 @@ function MultimodalSidebar({
         </div>
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Demo role
+            <PageText>{"Demo role"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            Use this slice when users bring ad-hoc files into the chat and need
-            model reasoning without an indexing pipeline.
+            <PageText>
+              {
+                "Use this slice when users bring ad-hoc files into the chat and need model reasoning without an indexing pipeline."
+              }
+            </PageText>
           </p>
         </div>
       </div>

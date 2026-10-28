@@ -1,5 +1,7 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
+import { PageText } from "@/components/page-copy";
 
 const scenarios = [
   "创作一张图片",
@@ -17,9 +19,13 @@ export function CanvasWelcome({
 }) {
   return (
     <div className="space-y-3 text-sm leading-relaxed">
-      <p className="font-medium">你想创作什么？</p>
+      <p className="font-medium">
+        <PageText>{"你想创作什么？"}</PageText>
+      </p>
       <p className="text-muted-foreground">
-        说说你的想法，或上传图片一起聊。还没想好，也可以从这里开始。
+        <PageText>
+          {"说说你的想法，或上传图片一起聊。还没想好，也可以从这里开始。"}
+        </PageText>
       </p>
       <div className="grid grid-cols-2 gap-2">
         {scenarios.map((label) => (
@@ -32,7 +38,7 @@ export function CanvasWelcome({
             }
             variant="secondary"
           >
-            {label}
+            <PageText>{label}</PageText>
           </Button>
         ))}
       </div>

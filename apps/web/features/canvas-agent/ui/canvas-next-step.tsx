@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
@@ -7,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { ChevronDownIcon, ImageIcon, TextIcon } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 
 export type CanvasNextKind = "image" | "text";
 
@@ -25,17 +27,17 @@ export function CanvasNextStep({
         openOnHover
         render={<Button size="sm" variant="outline" />}
       >
-        用于下一步
+        <PageText>{"用于下一步"}</PageText>
         <ChevronDownIcon className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="nodrag nowheel min-w-36">
         <DropdownMenuItem onClick={() => onSelect("image")}>
           <ImageIcon />
-          生成图片
+          <PageText>{"生成图片"}</PageText>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onSelect("text")}>
           <TextIcon />
-          生成文本
+          <PageText>{"生成文本"}</PageText>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

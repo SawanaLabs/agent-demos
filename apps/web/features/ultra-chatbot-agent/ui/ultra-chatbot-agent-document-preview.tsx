@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { cn } from "@workspace/ui/lib/utils";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
 import { loadUltraChatbotAgentLatestDocument } from "./ultra-chatbot-agent-document-client";
@@ -135,7 +136,9 @@ export function UltraChatbotAgentDocumentPreview({
   } else {
     previewBody = (
       <p className="text-muted-foreground text-sm">
-        Open this artifact to keep editing it in the detail dialog.
+        <PageText>
+          {"Open this artifact to keep editing it in the detail dialog."}
+        </PageText>
       </p>
     );
   }

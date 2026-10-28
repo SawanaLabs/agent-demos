@@ -160,6 +160,20 @@
         }
       ],
       "forbidPatternsAfterTransform": ["@workspace/"]
+    },
+    {
+      "name": "page-copy",
+      "demos": [
+        "foundation-chat",
+        "generative-ui",
+        "langgraph-agent",
+        "minimal-chat-agent",
+        "openai-agents-sdk-demo",
+        "ultra-chatbot-agent",
+        "cloudflare-ai-gateway"
+      ],
+      "source": "apps/web/components/page-copy.tsx",
+      "target": "components/page-copy.tsx"
     }
   ]
 }

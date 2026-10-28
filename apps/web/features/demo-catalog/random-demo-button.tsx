@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 const spinDurationMs = 1600;
 
@@ -128,7 +129,7 @@ function SlotReel({
             className="mx-1 flex h-7 items-center truncate border border-foreground/10 bg-background px-2 font-mono text-[11px] text-muted-foreground leading-none"
             key={`${destination.href}-${offset}-${index}`}
           >
-            {destination.title}
+            <PageText>{destination.title}</PageText>
           </div>
         ))}
       </div>
@@ -206,7 +207,9 @@ function SlotMachine({
           offset={8}
         />
       </div>
-      <p className="sr-only">Choosing a random ready Agent Demo.</p>
+      <p className="sr-only">
+        <PageText>{"Choosing a random ready Agent Demo."}</PageText>
+      </p>
     </div>
   );
 }
@@ -230,19 +233,24 @@ function SelectedDemoCard({
         <CardHeader>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className="border border-foreground/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.16em]">
-              Ready
+              <PageText>{"Ready"}</PageText>
             </span>
             <span className="border border-foreground/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.16em]">
-              {destination.patternLabel}
+              <PageText>{destination.patternLabel}</PageText>
             </span>
           </div>
-          <CardTitle>{destination.title}</CardTitle>
-          <CardDescription>{destination.summary}</CardDescription>
+          <CardTitle>
+            <PageText>{destination.title}</PageText>
+          </CardTitle>
+          <CardDescription>
+            <PageText>{destination.summary}</PageText>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 border border-foreground/10 bg-muted/40 p-3">
             <p className="break-words text-muted-foreground text-xs/relaxed">
-              Source: {destination.source}
+              <PageText>{"Source: "}</PageText>
+              {destination.source}
             </p>
             <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
               {destination.slug}
@@ -255,6 +263,8 @@ function SelectedDemoCard({
 }
 
 export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
+  const pageCopy = usePageCopy();
+
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] =
@@ -311,7 +321,7 @@ export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
   return (
     <>
       <Button
-        aria-label="Open a random ready Agent Demo"
+        aria-label={pageCopy("Open a random ready Agent Demo")}
         onClick={() => {
           startSpin(selectedDestination?.href);
         }}
@@ -319,15 +329,20 @@ export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
         type="button"
       >
         <DiceFiveIcon className="size-3.5" />
-        Random demo
+        <PageText>{"Random demo"}</PageText>
       </Button>
       <Dialog onOpenChange={handleOpenChange} open={isOpen}>
         <DialogContent className="max-h-[calc(100svh-1rem)] max-w-[calc(100%-1rem)] gap-4 overflow-y-auto p-4 sm:max-w-lg">
           <DialogHeader className="pr-8">
-            <DialogTitle>Random demo</DialogTitle>
+            <DialogTitle>
+              <PageText>{"Random demo"}</PageText>
+            </DialogTitle>
             <DialogDescription>
-              Spin through ready Agent Demos, then open the selected one or roll
-              again.
+              <PageText>
+                {
+                  "Spin through ready Agent Demos, then open the selected one or roll again."
+                }
+              </PageText>
             </DialogDescription>
           </DialogHeader>
 
@@ -355,7 +370,7 @@ export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
               variant="outline"
             >
               <DiceFiveIcon className="size-3.5" />
-              Spin again
+              <PageText>{"Spin again"}</PageText>
             </Button>
             <Button
               className="w-full"
@@ -364,7 +379,7 @@ export function RandomDemoButton({ destinations }: RandomDemoButtonProps) {
               size="sm"
               type="button"
             >
-              This one
+              <PageText>{"This one"}</PageText>
               <ArrowSquareOutIcon className="size-3.5" />
             </Button>
           </DialogFooter>

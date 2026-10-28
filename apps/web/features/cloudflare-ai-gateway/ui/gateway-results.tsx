@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PageText } from "@/components/page-copy";
 import type { GatewayReceipt, GatewayResult } from "../contract";
 
 function Receipt({ receipt }: { receipt: GatewayReceipt }) {
@@ -11,15 +12,20 @@ function Receipt({ receipt }: { receipt: GatewayReceipt }) {
   return (
     <details className="border-border border-t pt-4 text-sm">
       <summary className="cursor-pointer font-medium">
-        Request receipt and cost
+        <PageText>{"Request receipt and cost"}</PageText>
       </summary>
       <div className="mt-3 space-y-2 text-muted-foreground">
-        <p>Actual charge: unavailable. {cost}</p>
         <p>
-          {receipt.gateway === "cloudflare"
-            ? "Cloudflare log costs are estimates. "
-            : ""}
-          Confirm charges in your billing dashboard.
+          <PageText>{"Actual charge: unavailable. "}</PageText>
+          {cost}
+        </p>
+        <p>
+          <PageText>
+            {receipt.gateway === "cloudflare"
+              ? "Cloudflare log costs are estimates. "
+              : ""}
+          </PageText>
+          <PageText>{"Confirm charges in your billing dashboard."}</PageText>
         </p>
         <pre className="overflow-x-auto bg-muted p-3 text-xs">
           {JSON.stringify(receipt, null, 2)}
@@ -46,7 +52,9 @@ export function GatewayResults({
       aria-label="Generated images"
       className="flex min-h-96 min-w-0 flex-col gap-4 overflow-y-auto border border-border bg-card p-5"
     >
-      <h2 className="font-medium text-lg">Result</h2>
+      <h2 className="font-medium text-lg">
+        <PageText>{"Result"}</PageText>
+      </h2>
       {error ? (
         <p className="text-destructive text-sm" role="alert">
           {error}
@@ -54,7 +62,7 @@ export function GatewayResults({
       ) : null}
       {busy ? (
         <p className="text-muted-foreground text-sm" role="status">
-          Creating your image. This can take a minute.
+          <PageText>{"Creating your image. This can take a minute."}</PageText>
         </p>
       ) : null}
       {result || busy || error ? null : (
@@ -66,8 +74,11 @@ export function GatewayResults({
             +
           </div>
           <p className="max-w-sm text-muted-foreground text-sm">
-            Start with a prompt. Add reference photos to edit an existing image
-            or guide the result.
+            <PageText>
+              {
+                "Start with a prompt. Add reference photos to edit an existing image or guide the result."
+              }
+            </PageText>
           </p>
         </div>
       )}
@@ -93,7 +104,8 @@ export function GatewayResults({
                 download={`${result.receipt.gateway}-image-${index + 1}.${extension}`}
                 href={url}
               >
-                Download image {result.images.length > 1 ? index + 1 : ""}
+                <PageText>{"Download image "}</PageText>
+                {result.images.length > 1 ? index + 1 : ""}
               </a>
             </figcaption>
           </figure>

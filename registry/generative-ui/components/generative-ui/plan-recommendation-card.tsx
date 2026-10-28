@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2Icon, ListChecksIcon } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 
 import type {
   PlanRecommendationInput,
@@ -56,9 +57,13 @@ function renderPendingRecommendation() {
       <div className="flex items-center justify-between gap-3 border-foreground/10 border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <ListChecksIcon className="size-4 text-muted-foreground" />
-          <span className="font-medium text-sm">Preparing recommendation</span>
+          <span className="font-medium text-sm">
+            <PageText>{"Preparing recommendation"}</PageText>
+          </span>
         </div>
-        <Badge variant="outline">Working</Badge>
+        <Badge variant="outline">
+          <PageText>{"Working"}</PageText>
+        </Badge>
       </div>
       <div className="space-y-2 p-4">
         <div className="h-3 w-3/4 rounded bg-muted" />
@@ -71,7 +76,7 @@ function renderPendingRecommendation() {
 function renderRecommendationError() {
   return (
     <section className="not-prose rounded-md border border-destructive/30 bg-destructive/5 p-4 text-destructive text-sm">
-      Recommendation output could not be finalized.
+      <PageText>{"Recommendation output could not be finalized."}</PageText>
     </section>
   );
 }
@@ -165,9 +170,9 @@ function renderRecommendationContent(
           </div>
           <Badge variant="outline">{getBadgeLabel(renderState)}</Badge>
         </div>
-        <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+        <div className="rounded-md border border-status-success-500/20 bg-status-success-500/5 p-3">
           <div className="flex items-start gap-2">
-            <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+            <CheckCircle2Icon className="mt-0.5 size-4 shrink-0 text-status-success-600" />
             <div className="w-full space-y-1">
               <p className="font-medium">
                 {recommendedName ?? <SkeletonLine className="w-40" />}
@@ -183,7 +188,7 @@ function renderRecommendationContent(
       <div className="grid gap-4 p-4 md:grid-cols-2">
         <div className="space-y-3">
           <p className="text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            Rationale
+            <PageText>{"Rationale"}</PageText>
           </p>
           <div className="space-y-2">
             {rationale.length > 0 ? (
@@ -212,7 +217,7 @@ function renderRecommendationContent(
 
         <div className="space-y-3">
           <p className="text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            Alternatives
+            <PageText>{"Alternatives"}</PageText>
           </p>
           <div className="space-y-2">
             {alternatives.length > 0 ? (
@@ -245,7 +250,7 @@ function renderRecommendationContent(
         {risks.length > 0 ? (
           <div className="space-y-3">
             <p className="text-muted-foreground text-xs uppercase tracking-[0.16em]">
-              Risks
+              <PageText>{"Risks"}</PageText>
             </p>
             <div className="space-y-2">
               {risks.map((risk, index) => (
@@ -267,7 +272,7 @@ function renderRecommendationContent(
 
         <div className="space-y-3">
           <p className="text-muted-foreground text-xs uppercase tracking-[0.16em]">
-            Next steps
+            <PageText>{"Next steps"}</PageText>
           </p>
           <ol className="space-y-2">
             {nextSteps.length > 0 ? (

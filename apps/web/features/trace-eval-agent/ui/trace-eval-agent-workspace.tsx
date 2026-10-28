@@ -23,6 +23,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { useDeferredValue } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 import { classifyTraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import { buildTraceEvalRunRecord } from "../model/trace-eval-run-record";
@@ -46,6 +47,8 @@ interface TraceEvalAgentWorkspaceProps {
 export function TraceEvalAgentWorkspace({
   runtimeState,
 }: TraceEvalAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -134,9 +137,11 @@ export function TraceEvalAgentWorkspace({
                 </>
               ) : (
                 <ConversationEmptyState
-                  description="Ask for live research. The agent will search the web through AI Gateway, then the trace and eval panel below will score the current conversation."
+                  description={pageCopy(
+                    "Ask for live research. The agent will search the web through AI Gateway, then the trace and eval panel below will score the current conversation."
+                  )}
                   icon={<MagnifyingGlassIcon className="size-5" />}
-                  title="Research agent is ready"
+                  title={pageCopy("Research agent is ready")}
                 />
               )}
             </ConversationContent>
@@ -153,13 +158,19 @@ export function TraceEvalAgentWorkspace({
                 <PromptInputBody>
                   <PromptInputTextarea
                     disabled={!runtimeState.isChatAvailable || isBusy}
-                    placeholder="Ask the agent to research a topic and ground the answer with live web search."
+                    placeholder={pageCopy(
+                      "Ask the agent to research a topic and ground the answer with live web search."
+                    )}
                   />
                 </PromptInputBody>
                 <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">ResearchAgent</Badge>
-                    <Badge variant="outline">Trace + Eval</Badge>
+                    <Badge variant="outline">
+                      <PageText>{"ResearchAgent"}</PageText>
+                    </Badge>
+                    <Badge variant="outline">
+                      <PageText>{"Trace + Eval"}</PageText>
+                    </Badge>
                     <Badge variant="outline">{runtimeState.chatModel}</Badge>
                   </div>
                   <div className="flex items-center gap-2">
@@ -171,7 +182,7 @@ export function TraceEvalAgentWorkspace({
                         variant="outline"
                       >
                         <StopIcon className="size-3.5" />
-                        Stop
+                        <PageText>{"Stop"}</PageText>
                       </Button>
                     ) : null}
                     {hasMessages ? (
@@ -183,7 +194,7 @@ export function TraceEvalAgentWorkspace({
                         type="button"
                         variant="outline"
                       >
-                        Retry
+                        <PageText>{"Retry"}</PageText>
                       </Button>
                     ) : null}
                     <PromptInputSubmit

@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import Image from "next/image";
+import { PageText } from "@/components/page-copy";
 
 import type { ImageResultNode } from "../model/workflow-engine";
 
@@ -18,7 +19,9 @@ export function ImageWorkflowAgentMobileResult({
   return (
     <Card className="lg:hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">Latest image</CardTitle>
+        <CardTitle className="text-base">
+          <PageText>{"Latest image"}</PageText>
+        </CardTitle>
         <span className="text-muted-foreground text-xs uppercase tracking-wide">
           {resultNode.data.status}
         </span>
@@ -35,7 +38,7 @@ export function ImageWorkflowAgentMobileResult({
           />
         ) : (
           <div className="rounded-md border border-border border-dashed bg-muted/30 px-4 py-8 text-center text-muted-foreground text-sm">
-            No image yet.
+            <PageText>{"No image yet."}</PageText>
           </div>
         )}
         {resultNode.data.errorMessage ? (

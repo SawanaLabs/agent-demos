@@ -33,6 +33,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -238,6 +239,31 @@ function createPersistentAgentTransport() {
   });
 }
 
+function PersistentMessageBody({
+  message,
+  showThinking,
+}: {
+  message: UIMessage;
+  showThinking: boolean;
+}) {
+  const pageCopy = usePageCopy();
+  const text = getTextContent(message);
+
+  if (text) {
+    return <MessageResponse>{text}</MessageResponse>;
+  }
+
+  if (message.role === "assistant" && showThinking) {
+    return <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>;
+  }
+
+  return (
+    <p className="text-muted-foreground text-sm">
+      <PageText>{"Waiting for visible output."}</PageText>
+    </p>
+  );
+}
+
 export function PersistentAgentWorkspace({
   chatModel,
   draftChatId,
@@ -247,6 +273,8 @@ export function PersistentAgentWorkspace({
   recentChats,
   setupMessage,
 }: PersistentAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const generatedChatIdRef = useRef(initialSession?.chat.id ?? draftChatId);
   const hasPromotedRouteRef = useRef(Boolean(initialSession));
   const chatId = generatedChatIdRef.current;
@@ -332,24 +360,6 @@ export function PersistentAgentWorkspace({
     await sendMessage({ text: trimmedText });
   }
 
-  function renderMessageBody(message: UIMessage) {
-    const text = getTextContent(message);
-
-    if (text) {
-      return <MessageResponse>{text}</MessageResponse>;
-    }
-
-    if (message.role === "assistant" && showThinking) {
-      return <Shimmer className="text-sm">Thinking...</Shimmer>;
-    }
-
-    return (
-      <p className="text-muted-foreground text-sm">
-        Waiting for visible output.
-      </p>
-    );
-  }
-
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
@@ -370,7 +380,10 @@ export function PersistentAgentWorkspace({
                         message.role === "assistant" ? "max-w-3xl" : "max-w-2xl"
                       )}
                     >
-                      {renderMessageBody(message)}
+                      <PersistentMessageBody
+                        message={message}
+                        showThinking={showThinking}
+                      />
                     </MessageContent>
                   </Message>
                 ))}
@@ -384,16 +397,20 @@ export function PersistentAgentWorkspace({
                 {showResumeThinking ? (
                   <Message from="assistant">
                     <MessageContent className="max-w-3xl">
-                      <Shimmer className="text-sm">Thinking...</Shimmer>
+                      <Shimmer className="text-sm">
+                        {pageCopy("Thinking...")}
+                      </Shimmer>
                     </MessageContent>
                   </Message>
                 ) : null}
               </>
             ) : (
               <ConversationEmptyState
-                description="Start a conversation, refresh the page, and the same chat will restore from Postgres under this URL."
+                description={pageCopy(
+                  "Start a conversation, refresh the page, and the same chat will restore from Postgres under this URL."
+                )}
                 icon={<RobotIcon className="size-5" />}
-                title="Persistent route is ready"
+                title={pageCopy("Persistent route is ready")}
               />
             )}
           </ConversationContent>
@@ -406,13 +423,19 @@ export function PersistentAgentWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask a question, refresh mid-stream, then return to the same URL."
+                  placeholder={pageCopy(
+                    "Ask a question, refresh mid-stream, then return to the same URL."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">Visitor scoped</Badge>
-                  <Badge variant="outline">Postgres</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Visitor scoped"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Postgres"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <PromptInputSubmit
@@ -435,7 +458,7 @@ export function PersistentAgentWorkspace({
                     variant="outline"
                   >
                     <RobotIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -449,23 +472,25 @@ export function PersistentAgentWorkspace({
           <div className="flex items-center justify-between gap-2">
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Session
+                <PageText>{"Session"}</PageText>
               </p>
               <p className="mt-1 font-medium text-sm">
-                {initialSession ? "Restored route" : "New route promotion"}
+                <PageText>
+                  {initialSession ? "Restored route" : "New route promotion"}
+                </PageText>
               </p>
             </div>
             <Link
               className="inline-flex h-8 items-center justify-center border border-foreground/10 px-3 text-sm transition-colors hover:border-foreground/30"
               href="/demos/persistent-agent"
             >
-              New chat
+              <PageText>{"New chat"}</PageText>
             </Link>
           </div>
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Chat ID
+              <PageText>{"Chat ID"}</PageText>
             </p>
             <p className="mt-1 break-all font-mono text-xs">{chatMeta.id}</p>
           </div>
@@ -473,7 +498,7 @@ export function PersistentAgentWorkspace({
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Created
+                <PageText>{"Created"}</PageText>
               </p>
               <p className="mt-1 text-sm">
                 {formatDateTime(chatMeta.createdAt)}
@@ -481,7 +506,7 @@ export function PersistentAgentWorkspace({
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Updated
+                <PageText>{"Updated"}</PageText>
               </p>
               <p className="mt-1 text-sm">
                 {formatDateTime(chatMeta.updatedAt)}
@@ -491,18 +516,20 @@ export function PersistentAgentWorkspace({
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Route contract
+              <PageText>{"Route contract"}</PageText>
             </p>
             <p className="mt-1 text-sm">
-              First send promotes this page into a stable URL. Refresh reloads
-              messages from the database. Mid-stream refresh reconnects through
-              the resume endpoint.
+              <PageText>
+                {
+                  "First send promotes this page into a stable URL. Refresh reloads messages from the database. Mid-stream refresh reconnects through the resume endpoint."
+                }
+              </PageText>
             </p>
           </div>
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Recent chats
+              <PageText>{"Recent chats"}</PageText>
             </p>
             <div className="mt-2 grid gap-2">
               {recentChats.length > 0 ? (
@@ -535,7 +562,9 @@ export function PersistentAgentWorkspace({
                 ))
               ) : (
                 <p className="text-muted-foreground text-sm">
-                  No persisted chats for this visitor yet.
+                  <PageText>
+                    {"No persisted chats for this visitor yet."}
+                  </PageText>
                 </p>
               )}
             </div>
@@ -543,14 +572,19 @@ export function PersistentAgentWorkspace({
 
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge variant="outline">
-                Node {nodeVersion.replace(nodeVersionPrefixPattern, "")}
+                <PageText>{"Node "}</PageText>
+                {nodeVersion.replace(nodeVersionPrefixPattern, "")}
               </Badge>
-              <Badge variant="outline">HTTP-only cookie</Badge>
-              <Badge variant="outline">Redis resume</Badge>
+              <Badge variant="outline">
+                <PageText>{"HTTP-only cookie"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Redis resume"}</PageText>
+              </Badge>
             </div>
           </div>
 
@@ -562,7 +596,7 @@ export function PersistentAgentWorkspace({
               variant="outline"
             >
               <ArrowClockwiseIcon className="size-3.5" />
-              Retry resume
+              <PageText>{"Retry resume"}</PageText>
             </Button>
           ) : null}
         </div>

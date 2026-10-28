@@ -28,6 +28,7 @@ import {
 } from "@workspace/ui/components/dropdown-menu";
 import type { ChatStatus, UIMessage } from "ai";
 import { Compass, Trash2, X } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   getProjectGuideCompanionModelCatalog,
@@ -78,9 +79,11 @@ export function ProjectGuideCompanionPanel({
   selectedModel,
   status,
 }: ProjectGuideCompanionPanelProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <section
-      aria-label="Project guide companion"
+      aria-label={pageCopy("Project guide companion")}
       className="fixed inset-x-0 bottom-0 z-50 flex h-[min(82svh,620px)] min-h-0 flex-col overflow-hidden border-border border-t bg-background shadow-2xl sm:inset-auto sm:right-4 sm:bottom-4 sm:h-[min(70vh,640px)] sm:w-[400px] sm:border"
     >
       <ProjectGuideCompanionPanelHeader
@@ -104,7 +107,11 @@ export function ProjectGuideCompanionPanel({
           ) : null}
           {error ? (
             <div className="border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive text-xs">
-              Project Compass could not answer. Check model setup or try again.
+              <PageText>
+                {
+                  "Project Compass could not answer. Check model setup or try again."
+                }
+              </PageText>
             </div>
           ) : null}
         </ConversationContent>
@@ -123,7 +130,7 @@ export function ProjectGuideCompanionPanel({
               className="max-h-24 min-h-10 text-sm"
               disabled={isBusy}
               onChange={(event) => onInputChange(event.target.value)}
-              placeholder="Ask about the project..."
+              placeholder={pageCopy("Ask about the project...")}
               value={input}
             />
           </PromptInputBody>
@@ -149,11 +156,13 @@ export function ProjectGuideCompanionPanel({
 }
 
 export function ProjectGuideCompanionScrollButton() {
+  const pageCopy = usePageCopy();
+
   return (
     <ConversationScrollButton
-      aria-label="Scroll companion conversation to bottom"
+      aria-label={pageCopy("Scroll companion conversation to bottom")}
       className="bottom-3 z-10"
-      title="Scroll to bottom"
+      title={pageCopy("Scroll to bottom")}
     />
   );
 }
@@ -171,6 +180,8 @@ function ProjectGuideCompanionPanelHeader({
   onClearHistory: () => void;
   onClose: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <header className="flex items-start justify-between gap-3 border-border border-b px-3 py-3">
       <div className="flex min-w-0 items-center gap-2">
@@ -178,7 +189,9 @@ function ProjectGuideCompanionPanelHeader({
           <Compass className="size-4" />
         </div>
         <div className="min-w-0">
-          <h2 className="truncate font-medium text-sm">Project Compass</h2>
+          <h2 className="truncate font-medium text-sm">
+            <PageText>{"Project Compass"}</PageText>
+          </h2>
           <p className="truncate text-muted-foreground text-xs">
             {launcherLabel}
           </p>
@@ -190,10 +203,10 @@ function ProjectGuideCompanionPanelHeader({
           onClearHistory={onClearHistory}
         />
         <Button
-          aria-label="Close project guide companion"
+          aria-label={pageCopy("Close project guide companion")}
           onClick={onClose}
           size="icon-sm"
-          title="Close"
+          title={pageCopy("Close")}
           type="button"
           variant="ghost"
         >
@@ -211,33 +224,42 @@ function ProjectGuideCompanionClearMenu({
   disabled: boolean;
   onClearHistory: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Clear companion history"
+        aria-label={pageCopy("Clear companion history")}
         className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
         disabled={disabled}
-        title="Clear history"
+        title={pageCopy("Clear history")}
         type="button"
       >
         <Trash2 />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Clear this session?</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <PageText>{"Clear this session?"}</PageText>
+          </DropdownMenuLabel>
           <div className="px-2 pb-2 text-muted-foreground text-xs/relaxed">
-            This clears Project Compass history in this tab. It cannot be
-            undone.
+            <PageText>
+              {
+                "This clears Project Compass history in this tab. It cannot be undone."
+              }
+            </PageText>
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Cancel</DropdownMenuItem>
+          <DropdownMenuItem>
+            <PageText>{"Cancel"}</PageText>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={onClearHistory}
             onSelect={onClearHistory}
             variant="destructive"
           >
             <Trash2 />
-            Clear history
+            <PageText>{"Clear history"}</PageText>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
@@ -255,7 +277,7 @@ function ProjectGuideCompanionStarterSuggestions({
   return (
     <div className="mb-3 space-y-2">
       <p className="text-muted-foreground text-xs">
-        Need bearings? Ask where to start.
+        <PageText>{"Need bearings? Ask where to start."}</PageText>
       </p>
       <Suggestions className="flex w-full flex-col items-stretch gap-2 whitespace-normal">
         {projectGuideCompanionStarterPrompts.map((prompt) => (
@@ -268,7 +290,9 @@ function ProjectGuideCompanionStarterSuggestions({
             variant="outline"
           >
             <Compass className="size-3.5" />
-            <span className="min-w-0">{prompt}</span>
+            <span className="min-w-0">
+              <PageText>{prompt}</PageText>
+            </span>
           </Suggestion>
         ))}
       </Suggestions>

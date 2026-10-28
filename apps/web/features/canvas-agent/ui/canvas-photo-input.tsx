@@ -1,9 +1,11 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
 import type { FileUIPart } from "ai";
 import { ImagePlusIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { uploadCanvasImage } from "./image-upload";
 
 export function useChatPhotos(setError: (error: string | null) => void) {
@@ -50,12 +52,14 @@ export function CanvasPhotoInput({
   photos: Photos;
   disabled: boolean;
 }) {
+  const pageCopy = usePageCopy();
+
   const input = useRef<HTMLInputElement>(null);
   return (
     <>
       <input
         accept="image/png,image/jpeg,image/webp,image/gif"
-        aria-label="上传照片到对话"
+        aria-label={pageCopy("上传照片到对话")}
         className="sr-only"
         disabled={disabled}
         onChange={(event) => {
@@ -70,11 +74,11 @@ export function CanvasPhotoInput({
         type="file"
       />
       <Button
-        aria-label="添加照片"
+        aria-label={pageCopy("添加照片")}
         disabled={disabled || photos.files.length >= 4}
         onClick={() => input.current?.click()}
         size="icon-sm"
-        title="添加照片（最大 8 MB）"
+        title={pageCopy("添加照片（最大 8 MB）")}
         type="button"
         variant="ghost"
       >
@@ -82,7 +86,7 @@ export function CanvasPhotoInput({
       </Button>
       {photos.uploading ? (
         <span className="text-xs" role="status">
-          上传中…
+          <PageText>{"上传中…"}</PageText>
         </span>
       ) : null}
     </>
@@ -96,12 +100,14 @@ export function CanvasPhotoPreviews({
   photos: Photos;
   disabled: boolean;
 }) {
+  const pageCopy = usePageCopy();
+
   if (photos.files.length === 0) {
     return null;
   }
   return (
     <fieldset
-      aria-label="待发送的照片"
+      aria-label={pageCopy("待发送的照片")}
       className="flex gap-2 overflow-x-auto pb-2"
     >
       {photos.files.map((file) => (

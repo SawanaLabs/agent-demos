@@ -2,6 +2,7 @@
 
 import { Card } from "@workspace/ui/components/card";
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText } from "@/components/page-copy";
 
 import { UxApprovalCard } from "./components/ux-approval-card";
 import { UxChat } from "./components/ux-chat";
@@ -191,10 +192,10 @@ export function AgentUxPrimitivesWorkspace() {
         >
           <header className="space-y-1">
             <h2 className="font-medium text-foreground text-sm tracking-tight">
-              {section.title}
+              <PageText>{section.title}</PageText>
             </h2>
             <p className="text-muted-foreground text-xs leading-relaxed">
-              {section.description}
+              <PageText>{section.description}</PageText>
             </p>
           </header>
           <Card className="flex min-h-[180px] flex-col items-stretch justify-center gap-3 border-border/80 bg-card p-4">
@@ -204,17 +205,21 @@ export function AgentUxPrimitivesWorkspace() {
       ))}
 
       <footer className="text-muted-foreground text-xs md:col-span-2">
-        Interaction patterns inspired by{" "}
+        <PageText>{"Interaction patterns inspired by"}</PageText>
+        <PageText> </PageText>
         <a
           className="underline underline-offset-2 hover:text-foreground"
           href="https://www.beautifului.dev/"
           rel="noreferrer"
           target="_blank"
         >
-          beautifului.dev
+          <PageText>{"beautifului.dev"}</PageText>
         </a>
-        . Implemented from scratch on our shadcn + ai-elements primitives — no
-        source copied.
+        <PageText>
+          {
+            ". Implemented from scratch on our shadcn + ai-elements primitives — no source copied."
+          }
+        </PageText>
       </footer>
     </div>
   );

@@ -1,4 +1,5 @@
 import { DemoWorkspaceShell } from "@/components/demo-workspace-shell";
+import { PageText } from "@/components/page-copy";
 
 import {
   getPersistentAgentRuntimeState,
@@ -27,10 +28,17 @@ export function PersistentAgentScreen({
       breadcrumbTitle="Persistent & Resume Agent"
       summary={
         <>
-          This demo focuses on one contract: a chat becomes an addressable
-          resource at <code>/demos/persistent-agent/[id]</code>, survives
-          refresh, and keeps its visitor-private identity through a server-set
-          cookie.
+          <PageText>
+            {
+              "This demo focuses on one contract: a chat becomes an addressable resource at "
+            }
+          </PageText>
+          <code>/demos/persistent-agent/[id]</code>
+          <PageText>
+            {
+              ", survives refresh, and keeps its visitor-private identity through a server-set cookie."
+            }
+          </PageText>
         </>
       }
       title="Persistent & Resume Agent"

@@ -1,4 +1,5 @@
 import { DemoWorkspaceShell } from "@/components/demo-workspace-shell";
+import { PageText } from "@/components/page-copy";
 
 import {
   getUltraChatbotAgentRuntimeState,
@@ -27,9 +28,14 @@ export function UltraChatbotAgentScreen({
       headerClassName="shrink-0"
       summary={
         <>
-          A route-backed port of the pinned <code>vercel/ai-chatbot</code>{" "}
-          snapshot. This first slice already owns visitor isolation, model
-          selection, Postgres persistence, and resumable streams.
+          <PageText>{"A route-backed port of the pinned "}</PageText>
+          <code>vercel/ai-chatbot</code>
+          <PageText> </PageText>
+          <PageText>
+            {
+              "snapshot. This first slice already owns visitor isolation, model selection, Postgres persistence, and resumable streams."
+            }
+          </PageText>
         </>
       }
       title="Ultra Chatbot Agent"

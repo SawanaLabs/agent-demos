@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText } from "@/components/page-copy";
 
 /**
  * UxInsightCards — headline metrics with inline sparklines.
@@ -85,7 +86,9 @@ function Sparkline({ data }: { data: number[] }) {
       fill="none"
       viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
     >
-      <title>Sparkline</title>
+      <title>
+        <PageText>{"Sparkline"}</PageText>
+      </title>
       <polyline
         points={points}
         stroke="currentColor"
@@ -108,10 +111,11 @@ export function UxInsightCards({ className }: { className?: string }) {
     <div className={cn("flex w-full max-w-sm flex-col gap-2", className)}>
       <div className="flex items-center justify-between px-0.5">
         <span className="font-semibold text-[13px] text-foreground">
-          Insights
+          <PageText>{"Insights"}</PageText>
         </span>
         <span className="text-[11px] text-muted-foreground tabular-nums">
-          {CARDS.length} trends
+          {CARDS.length}
+          <PageText>{" trends"}</PageText>
         </span>
       </div>
       {CARDS.map((card) => (

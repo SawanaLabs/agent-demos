@@ -14,6 +14,7 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { ArrowLeft, Clock, Heart, Key, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { normalizeSiteUsageInviteCode } from "../access-code";
 import {
   type SiteUsageLimitPayload,
@@ -23,6 +24,8 @@ import {
 type DialogView = "access-code" | "limit" | "waitlist" | "waitlist-success";
 
 export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
+  const pageCopy = usePageCopy();
+
   const [accessCode, setAccessCode] = useState("");
   const [accessCodeError, setAccessCodeError] = useState<string | null>(null);
   const [isRedeemingCode, setIsRedeemingCode] = useState(false);
@@ -147,15 +150,21 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
           {view === "limit" && (
             <>
               <DialogHeader>
-                <DialogTitle>Not enough credits</DialogTitle>
+                <DialogTitle>
+                  <PageText>{"Not enough credits"}</PageText>
+                </DialogTitle>
                 <DialogDescription>
-                  You do not have enough credits for this operation.
+                  <PageText>
+                    {"You do not have enough credits for this operation."}
+                  </PageText>
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-start gap-2 border border-border bg-muted/30 p-3 text-xs">
                 <Clock className="mt-0.5 size-3.5 shrink-0" />
                 <div className="space-y-1">
-                  <p className="font-medium text-foreground">Reset time</p>
+                  <p className="font-medium text-foreground">
+                    <PageText>{"Reset time"}</PageText>
+                  </p>
                   <p className="text-muted-foreground">
                     {resetTime ?? "Calculating from your local timezone..."}
                   </p>
@@ -168,7 +177,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   variant="link"
                 >
                   <Key />
-                  Invite code
+                  <PageText>{"Invite code"}</PageText>
                 </Button>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row">
                   <Button
@@ -176,11 +185,11 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     type="button"
                     variant="outline"
                   >
-                    Maybe later
+                    <PageText>{"Maybe later"}</PageText>
                   </Button>
                   <Button onClick={() => setView("waitlist")} type="button">
                     <Heart />
-                    Join waitlist
+                    <PageText>{"Join waitlist"}</PageText>
                   </Button>
                 </div>
               </DialogFooter>
@@ -192,7 +201,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
               <DialogHeader>
                 <div>
                   <Button
-                    aria-label="Back"
+                    aria-label={pageCopy("Back")}
                     className="mb-2 -ml-1"
                     onClick={() => setView("limit")}
                     size="icon-sm"
@@ -202,14 +211,20 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     <ArrowLeft />
                   </Button>
                 </div>
-                <DialogTitle>Invite code</DialogTitle>
+                <DialogTitle>
+                  <PageText>{"Invite code"}</PageText>
+                </DialogTitle>
                 <DialogDescription>
-                  Use an invite code to upgrade your recurring credit allowance.
+                  <PageText>
+                    {
+                      "Use an invite code to upgrade your recurring credit allowance."
+                    }
+                  </PageText>
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
                 <label className="font-medium text-xs" htmlFor="site-code">
-                  Invite code
+                  <PageText>{"Invite code"}</PageText>
                 </label>
                 <Input
                   autoCapitalize="characters"
@@ -221,7 +236,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                       normalizeSiteUsageInviteCode(event.target.value)
                     )
                   }
-                  placeholder="YOUR-CODE"
+                  placeholder={pageCopy("YOUR-CODE")}
                   spellCheck={false}
                   value={accessCode}
                 />
@@ -235,7 +250,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   type="submit"
                 >
                   {isRedeemingCode && <Loader2 className="animate-spin" />}
-                  Apply code
+                  <PageText>{"Apply code"}</PageText>
                 </Button>
               </DialogFooter>
             </form>
@@ -246,7 +261,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
               <DialogHeader>
                 <div>
                   <Button
-                    aria-label="Back"
+                    aria-label={pageCopy("Back")}
                     className="mb-2 -ml-1"
                     onClick={() => setView("limit")}
                     size="icon-sm"
@@ -256,10 +271,15 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                     <ArrowLeft />
                   </Button>
                 </div>
-                <DialogTitle>Higher limits waitlist</DialogTitle>
+                <DialogTitle>
+                  <PageText>{"Higher limits waitlist"}</PageText>
+                </DialogTitle>
                 <DialogDescription>
-                  Tell us whether you would actually need a paid plan with more
-                  demo credits.
+                  <PageText>
+                    {
+                      "Tell us whether you would actually need a paid plan with more demo credits."
+                    }
+                  </PageText>
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
@@ -267,16 +287,17 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
                   className="font-medium text-xs"
                   htmlFor="site-waitlist-message"
                 >
-                  Message{" "}
+                  <PageText>{"Message"}</PageText>
+                  <PageText> </PageText>
                   <span className="font-normal text-muted-foreground">
-                    (optional)
+                    <PageText>{"(optional)"}</PageText>
                   </span>
                 </label>
                 <Textarea
                   id="site-waitlist-message"
                   maxLength={2000}
                   onChange={(event) => setWaitlistMessage(event.target.value)}
-                  placeholder="What would make paid limits useful?"
+                  placeholder={pageCopy("What would make paid limits useful?")}
                   value={waitlistMessage}
                 />
                 {waitlistError && (
@@ -286,7 +307,7 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
               <DialogFooter>
                 <Button disabled={isSubmittingWaitlist} type="submit">
                   {isSubmittingWaitlist && <Loader2 className="animate-spin" />}
-                  Join waitlist
+                  <PageText>{"Join waitlist"}</PageText>
                 </Button>
               </DialogFooter>
             </form>
@@ -295,15 +316,20 @@ export function SiteUsageGateProvider({ children }: { children: ReactNode }) {
           {view === "waitlist-success" && (
             <>
               <DialogHeader>
-                <DialogTitle>Waitlist saved</DialogTitle>
+                <DialogTitle>
+                  <PageText>{"Waitlist saved"}</PageText>
+                </DialogTitle>
                 <DialogDescription>
-                  Thanks. This helps us decide whether higher-limit paid access
-                  is worth shipping.
+                  <PageText>
+                    {
+                      "Thanks. This helps us decide whether higher-limit paid access is worth shipping."
+                    }
+                  </PageText>
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button onClick={() => setIsOpen(false)} type="button">
-                  Close
+                  <PageText>{"Close"}</PageText>
                 </Button>
               </DialogFooter>
             </>

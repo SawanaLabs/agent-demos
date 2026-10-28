@@ -9,6 +9,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, Link2Icon, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxSelectionActions — a floating action bar revealed on row hover.
@@ -50,12 +51,14 @@ function ActionBar({
   onCopy: () => void;
   onToggleComment: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   const buttonClass =
     "grid size-6 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
   return (
     <span className="pointer-events-none absolute top-1/2 right-2 z-10 flex -translate-y-1/2 items-center gap-0.5 rounded-full border bg-popover p-1 opacity-0 shadow-md transition-[opacity,transform] duration-200 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
       <button
-        aria-label={copied ? "Link copied" : "Copy link"}
+        aria-label={copied ? pageCopy("Link copied") : pageCopy("Copy link")}
         className={cn(buttonClass, copied && "text-status-success-600")}
         onClick={onCopy}
         type="button"
@@ -67,7 +70,7 @@ function ActionBar({
         )}
       </button>
       <button
-        aria-label="Comment"
+        aria-label={pageCopy("Comment")}
         aria-pressed={commentOpen}
         className={cn(buttonClass, commentOpen && "bg-muted text-foreground")}
         onClick={onToggleComment}
@@ -78,14 +81,18 @@ function ActionBar({
       <span className="mx-0.5 h-4 w-px bg-border" />
       <DropdownMenu>
         <DropdownMenuTrigger
-          aria-label="More actions"
+          aria-label={pageCopy("More actions")}
           className={buttonClass}
         />
         <DropdownMenuContent align="end" side="top">
-          <DropdownMenuItem>Rename</DropdownMenuItem>
-          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+          <DropdownMenuItem>
+            <PageText>{"Rename"}</PageText>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <PageText>{"Duplicate"}</PageText>
+          </DropdownMenuItem>
           <DropdownMenuItem className="text-destructive">
-            Delete
+            <PageText>{"Delete"}</PageText>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -94,6 +101,8 @@ function ActionBar({
 }
 
 function ActionRow({ row }: { row: Row }) {
+  const pageCopy = usePageCopy();
+
   const [copied, setCopied] = useState(false);
   const [commentOpen, setCommentOpen] = useState(false);
   const [comment, setComment] = useState("");
@@ -134,11 +143,11 @@ function ActionRow({ row }: { row: Row }) {
               aria-label={`Comment on ${row.title}`}
               className="h-7 min-w-0 flex-1 rounded-md border bg-muted/40 px-2 text-[12px] text-foreground outline-none placeholder:text-muted-foreground focus-visible:border-foreground/25"
               onChange={(event) => setComment(event.target.value)}
-              placeholder="Add a comment…"
+              placeholder={pageCopy("Add a comment…")}
               value={comment}
             />
             <span className="shrink-0 text-[11px] text-muted-foreground">
-              ⏎ to send
+              <PageText>{"⏎ to send"}</PageText>
             </span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import { PageText } from "@/components/page-copy";
 
 import { SandboxConversationPane } from "./sandbox-conversation-pane";
 import { SandboxPreviewPane } from "./sandbox-preview-pane";
@@ -45,8 +46,12 @@ export function SandboxAgentWorkspace({
           >
             <div className="border-foreground/10 border-b px-4 py-2">
               <TabsList className="grid w-fit grid-cols-2">
-                <TabsTrigger value="conversation">Conversation</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
+                <TabsTrigger value="conversation">
+                  <PageText>{"Conversation"}</PageText>
+                </TabsTrigger>
+                <TabsTrigger value="preview">
+                  <PageText>{"Preview"}</PageText>
+                </TabsTrigger>
               </TabsList>
             </div>
 

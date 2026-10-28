@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import type {
   ConfiguredMcpServer,
@@ -23,17 +24,17 @@ export function McpRuntimeSidebar({
       <div className="space-y-5">
         <div>
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Runtime
+            <PageText>{"Runtime"}</PageText>
           </p>
           <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           <p className="mt-1 text-muted-foreground text-sm">
-            AI SDK MCP client
+            <PageText>{"AI SDK MCP client"}</PageText>
           </p>
         </div>
 
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Connected MCP servers
+            <PageText>{"Connected MCP servers"}</PageText>
           </p>
           {configuredServers.map((server) => (
             <div
@@ -56,7 +57,7 @@ export function McpRuntimeSidebar({
 
         <div className="space-y-2">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Available tools
+            <PageText>{"Available tools"}</PageText>
           </p>
           {configuredTools.map((tool) => (
             <div

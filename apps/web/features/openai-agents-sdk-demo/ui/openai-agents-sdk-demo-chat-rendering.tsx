@@ -41,6 +41,7 @@ import {
 } from "@workspace/ui/components/ai-elements/tool";
 import { Button } from "@workspace/ui/components/button";
 import type { ChatAddToolApproveResponseFunction } from "ai";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   getOpenAiAgentsSdkDemoApprovalInputFields,
@@ -112,7 +113,9 @@ export function OpenAiAgentsSdkDemoAttachments({
 }
 
 export function ThinkingState() {
-  return <Shimmer className="text-sm">Thinking...</Shimmer>;
+  const pageCopy = usePageCopy();
+
+  return <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>;
 }
 
 function getApprovalInputPreview(part: ToolPart) {
@@ -148,12 +151,15 @@ function OpenAiAgentsSdkDemoToolApproval({
       className="border-status-warning-500/30 bg-status-warning-500/5"
       state={part.state}
     >
-      <ConfirmationTitle>Human approval checkpoint</ConfirmationTitle>
+      <ConfirmationTitle>
+        <PageText>{"Human approval checkpoint"}</PageText>
+      </ConfirmationTitle>
       <ConfirmationRequest>
         <div className="space-y-2 text-sm">
           <p>
-            Approve {getOpenAiAgentsSdkDemoToolName(part)} before the agent
-            continues?
+            <PageText>{"Approve "}</PageText>
+            {getOpenAiAgentsSdkDemoToolName(part)}
+            <PageText>{" before the agent continues?"}</PageText>
           </p>
           {fields.length > 0 ? (
             <div className="grid gap-2">
@@ -180,11 +186,17 @@ function OpenAiAgentsSdkDemoToolApproval({
       </ConfirmationRequest>
       <ConfirmationAccepted>
         <CheckCircleIcon className="size-4" />
-        <span>Approved. The agent can continue this run.</span>
+        <span>
+          <PageText>{"Approved. The agent can continue this run."}</PageText>
+        </span>
       </ConfirmationAccepted>
       <ConfirmationRejected>
         <XCircleIcon className="size-4" />
-        <span>Rejected. The agent will continue with the denial result.</span>
+        <span>
+          <PageText>
+            {"Rejected. The agent will continue with the denial result."}
+          </PageText>
+        </span>
       </ConfirmationRejected>
       <ConfirmationActions>
         <ConfirmationAction
@@ -198,7 +210,7 @@ function OpenAiAgentsSdkDemoToolApproval({
           variant="outline"
         >
           <XCircleIcon className="size-3.5" />
-          Reject
+          <PageText>{"Reject"}</PageText>
         </ConfirmationAction>
         <ConfirmationAction
           onClick={() =>
@@ -210,7 +222,7 @@ function OpenAiAgentsSdkDemoToolApproval({
           }
         >
           <CheckCircleIcon className="size-3.5" />
-          Approve
+          <PageText>{"Approve"}</PageText>
         </ConfirmationAction>
       </ConfirmationActions>
     </Confirmation>
@@ -250,7 +262,9 @@ function OpenAiAgentsSdkDemoToolTrace({
         {part.input ? <ToolInput input={part.input} /> : null}
         {isSettledInputOnly ? (
           <p className="text-muted-foreground text-sm">
-            Hosted tool completed without a renderable output payload.
+            <PageText>
+              {"Hosted tool completed without a renderable output payload."}
+            </PageText>
           </p>
         ) : null}
         <ToolOutput errorText={part.errorText} output={part.output} />
@@ -301,7 +315,9 @@ export function OpenAiAgentsSdkDemoErrorMessage({
           <div className="flex items-start gap-2 text-destructive">
             <XCircleIcon className="mt-0.5 size-4 shrink-0" />
             <div className="min-w-0 space-y-1">
-              <p className="font-medium">Agent turn failed</p>
+              <p className="font-medium">
+                <PageText>{"Agent turn failed"}</PageText>
+              </p>
               <p className="whitespace-pre-wrap break-words text-destructive/90">
                 {error.message}
               </p>
@@ -315,7 +331,7 @@ export function OpenAiAgentsSdkDemoErrorMessage({
               variant="outline"
             >
               <ArrowClockwiseIcon className="size-3.5" />
-              Retry
+              <PageText>{"Retry"}</PageText>
             </Button>
           ) : null}
         </div>

@@ -48,6 +48,7 @@ import {
   SquareIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -123,10 +124,10 @@ function GenerativeUiToolOutputPanel({ part }: { part: GenerativeUiToolPart }) {
         {part.output || part.errorText ? null : (
           <div className="space-y-2">
             <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-              Result
+              <PageText>{"Result"}</PageText>
             </h4>
             <div className="rounded-md bg-muted/50 px-3 py-2 text-muted-foreground text-xs">
-              Waiting for tool output.
+              <PageText>{"Waiting for tool output."}</PageText>
             </div>
           </div>
         )}
@@ -247,7 +248,9 @@ export function GenerativeUiAssistantMessage({
 
       {hasVisibleOutput ? null : (
         <p className="text-muted-foreground text-sm">
-          {isStreaming ? "Thinking..." : "Waiting for visible output."}
+          <PageText>
+            {isStreaming ? "Thinking..." : "Waiting for visible output."}
+          </PageText>
         </p>
       )}
     </div>
@@ -276,7 +279,7 @@ function GenerativeUiMessage({
   } else {
     messageBody = (
       <p className="text-muted-foreground text-sm">
-        Waiting for visible output.
+        <PageText>{"Waiting for visible output."}</PageText>
       </p>
     );
   }
@@ -309,6 +312,8 @@ export function GenerativeUiWorkspace({
   nodeVersion,
   setupMessage,
 }: GenerativeUiWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -359,9 +364,11 @@ export function GenerativeUiWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask for a comparison or a recommendation. Current questions can use search before the visual answer is generated."
+                description={pageCopy(
+                  "Ask for a comparison or a recommendation. Current questions can use search before the visual answer is generated."
+                )}
                 icon={<SparklesIcon className="size-5" />}
-                title="Generative UI workspace is ready"
+                title={pageCopy("Generative UI workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -374,13 +381,19 @@ export function GenerativeUiWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask for a comparison, recommendation, or current research-backed decision."
+                  placeholder={pageCopy(
+                    "Ask for a comparison, recommendation, or current research-backed decision."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">AI SDK 6</Badge>
-                  <Badge variant="outline">Generative UI</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"AI SDK 6"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"Generative UI"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -392,7 +405,7 @@ export function GenerativeUiWorkspace({
                       variant="outline"
                     >
                       <SquareIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -403,7 +416,7 @@ export function GenerativeUiWorkspace({
                       variant="outline"
                     >
                       <RefreshCwIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -427,7 +440,7 @@ export function GenerativeUiWorkspace({
                     variant="outline"
                   >
                     <BotIcon className="size-3.5 shrink-0" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -440,31 +453,38 @@ export function GenerativeUiWorkspace({
         <div className="space-y-4">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Tools
+              <PageText>{"Tools"}</PageText>
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Badge variant="outline">showFeatureComparison</Badge>
-              <Badge variant="outline">showPlanRecommendation</Badge>
+              <Badge variant="outline">
+                <PageText>{"showFeatureComparison"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"showPlanRecommendation"}</PageText>
+              </Badge>
               <Badge variant="outline">
                 <SearchIcon className="size-3" />
-                web_search
+                <PageText>{"web_search"}</PageText>
               </Badge>
             </div>
           </div>
           <Separator />
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Output
+              <PageText>{"Output"}</PageText>
             </p>
             <p className="mt-1 text-muted-foreground text-sm">
-              Comparison matrix or recommendation card, selected by the model
-              during the chat run.
+              <PageText>
+                {
+                  "Comparison matrix or recommendation card, selected by the model during the chat run."
+                }
+              </PageText>
             </p>
           </div>
         </div>

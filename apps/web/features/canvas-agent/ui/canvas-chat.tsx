@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Conversation,
   ConversationContent,
@@ -15,6 +16,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 import { CanvasMessage } from "./canvas-message";
 import {
@@ -32,6 +34,8 @@ export function CanvasChat({
   controller: ReturnType<typeof useCanvasAgent>;
   ready: boolean;
 }) {
+  const pageCopy = usePageCopy();
+
   const photos = useChatPhotos(controller.setError);
   const [userExpanded, setExpanded] = useState(true);
   const lastUserMessage = controller.messages
@@ -69,19 +73,21 @@ export function CanvasChat({
   }
   return (
     <section
-      aria-label="Canvas Agent 对话"
+      aria-label={pageCopy("Canvas Agent 对话")}
       className="absolute right-2 bottom-3 z-10 flex w-[calc(100%-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-xl sm:right-5 sm:bottom-5 sm:w-96"
     >
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div>
-          <h2 className="font-medium text-sm">Canvas Agent</h2>
+          <h2 className="font-medium text-sm">
+            <PageText>{"Canvas Agent"}</PageText>
+          </h2>
           <p aria-live="polite" className="text-muted-foreground text-xs">
             {heading}
           </p>
         </div>
         <Button
           aria-expanded={expanded}
-          aria-label={expanded ? "收起对话" : "展开对话"}
+          aria-label={expanded ? pageCopy("收起对话") : pageCopy("展开对话")}
           onClick={() => setExpanded(!expanded)}
           size="icon-sm"
           variant="ghost"
@@ -137,15 +143,19 @@ export function CanvasChat({
             ) : null}
             {controller.stopped && !busy ? (
               <div className="space-y-2 text-sm">
-                <p>已停止，画布中的已完成结果已保留。</p>
+                <p>
+                  <PageText>{"已停止，画布中的已完成结果已保留。"}</PageText>
+                </p>
                 <Button onClick={controller.retry} size="sm" variant="outline">
-                  继续完成
+                  <PageText>{"继续完成"}</PageText>
                 </Button>
               </div>
             ) : null}
             {ready ? null : (
               <p className="text-muted-foreground text-sm">
-                Agent 暂时不可用。你仍可编辑、保存和打开画布。
+                <PageText>
+                  {"Agent 暂时不可用。你仍可编辑、保存和打开画布。"}
+                </PageText>
               </p>
             )}
           </ConversationContent>
@@ -154,7 +164,7 @@ export function CanvasChat({
       </div>
       {!expanded && error ? (
         <p className="px-4 pt-2 text-destructive text-xs">
-          操作未完成，展开查看详情。
+          <PageText>{"操作未完成，展开查看详情。"}</PageText>
         </p>
       ) : null}
       <CanvasComposer
@@ -180,6 +190,8 @@ function CanvasComposer({
   onStop: () => void;
   photos: ReturnType<typeof useChatPhotos>;
 }) {
+  const pageCopy = usePageCopy();
+
   const [input, setInput] = useState("");
   const { busy, mode } = controller;
   const isBusy = busy || photos.uploading;
@@ -201,11 +213,11 @@ function CanvasComposer({
       <PromptInputBody>
         <CanvasPhotoPreviews disabled={isBusy} photos={photos} />
         <PromptInputTextarea
-          aria-label="告诉 AI 如何修改工作流"
+          aria-label={pageCopy("告诉 AI 如何修改工作流")}
           className="min-h-16 resize-none"
           disabled={!ready || isBusy}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="描述想法，或上传图片一起聊…"
+          placeholder={pageCopy("描述想法，或上传图片一起聊…")}
           value={input}
         />
       </PromptInputBody>
@@ -213,7 +225,7 @@ function CanvasComposer({
         <div className="flex items-center gap-2">
           <CanvasPhotoInput disabled={isBusy} photos={photos} />
           <select
-            aria-label="Agent 模式"
+            aria-label={pageCopy("Agent 模式")}
             className="rounded-md border bg-background p-1.5 text-xs"
             disabled={busy}
             onChange={(event) =>
@@ -221,12 +233,16 @@ function CanvasComposer({
             }
             value={mode}
           >
-            <option value="plan">仅编排</option>
-            <option value="execute">允许 AI 生成</option>
+            <option value="plan">
+              <PageText>{"仅编排"}</PageText>
+            </option>
+            <option value="execute">
+              <PageText>{"允许 AI 生成"}</PageText>
+            </option>
           </select>
         </div>
         <PromptInputSubmit
-          aria-label={chatting ? "停止生成" : "发送消息"}
+          aria-label={chatting ? pageCopy("停止生成") : pageCopy("发送消息")}
           disabled={
             chatting
               ? false

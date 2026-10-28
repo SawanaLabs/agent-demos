@@ -1,4 +1,5 @@
 "use client";
+
 import { Canvas } from "@workspace/ui/components/ai-elements/canvas";
 import { Controls } from "@workspace/ui/components/ai-elements/controls";
 import {
@@ -9,6 +10,7 @@ import {
 import { ControlButton } from "@xyflow/react";
 import { LayoutDashboardIcon } from "lucide-react";
 import { type ComponentProps, useEffect, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { connectNodes } from "../model/commands";
 import { addCanvasNode } from "../model/generation";
 import { type CanvasNode, createNode } from "../model/graph";
@@ -43,6 +45,8 @@ type FlowInstance = Parameters<
 >[0];
 
 export function CanvasWorkspace({ ready }: { ready: boolean }) {
+  const pageCopy = usePageCopy();
+
   const c = useCanvasAgent();
   const file = useWorkflowFile(c);
   const canvasRegion = useRef<HTMLDivElement>(null);
@@ -221,7 +225,7 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
                 <TooltipTrigger
                   render={
                     <ControlButton
-                      aria-label="整理画布"
+                      aria-label={pageCopy("整理画布")}
                       disabled={c.busy || !flow || graph.nodes.length === 0}
                       onClick={arrange}
                     />
@@ -229,17 +233,21 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
                 >
                   <LayoutDashboardIcon />
                 </TooltipTrigger>
-                <TooltipContent side="right">整理画布</TooltipContent>
+                <TooltipContent side="right">
+                  <PageText>{"整理画布"}</PageText>
+                </TooltipContent>
               </Tooltip>
             </Controls>
           </Canvas>
           <CanvasToolbar add={add} busy={c.busy} />
           <CanvasStartHint controller={c} ready={ready} />
           <p className="absolute bottom-5 left-5 hidden text-muted-foreground text-xs lg:block">
-            拖动画布平移 · 双指缩放 · 拖动节点圆点连线
+            <PageText>{"拖动画布平移 · 双指缩放 · 拖动节点圆点连线"}</PageText>
             <br />
-            {graph.nodes.length} 个节点 / {graph.edges.length} 条连线 ·
-            刷新前请保存文件
+            {graph.nodes.length}
+            <PageText>{" 个节点 / "}</PageText>
+            {graph.edges.length}
+            <PageText>{" 条连线 · 刷新前请保存文件"}</PageText>
           </p>
           <CanvasChat controller={c} key={c.session} ready={ready} />
         </div>

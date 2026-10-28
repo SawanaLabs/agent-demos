@@ -1,3 +1,4 @@
+import { PageText } from "@/components/page-copy";
 import type { OpenAiAgentsSdkDemoVoiceProfile } from "../server/voice";
 import {
   InspectorBadge,
@@ -13,7 +14,7 @@ export function OpenAiAgentsSdkDemoVoiceInspectorPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Voice Agents
+        <PageText>{"Voice Agents"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <OpenAiAgentsSdkDemoVoiceSummary voiceProfile={voiceProfile} />

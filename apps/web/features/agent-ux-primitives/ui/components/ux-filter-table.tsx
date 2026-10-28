@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ROWS, STATUS_META, type TaskRow } from "./ux-filter-table-data";
 
 /**
@@ -21,6 +22,8 @@ import { ROWS, STATUS_META, type TaskRow } from "./ux-filter-table-data";
  */
 
 export function UxFilterTable({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [status, setStatus] = useState<"all" | TaskRow["status"]>("all");
   const [query, setQuery] = useState("");
 
@@ -62,15 +65,15 @@ export function UxFilterTable({ className }: { className?: string }) {
       <div className="mb-2 flex h-8 items-center gap-2 rounded-md border bg-muted/40 px-2.5">
         <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" />
         <input
-          aria-label="Filter tasks"
+          aria-label={pageCopy("Filter tasks")}
           className="min-w-0 flex-1 bg-transparent text-[12.5px] text-foreground outline-none placeholder:text-muted-foreground"
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter by task or advisor…"
+          placeholder={pageCopy("Filter by task or advisor…")}
           value={query}
         />
         {query ? (
           <button
-            aria-label="Clear filter"
+            aria-label={pageCopy("Clear filter")}
             className="grid size-5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={() => setQuery("")}
             type="button"
@@ -117,10 +120,18 @@ export function UxFilterTable({ className }: { className?: string }) {
 
       <div className="overflow-hidden rounded-xl border bg-card">
         <div className="grid grid-cols-[1.3fr_0.6fr_0.95fr_0.9fr] border-b px-3 py-2 font-medium text-[11.5px] text-muted-foreground">
-          <span>Task name</span>
-          <span>Date</span>
-          <span>Status</span>
-          <span>Advisor</span>
+          <span>
+            <PageText>{"Task name"}</PageText>
+          </span>
+          <span>
+            <PageText>{"Date"}</PageText>
+          </span>
+          <span>
+            <PageText>{"Status"}</PageText>
+          </span>
+          <span>
+            <PageText>{"Advisor"}</PageText>
+          </span>
         </div>
         {ROWS.map((row) => {
           const visible = shown(row);

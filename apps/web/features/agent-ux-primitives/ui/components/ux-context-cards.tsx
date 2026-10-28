@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { ArrowUpRightIcon, ListIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 /**
  * UxContextCards — retrieved knowledge chunks for a RAG-style answer.
@@ -71,7 +72,7 @@ export function UxContextCards({
     <div className={cn("flex w-full max-w-sm flex-col gap-2", className)}>
       <div className="flex items-center gap-2 px-0.5">
         <span className="font-semibold text-[13px] text-foreground">
-          All chunks
+          <PageText>{"All chunks"}</PageText>
         </span>
         <span className="inline-flex h-5 items-center rounded-md border bg-muted px-1.5 font-medium text-[11.5px] text-muted-foreground tabular-nums">
           {total}

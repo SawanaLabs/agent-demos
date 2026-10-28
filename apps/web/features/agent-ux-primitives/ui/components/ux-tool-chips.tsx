@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 /**
  * UxToolChips — compact monochrome chips representing tool calls.
@@ -127,19 +128,25 @@ function ToolChipDetail({ call, status }: ToolChipDetailProps) {
         ))}
         {status === "done" && call.output ? (
           <div className="mt-1 flex gap-2 border-t pt-1.5">
-            <dt className="text-muted-foreground">out:</dt>
+            <dt className="text-muted-foreground">
+              <PageText>{"out:"}</PageText>
+            </dt>
             <dd>{call.output}</dd>
           </div>
         ) : null}
         {status === "error" && call.error ? (
           <div className="mt-1 flex gap-2 border-t pt-1.5 text-destructive">
-            <dt>err:</dt>
+            <dt>
+              <PageText>{"err:"}</PageText>
+            </dt>
             <dd>{call.error}</dd>
           </div>
         ) : null}
         {status === "running" || status === "pending" ? (
           <div className="mt-1 flex gap-2 border-t pt-1.5 text-muted-foreground">
-            <dd>waiting for output…</dd>
+            <dd>
+              <PageText>{"waiting for output…"}</PageText>
+            </dd>
           </div>
         ) : null}
       </dl>
@@ -270,7 +277,7 @@ export function UxToolChips({
           onClick={runAll}
           type="button"
         >
-          Replay sequence
+          <PageText>{"Replay sequence"}</PageText>
         </button>
       </div>
     </div>

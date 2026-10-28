@@ -20,6 +20,7 @@ import {
   UnlinkIcon,
   WrenchIcon,
 } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 import { CanvasToolResults } from "./canvas-tool-results";
 
 const actions = {
@@ -108,7 +109,7 @@ export function CanvasTool({
       )}
       {interrupted && !error && (
         <p className="pl-5 text-muted-foreground text-xs">
-          操作已中断，可以继续完成。
+          <PageText>{"操作已中断，可以继续完成。"}</PageText>
         </p>
       )}
       <ToolContent className="space-y-0 px-0 py-1 pl-5 text-muted-foreground text-xs">

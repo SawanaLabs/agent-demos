@@ -6,6 +6,7 @@ import {
   PlusIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@workspace/ui/components/button";
+import { PageText } from "@/components/page-copy";
 
 export function UltraChatbotAgentArtifactActions({
   canResetToLatest,
@@ -38,7 +39,7 @@ export function UltraChatbotAgentArtifactActions({
         variant="outline"
       >
         <PlusIcon className="size-3.5" />
-        Scratch doc
+        <PageText>{"Scratch doc"}</PageText>
       </Button>
 
       {hasSelectedDocument ? (
@@ -50,7 +51,7 @@ export function UltraChatbotAgentArtifactActions({
           variant="outline"
         >
           <FloppyDiskIcon className="size-3.5" />
-          Save version
+          <PageText>{"Save version"}</PageText>
         </Button>
       ) : null}
 
@@ -63,7 +64,7 @@ export function UltraChatbotAgentArtifactActions({
           variant="ghost"
         >
           <ArrowCounterClockwiseIcon className="size-3.5" />
-          Latest
+          <PageText>{"Latest"}</PageText>
         </Button>
       ) : null}
     </div>

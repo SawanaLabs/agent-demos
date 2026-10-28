@@ -1,6 +1,6 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, RotateCwIcon, XIcon } from "lucide-react";
-import { PageText } from "@/components/page-copy";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { RowStatus } from "./ux-task-rows-data";
 
 /**
@@ -9,6 +9,7 @@ import type { RowStatus } from "./ux-task-rows-data";
  */
 
 export function SpinnerRing({ children }: { children?: React.ReactNode }) {
+  const pageCopy = usePageCopy();
   return (
     <span className="relative grid size-6 shrink-0 place-items-center">
       <svg
@@ -18,9 +19,7 @@ export function SpinnerRing({ children }: { children?: React.ReactNode }) {
         height="24"
         width="24"
       >
-        <title>
-          <PageText>{"Loading"}</PageText>
-        </title>
+        <title>{pageCopy("Loading")}</title>
         <circle
           className="stroke-border"
           cx="12"

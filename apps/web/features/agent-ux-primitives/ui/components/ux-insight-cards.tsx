@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@workspace/ui/lib/utils";
-import { PageText } from "@/components/page-copy";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxInsightCards — headline metrics with inline sparklines.
@@ -61,6 +61,7 @@ const SPARK_HEIGHT = 28;
 const SPARK_PAD = 2;
 
 function Sparkline({ data }: { data: number[] }) {
+  const pageCopy = usePageCopy();
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
@@ -86,9 +87,7 @@ function Sparkline({ data }: { data: number[] }) {
       fill="none"
       viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
     >
-      <title>
-        <PageText>{"Sparkline"}</PageText>
-      </title>
+      <title>{pageCopy("Sparkline")}</title>
       <polyline
         points={points}
         stroke="currentColor"

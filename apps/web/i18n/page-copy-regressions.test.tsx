@@ -5,6 +5,8 @@ import RouteErrorPage from "@/app/error";
 import { DemoSession, DemoSessionResetButton } from "@/components/demo-session";
 import { LinkPendingLabel } from "@/components/link-pending-label";
 import { PageText, usePageCopy } from "@/components/page-copy";
+import { UxInsightCards } from "@/features/agent-ux-primitives/ui/components/ux-insight-cards";
+import { SpinnerRing } from "@/features/agent-ux-primitives/ui/components/ux-task-rows-parts";
 import { getCustomerMemorySamplePrompts } from "@/features/customer-memory-agent/ui/customer-memory-session";
 import { getLoopAgentSamplePrompts } from "@/features/loop-agent/ui/loop-agent-sample-prompts";
 import en from "./messages/en.json" with { type: "json" };
@@ -23,6 +25,26 @@ function LoopPromptLabels() {
 }
 
 describe("localized page regressions", () => {
+  it.each([
+    ["en", en, "Sparkline", "Loading"],
+    ["zh-CN", zh, zh.Page.Sparkline, zh.Page.Loading],
+  ] as const)("renders SVG titles as text in %s", (locale, messages, sparkline, loading) => {
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider
+        locale={locale}
+        messages={messages}
+        timeZone="UTC"
+      >
+        <SitePageCopy>
+          <UxInsightCards />
+          <SpinnerRing />
+        </SitePageCopy>
+      </NextIntlClientProvider>
+    );
+    expect(html).toContain(`<title>${sparkline}</title>`);
+    expect(html).toContain(`<title>${loading}</title>`);
+  });
+
   it.each([
     ["en", en, "Clear session"],
     ["zh-CN", zh, "清空会话"],

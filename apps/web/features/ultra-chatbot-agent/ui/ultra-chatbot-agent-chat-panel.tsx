@@ -21,8 +21,8 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import type { ChatStatus, UIMessage } from "ai";
 import type { Dispatch, SetStateAction } from "react";
-
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import type { UltraChatbotAgentChatSession } from "../server/chat-store";
@@ -129,6 +129,8 @@ export function UltraChatbotAgentChatPanel({
   visibilityError,
   votesByMessageId,
 }: UltraChatbotAgentChatPanelProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <section className="flex min-h-[70svh] min-w-0 flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
       {isChatAvailable ? null : (
@@ -187,9 +189,11 @@ export function UltraChatbotAgentChatPanel({
           ) : (
             <div className="flex size-full flex-col items-center justify-center gap-6 py-12">
               <ConversationEmptyState
-                description="Start a conversation, switch models, then refresh the page to reload the same route-backed chat."
+                description={pageCopy(
+                  "Start a conversation, switch models, then refresh the page to reload the same route-backed chat."
+                )}
                 icon={<RobotIcon className="size-5" />}
-                title="Ultra route is ready"
+                title={pageCopy("Ultra route is ready")}
               />
             </div>
           )}
@@ -262,10 +266,14 @@ function UltraChatbotAgentChatHeader({
       <div className="mx-auto flex w-full min-w-0 max-w-3xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Conversation
+            <PageText>{"Conversation"}</PageText>
           </p>
           <p className="mt-1 text-sm">
-            Route-backed chat with visitor-owned state and resumable stream.
+            <PageText>
+              {
+                "Route-backed chat with visitor-owned state and resumable stream."
+              }
+            </PageText>
           </p>
         </div>
         <UltraChatbotAgentVisibilitySelector
@@ -307,6 +315,8 @@ function UltraChatbotAgentComposer({
   selectedModel: UltraChatbotAgentModel | undefined;
   submitStatus: ChatStatus;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="border-foreground/10 border-t px-4 py-4">
       <div className="mx-auto w-full max-w-3xl">
@@ -324,14 +334,24 @@ function UltraChatbotAgentComposer({
           disabled={disabled}
           footerLeading={
             <>
-              <Badge variant="outline">Visitor scoped</Badge>
-              <Badge variant="outline">Blob uploads</Badge>
-              <Badge variant="outline">Project Docs MCP</Badge>
-              <Badge variant="outline">Preindexed RAG</Badge>
               <Badge variant="outline">
-                {chatMeta.capabilities.sandboxEnabled
-                  ? "Sandbox enabled"
-                  : "Sandbox locked"}
+                <PageText>{"Visitor scoped"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Blob uploads"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Project Docs MCP"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"Preindexed RAG"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>
+                  {chatMeta.capabilities.sandboxEnabled
+                    ? "Sandbox enabled"
+                    : "Sandbox locked"}
+                </PageText>
               </Badge>
               <UltraChatbotAgentModelSelector
                 isOpen={isModelSelectorOpen}
@@ -346,7 +366,9 @@ function UltraChatbotAgentComposer({
           onComposerErrorChange={onComposerErrorChange}
           onSend={onSubmit}
           onStop={onStop}
-          placeholder="Ask for a draft, compare models, inspect project docs, query the preindexed PDF, and attach a PDF, PNG, or JPEG before sending."
+          placeholder={pageCopy(
+            "Ask for a draft, compare models, inspect project docs, query the preindexed PDF, and attach a PDF, PNG, or JPEG before sending."
+          )}
           status={submitStatus}
         />
       </div>
@@ -369,6 +391,8 @@ function UltraChatbotAgentModelSelector({
   selectedChatModel: string;
   selectedModel: UltraChatbotAgentModel | undefined;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <ModelSelector onOpenChange={onOpenChange} open={isOpen}>
       <ModelSelectorTrigger className="inline-flex h-7 items-center gap-2 border border-input px-2 text-xs">
@@ -376,10 +400,15 @@ function UltraChatbotAgentModelSelector({
         <span>{selectedModel?.name ?? selectedChatModel}</span>
         <CaretDownIcon className="size-3" />
       </ModelSelectorTrigger>
-      <ModelSelectorContent className="sm:max-w-md" title="Select model">
-        <ModelSelectorInput placeholder="Search models..." />
+      <ModelSelectorContent
+        className="sm:max-w-md"
+        title={pageCopy("Select model")}
+      >
+        <ModelSelectorInput placeholder={pageCopy("Search models...")} />
         <ModelSelectorList>
-          <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+          <ModelSelectorEmpty>
+            <PageText>{"No models found."}</PageText>
+          </ModelSelectorEmpty>
           <ModelSelectorGroup heading="Available models">
             {models.map((model) => (
               <ModelSelectorItem
@@ -393,13 +422,17 @@ function UltraChatbotAgentModelSelector({
                 <ModelSelectorLogo provider={model.provider} />
                 <ModelSelectorName>{model.name}</ModelSelectorName>
                 <span className="text-muted-foreground text-xs">
-                  {model.capabilities.reasoning ? "Reasoning" : "Chat"}
+                  <PageText>
+                    {model.capabilities.reasoning ? "Reasoning" : "Chat"}
+                  </PageText>
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {model.expectedLatency} latency
+                  {model.expectedLatency}
+                  <PageText>{" latency"}</PageText>
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {model.costProfile} cost
+                  {model.costProfile}
+                  <PageText>{" cost"}</PageText>
                 </span>
               </ModelSelectorItem>
             ))}

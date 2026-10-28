@@ -36,6 +36,7 @@ import {
   SquareIcon,
 } from "lucide-react";
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   ConversationErrorMessage,
@@ -94,6 +95,8 @@ function LangGraphAssistantTrace({
   isStreaming: boolean;
   message: LangGraphAgentMessage;
 }) {
+  const pageCopy = usePageCopy();
+
   const text = getTextContent(message);
   const thinkingText = isLastMessage ? getLangGraphThinkingText(events) : "";
   const showThinking =
@@ -111,15 +114,27 @@ function LangGraphAssistantTrace({
             getThinkingMessage={(streaming, duration) => {
               if (streaming || duration === 0) {
                 return (
-                  <Shimmer duration={1}>Thinking through LangGraph...</Shimmer>
+                  <Shimmer duration={1}>
+                    {pageCopy("Thinking through LangGraph...")}
+                  </Shimmer>
                 );
               }
 
               if (duration === undefined) {
-                return <p>LangGraph thinking</p>;
+                return (
+                  <p>
+                    <PageText>{"LangGraph thinking"}</PageText>
+                  </p>
+                );
               }
 
-              return <p>LangGraph thought for {duration} seconds</p>;
+              return (
+                <p>
+                  <PageText>{"LangGraph thought for "}</PageText>
+                  {duration}
+                  <PageText>{" seconds"}</PageText>
+                </p>
+              );
             }}
           />
           <ReasoningContent>
@@ -131,7 +146,9 @@ function LangGraphAssistantTrace({
       {text ? (
         <MessageResponse>{text}</MessageResponse>
       ) : (
-        <Shimmer className="text-sm">Waiting for LangGraph output.</Shimmer>
+        <Shimmer className="text-sm">
+          {pageCopy("Waiting for LangGraph output.")}
+        </Shimmer>
       )}
     </>
   );
@@ -151,14 +168,14 @@ function GraphProgressPanel({
     <div className="space-y-4">
       <div>
         <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-          LangGraph thread
+          <PageText>{"LangGraph thread"}</PageText>
         </p>
         <p className="mt-1 break-all font-mono text-sm">{threadLabel}</p>
       </div>
 
       <div>
         <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-          Graph progress
+          <PageText>{"Graph progress"}</PageText>
         </p>
         <div className="mt-2 space-y-2">
           {nodeSummary.length > 0 ? (
@@ -191,7 +208,8 @@ function GraphProgressPanel({
                     </p>
                   ) : (
                     <p className="mt-2 text-muted-foreground text-xs">
-                      Streaming tokens from run {event.runId ?? "unknown"}
+                      <PageText>{"Streaming tokens from run "}</PageText>
+                      {event.runId ?? "unknown"}
                     </p>
                   )}
                 </div>
@@ -199,8 +217,11 @@ function GraphProgressPanel({
             })
           ) : (
             <p className="text-muted-foreground text-sm">
-              Submit a message to watch LangGraph updates and streamed answer
-              tokens land as AI SDK data parts.
+              <PageText>
+                {
+                  "Submit a message to watch LangGraph updates and streamed answer tokens land as AI SDK data parts."
+                }
+              </PageText>
             </p>
           )}
         </div>
@@ -224,6 +245,8 @@ export function LangGraphAgentWorkspace({
   remoteUrl,
   setupMessage,
 }: LangGraphAgentWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -286,7 +309,7 @@ export function LangGraphAgentWorkspace({
                   const text = getTextContent(message);
                   let messageBody = (
                     <p className="text-muted-foreground text-sm">
-                      Waiting for LangGraph output.
+                      <PageText>{"Waiting for LangGraph output."}</PageText>
                     </p>
                   );
 
@@ -320,13 +343,13 @@ export function LangGraphAgentWorkspace({
                 })}
                 {isBusy && messages.at(-1)?.role === "user" ? (
                   <Message
-                    aria-label="LangGraph is thinking"
+                    aria-label={pageCopy("Thinking through LangGraph...")}
                     from="assistant"
                     role="status"
                   >
                     <MessageContent>
                       <Shimmer className="text-sm" duration={1}>
-                        Thinking through LangGraph...
+                        {pageCopy("Thinking through LangGraph...")}
                       </Shimmer>
                     </MessageContent>
                   </Message>
@@ -357,15 +380,23 @@ export function LangGraphAgentWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!canStartChatTurn}
-                  placeholder="Ask the LangGraph agent to reason through an integration or implementation question."
+                  placeholder={pageCopy(
+                    "Ask the LangGraph agent to reason through an integration or implementation question."
+                  )}
                 />
               </PromptInputBody>
               <Separator className="mt-3" />
               <PromptInputFooter className="flex items-center justify-between gap-3 px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">LangGraph</Badge>
-                  <Badge variant="outline">AI SDK stream</Badge>
-                  <Badge variant="outline">thread scoped</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"LangGraph"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"AI SDK stream"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"thread scoped"}</PageText>
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -376,7 +407,7 @@ export function LangGraphAgentWorkspace({
                     variant="outline"
                   >
                     <PlusIcon className="size-3.5" />
-                    New thread
+                    <PageText>{"New thread"}</PageText>
                   </Button>
                   {isBusy ? (
                     <Button
@@ -386,7 +417,7 @@ export function LangGraphAgentWorkspace({
                       variant="outline"
                     >
                       <SquareIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -398,7 +429,7 @@ export function LangGraphAgentWorkspace({
                       variant="outline"
                     >
                       <RefreshCwIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -413,6 +444,7 @@ export function LangGraphAgentWorkspace({
               <div className="mt-3 flex flex-wrap gap-2">
                 {langGraphAgentSamplePrompts.map((prompt) => (
                   <Button
+                    className="h-auto max-w-full whitespace-normal text-left"
                     disabled={!canStartChatTurn}
                     key={prompt}
                     onClick={() => sendChatMessage(prompt)}
@@ -421,7 +453,7 @@ export function LangGraphAgentWorkspace({
                     variant="outline"
                   >
                     <GitBranchIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -435,13 +467,13 @@ export function LangGraphAgentWorkspace({
           <div className="space-y-4">
             <div>
               <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-                Runtime
+                <PageText>{"Runtime"}</PageText>
               </p>
               <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
             </div>
             <div>
               <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-                Remote API
+                <PageText>{"Remote API"}</PageText>
               </p>
               <p className="mt-1 break-all text-muted-foreground text-sm">
                 {remoteUrl ?? "Missing LANGGRAPH_AGENT_API_URL"}
@@ -449,7 +481,7 @@ export function LangGraphAgentWorkspace({
             </div>
             <div>
               <p className="font-heading text-muted-foreground text-xs uppercase tracking-[0.16em]">
-                Assistant
+                <PageText>{"Assistant"}</PageText>
               </p>
               <p className="mt-1 text-muted-foreground text-sm">
                 {assistantId ?? "Missing LANGGRAPH_AGENT_ASSISTANT_ID"}

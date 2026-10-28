@@ -14,6 +14,7 @@ import {
   LoaderIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 /**
  * UxThinkingTrace — an expandable chain-of-thought trace.
@@ -170,7 +171,7 @@ export function UxThinkingTrace({
             if (isRunning) {
               return (
                 <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                  Thinking
+                  <PageText>{"Thinking"}</PageText>
                   <span className="inline-flex gap-0.5">
                     <span className="size-1 animate-pulse rounded-full bg-muted-foreground/70 [animation-delay:0ms]" />
                     <span className="size-1 animate-pulse rounded-full bg-muted-foreground/70 [animation-delay:150ms]" />
@@ -182,12 +183,15 @@ export function UxThinkingTrace({
             if (finished) {
               return (
                 <span className="text-muted-foreground">
-                  Thought for {formatElapsed(totalMs) || "a moment"}
+                  <PageText>{"Thought for "}</PageText>
+                  {formatElapsed(totalMs) || "a moment"}
                 </span>
               );
             }
             return (
-              <span className="text-muted-foreground">Thinking trace</span>
+              <span className="text-muted-foreground">
+                <PageText>{"Thinking trace"}</PageText>
+              </span>
             );
           })()}
         </span>
@@ -200,7 +204,7 @@ export function UxThinkingTrace({
             }}
             type="button"
           >
-            Replay
+            <PageText>{"Replay"}</PageText>
           </button>
         ) : null}
         <ChevronDownIcon

@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DemoSession } from "@/components/demo-session";
+import { PageCopyProvider } from "@/components/page-copy";
 
 import { LangGraphAgentWorkspace } from "./langgraph-agent-workspace";
 import type { LangGraphAgentMessage } from "./use-langgraph-agent";
@@ -43,18 +44,20 @@ vi.mock("./use-langgraph-agent", () => ({
   useLangGraphAgent: () => chatState.current,
 }));
 
-function createWorkspaceMarkup() {
+function createWorkspaceMarkup(translate = (source: string) => source) {
   return renderToStaticMarkup(
-    <DemoSession>
-      {createElement(LangGraphAgentWorkspace, {
-        assistantId: null,
-        isChatAvailable: false,
-        nodeVersion: "Node v24.14.0",
-        remoteUrl: null,
-        setupMessage:
-          "LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo.",
-      })}
-    </DemoSession>
+    <PageCopyProvider translate={translate}>
+      <DemoSession>
+        {createElement(LangGraphAgentWorkspace, {
+          assistantId: null,
+          isChatAvailable: false,
+          nodeVersion: "Node v24.14.0",
+          remoteUrl: null,
+          setupMessage:
+            "LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo.",
+        })}
+      </DemoSession>
+    </PageCopyProvider>
   );
 }
 
@@ -171,7 +174,7 @@ describe("langgraph-agent workspace UI", () => {
 
     const markup = createWorkspaceMarkup();
 
-    expect(markup).toContain('aria-label="LangGraph is thinking"');
+    expect(markup).toContain('aria-label="Thinking through LangGraph..."');
     expect(markup).toContain("Thinking through LangGraph...");
   });
 
@@ -194,7 +197,31 @@ describe("langgraph-agent workspace UI", () => {
     const markup = createWorkspaceMarkup();
 
     expect(markup.match(/Thinking through LangGraph\.\.\./g)).toHaveLength(1);
-    expect(markup).not.toContain('aria-label="LangGraph is thinking"');
+    expect(markup).not.toContain('aria-label="Thinking through LangGraph..."');
+  });
+
+  it("uses localized page copy for the pending Thinking indicator", () => {
+    chatState.current = {
+      ...chatState.current,
+      hasMessages: true,
+      isBusy: true,
+      messages: [
+        {
+          id: "message-1",
+          parts: [{ text: "你好", type: "text" }],
+          role: "user",
+        },
+      ],
+      status: "submitted",
+    };
+
+    const markup = createWorkspaceMarkup((source) =>
+      source === "Thinking through LangGraph..." ? "LangGraph 思考中…" : source
+    );
+
+    expect(markup).toContain('aria-label="LangGraph 思考中…"');
+    expect(markup).toContain(">LangGraph 思考中…</p>");
+    expect(markup).toContain("你好");
   });
 
   it.each([

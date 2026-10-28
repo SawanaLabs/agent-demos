@@ -15,6 +15,7 @@ import {
   ToolOutput,
 } from "@workspace/ui/components/ai-elements/tool";
 import type { UIMessage } from "ai";
+import { usePageCopy } from "@/components/page-copy";
 
 import {
   getReasoningText,
@@ -33,6 +34,8 @@ export function McpAgentAssistantTrace({
   isStreaming,
   message,
 }: McpAgentAssistantTraceProps) {
+  const pageCopy = usePageCopy();
+
   const text = getTextContent(message);
   const reasoningText = getReasoningText(message);
   const toolParts = getToolParts(message);
@@ -72,7 +75,9 @@ export function McpAgentAssistantTrace({
       ))}
 
       {hasText ? <MessageResponse>{text}</MessageResponse> : null}
-      {showThinking ? <Shimmer className="text-sm">Thinking...</Shimmer> : null}
+      {showThinking ? (
+        <Shimmer className="text-sm">{pageCopy("Thinking...")}</Shimmer>
+      ) : null}
     </>
   );
 }

@@ -13,6 +13,8 @@ import {
   useState,
 } from "react";
 
+import { PageText, usePageCopy } from "@/components/page-copy";
+
 type BeforeSessionReset = () => void | Promise<void>;
 
 interface DemoSessionContextValue {
@@ -31,6 +33,7 @@ export function DemoSession({
   children: ReactNode;
   resetHref?: string;
 }) {
+  const pageCopy = usePageCopy();
   const [version, setVersion] = useState(0);
   const [isClearing, setIsClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,13 +63,15 @@ export function DemoSession({
       setVersion((current) => current + 1);
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Failed to clear session."
+        cause instanceof Error
+          ? cause.message
+          : pageCopy("Failed to clear session.")
       );
     } finally {
       clearingRef.current = false;
       setIsClearing(false);
     }
-  }, [resetHref]);
+  }, [pageCopy, resetHref]);
   const value = useMemo(
     () => ({ clearSession, error, isClearing, registerBeforeReset }),
     [clearSession, error, isClearing, registerBeforeReset]
@@ -105,7 +110,9 @@ export function DemoSessionResetButton({
         variant="outline"
       >
         <RotateCcwIcon aria-hidden="true" className="size-4" />
-        {context.isClearing ? "Clearing…" : "Clear session"}
+        <PageText>
+          {context.isClearing ? "Clearing…" : "Clear session"}
+        </PageText>
       </Button>
       {context.error ? (
         <p className="max-w-64 text-destructive text-xs" role="alert">

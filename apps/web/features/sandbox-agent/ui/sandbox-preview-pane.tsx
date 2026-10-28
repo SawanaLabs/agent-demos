@@ -18,6 +18,7 @@ import {
   WebPreviewUrl,
 } from "@workspace/ui/components/ai-elements/web-preview";
 import { TabsContent } from "@workspace/ui/components/tabs";
+import { PageText } from "@/components/page-copy";
 
 import {
   formatPreviewStatusSummary,
@@ -57,11 +58,14 @@ export function SandboxPreviewPane({
         <div className="flex size-full items-center justify-center p-6 text-center">
           <div className="max-w-md space-y-2">
             <p className="font-medium text-foreground text-sm">
-              Preview is not running yet
+              <PageText>{"Preview is not running yet"}</PageText>
             </p>
             <p className="text-muted-foreground text-sm">
-              A live preview will appear here after the agent starts a sandbox
-              preview for the generated prototype.
+              <PageText>
+                {
+                  "A live preview will appear here after the agent starts a sandbox preview for the generated prototype."
+                }
+              </PageText>
             </p>
           </div>
         </div>
@@ -134,7 +138,7 @@ export function SandboxPreviewPane({
             <div className="flex min-h-0 flex-1 items-center justify-center border-t px-6 py-10 text-center">
               <div className="max-w-xl space-y-2">
                 <p className="font-medium text-foreground text-sm">
-                  Preview is unavailable
+                  <PageText>{"Preview is unavailable"}</PageText>
                 </p>
                 <p className="text-muted-foreground text-sm">
                   {formatPreviewStatusSummary(

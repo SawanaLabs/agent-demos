@@ -1,4 +1,5 @@
 import { Badge } from "@workspace/ui/components/badge";
+import { PageText } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoContextProfile } from "../server/context";
 import type { OpenAiAgentsSdkDemoAiSdkExtensionProfile } from "../server/extensions";
@@ -61,7 +62,7 @@ function OpenAiAgentsSdkDemoRuntimePanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Runtime
+        <PageText>{"Runtime"}</PageText>
       </p>
       <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
     </div>
@@ -72,12 +73,14 @@ function OpenAiAgentsSdkDemoContractPanel() {
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Contract
+        <PageText>{"Contract"}</PageText>
       </p>
       <p className="mt-1 text-sm">
-        This slot keeps the agent backend on the official OpenAI run path and
-        lets the existing AI SDK UI frontend consume the result without a custom
-        stream protocol.
+        <PageText>
+          {
+            "This slot keeps the agent backend on the official OpenAI run path and lets the existing AI SDK UI frontend consume the result without a custom stream protocol."
+          }
+        </PageText>
       </p>
     </div>
   );
@@ -93,7 +96,7 @@ function OpenAiAgentsSdkDemoRunningPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Running
+        <PageText>{"Running"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Workflow" value={runProfile.workflowName} />
@@ -125,7 +128,7 @@ function OpenAiAgentsSdkDemoContextPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Context
+        <PageText>{"Context"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow
@@ -150,7 +153,9 @@ function OpenAiAgentsSdkDemoContextPanel({
             values={contextProfile.passesContextInto}
           />
           <div>
-            <p className="text-muted-foreground text-xs">Latest user prompt</p>
+            <p className="text-muted-foreground text-xs">
+              <PageText>{"Latest user prompt"}</PageText>
+            </p>
             <p className="mt-1 text-xs/relaxed">
               {lastContextSummary?.latestUserPromptPreview ||
                 "No context metadata yet"}
@@ -172,7 +177,7 @@ function OpenAiAgentsSdkDemoSessionsPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Sessions
+        <PageText>{"Sessions"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Primitive" value={sessionProfile.sdkPrimitive} />
@@ -208,7 +213,7 @@ function OpenAiAgentsSdkDemoStreamingPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Streaming
+        <PageText>{"Streaming"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow label="Bridge" value="createAiSdkUiMessageStream()" />
@@ -267,7 +272,7 @@ function OpenAiAgentsSdkDemoAiSdkExtensionPanel({
   return (
     <div>
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        AI SDK Extension
+        <PageText>{"AI SDK Extension"}</PageText>
       </p>
       <div className="mt-2 space-y-2 border border-foreground/10 px-3 py-3 text-sm">
         <InspectorRow

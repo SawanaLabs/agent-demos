@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DemoSessionResetButton } from "@/components/demo-session";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { type ChatPhase, REPLIES, TABS, type UxReply } from "./ux-chat-data";
 
 /**
@@ -47,7 +48,10 @@ function ReasoningReply({
       <div className="flex items-center gap-1 text-[12px] leading-tight">
         <span className="font-medium text-foreground">{reply.label}</span>
         <span className="text-muted-foreground">{reply.sub}</span>
-        <span className="text-muted-foreground/70">for {reply.time}</span>
+        <span className="text-muted-foreground/70">
+          <PageText>{"for "}</PageText>
+          {reply.time}
+        </span>
       </div>
       <p className="text-[13px] text-foreground leading-normal">{reply.body}</p>
     </div>
@@ -55,6 +59,8 @@ function ReasoningReply({
 }
 
 export function UxChat({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [phase, setPhase] = useState<ChatPhase>("done");
   const [draft, setDraft] = useState("");
   const [submitted, setSubmitted] = useState(
@@ -151,7 +157,7 @@ export function UxChat({ className }: { className?: string }) {
       <div className="mt-auto shrink-0 p-1.5">
         <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-2.5 transition-colors focus-within:border-foreground/25">
           <input
-            aria-label="Chat prompt"
+            aria-label={pageCopy("Chat prompt")}
             className="min-h-5 bg-transparent text-[13px] text-foreground leading-snug outline-none placeholder:text-muted-foreground"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
@@ -164,7 +170,7 @@ export function UxChat({ className }: { className?: string }) {
           />
           <div className="flex items-center justify-end">
             <button
-              aria-label="Send"
+              aria-label={pageCopy("Send")}
               className={cn(
                 "grid size-7 place-items-center rounded-lg transition-all enabled:active:scale-95",
                 canSend

@@ -8,6 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { Compass, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { prepareProjectGuideCompanionContextMessages } from "../message-history";
 import {
@@ -291,6 +292,8 @@ export function ProjectGuideCompanionLauncher({
   showReveal: boolean;
   surface: ProjectGuideCompanionSurface;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <>
       {showReveal ? (
@@ -298,14 +301,18 @@ export function ProjectGuideCompanionLauncher({
           <div className="flex items-start gap-2">
             <Compass className="mt-0.5 size-4 shrink-0" />
             <p className="min-w-0 flex-1 text-sm">
-              Lots to explore here. I can help you find the fastest path in.
+              <PageText>
+                {
+                  "Lots to explore here. I can help you find the fastest path in."
+                }
+              </PageText>
             </p>
             <Button
-              aria-label="Dismiss companion greeting"
+              aria-label={pageCopy("Dismiss companion greeting")}
               className="-mt-1 -mr-1 text-background hover:bg-background/15 hover:text-background focus-visible:ring-background/50"
               onClick={onDismissReveal}
               size="icon-xs"
-              title="Dismiss"
+              title={pageCopy("Dismiss")}
               type="button"
               variant="ghost"
             >
@@ -315,17 +322,19 @@ export function ProjectGuideCompanionLauncher({
         </div>
       ) : null}
       <Button
-        aria-label="Open project guide companion"
+        aria-label={pageCopy("Open project guide companion")}
         className={cn(
           "fixed right-3 bottom-3 z-50 gap-2 px-3 shadow-lg sm:right-4 sm:bottom-4",
           surface === "demo" ? "h-10" : "h-12"
         )}
         onClick={onOpen}
-        title="Open Project Compass"
+        title={pageCopy("Open Project Compass")}
         type="button"
       >
         <Compass className={surface === "demo" ? "size-4" : "size-5"} />
-        <span>Ask AI</span>
+        <span>
+          <PageText>{"Ask AI"}</PageText>
+        </span>
       </Button>
     </>
   );

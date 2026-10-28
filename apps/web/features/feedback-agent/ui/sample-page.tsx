@@ -14,26 +14,38 @@ import {
   ChartNoAxesCombined,
 } from "lucide-react";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 export function SamplePage() {
+  const pageCopy = usePageCopy();
+
   const [notice, setNotice] = useState("");
   return (
     <Card className="min-h-0 flex-1">
       <CardHeader className="border-b">
         <div className="flex items-center gap-2 text-muted-foreground">
           <ChartNoAxesCombined size={16} />
-          <span>Northstar / Reports</span>
+          <span>
+            <PageText>{"Northstar / Reports"}</PageText>
+          </span>
         </div>
-        <CardTitle className="mt-6 text-2xl">Your week, at a glance</CardTitle>
+        <CardTitle className="mt-6 text-2xl">
+          <PageText>{"Your week, at a glance"}</PageText>
+        </CardTitle>
         <p className="text-muted-foreground">
-          A sample product page. Use Feedback to point at anything you would
-          improve.
+          <PageText>
+            {
+              "A sample product page. Use Feedback to point at anything you would improve."
+            }
+          </PageText>
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-2">
-            <label htmlFor="report-name">Report name</label>
+            <label htmlFor="report-name">
+              <PageText>{"Report name"}</PageText>
+            </label>
             <Input defaultValue="Weekly overview" id="report-name" />
           </div>
           <Button
@@ -46,7 +58,7 @@ export function SamplePage() {
             variant="outline"
           >
             <ArrowDownToLine size={16} />
-            Export report
+            <PageText>{"Export report"}</PageText>
           </Button>
         </div>
         {notice ? (
@@ -67,21 +79,24 @@ export function SamplePage() {
               </CardHeader>
               <CardContent className="flex items-center gap-1 text-muted-foreground">
                 <ArrowUpRight size={14} />
-                {change} this week
+                {change}
+                <PageText>{" this week"}</PageText>
               </CardContent>
             </Card>
           ))}
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Activity</CardTitle>
+            <CardTitle>
+              <PageText>{"Activity"}</PageText>
+            </CardTitle>
             <p className="text-muted-foreground">
-              Visitors over the last seven days
+              <PageText>{"Visitors over the last seven days"}</PageText>
             </p>
           </CardHeader>
           <CardContent>
             <div
-              aria-label="Weekly activity bar chart"
+              aria-label={pageCopy("Weekly activity bar chart")}
               className="flex h-36 items-end gap-3"
               role="img"
             >

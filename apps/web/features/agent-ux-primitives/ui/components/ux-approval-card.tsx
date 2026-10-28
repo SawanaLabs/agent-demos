@@ -4,6 +4,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, CircleHelpIcon, PencilLineIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 /**
  * UxApprovalCard — a card where the agent asks for a decision.
@@ -79,7 +80,7 @@ export function UxApprovalCard({
           onClick={reset}
           type="button"
         >
-          Reset
+          <PageText>{"Reset"}</PageText>
         </button>
       </div>
     );
@@ -126,7 +127,7 @@ export function UxApprovalCard({
           type="button"
         >
           <PencilLineIcon className="mr-1 inline size-3" />
-          {isEditing ? "Editing" : "Edit request"}
+          <PageText>{isEditing ? "Editing" : "Edit request"}</PageText>
         </button>
         <div className="flex items-center gap-1.5">
           <Button
@@ -137,7 +138,7 @@ export function UxApprovalCard({
             variant="ghost"
           >
             <XIcon className="size-3.5" />
-            Reject
+            <PageText>{"Reject"}</PageText>
           </Button>
           {isEditing ? (
             <Button
@@ -147,7 +148,7 @@ export function UxApprovalCard({
               type="button"
             >
               <CheckIcon className="size-3.5" />
-              Approve edited
+              <PageText>{"Approve edited"}</PageText>
             </Button>
           ) : (
             <Button
@@ -157,7 +158,7 @@ export function UxApprovalCard({
               type="button"
             >
               <CheckIcon className="size-3.5" />
-              Approve
+              <PageText>{"Approve"}</PageText>
             </Button>
           )}
         </div>

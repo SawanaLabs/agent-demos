@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { getCustomerMemoryCompactionControlState } from "./customer-memory-session";
 
@@ -44,6 +45,8 @@ export function CustomerMemoryManualCompactAction({
   messageCount,
   onCompactContext,
 }: CustomerMemoryManualCompactActionProps) {
+  const pageCopy = usePageCopy();
+
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const controlState = getCustomerMemoryCompactionControlState({
     compactionThreshold,
@@ -72,7 +75,7 @@ export function CustomerMemoryManualCompactAction({
       <Tooltip>
         <TooltipTrigger render={<span className="inline-flex" />}>
           <Button
-            aria-label="Compact context"
+            aria-label={pageCopy("Compact context")}
             disabled={isDisabled}
             onClick={() => setIsConfirmOpen(true)}
             size="icon-sm"
@@ -94,15 +97,21 @@ export function CustomerMemoryManualCompactAction({
       </Tooltip>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Compact older context?</AlertDialogTitle>
+          <AlertDialogTitle>
+            <PageText>{"Compact older context?"}</PageText>
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Future replies will use a handoff summary for older messages.
-            Original messages stay visible, but this cannot be undone from the
-            UI.
+            <PageText>
+              {
+                "Future replies will use a handoff summary for older messages. Original messages stay visible, but this cannot be undone from the UI."
+              }
+            </PageText>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>
+            <PageText>{"Cancel"}</PageText>
+          </AlertDialogCancel>
           <AlertDialogAction
             disabled={isCompactingContext}
             onClick={() => {
@@ -110,7 +119,7 @@ export function CustomerMemoryManualCompactAction({
               onCompactContext();
             }}
           >
-            Compact context
+            <PageText>{"Compact context"}</PageText>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

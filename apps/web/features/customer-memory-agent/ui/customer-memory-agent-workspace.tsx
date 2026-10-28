@@ -33,7 +33,7 @@ export function CustomerMemoryAgentWorkspace({
   );
 
   return (
-    <div className="grid min-h-[74svh] gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[16rem_minmax(0,1fr)_22rem]">
+    <div className="grid min-h-[74svh] min-w-0 grid-cols-1 gap-4 xl:h-full xl:min-h-0 xl:grid-cols-[16rem_minmax(0,1fr)_22rem]">
       <CustomerMemoryNavigationSidebar
         activeThreadId={controller.activeThreadId}
         customerId={controller.customerId}

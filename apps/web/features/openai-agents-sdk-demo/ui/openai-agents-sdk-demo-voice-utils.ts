@@ -1,4 +1,5 @@
 import { type RealtimeItem, utils } from "@openai/agents/realtime";
+import type { OpenAiAgentsSdkDemoVoiceConnectionStatus as VoiceConnectionStatus } from "./openai-agents-sdk-demo-workspace-layout";
 
 export interface OpenAiAgentsSdkDemoVoiceHistorySummary {
   historyItemCount: number;
@@ -69,4 +70,20 @@ export function getOpenAiAgentsSdkDemoVoiceHistorySummary(
     lastAssistantTranscript,
     lastUserTranscript,
   };
+}
+
+export function getVoicePanelStatusLabel(status: VoiceConnectionStatus) {
+  if (status === "connected") {
+    return "Connected";
+  }
+
+  if (status === "connecting") {
+    return "Connecting";
+  }
+
+  if (status === "error") {
+    return "Error";
+  }
+
+  return "Disconnected";
 }

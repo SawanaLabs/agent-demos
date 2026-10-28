@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Node,
   NodeContent,
@@ -8,6 +9,7 @@ import {
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { MonitorIcon, Trash2Icon } from "lucide-react";
+import { usePageCopy } from "@/components/page-copy";
 import type { CanvasOutput } from "../model/graph";
 import type { CanvasContentType } from "../model/inputs";
 import { CanvasTypeBadge } from "./canvas-badges";
@@ -27,6 +29,8 @@ export interface CanvasDisplayData extends Record<string, unknown> {
 }
 
 export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
+  const pageCopy = usePageCopy();
+
   const types = [
     ...new Set(
       data.items.length
@@ -52,7 +56,7 @@ export function CanvasOutputView({ data }: { data: CanvasDisplayData }) {
             className="size-3.5 shrink-0 text-muted-foreground"
           />
           <Input
-            aria-label="预览输出名称"
+            aria-label={pageCopy("预览输出名称")}
             className="nodrag h-7 min-w-0 flex-1 border-0 bg-transparent px-1 font-medium shadow-none"
             defaultValue={data.label}
             disabled={data.busy}

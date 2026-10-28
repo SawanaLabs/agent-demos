@@ -32,6 +32,7 @@ import {
   WaypointsIcon,
   XCircleIcon,
 } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type {
   ExplorerSnapshot,
@@ -80,13 +81,17 @@ export function OrchestrationPhaseSteps({
   explorerCount: number;
   phase?: OrchestrationPhase;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <ChainOfThought defaultOpen>
-      <ChainOfThoughtHeader>Multi-agent orchestration</ChainOfThoughtHeader>
+      <ChainOfThoughtHeader>
+        <PageText>{"Multi-agent orchestration"}</PageText>
+      </ChainOfThoughtHeader>
       <ChainOfThoughtContent>
         <ChainOfThoughtStep
           icon={ListChecksIcon}
-          label="Lead plans subtopics"
+          label={pageCopy("Lead plans subtopics")}
           status={phaseStepStatus(phase, "planning")}
         />
         <ChainOfThoughtStep
@@ -96,12 +101,12 @@ export function OrchestrationPhaseSteps({
               : undefined
           }
           icon={WaypointsIcon}
-          label="Fan out to explorer subagents"
+          label={pageCopy("Fan out to explorer subagents")}
           status={phaseStepStatus(phase, "exploring")}
         />
         <ChainOfThoughtStep
           icon={FileTextIcon}
-          label="Lead synthesizes the report"
+          label={pageCopy("Lead synthesizes the report")}
           status={phaseStepStatus(phase, "synthesizing")}
         />
         {detail && phase !== "done" ? (
@@ -113,11 +118,13 @@ export function OrchestrationPhaseSteps({
 }
 
 export function ResearchPlanCard({ plan }: { plan: ResearchPlan }) {
+  const pageCopy = usePageCopy();
+
   return (
     <Plan defaultOpen>
       <PlanHeader>
         <div>
-          <PlanTitle>Research plan</PlanTitle>
+          <PlanTitle>{pageCopy("Research plan")}</PlanTitle>
           <PlanDescription>{plan.question}</PlanDescription>
         </div>
         <PlanAction>
@@ -134,7 +141,7 @@ export function ResearchPlanCard({ plan }: { plan: ResearchPlan }) {
               <span>
                 <span className="font-medium">{subtopic.title}</span>
                 <span className="text-muted-foreground">
-                  {" — "}
+                  <PageText>{" — "}</PageText>
                   {subtopic.angle}
                 </span>
               </span>
@@ -151,7 +158,7 @@ function ExplorerStatusBadge({ status }: { status: ExplorerStatus }) {
     return (
       <Badge className="gap-1" variant="outline">
         <CheckCircle2Icon className="size-3 text-primary" />
-        Done
+        <PageText>{"Done"}</PageText>
       </Badge>
     );
   }
@@ -159,7 +166,7 @@ function ExplorerStatusBadge({ status }: { status: ExplorerStatus }) {
     return (
       <Badge className="gap-1" variant="outline">
         <XCircleIcon className="size-3 text-destructive" />
-        Failed
+        <PageText>{"Failed"}</PageText>
       </Badge>
     );
   }
@@ -167,7 +174,7 @@ function ExplorerStatusBadge({ status }: { status: ExplorerStatus }) {
   return (
     <Badge className="gap-1" variant="outline">
       <CircleDotDashedIcon className="size-3 animate-spin text-muted-foreground" />
-      Exploring
+      <PageText>{"Exploring"}</PageText>
     </Badge>
   );
 }
@@ -255,7 +262,7 @@ export function ExplorerTaskCard({ explorer }: { explorer: ExplorerSnapshot }) {
             <span className="font-medium text-foreground">
               {explorer.explorerId}
             </span>
-            {" · "}
+            <PageText>{" · "}</PageText>
             {explorer.subtopic}
           </p>
           <ExplorerStatusBadge status={explorer.status} />
@@ -264,19 +271,25 @@ export function ExplorerTaskCard({ explorer }: { explorer: ExplorerSnapshot }) {
       </TaskTrigger>
       <TaskContent>
         <TaskItem>
-          <span className="font-medium">Angle:</span> {explorer.angle}
+          <span className="font-medium">
+            <PageText>{"Angle:"}</PageText>
+          </span>{" "}
+          {explorer.angle}
         </TaskItem>
         {explorer.activities.map((activity) => (
           <ExplorerActivityItem activity={activity} key={activity.toolCallId} />
         ))}
         {explorer.error ? (
           <TaskItem className="text-destructive">
-            Explorer failed: {explorer.error}
+            <PageText>{"Explorer failed: "}</PageText>
+            {explorer.error}
           </TaskItem>
         ) : null}
         {explorer.findings ? (
           <TaskItem>
-            <p className="font-medium">Findings</p>
+            <p className="font-medium">
+              <PageText>{"Findings"}</PageText>
+            </p>
             <p className="mt-1 whitespace-pre-wrap text-muted-foreground text-xs/relaxed">
               {explorer.findings}
             </p>

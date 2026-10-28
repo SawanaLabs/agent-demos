@@ -4,6 +4,7 @@ import { Button } from "@workspace/ui/components/button";
 import { AlertCircleIcon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 export function CanvasImage({ src, label }: { src: string; label: string }) {
   const [attempt, setAttempt] = useState(0);
@@ -27,10 +28,14 @@ export function CanvasImage({ src, label }: { src: string; label: string }) {
         >
           <p className="flex items-center gap-2 text-sm">
             <AlertCircleIcon className="size-4" />
-            图片预览加载失败
+            <PageText>{"图片预览加载失败"}</PageText>
           </p>
           <p className="text-muted-foreground text-xs">
-            可以重新加载预览，或下载原图查看。重新加载不会重新生成或消耗积分。
+            <PageText>
+              {
+                "可以重新加载预览，或下载原图查看。重新加载不会重新生成或消耗积分。"
+              }
+            </PageText>
           </p>
           <Button
             className="nodrag"
@@ -42,7 +47,7 @@ export function CanvasImage({ src, label }: { src: string; label: string }) {
             variant="outline"
           >
             <RefreshCwIcon className="size-3.5" />
-            重新加载图片
+            <PageText>{"重新加载图片"}</PageText>
           </Button>
         </div>
       ) : (
@@ -60,7 +65,7 @@ export function CanvasImage({ src, label }: { src: string; label: string }) {
       )}
       {status === "loading" ? (
         <p aria-live="polite" className="text-muted-foreground text-xs">
-          正在加载图片…
+          <PageText>{"正在加载图片…"}</PageText>
         </p>
       ) : null}
     </div>

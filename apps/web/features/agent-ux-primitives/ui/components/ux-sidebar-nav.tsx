@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { ChevronRightIcon, ChevronsUpDownIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 import {
   ITEMS,
   type NavChild,
@@ -121,14 +122,14 @@ export function UxSidebarNav({ className }: { className?: string }) {
         type="button"
       >
         <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary font-semibold text-[13px] text-primary-foreground">
-          C
+          <PageText>{"C"}</PageText>
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium text-[13px] text-foreground leading-tight">
-            Creamery Ops
+            <PageText>{"Creamery Ops"}</PageText>
           </span>
           <span className="block truncate text-[11px] text-muted-foreground leading-tight">
-            Production workspace
+            <PageText>{"Production workspace"}</PageText>
           </span>
         </span>
         <ChevronsUpDownIcon className="size-3 text-muted-foreground" />

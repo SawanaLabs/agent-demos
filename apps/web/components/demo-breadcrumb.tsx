@@ -8,6 +8,7 @@ import {
 } from "@workspace/ui/components/breadcrumb";
 import { cn } from "@workspace/ui/lib/utils";
 import { ArrowLeft } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 
 interface DemoBreadcrumbProps {
   className?: string;
@@ -30,7 +31,9 @@ export function DemoBreadcrumb({ className, title }: DemoBreadcrumbProps) {
             href="/"
           >
             <ArrowLeft aria-hidden="true" className="size-3.5 shrink-0" />
-            <span>Demo</span>
+            <span>
+              <PageText>{"Demo"}</PageText>
+            </span>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator className="text-muted-foreground">
@@ -38,7 +41,7 @@ export function DemoBreadcrumb({ className, title }: DemoBreadcrumbProps) {
         </BreadcrumbSeparator>
         <BreadcrumbItem>
           <BreadcrumbPage className="font-normal text-muted-foreground">
-            {title}
+            <PageText>{title}</PageText>
           </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>

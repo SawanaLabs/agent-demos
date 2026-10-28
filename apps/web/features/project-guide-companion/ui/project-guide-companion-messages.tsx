@@ -24,6 +24,7 @@ import type { UIMessage } from "ai";
 import { isTextUIPart, isToolUIPart } from "ai";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
   extractProjectGuideCompanionToolLine,
@@ -42,6 +43,8 @@ export function ProjectGuideCompanionMessageList({
   messages: UIMessage[];
   onDemoNavigate: () => void;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="space-y-4">
       {messages.map((message) => (
@@ -52,7 +55,7 @@ export function ProjectGuideCompanionMessageList({
         />
       ))}
       {isBusy && messages.at(-1)?.role === "user" ? (
-        <Shimmer className="text-sm">Thinking....</Shimmer>
+        <Shimmer className="text-sm">{pageCopy("Thinking....")}</Shimmer>
       ) : null}
     </div>
   );
@@ -126,6 +129,8 @@ function ProjectGuideCompanionToolLine({
   part: ProjectGuideCompanionToolPart;
   toolLine: ReturnType<typeof extractProjectGuideCompanionToolLine> | null;
 }) {
+  const pageCopy = usePageCopy();
+
   if (!toolLine) {
     return null;
   }
@@ -164,10 +169,16 @@ function ProjectGuideCompanionToolLine({
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-1 space-y-1.5 pl-3 text-[11px]">
         {hasInput ? (
-          <ProjectGuideCompanionToolDetail label="Input" value={part.input} />
+          <ProjectGuideCompanionToolDetail
+            label={pageCopy("Input")}
+            value={part.input}
+          />
         ) : null}
         {hasOutput ? (
-          <ProjectGuideCompanionToolDetail label="Output" value={part.output} />
+          <ProjectGuideCompanionToolDetail
+            label={pageCopy("Output")}
+            value={part.output}
+          />
         ) : null}
       </CollapsibleContent>
     </Collapsible>
@@ -201,7 +212,8 @@ function ProjectGuideCompanionDemoResults({
       ))}
       {hiddenResultCount > 0 ? (
         <p className="text-muted-foreground text-xs">
-          {hiddenResultCount} more demos are available in tool details.
+          {hiddenResultCount}
+          <PageText>{" more demos are available in tool details."}</PageText>
         </p>
       ) : null}
     </div>

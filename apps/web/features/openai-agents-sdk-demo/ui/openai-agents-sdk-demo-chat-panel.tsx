@@ -28,6 +28,7 @@ import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ChatAddToolApproveResponseFunction, ChatStatus } from "ai";
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoMessage } from "../message-metadata";
 import {
@@ -86,6 +87,8 @@ export function OpenAiAgentsSdkDemoChatPanel({
   setupMessage,
   status,
 }: OpenAiAgentsSdkDemoChatPanelProps) {
+  const pageCopy = usePageCopy();
+
   return (
     <section className="flex min-h-0 flex-col overflow-hidden border border-foreground/10 bg-background">
       {isChatAvailable ? null : (
@@ -104,9 +107,11 @@ export function OpenAiAgentsSdkDemoChatPanel({
             />
           ) : (
             <ConversationEmptyState
-              description="Send a prompt and exercise the official OpenAI Agents SDK to AI SDK UI bridge without leaving the current frontend stack."
+              description={pageCopy(
+                "Send a prompt and exercise the official OpenAI Agents SDK to AI SDK UI bridge without leaving the current frontend stack."
+              )}
               icon={<RobotIcon className="size-5" />}
-              title="OpenAI Agents workspace is ready"
+              title={pageCopy("OpenAI Agents workspace is ready")}
             />
           )}
           {chatErrorMessage ? (
@@ -223,7 +228,9 @@ function OpenAiAgentsSdkDemoMessageItem({
         {hasVisibleContent ||
         (message.role === "assistant" && isMessageStreaming) ? null : (
           <p className="text-muted-foreground text-sm/relaxed">
-            No visible assistant output was returned for this turn.
+            <PageText>
+              {"No visible assistant output was returned for this turn."}
+            </PageText>
           </p>
         )}
       </MessageContent>
@@ -252,6 +259,8 @@ function OpenAiAgentsSdkDemoComposer({
   onStop: () => void;
   status: ChatStatus;
 }) {
+  const pageCopy = usePageCopy();
+
   return (
     <div className="border-foreground/10 border-t px-4 py-4">
       <div className="mx-auto w-full max-w-3xl">
@@ -261,15 +270,23 @@ function OpenAiAgentsSdkDemoComposer({
               disabled={!isChatAvailable || isBusy || hasPendingApproval}
               placeholder={
                 hasPendingApproval
-                  ? "Approve or reject the pending tool request to continue this run."
-                  : "Ask for a plan, a short explanation, or a demo-specific agent answer."
+                  ? pageCopy(
+                      "Approve or reject the pending tool request to continue this run."
+                    )
+                  : pageCopy(
+                      "Ask for a plan, a short explanation, or a demo-specific agent answer."
+                    )
               }
             />
           </PromptInputBody>
           <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">OpenAI Agents SDK</Badge>
-              <Badge variant="outline">AI SDK UI bridge</Badge>
+              <Badge variant="outline">
+                <PageText>{"OpenAI Agents SDK"}</PageText>
+              </Badge>
+              <Badge variant="outline">
+                <PageText>{"AI SDK UI bridge"}</PageText>
+              </Badge>
               <Badge variant="outline">{chatModel}</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -281,7 +298,7 @@ function OpenAiAgentsSdkDemoComposer({
                   variant="outline"
                 >
                   <StopIcon className="size-3.5" />
-                  Stop
+                  <PageText>{"Stop"}</PageText>
                 </Button>
               ) : null}
               {hasMessages ? (
@@ -294,7 +311,7 @@ function OpenAiAgentsSdkDemoComposer({
                   variant="outline"
                 >
                   <ArrowClockwiseIcon className="size-3.5" />
-                  Retry
+                  <PageText>{"Retry"}</PageText>
                 </Button>
               ) : null}
               <PromptInputSubmit
@@ -309,6 +326,7 @@ function OpenAiAgentsSdkDemoComposer({
           <div className="mt-3 flex flex-wrap gap-2">
             {openAiAgentsSdkDemoSamplePrompts.map((prompt) => (
               <Button
+                className="h-auto max-w-full whitespace-normal text-left"
                 disabled={!isChatAvailable || hasPendingApproval || isBusy}
                 key={prompt}
                 onClick={() => onSendMessage(prompt)}
@@ -317,7 +335,7 @@ function OpenAiAgentsSdkDemoComposer({
                 variant="outline"
               >
                 <RobotIcon className="size-3.5" />
-                {prompt}
+                <PageText>{prompt}</PageText>
               </Button>
             ))}
           </div>

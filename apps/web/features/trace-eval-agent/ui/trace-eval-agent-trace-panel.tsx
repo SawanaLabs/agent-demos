@@ -14,6 +14,7 @@ import {
 } from "@workspace/ui/components/ai-elements/task";
 import { Badge } from "@workspace/ui/components/badge";
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { TraceEvalRunOutcome } from "../model/trace-eval-run-outcome";
 import type { TraceEvalSnapshot } from "../model/trace-eval-snapshot";
@@ -39,17 +40,23 @@ export function TraceEvalAgentTracePanel({
   runOutcome: TraceEvalRunOutcome;
   snapshot: TraceEvalSnapshot;
 }) {
+  const pageCopy = usePageCopy();
+
   if (runOutcome.kind === "failed-run") {
     return (
       <section className="min-h-0 overflow-y-auto rounded-lg border border-foreground/10 bg-background p-4">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-medium text-sm">Trace</h2>
+            <h2 className="font-medium text-sm">
+              <PageText>{"Trace"}</PageText>
+            </h2>
             <p className="text-muted-foreground text-xs">
-              Current conversation execution path
+              <PageText>{"Current conversation execution path"}</PageText>
             </p>
           </div>
-          <Badge variant="outline">failed</Badge>
+          <Badge variant="outline">
+            <PageText>{"failed"}</PageText>
+          </Badge>
         </div>
 
         <Task defaultOpen>
@@ -60,7 +67,7 @@ export function TraceEvalAgentTracePanel({
                 <XCircleIcon className="mt-0.5 size-4 shrink-0 text-status-danger-600" />
                 <div className="min-w-0">
                   <p className="font-medium text-foreground text-sm">
-                    Run failed before trace evaluation
+                    <PageText>{"Run failed before trace evaluation"}</PageText>
                   </p>
                   <p className="text-muted-foreground text-xs/relaxed">
                     {runOutcome.detail}
@@ -78,16 +85,18 @@ export function TraceEvalAgentTracePanel({
     <section className="min-h-0 overflow-y-auto rounded-lg border border-foreground/10 bg-background p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="font-medium text-sm">Trace</h2>
+          <h2 className="font-medium text-sm">
+            <PageText>{"Trace"}</PageText>
+          </h2>
           <p className="text-muted-foreground text-xs">
-            Current conversation execution path
+            <PageText>{"Current conversation execution path"}</PageText>
           </p>
         </div>
         <Badge variant="outline">{snapshot.status}</Badge>
       </div>
 
       <Task defaultOpen>
-        <TaskTrigger title="Execution trace" />
+        <TaskTrigger title={pageCopy("Execution trace")} />
         <TaskContent>
           {snapshot.trace.map((item) => {
             const Icon = traceStatusIcons[item.status];

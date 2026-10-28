@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
+import { PageText } from "@/components/page-copy";
 
 import type { UltraChatbotAgentArtifactMode } from "./ultra-chatbot-agent-artifact-state";
 
@@ -60,7 +61,9 @@ export function UltraChatbotAgentVersionFooter({
           variant="ghost"
         >
           <CaretLeftIcon className="size-4" />
-          <span className="sr-only">Newer version</span>
+          <span className="sr-only">
+            <PageText>{"Newer version"}</PageText>
+          </span>
         </Button>
         <Badge variant="outline">
           {currentVersionIndex + 1} / {totalVersions}
@@ -73,7 +76,9 @@ export function UltraChatbotAgentVersionFooter({
           variant="ghost"
         >
           <CaretRightIcon className="size-4" />
-          <span className="sr-only">Older version</span>
+          <span className="sr-only">
+            <PageText>{"Older version"}</PageText>
+          </span>
         </Button>
       </div>
 
@@ -89,7 +94,7 @@ export function UltraChatbotAgentVersionFooter({
           ) : (
             <RowsIcon className="size-3.5" />
           )}
-          {mode === "diff" ? "Preview" : "Diff"}
+          <PageText>{mode === "diff" ? "Preview" : "Diff"}</PageText>
         </Button>
 
         <Button
@@ -100,7 +105,7 @@ export function UltraChatbotAgentVersionFooter({
           variant="outline"
         >
           <ArrowClockwiseIcon className="size-3.5" />
-          Restore
+          <PageText>{"Restore"}</PageText>
         </Button>
 
         <Button
@@ -110,7 +115,7 @@ export function UltraChatbotAgentVersionFooter({
           type="button"
           variant="outline"
         >
-          Latest
+          <PageText>{"Latest"}</PageText>
         </Button>
 
         {isLatestVersionView && onStartEdit && !isEditing ? (
@@ -123,7 +128,7 @@ export function UltraChatbotAgentVersionFooter({
               variant="outline"
             >
               <PencilSimpleIcon className="size-3.5" />
-              Edit
+              <PageText>{"Edit"}</PageText>
             </Button>
           </div>
         ) : null}
@@ -138,7 +143,9 @@ export function UltraChatbotAgentVersionFooter({
               variant="outline"
             >
               <XIcon className="size-3.5" />
-              <span className="sr-only">Cancel</span>
+              <span className="sr-only">
+                <PageText>{"Cancel"}</PageText>
+              </span>
             </Button>
             <Button
               disabled={saveDisabled}
@@ -148,7 +155,7 @@ export function UltraChatbotAgentVersionFooter({
               variant="outline"
             >
               <FloppyDiskIcon className="size-3.5" />
-              Save version
+              <PageText>{"Save version"}</PageText>
             </Button>
           </div>
         ) : null}

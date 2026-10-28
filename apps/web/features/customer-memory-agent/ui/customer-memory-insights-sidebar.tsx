@@ -5,6 +5,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { CustomerMemorySessionData } from "../session-data";
 import { formatCustomerMemoryCategory } from "./customer-memory-session";
@@ -130,16 +131,20 @@ function CustomerMemoryRuntimePanel({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Runtime
+        <PageText>{"Runtime"}</PageText>
       </p>
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline">
-          {isChatAvailable ? "Ready" : "Setup required"}
+          <PageText>{isChatAvailable ? "Ready" : "Setup required"}</PageText>
         </Badge>
         <Badge variant="outline">
-          Node {nodeVersion.replace(NODE_VERSION_PREFIX_PATTERN, "")}
+          <PageText>{"Node "}</PageText>
+          {nodeVersion.replace(NODE_VERSION_PREFIX_PATTERN, "")}
         </Badge>
-        <Badge variant="outline">{compactionThreshold} message threshold</Badge>
+        <Badge variant="outline">
+          {compactionThreshold}
+          <PageText>{" message threshold"}</PageText>
+        </Badge>
       </div>
     </div>
   );
@@ -153,18 +158,32 @@ function CustomerMemorySessionStatePanel({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Session state
+        <PageText>{"Session state"}</PageText>
       </p>
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">{viewState.threadCount} threads</Badge>
-        <Badge variant="outline">{viewState.messageCount} messages</Badge>
-        <Badge variant="outline">{viewState.memoryCount} memories</Badge>
-        <Badge variant="outline">{viewState.memoryEventCount} events</Badge>
+        <Badge variant="outline">
+          {viewState.threadCount}
+          <PageText>{" threads"}</PageText>
+        </Badge>
+        <Badge variant="outline">
+          {viewState.messageCount}
+          <PageText>{" messages"}</PageText>
+        </Badge>
+        <Badge variant="outline">
+          {viewState.memoryCount}
+          <PageText>{" memories"}</PageText>
+        </Badge>
+        <Badge variant="outline">
+          {viewState.memoryEventCount}
+          <PageText>{" events"}</PageText>
+        </Badge>
       </div>
       <p className="text-muted-foreground text-sm/relaxed">
-        The agent manages durable customer facts explicitly through the memory
-        lifecycle tool. The chat thread is restored from Postgres whenever you
-        switch back to the account.
+        <PageText>
+          {
+            "The agent manages durable customer facts explicitly through the memory lifecycle tool. The chat thread is restored from Postgres whenever you switch back to the account."
+          }
+        </PageText>
       </p>
     </div>
   );
@@ -185,7 +204,7 @@ function CustomerMemoryMemoriesPanel({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-          Saved memories
+          <PageText>{"Saved memories"}</PageText>
         </p>
         <Button
           onClick={() => {
@@ -196,7 +215,7 @@ function CustomerMemoryMemoriesPanel({
           variant="outline"
         >
           <RobotIcon className="size-3.5" />
-          Refresh
+          <PageText>{"Refresh"}</PageText>
         </Button>
       </div>
 
@@ -215,11 +234,13 @@ function CustomerMemoryMemoriesContent({
   isSessionLoading: boolean;
   session: CustomerMemorySessionData | null;
 }) {
+  const pageCopy = usePageCopy();
+
   if (isSessionLoading && !session) {
     return (
       <CustomerMemoryPanelSkeleton
         lines={4}
-        title="Saved memories"
+        title={pageCopy("Saved memories")}
         withBadgeRow
       />
     );
@@ -228,9 +249,11 @@ function CustomerMemoryMemoriesContent({
   if (!session?.memories.length) {
     return (
       <p className="text-muted-foreground text-sm/relaxed">
-        No customer memories are active yet. Share a durable preference,
-        promise, risk, or account fact and let the agent call its memory
-        lifecycle tool.
+        <PageText>
+          {
+            "No customer memories are active yet. Share a durable preference, promise, risk, or account fact and let the agent call its memory lifecycle tool."
+          }
+        </PageText>
       </p>
     );
   }
@@ -257,16 +280,23 @@ function CustomerMemoryMemoriesContent({
                 {formatCustomerMemoryCategory(memory.category)}
               </Badge>
               {memory.status === "updated" ? (
-                <Badge variant="outline">Updated</Badge>
+                <Badge variant="outline">
+                  <PageText>{"Updated"}</PageText>
+                </Badge>
               ) : null}
-              {isRelevant ? <Badge variant="outline">Recalled</Badge> : null}
+              {isRelevant ? (
+                <Badge variant="outline">
+                  <PageText>{"Recalled"}</PageText>
+                </Badge>
+              ) : null}
             </div>
             <p className="font-medium text-sm">
               {memory.title?.trim() || "Untitled memory"}
             </p>
             <p className="text-sm/relaxed">{memory.content}</p>
             <p className="text-muted-foreground text-xs/relaxed">
-              Updated {formatShortDate(memory.updatedAt)}
+              <PageText>{"Updated "}</PageText>
+              {formatShortDate(memory.updatedAt)}
             </p>
           </div>
         );
@@ -282,8 +312,15 @@ function CustomerMemoryMemoryEventsPanel({
   isSessionLoading: boolean;
   session: CustomerMemorySessionData | null;
 }) {
+  const pageCopy = usePageCopy();
+
   if (isSessionLoading && !session) {
-    return <CustomerMemoryPanelSkeleton lines={3} title="Memory lifecycle" />;
+    return (
+      <CustomerMemoryPanelSkeleton
+        lines={3}
+        title={pageCopy("Memory lifecycle")}
+      />
+    );
   }
 
   if (!session?.memoryEvents.length) {
@@ -293,7 +330,7 @@ function CustomerMemoryMemoryEventsPanel({
   return (
     <details className="group space-y-2 border border-foreground/10 px-3 py-3">
       <summary className="cursor-pointer list-none text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Memory lifecycle
+        <PageText>{"Memory lifecycle"}</PageText>
       </summary>
       <div className="grid gap-2 pt-2">
         {session.memoryEvents.slice(0, 8).map((event) => (
@@ -327,7 +364,7 @@ function CustomerMemoryCompactionPanel({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Latest handoff
+        <PageText>{"Latest handoff"}</PageText>
       </p>
       <CustomerMemoryCompactionContent
         isSessionLoading={isSessionLoading}
@@ -344,11 +381,13 @@ function CustomerMemoryCompactionContent({
   isSessionLoading: boolean;
   session: CustomerMemorySessionData | null;
 }) {
+  const pageCopy = usePageCopy();
+
   if (isSessionLoading && !session) {
     return (
       <CustomerMemoryPanelSkeleton
         lines={3}
-        title="Latest handoff"
+        title={pageCopy("Latest handoff")}
         withBadgeRow
       />
     );
@@ -357,8 +396,11 @@ function CustomerMemoryCompactionContent({
   if (!session?.latestCompaction) {
     return (
       <p className="text-muted-foreground text-sm/relaxed">
-        No handoff compaction exists yet. Once the thread reaches the threshold,
-        older turns will be replaced by one saved handoff.
+        <PageText>
+          {
+            "No handoff compaction exists yet. Once the thread reaches the threshold, older turns will be replaced by one saved handoff."
+          }
+        </PageText>
       </p>
     );
   }
@@ -367,7 +409,8 @@ function CustomerMemoryCompactionContent({
     <div className="space-y-2 border border-foreground/10 px-3 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">
-          {session.latestCompaction.messageCount} messages compacted
+          {session.latestCompaction.messageCount}
+          <PageText>{" messages compacted"}</PageText>
         </Badge>
         <Badge variant="outline">
           {formatShortDate(session.latestCompaction.createdAt)}
@@ -389,9 +432,14 @@ function CustomerMemoryPromptContextPanel({
   session: CustomerMemorySessionData | null;
   viewState: CustomerMemoryInsightsViewState;
 }) {
+  const pageCopy = usePageCopy();
+
   if (isSessionLoading && !session) {
     return (
-      <CustomerMemoryPanelSkeleton lines={2} title="Current prompt context" />
+      <CustomerMemoryPanelSkeleton
+        lines={2}
+        title={pageCopy("Current prompt context")}
+      />
     );
   }
 
@@ -402,13 +450,15 @@ function CustomerMemoryPromptContextPanel({
   return (
     <div className="space-y-2">
       <p className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-        Current prompt context
+        <PageText>{"Current prompt context"}</PageText>
       </p>
       <div className="space-y-2 border border-foreground/10 px-3 py-3">
         <p className="text-sm/relaxed">{latestPrompt}</p>
         <p className="text-muted-foreground text-xs/relaxed">
-          {viewState.relevantMemoryCount} saved memories were retrieved for the
-          latest user turn.
+          {viewState.relevantMemoryCount}
+          <PageText>
+            {" saved memories were retrieved for the latest user turn."}
+          </PageText>
         </p>
       </div>
     </div>

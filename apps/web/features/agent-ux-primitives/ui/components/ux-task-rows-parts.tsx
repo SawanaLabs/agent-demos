@@ -1,5 +1,6 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, RotateCwIcon, XIcon } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { RowStatus } from "./ux-task-rows-data";
 
 /**
@@ -8,6 +9,7 @@ import type { RowStatus } from "./ux-task-rows-data";
  */
 
 export function SpinnerRing({ children }: { children?: React.ReactNode }) {
+  const pageCopy = usePageCopy();
   return (
     <span className="relative grid size-6 shrink-0 place-items-center">
       <svg
@@ -17,7 +19,7 @@ export function SpinnerRing({ children }: { children?: React.ReactNode }) {
         height="24"
         width="24"
       >
-        <title>Loading</title>
+        <title>{pageCopy("Loading")}</title>
         <circle
           className="stroke-border"
           cx="12"
@@ -76,7 +78,7 @@ export function StatusPill({ status }: { status: RowStatus }) {
   if (status === "failed") {
     return (
       <span className="inline-flex h-[22px] items-center gap-1.5 rounded-full bg-status-danger-500/10 px-2 font-medium text-[11.5px] text-status-danger-600 dark:text-status-danger-300">
-        Failed
+        <PageText>{"Failed"}</PageText>
         <RotateCwIcon className="size-3 animate-spin [animation-duration:1200ms]" />
       </span>
     );
@@ -84,7 +86,7 @@ export function StatusPill({ status }: { status: RowStatus }) {
   if (status === "done") {
     return (
       <span className="inline-flex h-[22px] items-center rounded-full bg-status-success-500/10 px-2 font-medium text-[11.5px] text-status-success-600 dark:text-status-success-300">
-        Completed
+        <PageText>{"Completed"}</PageText>
       </span>
     );
   }

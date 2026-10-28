@@ -19,6 +19,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { UltraChatbotAgentDocumentRecord } from "../server/document-store";
 import type { UltraChatbotAgentSuggestionRecord } from "../server/suggestion-store";
@@ -147,6 +148,8 @@ export function UltraChatbotAgentDocumentDetail({
   onRefreshArtifact: () => void;
   refreshToken: number;
 }) {
+  const pageCopy = usePageCopy();
+
   const [detailError, setDetailError] = useState<string | null>(null);
   const [draftContent, setDraftContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -327,7 +330,7 @@ export function UltraChatbotAgentDocumentDetail({
   if (isVersionsLoading) {
     return (
       <div className="space-y-4">
-        <Shimmer className="text-sm">Loading document...</Shimmer>
+        <Shimmer className="text-sm">{pageCopy("Loading document...")}</Shimmer>
         <div className="space-y-3">
           <div className="h-6 w-48 rounded-md bg-muted/50" />
           <div className="flex flex-wrap gap-2">
@@ -353,7 +356,7 @@ export function UltraChatbotAgentDocumentDetail({
   if (!selectedDocument) {
     return (
       <div className="border border-foreground/10 border-dashed px-3 py-4 text-muted-foreground text-xs/relaxed">
-        This document is no longer available.
+        <PageText>{"This document is no longer available."}</PageText>
       </div>
     );
   }
@@ -433,18 +436,26 @@ export function UltraChatbotAgentDocumentDetail({
           <div className="mt-2 flex flex-wrap gap-2">
             <Badge variant="outline">{selectedDocument.kind}</Badge>
             <Badge variant="outline">
-              {selectedDocumentVersions.length} versions
+              {selectedDocumentVersions.length}
+              <PageText>{" versions"}</PageText>
             </Badge>
             {isLatestVersion ? (
-              <Badge variant="secondary">Latest</Badge>
+              <Badge variant="secondary">
+                <PageText>{"Latest"}</PageText>
+              </Badge>
             ) : (
-              <Badge variant="outline">History</Badge>
+              <Badge variant="outline">
+                <PageText>{"History"}</PageText>
+              </Badge>
             )}
           </div>
         </div>
         <p className="max-w-2xl text-muted-foreground text-xs/relaxed">
-          Review, revise, diff, and restore this artifact without leaving the
-          current chat route.
+          <PageText>
+            {
+              "Review, revise, diff, and restore this artifact without leaving the current chat route."
+            }
+          </PageText>
         </p>
       </div>
 
@@ -452,7 +463,8 @@ export function UltraChatbotAgentDocumentDetail({
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-muted-foreground text-xs">
-          Version{" "}
+          <PageText>{"Version"}</PageText>
+          <PageText> </PageText>
           {formatUltraChatbotAgentDocumentTimestamp(selectedDocument.createdAt)}
         </p>
         <p className="text-muted-foreground text-xs">{versionHelpText}</p>
@@ -493,11 +505,15 @@ export function UltraChatbotAgentDocumentDetail({
 
       <div className="space-y-2 border-foreground/10 border-t pt-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="font-medium text-sm">Suggestions</p>
+          <p className="font-medium text-sm">
+            <PageText>{"Suggestions"}</PageText>
+          </p>
           <Badge variant="outline">{selectedSuggestions.length}</Badge>
         </div>
         {isSuggestionsLoading ? (
-          <Shimmer className="text-sm">Loading suggestions...</Shimmer>
+          <Shimmer className="text-sm">
+            {pageCopy("Loading suggestions...")}
+          </Shimmer>
         ) : (
           <UltraChatbotAgentDocumentSuggestions
             suggestions={selectedSuggestions}

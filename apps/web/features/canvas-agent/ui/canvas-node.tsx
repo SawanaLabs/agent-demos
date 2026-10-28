@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Node,
   NodeContent,
@@ -28,6 +29,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import Image from "next/image";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
 import type { connectedInputs } from "../model/inputs";
@@ -56,6 +58,8 @@ export interface CanvasNodeData extends Record<string, unknown> {
 }
 
 export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
+  const pageCopy = usePageCopy();
+
   const { node, asset, busy, active } = data;
   const image = asset;
   const Icon = canvasNodeIcons[node.kind];
@@ -86,7 +90,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             }
           </span>
           <Input
-            aria-label="节点名称"
+            aria-label={pageCopy("节点名称")}
             className="nodrag h-7 min-w-0 flex-1 border-0 bg-transparent px-1 font-medium shadow-none"
             disabled={busy}
             onChange={(event) =>
@@ -110,7 +114,9 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
         {data.error ? (
           <Alert className="nodrag border-destructive/40" variant="destructive">
             <AlertCircleIcon />
-            <AlertTitle>节点执行失败</AlertTitle>
+            <AlertTitle>
+              <PageText>{"节点执行失败"}</PageText>
+            </AlertTitle>
             <AlertDescription className="min-w-0 gap-3">
               <p className="whitespace-pre-wrap break-words">{data.error}</p>
               <div className="flex flex-wrap gap-2">
@@ -120,7 +126,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
                   size="sm"
                   variant="outline"
                 >
-                  Ask Agent
+                  <PageText>{"Ask Agent"}</PageText>
                 </Button>
                 {["text", "image", "gif"].includes(node.kind) ? (
                   <Button
@@ -129,7 +135,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
                     size="sm"
                     variant="outline"
                   >
-                    重试节点
+                    <PageText>{"重试节点"}</PageText>
                   </Button>
                 ) : null}
               </div>
@@ -154,7 +160,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
               href={image.startsWith("https:") ? `${image}?download=1` : image}
             >
               <DownloadIcon className="size-3" />
-              下载图片
+              <PageText>{"下载图片"}</PageText>
             </a>
           </div>
         ) : null}
@@ -165,7 +171,7 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
             aria-live="polite"
             className="mr-auto animate-pulse text-primary text-sm"
           >
-            正在生成…
+            <PageText>{"正在生成…"}</PageText>
           </p>
         ) : null}
         {node.kind === "prompt" || asset ? (
@@ -189,6 +195,8 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
 }
 
 function NodeInputs({ data }: { data: CanvasNodeData }) {
+  const pageCopy = usePageCopy();
+
   const { node, asset, busy } = data;
   if (node.kind === "gif") {
     return <CanvasGifSettings data={data} />;
@@ -196,10 +204,10 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
   if (node.kind === "reference") {
     return (
       <label className="nodrag block cursor-pointer border border-dashed p-4 text-center text-muted-foreground text-sm">
-        {asset ? "更换图片" : "上传图片"}
+        <PageText>{asset ? "更换图片" : "上传图片"}</PageText>
         <input
           accept="image/png,image/jpeg,image/webp,image/gif"
-          aria-label="上传图片"
+          aria-label={pageCopy("上传图片")}
           className="sr-only"
           disabled={busy}
           onChange={(event) => {
@@ -212,7 +220,7 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
           type="file"
         />
         <span className="mt-1 block text-xs">
-          PNG、JPEG、WebP、GIF，最大 8 MB
+          <PageText>{"PNG、JPEG、WebP、GIF，最大 8 MB"}</PageText>
         </span>
       </label>
     );
@@ -226,8 +234,10 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
         onChange={(event) => data.update({ prompt: event.target.value })}
         placeholder={
           node.kind === "prompt"
-            ? "输入提示词或其他文本，连接后原样传给下游。"
-            : "描述生成要求；上游文本也会全文加入提示词，图片作为参考。"
+            ? pageCopy("输入提示词或其他文本，连接后原样传给下游。")
+            : pageCopy(
+                "描述生成要求；上游文本也会全文加入提示词，图片作为参考。"
+              )
         }
         value={node.prompt}
       />
@@ -244,7 +254,11 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
               }}
               value={node.aspectRatio}
             >
-              <SelectTrigger aria-label="画面比例" className="nodrag" size="sm">
+              <SelectTrigger
+                aria-label={pageCopy("画面比例")}
+                className="nodrag"
+                size="sm"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent
@@ -252,7 +266,9 @@ function NodeInputs({ data }: { data: CanvasNodeData }) {
                 alignItemWithTrigger={false}
                 className="nodrag nowheel"
               >
-                <SelectItem value="auto">自动</SelectItem>
+                <SelectItem value="auto">
+                  <PageText>{"自动"}</PageText>
+                </SelectItem>
                 <SelectItem value="16:9">16:9</SelectItem>
                 <SelectItem value="1:1">1:1</SelectItem>
                 <SelectItem value="9:16">9:16</SelectItem>

@@ -16,6 +16,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LinkPendingLabel } from "@/components/link-pending-label";
+import { PageText } from "@/components/page-copy";
 import { RandomDemoButton } from "@/features/demo-catalog/random-demo-button";
 import {
   demoCatalogEntries,
@@ -100,10 +101,10 @@ function DemoGalleryVisual({ demo }: { demo: DemoCatalogEntry }) {
             styles.pill
           )}
         >
-          {demo.galleryVisual.label}
+          <PageText>{demo.galleryVisual.label}</PageText>
         </span>
         <span className="text-[11px] text-muted-foreground uppercase tracking-[0.18em]">
-          {demoPatternLabels[demo.pattern]}
+          <PageText>{demoPatternLabels[demo.pattern]}</PageText>
         </span>
       </div>
       {ascii ? (
@@ -140,23 +141,32 @@ function DemoGalleryCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <Badge variant="outline">
-              {demo.status === "ready" ? "Ready" : "Roadmap"}
+              <PageText>
+                {demo.status === "ready" ? "Ready" : "Roadmap"}
+              </PageText>
             </Badge>
-            <Badge variant="outline">{demoPatternLabels[demo.pattern]}</Badge>
+            <Badge variant="outline">
+              <PageText>{demoPatternLabels[demo.pattern]}</PageText>
+            </Badge>
           </div>
           {rankLabel ? (
             <Badge className="shrink-0" variant="outline">
-              {rankLabel}
+              <PageText>{rankLabel}</PageText>
             </Badge>
           ) : null}
         </div>
-        <CardTitle>{demo.title}</CardTitle>
-        <CardDescription>{demo.summary}</CardDescription>
+        <CardTitle>
+          <PageText>{demo.title}</PageText>
+        </CardTitle>
+        <CardDescription>
+          <PageText>{demo.summary}</PageText>
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <DemoGalleryVisual demo={demo} />
         <p className="text-muted-foreground text-xs/relaxed">
-          Source: {demo.source}
+          <PageText>{"Source: "}</PageText>
+          {demo.source}
         </p>
       </CardContent>
       <CardFooter className="justify-between gap-3">
@@ -190,22 +200,26 @@ function RegistryGuideCallout() {
     <section className="grid gap-5 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
       <div className="space-y-3">
         <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-          shadcn registry guide
+          <PageText>{"shadcn registry guide"}</PageText>
         </p>
         <h2 className="max-w-3xl font-medium text-2xl tracking-tight">
-          Start a new AI agent project from this registry
+          <PageText>
+            {"Start a new AI agent project from this registry"}
+          </PageText>
         </h2>
         <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-          The guide gives humans and coding agents one path: create a styled
-          shadcn Next.js app, add Foundation Chat from the registry, run a real
-          AI Gateway chat check, and prepare the same env for Vercel.
+          <PageText>
+            {
+              "The guide gives humans and coding agents one path: create a styled shadcn Next.js app, add Foundation Chat from the registry, run a real AI Gateway chat check, and prepare the same env for Vercel."
+            }
+          </PageText>
         </p>
         <div className="flex flex-wrap gap-2">
           <Link
             className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
             href="/registry-guide"
           >
-            Open registry guide
+            <PageText>{"Open registry guide"}</PageText>
             <ArrowSquareOutIcon className="size-3.5" />
           </Link>
         </div>
@@ -214,7 +228,7 @@ function RegistryGuideCallout() {
       <div className="overflow-hidden border border-foreground/10 bg-background">
         <div className="flex items-center justify-between gap-3 border-b bg-muted/70 px-3 py-2">
           <p className="truncate font-mono text-muted-foreground text-xs">
-            agent task brief
+            <PageText>{"agent task brief"}</PageText>
           </p>
           <RegistryCopyButton value={registryGuideAgentTaskBrief} />
         </div>
@@ -231,21 +245,23 @@ function DepthVideoToolCallout() {
     <section className="grid gap-5 border border-status-info-500/25 bg-status-info-500/5 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-center">
       <div className="space-y-3">
         <p className="text-[11px] text-status-info-700 uppercase tracking-[0.24em] dark:text-status-info-300">
-          Builder tool
+          <PageText>{"Builder tool"}</PageText>
         </p>
         <h2 className="max-w-3xl font-medium text-2xl tracking-tight">
-          Make a depth video in the browser
+          <PageText>{"Make a depth video in the browser"}</PageText>
         </h2>
         <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-          Turn a short clip into a stabilized grayscale motion reference for AI
-          video models. Five seconds is the recommended working length, fifteen
-          seconds is the limit, and the source file never leaves the browser.
+          <PageText>
+            {
+              "Turn a short clip into a stabilized grayscale motion reference for AI video models. Five seconds is the recommended working length, fifteen seconds is the limit, and the source file never leaves the browser."
+            }
+          </PageText>
         </p>
         <Link
           className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
           href="/tools/depth-video"
         >
-          Open depth video tool
+          <PageText>{"Open depth video tool"}</PageText>
           <ArrowSquareOutIcon className="size-3.5" />
         </Link>
       </div>
@@ -281,16 +297,19 @@ export default function Page() {
         <section className="grid gap-6 border border-foreground/10 bg-background px-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-              Agent Demos
+              <PageText>{"Agent Demos"}</PageText>
             </p>
             <h1 className="max-w-4xl font-medium text-3xl tracking-tight md:text-4xl">
-              Turn agent prototypes into deployable apps
+              <PageText>
+                {"Turn agent prototypes into deployable apps"}
+              </PageText>
             </h1>
             <p className="max-w-3xl text-muted-foreground text-sm/relaxed">
-              Pick a production-ready demo slice, hand the guide to Codex, and
-              ship a working Next.js agent app in about an hour. Already have a
-              LangGraph agent? Use this as the launch path to a real web
-              product.
+              <PageText>
+                {
+                  "Pick a production-ready demo slice, hand the guide to Codex, and ship a working Next.js agent app in about an hour. Already have a LangGraph agent? Use this as the launch path to a real web product."
+                }
+              </PageText>
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <RandomDemoButton destinations={randomDemoDestinations} />
@@ -306,7 +325,7 @@ export default function Page() {
                 target="_blank"
               >
                 <GithubLogoIcon className="size-3.5" />
-                GitHub
+                <PageText>{"GitHub"}</PageText>
                 <ArrowSquareOutIcon className="size-3.5" />
               </Link>
             </div>
@@ -315,7 +334,7 @@ export default function Page() {
           <div className="grid gap-3 border border-foreground/10 p-4">
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Ready now
+                <PageText>{"Ready now"}</PageText>
               </p>
               <p className="mt-1 font-medium text-2xl">
                 {readyDemoCatalogEntries.length}
@@ -323,7 +342,7 @@ export default function Page() {
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Roadmap
+                <PageText>{"Roadmap"}</PageText>
               </p>
               <p className="mt-1 font-medium text-2xl">
                 {roadmapDemoCatalogEntries.length}
@@ -331,8 +350,11 @@ export default function Page() {
             </div>
             <div>
               <p className="text-muted-foreground text-sm/relaxed">
-                Ready demos follow stable AI SDK Recipes and docs sources while
-                roadmap cards stay separate.
+                <PageText>
+                  {
+                    "Ready demos follow stable AI SDK Recipes and docs sources while roadmap cards stay separate."
+                  }
+                </PageText>
               </p>
             </div>
           </div>
@@ -347,12 +369,15 @@ export default function Page() {
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                  New
+                  <PageText>{"New"}</PageText>
                 </p>
-                <h2 className="mt-1 font-medium text-xl">Latest additions</h2>
+                <h2 className="mt-1 font-medium text-xl">
+                  <PageText>{"Latest additions"}</PageText>
+                </h2>
               </div>
               <p className="text-muted-foreground text-sm">
-                {latestReadyDemoCatalogEntries.length} newest demos
+                {latestReadyDemoCatalogEntries.length}
+                <PageText>{" newest demos"}</PageText>
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -366,12 +391,15 @@ export default function Page() {
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                  Recommend
+                  <PageText>{"Recommend"}</PageText>
                 </p>
-                <h2 className="mt-1 font-medium text-xl">Start here</h2>
+                <h2 className="mt-1 font-medium text-xl">
+                  <PageText>{"Start here"}</PageText>
+                </h2>
               </div>
               <p className="text-muted-foreground text-sm">
-                {recommendedDemoEntries.length} highlighted demos
+                {recommendedDemoEntries.length}
+                <PageText>{" highlighted demos"}</PageText>
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -389,13 +417,18 @@ export default function Page() {
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                  Ready demos
+                  <PageText>{"Ready demos"}</PageText>
                 </p>
-                <h2 className="mt-1 font-medium text-xl">Interactive now</h2>
+                <h2 className="mt-1 font-medium text-xl">
+                  <PageText>{"Interactive now"}</PageText>
+                </h2>
               </div>
               <p className="text-muted-foreground text-sm">
-                {readyDemoCatalogEntries.length} of {demoCatalogEntries.length}{" "}
-                demos
+                {readyDemoCatalogEntries.length}
+                <PageText>{" of "}</PageText>
+                {demoCatalogEntries.length}
+                <PageText> </PageText>
+                <PageText>{"demos"}</PageText>
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -409,9 +442,11 @@ export default function Page() {
             <div className="space-y-4 border-foreground/10 border-t pt-6">
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-[0.24em]">
-                  Roadmap
+                  <PageText>{"Roadmap"}</PageText>
                 </p>
-                <h2 className="mt-1 font-medium text-xl">Planned demos</h2>
+                <h2 className="mt-1 font-medium text-xl">
+                  <PageText>{"Planned demos"}</PageText>
+                </h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {roadmapDemoCatalogEntries.map((demo) => (
@@ -423,12 +458,13 @@ export default function Page() {
         </section>
 
         <footer className="border-foreground/10 border-t pt-6 pb-12 text-muted-foreground text-sm">
-          An open-source project by{" "}
+          <PageText>{"An open-source project by"}</PageText>
+          <PageText> </PageText>
           <a
             className="text-foreground underline underline-offset-4"
             href="https://github.com/SawanaLabs"
           >
-            Sawana Labs
+            <PageText>{"Sawana Labs"}</PageText>
           </a>
         </footer>
       </div>

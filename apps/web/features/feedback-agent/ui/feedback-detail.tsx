@@ -11,6 +11,7 @@ import {
 import { Copy, Download, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { PageText } from "@/components/page-copy";
 import type { Feedback, FeedbackStatus } from "../types";
 
 export const statusLabels: Record<FeedbackStatus, string> = {
@@ -48,7 +49,9 @@ export function FeedbackDetail({
     <Card className="rr-block min-h-0 flex-1 overflow-y-auto">
       <CardHeader className="border-b">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle>Feedback details</CardTitle>
+          <CardTitle>
+            <PageText>{"Feedback details"}</PageText>
+          </CardTitle>
           <span className="text-muted-foreground">
             {new Date(feedback.createdAt).toLocaleString()}
           </span>
@@ -86,16 +89,18 @@ export function FeedbackDetail({
             />
             <span className="mt-2 inline-flex items-center gap-1 text-muted-foreground">
               <Download size={14} />
-              Download screenshot
+              <PageText>{"Download screenshot"}</PageText>
             </span>
           </a>
         ) : (
-          <p className="text-muted-foreground">No screenshot attached.</p>
+          <p className="text-muted-foreground">
+            <PageText>{"No screenshot attached."}</PageText>
+          </p>
         )}
         <div className="flex flex-wrap gap-2">
           <Button disabled={busy || !aiAvailable} onClick={onAnalyze}>
             <Sparkles size={16} />
-            {busy ? "Working…" : "Analyze with AI"}
+            <PageText>{busy ? "Working…" : "Analyze with AI"}</PageText>
           </Button>
           <Button onClick={copyIssue} variant="outline">
             <Copy size={16} />
@@ -104,20 +109,27 @@ export function FeedbackDetail({
         </div>
         {aiAvailable ? null : (
           <p className="text-muted-foreground">
-            AI analysis needs an AI Gateway key. Your feedback is already saved.
+            <PageText>
+              {
+                "AI analysis needs an AI Gateway key. Your feedback is already saved."
+              }
+            </PageText>
           </p>
         )}
         {feedback.analysis ? (
           <MessageResponse>{feedback.analysis}</MessageResponse>
         ) : (
           <p className="text-muted-foreground">
-            AI reads the report, selected elements and screenshot to draft an
-            issue for your developer.
+            <PageText>
+              {
+                "AI reads the report, selected elements and screenshot to draft an issue for your developer."
+              }
+            </PageText>
           </p>
         )}
         <details>
           <summary className="cursor-pointer text-muted-foreground">
-            Captured page context
+            <PageText>{"Captured page context"}</PageText>
           </summary>
           <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-xs">
             {JSON.stringify(feedback.context, null, 2)}
@@ -130,7 +142,7 @@ export function FeedbackDetail({
             href={`data:application/json;charset=utf-8,${encodeURIComponent(feedback.recording)}`}
           >
             <Download size={14} />
-            Download interaction replay
+            <PageText>{"Download interaction replay"}</PageText>
           </a>
         ) : null}
       </CardContent>

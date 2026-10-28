@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PageText } from "@/components/page-copy";
 
 /**
  * Option set for UxRecommendationCard — bodies carry inline code chips,
@@ -24,8 +25,11 @@ export const OPTIONS: [UxRecommendationOption, ...UxRecommendationOption[]] = [
   {
     body: (
       <>
-        Reorder waffle cones from <code className={INLINE_CODE}>cone_king</code>{" "}
-        with lead time <code className={INLINE_CODE}>7_days</code>.
+        <PageText>{"Reorder waffle cones from "}</PageText>
+        <code className={INLINE_CODE}>cone_king</code>
+        <PageText> </PageText>
+        <PageText>{"with lead time "}</PageText>
+        <code className={INLINE_CODE}>7_days</code>.
       </>
     ),
     cta: "Accept",
@@ -38,8 +42,10 @@ export const OPTIONS: [UxRecommendationOption, ...UxRecommendationOption[]] = [
   {
     body: (
       <>
-        Switch vanilla to{" "}
-        <code className={INLINE_CODE}>vanilla_madagascar</code> for peak season.
+        <PageText>{"Switch vanilla to"}</PageText>
+        <PageText> </PageText>
+        <code className={INLINE_CODE}>vanilla_madagascar</code>
+        <PageText>{" for peak season."}</PageText>
       </>
     ),
     cta: "Configure",
@@ -52,8 +58,11 @@ export const OPTIONS: [UxRecommendationOption, ...UxRecommendationOption[]] = [
   {
     body: (
       <>
-        Fall back to a <span className="font-medium">full restock</span> across
-        every SKU.
+        <PageText>{"Fall back to a "}</PageText>
+        <span className="font-medium">
+          <PageText>{"full restock"}</PageText>
+        </span>
+        <PageText>{" across every SKU."}</PageText>
       </>
     ),
     cta: "Accept full restock",

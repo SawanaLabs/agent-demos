@@ -19,6 +19,7 @@ import {
 import type { ChatStatus, UIMessage } from "ai";
 import type { ClipboardEvent, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PageText } from "@/components/page-copy";
 
 import { ultraChatbotAgentAcceptedUploadMediaTypes } from "../attachment-config";
 import {
@@ -320,7 +321,9 @@ export function UltraChatbotAgentMultimodalInput({
                     </PromptInputButton>
                   }
                 />
-                <TooltipContent>Add image or PDF</TooltipContent>
+                <TooltipContent>
+                  <PageText>{"Add image or PDF"}</PageText>
+                </TooltipContent>
               </Tooltip>
             </PromptInputTools>
             <PromptInputSubmit

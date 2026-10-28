@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { RotateCcwIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ADDED_ROW, ROWS, STAGE_MS } from "./ux-diff-table-data";
 
 /**
@@ -42,6 +43,8 @@ function CategoryPill({
 }
 
 export function UxDiffTable({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [stage, setStage] = useState(0);
   const timerRef = useRef<number | null>(null);
 
@@ -75,10 +78,10 @@ export function UxDiffTable({ className }: { className?: string }) {
       <div className="relative overflow-hidden rounded-xl border bg-card">
         <div className="flex items-center justify-between border-b px-3 py-2">
           <span className="font-medium text-[12.5px] text-foreground">
-            Proposed menu cleanup
+            <PageText>{"Proposed menu cleanup"}</PageText>
           </span>
           <button
-            aria-label="Replay diff"
+            aria-label={pageCopy("Replay diff")}
             className="grid size-6 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={replay}
             type="button"

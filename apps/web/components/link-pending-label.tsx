@@ -1,6 +1,7 @@
 "use client";
 
 import { useLinkStatus } from "next/link";
+import { PageText } from "@/components/page-copy";
 
 interface LinkPendingLabelProps {
   pendingLabel: string;
@@ -13,5 +14,9 @@ export function LinkPendingLabel({
 }: LinkPendingLabelProps) {
   const { pending } = useLinkStatus();
 
-  return <span aria-live="polite">{pending ? pendingLabel : readyLabel}</span>;
+  return (
+    <span aria-live="polite">
+      <PageText>{pending ? pendingLabel : readyLabel}</PageText>
+    </span>
+  );
 }

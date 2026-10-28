@@ -3,6 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxCodeBlock — agent-written code that streams in line by line.
@@ -80,6 +81,8 @@ const RAW = `export async function churnBatch() {
 }`;
 
 export function UxCodeBlock({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [count, setCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const done = count >= LINES.length;
@@ -115,14 +118,14 @@ export function UxCodeBlock({ className }: { className?: string }) {
       <div className="flex items-center justify-between border-b px-3 py-2">
         <span className="flex items-baseline gap-2">
           <span className="font-medium font-mono text-[12px] text-foreground">
-            churn.ts
+            <PageText>{"churn.ts"}</PageText>
           </span>
           <span className="text-[11.5px] text-muted-foreground">
-            TypeScript
+            <PageText>{"TypeScript"}</PageText>
           </span>
         </span>
         <button
-          aria-label="Copy code"
+          aria-label={pageCopy("Copy code")}
           className={cn(
             "flex h-6 items-center gap-1 rounded-md px-1.5 font-medium text-[11.5px] transition-colors hover:bg-muted",
             copied
@@ -137,7 +140,7 @@ export function UxCodeBlock({ className }: { className?: string }) {
           ) : (
             <CopyIcon className="size-3" />
           )}
-          {copied ? "Copied" : "Copy"}
+          <PageText>{copied ? "Copied" : "Copy"}</PageText>
         </button>
       </div>
 

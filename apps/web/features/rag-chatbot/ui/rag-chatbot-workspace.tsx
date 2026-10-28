@@ -41,8 +41,8 @@ import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
-
 import { DemoConversation } from "@/components/demo-conversation";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
 import {
   ConversationErrorMessage,
@@ -70,6 +70,8 @@ export function RagChatbotWorkspace({
   sourceDocument,
   setupMessage,
 }: RagChatbotWorkspaceProps) {
+  const pageCopy = usePageCopy();
+
   const {
     clearError,
     error,
@@ -152,7 +154,7 @@ export function RagChatbotWorkspace({
                           <MessageResponse>{projection.text}</MessageResponse>
                         ) : (
                           <p className="text-muted-foreground text-sm">
-                            Waiting for visible output.
+                            <PageText>{"Waiting for visible output."}</PageText>
                           </p>
                         )}
 
@@ -161,14 +163,14 @@ export function RagChatbotWorkspace({
                             {part.type === "dynamic-tool" ? (
                               <ToolHeader
                                 state={part.state}
-                                title="Knowledge Base Retrieval"
+                                title={pageCopy("Knowledge Base Retrieval")}
                                 toolName={part.toolName}
                                 type={part.type}
                               />
                             ) : (
                               <ToolHeader
                                 state={part.state}
-                                title="Knowledge Base Retrieval"
+                                title={pageCopy("Knowledge Base Retrieval")}
                                 type={part.type}
                               />
                             )}
@@ -197,9 +199,11 @@ export function RagChatbotWorkspace({
               </>
             ) : (
               <ConversationEmptyState
-                description="Ask about the indexed design manual. Every grounded answer is expected to flow through retrieval."
+                description={pageCopy(
+                  "Ask about the indexed design manual. Every grounded answer is expected to flow through retrieval."
+                )}
                 icon={<BookOpenIcon className="size-5" />}
-                title="Document support workspace is ready"
+                title={pageCopy("Document support workspace is ready")}
               />
             )}
           </ConversationContent>
@@ -212,13 +216,19 @@ export function RagChatbotWorkspace({
               <PromptInputBody>
                 <PromptInputTextarea
                   disabled={!isChatAvailable || isBusy}
-                  placeholder="Ask what the manual says, and inspect the retrieval trace underneath the answer."
+                  placeholder={pageCopy(
+                    "Ask what the manual says, and inspect the retrieval trace underneath the answer."
+                  )}
                 />
               </PromptInputBody>
               <PromptInputFooter className="flex items-center justify-between gap-3 border-foreground/10 border-t px-3 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">RAG</Badge>
-                  <Badge variant="outline">pgvector</Badge>
+                  <Badge variant="outline">
+                    <PageText>{"RAG"}</PageText>
+                  </Badge>
+                  <Badge variant="outline">
+                    <PageText>{"pgvector"}</PageText>
+                  </Badge>
                   <Badge variant="outline">{chatModel}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
@@ -230,7 +240,7 @@ export function RagChatbotWorkspace({
                       variant="outline"
                     >
                       <StopIcon className="size-3.5" />
-                      Stop
+                      <PageText>{"Stop"}</PageText>
                     </Button>
                   ) : null}
                   {hasMessages ? (
@@ -241,7 +251,7 @@ export function RagChatbotWorkspace({
                       variant="outline"
                     >
                       <ArrowClockwiseIcon className="size-3.5" />
-                      Retry
+                      <PageText>{"Retry"}</PageText>
                     </Button>
                   ) : null}
                   <PromptInputSubmit
@@ -264,7 +274,7 @@ export function RagChatbotWorkspace({
                     variant="outline"
                   >
                     <RobotIcon className="size-3.5" />
-                    {prompt}
+                    <PageText>{prompt}</PageText>
                   </Button>
                 ))}
               </div>
@@ -277,13 +287,13 @@ export function RagChatbotWorkspace({
         <div className="space-y-4">
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Runtime
+              <PageText>{"Runtime"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{nodeVersion}</p>
           </div>
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Source document
+              <PageText>{"Source document"}</PageText>
             </p>
             <p className="mt-1 font-medium text-sm">{sourceDocument.title}</p>
             <p className="mt-1 text-muted-foreground text-sm">
@@ -295,25 +305,27 @@ export function RagChatbotWorkspace({
                 href={sourceDocument.documentUrl}
                 target="_blank"
               >
-                Open PDF
+                <PageText>{"Open PDF"}</PageText>
               </Link>
               <Link
                 className={buttonVariants({ size: "sm", variant: "outline" })}
                 href={sourceDocument.sourcePageUrl}
                 target="_blank"
               >
-                NASA page
+                <PageText>{"NASA page"}</PageText>
               </Link>
             </div>
           </div>
           <div>
             <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-              Contract
+              <PageText>{"Contract"}</PageText>
             </p>
             <p className="mt-1 text-sm">
-              The assistant is expected to retrieve evidence first, answer only
-              from indexed content, and surface the retrieval trace alongside
-              the response.
+              <PageText>
+                {
+                  "The assistant is expected to retrieve evidence first, answer only from indexed content, and surface the retrieval trace alongside the response."
+                }
+              </PageText>
             </p>
           </div>
         </div>

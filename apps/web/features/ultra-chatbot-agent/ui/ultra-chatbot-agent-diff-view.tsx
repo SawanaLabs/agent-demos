@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@workspace/ui/lib/utils";
+import { PageText } from "@/components/page-copy";
 
 interface DiffLine {
   after: string;
@@ -67,7 +68,7 @@ export function UltraChatbotAgentDiffView({
   return (
     <div className="max-h-96 overflow-auto border border-foreground/10 bg-muted/20">
       <div className="border-foreground/10 border-b px-3 py-2 text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-        Diff preview
+        <PageText>{"Diff preview"}</PageText>
       </div>
       <div className="font-mono text-xs">
         {diffLines.map((line, index) => (

@@ -4,6 +4,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { SearchIcon, XIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 
 /**
  * UxSearch — command-style search with live filtering.
@@ -49,6 +50,8 @@ function highlightMatch(text: string, query: string): ReactNode {
 }
 
 export function UxSearch({ className }: { className?: string }) {
+  const pageCopy = usePageCopy();
+
   const [query, setQuery] = useState("");
 
   const results = query
@@ -64,15 +67,15 @@ export function UxSearch({ className }: { className?: string }) {
         <div className="flex h-10 items-center gap-2 border-b px-3 transition-colors hover:bg-muted/40">
           <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" />
           <input
-            aria-label="Search flavors"
+            aria-label={pageCopy("Search flavors")}
             className="min-w-0 flex-1 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search flavors…"
+            placeholder={pageCopy("Search flavors…")}
             value={query}
           />
           {query ? (
             <button
-              aria-label="Clear search"
+              aria-label={pageCopy("Clear search")}
               className="grid size-[22px] place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               onClick={() => setQuery("")}
               type="button"
@@ -88,10 +91,10 @@ export function UxSearch({ className }: { className?: string }) {
               <SearchIcon className="size-3.5" />
             </span>
             <span className="font-medium text-[13px] text-foreground">
-              No results found
+              <PageText>{"No results found"}</PageText>
             </span>
             <span className="text-[12px] text-muted-foreground">
-              Adjust your search to try again
+              <PageText>{"Adjust your search to try again"}</PageText>
             </span>
           </div>
         ) : (

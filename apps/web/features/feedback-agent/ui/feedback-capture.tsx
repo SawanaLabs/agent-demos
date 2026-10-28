@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -12,6 +13,7 @@ import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Crosshair, Loader2, Send } from "lucide-react";
+import { PageText, usePageCopy } from "@/components/page-copy";
 import { ElementPicker } from "./element-picker";
 import styles from "./feedback-mobile.module.css";
 import { ScreenshotEditor } from "./screenshot-editor";
@@ -29,6 +31,8 @@ export function FeedbackCapture({
   launcherLabel?: string;
   launcherLocale?: string;
 }) {
+  const pageCopy = usePageCopy();
+
   const busy = c.phase === "submitting";
   const viewportStyle = useFeedbackViewport(c.phase === "composing" || busy);
   return (
@@ -72,10 +76,15 @@ export function FeedbackCapture({
           style={viewportStyle}
         >
           <DialogHeader>
-            <DialogTitle>Send feedback</DialogTitle>
+            <DialogTitle>
+              <PageText>{"Send feedback"}</PageText>
+            </DialogTitle>
             <DialogDescription>
-              Describe what should change. Review the captured page before
-              sending.
+              <PageText>
+                {
+                  "Describe what should change. Review the captured page before sending."
+                }
+              </PageText>
             </DialogDescription>
           </DialogHeader>
           <form
@@ -102,18 +111,22 @@ export function FeedbackCapture({
                 variant="outline"
               >
                 <Crosshair size={14} />
-                Reselect
+                <PageText>{"Reselect"}</PageText>
               </Button>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="feedback-description">What should change?</Label>
+              <Label htmlFor="feedback-description">
+                <PageText>{"What should change?"}</PageText>
+              </Label>
               <Textarea
                 autoFocus
                 disabled={busy}
                 id="feedback-description"
                 maxLength={8000}
                 onChange={(event) => c.setDescription(event.target.value)}
-                placeholder="What happened, and what did you expect?"
+                placeholder={pageCopy(
+                  "What happened, and what did you expect?"
+                )}
                 required
                 rows={3}
                 value={c.description}
@@ -122,11 +135,16 @@ export function FeedbackCapture({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <Label htmlFor="feedback-screenshot">
-                  Include screenshot{" "}
-                  <span className="text-muted-foreground">(optional)</span>
+                  <PageText>{"Include screenshot"}</PageText>
+                  <PageText> </PageText>
+                  <span className="text-muted-foreground">
+                    <PageText>{"(optional)"}</PageText>
+                  </span>
                 </Label>
                 <p className="mt-1 text-muted-foreground text-xs">
-                  Turn off before sending private content.
+                  <PageText>
+                    {"Turn off before sending private content."}
+                  </PageText>
                 </p>
               </div>
               <Switch
@@ -156,7 +174,7 @@ export function FeedbackCapture({
                 type="button"
                 variant="outline"
               >
-                Cancel
+                <PageText>{"Cancel"}</PageText>
               </Button>
               <Button
                 disabled={
@@ -171,7 +189,7 @@ export function FeedbackCapture({
                 ) : (
                   <Send size={16} />
                 )}
-                {busy ? "Sending…" : "Send feedback"}
+                <PageText>{busy ? "Sending…" : "Send feedback"}</PageText>
               </Button>
             </DialogFooter>
           </form>

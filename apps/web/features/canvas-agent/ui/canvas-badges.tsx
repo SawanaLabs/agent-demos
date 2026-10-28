@@ -6,6 +6,7 @@ import {
   MonitorIcon,
   SparklesIcon,
 } from "lucide-react";
+import { PageText } from "@/components/page-copy";
 import type { CanvasNode } from "../model/graph";
 import type { CanvasContentType, connectedInputs } from "../model/inputs";
 
@@ -23,7 +24,7 @@ export function CanvasTypeBadge({ type }: { type: CanvasContentType }) {
   return (
     <Badge variant="secondary">
       <Icon aria-hidden="true" />
-      {type === "text" ? "文本" : "图片"}
+      <PageText>{type === "text" ? "文本" : "图片"}</PageText>
     </Badge>
   );
 }

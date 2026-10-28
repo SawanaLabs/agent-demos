@@ -3,7 +3,7 @@
 import { Button } from "@workspace/ui/components/button";
 import { RefreshCcwIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect } from "react";
-import { PageText, usePageCopy } from "@/components/page-copy";
+import { PageText } from "@/components/page-copy";
 import { SystemStatusPage } from "@/components/system-status-page";
 import { reportClientException } from "@/features/shared/client-error-reporting/client";
 
@@ -14,8 +14,6 @@ export default function RouteErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const pageCopy = usePageCopy();
-
   function retryRoute() {
     reset();
     window.location.reload();
@@ -38,12 +36,12 @@ export default function RouteErrorPage({
         </Button>
       }
       badge="Runtime error"
-      description={pageCopy(
+      description={
         "The current page failed while loading. Retry will reload this page; if it keeps failing, return home and open it again."
-      )}
+      }
       icon={<TriangleAlertIcon className="size-5" />}
       reference={error.digest}
-      title={pageCopy("Something went wrong")}
+      title={"Something went wrong"}
       tone="destructive"
     />
   );

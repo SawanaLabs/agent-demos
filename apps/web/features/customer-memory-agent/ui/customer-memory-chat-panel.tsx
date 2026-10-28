@@ -388,7 +388,7 @@ function CustomerMemoryConversationContent({
       {sessionErrorMessage ? (
         <ConversationErrorMessage
           error={sessionErrorMessage}
-          title={pageCopy("Customer memory session failed")}
+          title={"Customer memory session failed"}
         />
       ) : null}
       {chatErrorMessage ? (

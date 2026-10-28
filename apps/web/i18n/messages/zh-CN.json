@@ -1,5 +1,6 @@
 {
   "Page": {
+    "404": "404",
     "-inspired agent UX primitives — prompt bar, thinking trace, streaming text, chat, tables, nav, search, and more — rebuilt on top of our shadcn + ai-elements base%2E No source copied; each component is self-contained and can be lifted into any compatible Next%2Ejs + shadcn + ai-elements project%2E": "，包括提示词输入栏、思考轨迹、流式文本、聊天、表格、导航、搜索等，基于本项目的 shadcn 和 AI Elements 重新实现。每个组件均可独立复制到兼容的 Next.js + shadcn + AI Elements 项目。",
     "—": "—",
     ", add the env vars, run the app, and send one message on": "，添加环境变量，运行应用，并发送一条消息，页面为",
@@ -1527,6 +1528,23 @@
     "创作一张图片": "创作一张图片",
     "编辑我的照片": "编辑我的照片",
     "做一组广告素材": "做一组广告素材",
-    "制作 GIF 动画": "制作 GIF 动画"
+    "制作 GIF 动画": "制作 GIF 动画",
+    "Triage {caseId} and explain the tool sequence%2E": "分诊 {caseId}，并解释工具调用顺序。",
+    "Triage {caseId} and show which lookups ran in parallel before the SLA decision%2E": "分诊 {caseId}，并展示 SLA 决策前并行执行了哪些查询。",
+    "Triage {caseId}, request human approval before escalation, then finalize%2E": "分诊 {caseId}，在升级前请求人工审批，然后完成处理。",
+    "Remember that Brightfield Health requires compliance-safe rollout language and wants every customer-facing update to stay plain and factual%2E": "记住 Brightfield Health 的发布措辞需要符合合规要求，所有面向客户的更新都应简明、客观。",
+    "We promised Brightfield a revised launch update by Tuesday after the compliance review%2E Save that and draft the reply%2E": "我们承诺在合规审查后，于周二前向 Brightfield 提供修订后的发布更新。请保存这条信息并起草回复。",
+    "How should I answer if Brightfield asks whether a rollout claim is safe to send to customers today?": "如果 Brightfield 询问今天是否可以向客户发送某项发布声明，我应该如何回复？",
+    "Remember that Northstar needs incident updates with a clear owner and next checkpoint%2E": "记住 Northstar 的事件更新需要明确负责人和下一个检查节点。",
+    "We promised the finance lead an outage summary by Friday%2E Save that and draft a response%2E": "我们承诺在周五前向财务负责人提供故障摘要。请保存这条信息并起草回复。",
+    "How should I answer if Northstar asks for an update on billing-impact investigations?": "如果 Northstar 询问计费影响调查的进展，我应该如何回复？",
+    "Remember that Helio Dev wants root-cause detail and concrete follow-up dates%2E": "记住 Helio Dev 需要详细的根因分析和明确的跟进日期。",
+    "We promised a patch ETA next Tuesday%2E Save that and draft the reply%2E": "我们承诺在下周二提供补丁的预计完成时间。请保存这条信息并起草回复。",
+    "How should I respond if Helio asks for a concise technical status update?": "如果 Helio 要求简洁的技术状态更新，我应该如何回复？",
+    "Remember that Acme Co needs executive-safe status language and legal review on marketing claims%2E": "记住 Acme Co 的状态措辞需要适合管理层阅读，营销声明需要经过法务审核。",
+    "We promised Acme a rewritten launch note after legal review on Monday%2E Save that and reply%2E": "我们承诺在周一法务审核后，向 Acme 提供重写的发布说明。请保存这条信息并回复。",
+    "How should I answer if Acme asks whether a campaign claim is safe to publish?": "如果 Acme 询问某项活动声明是否可以发布，我应该如何回复？",
+    "Open demo": "打开 Demo",
+    "Opening%2E%2E%2E": "正在打开…"
   }
 }

@@ -1,5 +1,6 @@
 {
   "Page": {
+    "404": "404",
     "-inspired agent UX primitives — prompt bar, thinking trace, streaming text, chat, tables, nav, search, and more — rebuilt on top of our shadcn + ai-elements base%2E No source copied; each component is self-contained and can be lifted into any compatible Next%2Ejs + shadcn + ai-elements project%2E": "-inspired agent UX primitives — prompt bar, thinking trace, streaming text, chat, tables, nav, search, and more — rebuilt on top of our shadcn + ai-elements base. No source copied; each component is self-contained and can be lifted into any compatible Next.js + shadcn + ai-elements project.",
     "—": "—",
     ", add the env vars, run the app, and send one message on": ", add the env vars, run the app, and send one message on",
@@ -1527,6 +1528,23 @@
     "创作一张图片": "Create an image",
     "编辑我的照片": "Edit my photo",
     "做一组广告素材": "Create ad assets",
-    "制作 GIF 动画": "Make a GIF"
+    "制作 GIF 动画": "Make a GIF",
+    "Triage {caseId} and explain the tool sequence%2E": "Triage {caseId} and explain the tool sequence.",
+    "Triage {caseId} and show which lookups ran in parallel before the SLA decision%2E": "Triage {caseId} and show which lookups ran in parallel before the SLA decision.",
+    "Triage {caseId}, request human approval before escalation, then finalize%2E": "Triage {caseId}, request human approval before escalation, then finalize.",
+    "Remember that Brightfield Health requires compliance-safe rollout language and wants every customer-facing update to stay plain and factual%2E": "Remember that Brightfield Health requires compliance-safe rollout language and wants every customer-facing update to stay plain and factual.",
+    "We promised Brightfield a revised launch update by Tuesday after the compliance review%2E Save that and draft the reply%2E": "We promised Brightfield a revised launch update by Tuesday after the compliance review. Save that and draft the reply.",
+    "How should I answer if Brightfield asks whether a rollout claim is safe to send to customers today?": "How should I answer if Brightfield asks whether a rollout claim is safe to send to customers today?",
+    "Remember that Northstar needs incident updates with a clear owner and next checkpoint%2E": "Remember that Northstar needs incident updates with a clear owner and next checkpoint.",
+    "We promised the finance lead an outage summary by Friday%2E Save that and draft a response%2E": "We promised the finance lead an outage summary by Friday. Save that and draft a response.",
+    "How should I answer if Northstar asks for an update on billing-impact investigations?": "How should I answer if Northstar asks for an update on billing-impact investigations?",
+    "Remember that Helio Dev wants root-cause detail and concrete follow-up dates%2E": "Remember that Helio Dev wants root-cause detail and concrete follow-up dates.",
+    "We promised a patch ETA next Tuesday%2E Save that and draft the reply%2E": "We promised a patch ETA next Tuesday. Save that and draft the reply.",
+    "How should I respond if Helio asks for a concise technical status update?": "How should I respond if Helio asks for a concise technical status update?",
+    "Remember that Acme Co needs executive-safe status language and legal review on marketing claims%2E": "Remember that Acme Co needs executive-safe status language and legal review on marketing claims.",
+    "We promised Acme a rewritten launch note after legal review on Monday%2E Save that and reply%2E": "We promised Acme a rewritten launch note after legal review on Monday. Save that and reply.",
+    "How should I answer if Acme asks whether a campaign claim is safe to publish?": "How should I answer if Acme asks whether a campaign claim is safe to publish?",
+    "Open demo": "Open demo",
+    "Opening%2E%2E%2E": "Opening..."
   }
 }

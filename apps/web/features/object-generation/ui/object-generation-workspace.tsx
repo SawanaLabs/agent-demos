@@ -191,7 +191,7 @@ export function ObjectGenerationWorkspace({
                 {composerError ? (
                   <ConversationErrorMessage
                     error={composerError}
-                    title={pageCopy("Message could not be sent")}
+                    title={"Message could not be sent"}
                   />
                 ) : null}
               </>

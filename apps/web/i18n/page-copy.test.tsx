@@ -46,7 +46,11 @@ describe("page copy boundary", () => {
   ] as const)("renders %s with next-intl while preserving conversation content", (locale, messages, retry, canvas) => {
     expect(
       renderToStaticMarkup(
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+          timeZone="UTC"
+        >
           <SitePageCopy>
             <button type="button">
               <PageText>Retry</PageText>

@@ -68,12 +68,12 @@ import {
 } from "ai";
 import { type ReactNode, useMemo } from "react";
 import { PageText, usePageCopy } from "@/components/page-copy";
-
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
 import {
   ConversationErrorMessage,
   useConversationErrorRetry,
 } from "@/features/shared/chat/ui/conversation-error-message";
+import { getLoopAgentSamplePrompts } from "./loop-agent-sample-prompts";
 import { useLoopAgentChat } from "./use-loop-agent-chat";
 
 function getTextContent(message: UIMessage) {
@@ -410,12 +410,8 @@ export function LoopAgentWorkspace({
     regenerate,
   });
   const samplePrompts = useMemo(
-    () => [
-      `Triage ${triage.caseId} and explain the tool sequence.`,
-      `Triage ${triage.caseId} and show which lookups ran in parallel before the SLA decision.`,
-      `Triage ${triage.caseId}, request human approval before escalation, then finalize.`,
-    ],
-    [triage.caseId]
+    () => getLoopAgentSamplePrompts(triage.caseId, pageCopy),
+    [pageCopy, triage.caseId]
   );
 
   return (
@@ -533,7 +529,7 @@ export function LoopAgentWorkspace({
 
             {hasMessages ? null : (
               <div className="mt-3 flex flex-wrap gap-2">
-                {samplePrompts.map((prompt) => (
+                {samplePrompts.map(({ prompt, label }) => (
                   <Button
                     key={prompt}
                     onClick={() => sendMessage({ text: prompt })}
@@ -542,7 +538,7 @@ export function LoopAgentWorkspace({
                     variant="outline"
                   >
                     <WrenchIcon className="size-3.5" />
-                    <PageText>{prompt}</PageText>
+                    {label}
                   </Button>
                 ))}
               </div>

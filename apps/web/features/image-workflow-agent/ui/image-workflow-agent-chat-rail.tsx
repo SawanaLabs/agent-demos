@@ -256,7 +256,7 @@ export function ImageWorkflowAgentChatRail({
           {manualError && !isManualRunPending ? (
             <ConversationErrorMessage
               error={manualError}
-              title={pageCopy("Workflow action failed")}
+              title={"Workflow action failed"}
             />
           ) : null}
         </ConversationContent>

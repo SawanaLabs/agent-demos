@@ -66,7 +66,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 | ./generative-ui.md | Generative UI | Stable conventions for the Generative UI Agent Demo. | 2026-06-15 |
 | ./homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-09-21 |
 | ./image-workflow-agent.md | Image Workflow Agent | Stable UI, route, and copy-boundary conventions for the image workflow canvas demo. | 2026-08-20 |
-| ./langgraph-agent.md | LangGraph Agent | Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo. | 2026-06-04 |
+| ./langgraph-agent.md | LangGraph Agent | Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo. | 2026-10-28 |
 | ./loop-agent.md | Loop Agent | Stable UI, reasoning-display, and HITL conventions for the loop-agent support triage demo. | 2026-05-24 |
 | ./mcp-agent.md | MCP Agent | Stable source-core and UX conventions for the MCP Runtime Doctor Agent demo. | 2026-06-11 |
 | ./minimal-chat-agent.md | Minimal Chat Agent | Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output. | 2026-09-20 |

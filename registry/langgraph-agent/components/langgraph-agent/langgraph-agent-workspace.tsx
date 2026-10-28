@@ -318,6 +318,19 @@ export function LangGraphAgentWorkspace({
                     </Message>
                   );
                 })}
+                {isBusy && messages.at(-1)?.role === "user" ? (
+                  <Message
+                    aria-label="LangGraph is thinking"
+                    from="assistant"
+                    role="status"
+                  >
+                    <MessageContent>
+                      <Shimmer className="text-sm" duration={1}>
+                        Thinking through LangGraph...
+                      </Shimmer>
+                    </MessageContent>
+                  </Message>
+                ) : null}
                 {error ? (
                   <ConversationErrorMessage
                     error={error}

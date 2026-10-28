@@ -36,7 +36,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/homepage-gallery.md | Homepage Gallery | Durable conventions for the homepage surface that presents agent demos. | 2026-09-21 |
 | ./frontend/image-workflow-agent.md | Image Workflow Agent | Stable UI, route, and copy-boundary conventions for the image workflow canvas demo. | 2026-08-20 |
 | ./frontend/index.md | Frontend | Navigation for Next.js app and shared UI package conventions. | 2026-06-16 |
-| ./frontend/langgraph-agent.md | LangGraph Agent | Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo. | 2026-06-04 |
+| ./frontend/langgraph-agent.md | LangGraph Agent | Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo. | 2026-10-28 |
 | ./frontend/loop-agent.md | Loop Agent | Stable UI, reasoning-display, and HITL conventions for the loop-agent support triage demo. | 2026-05-24 |
 | ./frontend/mcp-agent.md | MCP Agent | Stable source-core and UX conventions for the MCP Runtime Doctor Agent demo. | 2026-06-11 |
 | ./frontend/minimal-chat-agent.md | Minimal Chat Agent | Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output. | 2026-09-20 |

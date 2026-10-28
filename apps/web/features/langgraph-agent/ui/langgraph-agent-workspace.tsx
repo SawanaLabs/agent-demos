@@ -341,6 +341,19 @@ export function LangGraphAgentWorkspace({
                     </Message>
                   );
                 })}
+                {isBusy && messages.at(-1)?.role === "user" ? (
+                  <Message
+                    aria-label={pageCopy("Thinking through LangGraph...")}
+                    from="assistant"
+                    role="status"
+                  >
+                    <MessageContent>
+                      <Shimmer className="text-sm" duration={1}>
+                        {pageCopy("Thinking through LangGraph...")}
+                      </Shimmer>
+                    </MessageContent>
+                  </Message>
+                ) : null}
                 {error ? (
                   <ConversationErrorMessage
                     error={error}

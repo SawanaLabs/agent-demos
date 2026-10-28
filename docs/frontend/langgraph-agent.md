@@ -1,7 +1,7 @@
 ---
 title: LangGraph Agent
 description: Durable conventions for the LangChain/LangGraph plus Next.js, AI SDK, and AI Elements demo.
-updateAt: 2026-06-04
+updateAt: 2026-10-28
 ---
 
 # LangGraph Agent
@@ -58,6 +58,7 @@ updateAt: 2026-06-04
 - Use Vercel AI Gateway for LangChain model access when possible. The current Vercel LangChain integration configures `ChatOpenAI` with an AI Gateway API key and `configuration.baseURL`.
 - Keep any new environment variables behind feature-local `keys.ts` and `env.ts`; do not scatter direct `process.env` access through graph nodes or UI code.
 - Render graph telemetry as secondary evidence. The main conversation should still prioritize the user-facing answer, with node updates, checkpoint state, interrupts, tool calls, and traces in a side panel or collapsible region.
+- Show assistant-side Thinking immediately while a submitted or streaming turn still ends with a user message. Hand it over to the assistant trace when the first assistant message arrives, and remove it when the request stops or fails. Keep this pending indicator transient and independent of remote graph events or previous-turn progress.
 - Use a three-stage capability plan. V1 is visual graph progress plus streaming answer. V2 is checkpoint/thread resume after persistence boundaries are explicit. V3 is human-in-the-loop interrupt and approval/resume UX.
 - Keep v1 focused on showing that a remote Python LangGraph agent can stream through the official contract into a product-quality frontend. Do not pull durable resume or approval workflows into v1 unless the user explicitly reopens scope.
 - Treat v1 as an official-docs integration spike before product scenario design. The first acceptance target is end-to-end capability: Python LangGraph Agent Server `/runs/stream` -> Next.js adapter -> AI SDK UI stream/data parts -> AI Elements message and graph-progress UI.

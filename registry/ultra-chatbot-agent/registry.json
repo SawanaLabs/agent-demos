@@ -243,6 +243,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/ultra-chatbot-agent/resume-pending-state.ts",
           "type": "registry:component",
           "target": "@components/ultra-chatbot-agent/resume-pending-state.ts"
@@ -776,6 +781,11 @@
           "path": "lib/ultra-chatbot-agent/skills-agent/server/workspace.ts",
           "type": "registry:lib",
           "target": "@lib/ultra-chatbot-agent/skills-agent/server/workspace.ts"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         }
       ],
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure AI Gateway, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families."

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -46,6 +45,7 @@ import {
   StarIcon,
   WorkflowIcon,
 } from "lucide-react";
+import { DemoConversation } from "@/components/demo-conversation";
 
 import {
   ConversationErrorMessage,
@@ -244,7 +244,7 @@ export function MinimalChatAgentWorkspace({
           </>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -343,7 +343,7 @@ export function MinimalChatAgentWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <Separator />
         <div className="px-4 py-4">

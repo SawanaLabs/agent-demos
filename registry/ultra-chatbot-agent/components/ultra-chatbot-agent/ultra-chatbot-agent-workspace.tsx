@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoConversation } from "@/components/demo-conversation";
 /* eslint-disable react-hooks/refs, react-hooks/set-state-in-effect */
 
 import { useChat } from "@ai-sdk/react";
@@ -10,7 +11,6 @@ import {
   RobotIcon,
 } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -825,7 +825,7 @@ export function UltraChatbotAgentWorkspace({
           </div>
         </div>
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -886,7 +886,7 @@ export function UltraChatbotAgentWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">

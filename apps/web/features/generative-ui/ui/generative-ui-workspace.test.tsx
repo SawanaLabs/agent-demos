@@ -1,6 +1,7 @@
 import type { UIMessage } from "ai";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { GenerativeUiAssistantMessage } from "./generative-ui-workspace";
 
@@ -40,7 +41,9 @@ describe("GenerativeUiAssistantMessage", () => {
     };
 
     const markup = renderToStaticMarkup(
-      <GenerativeUiAssistantMessage isStreaming={false} message={message} />
+      <DemoSession>
+        <GenerativeUiAssistantMessage isStreaming={false} message={message} />
+      </DemoSession>
     );
     const reasoningIndex = markup.indexOf("Thought for a few seconds");
     const toolOutputIndex = markup.indexOf("Feature comparison tool output");
@@ -75,7 +78,9 @@ describe("GenerativeUiAssistantMessage", () => {
     };
 
     const markup = renderToStaticMarkup(
-      <GenerativeUiAssistantMessage isStreaming message={message} />
+      <DemoSession>
+        <GenerativeUiAssistantMessage isStreaming message={message} />
+      </DemoSession>
     );
 
     expect(markup).toContain("Feature comparison tool output");
@@ -114,7 +119,9 @@ describe("GenerativeUiAssistantMessage", () => {
     };
 
     const markup = renderToStaticMarkup(
-      <GenerativeUiAssistantMessage isStreaming={false} message={message} />
+      <DemoSession>
+        <GenerativeUiAssistantMessage isStreaming={false} message={message} />
+      </DemoSession>
     );
 
     expect(markup).not.toContain("Thought for a few seconds");

@@ -3,7 +3,6 @@ import { Button } from "@workspace/ui/components/button";
 import {
   DownloadIcon,
   PlayIcon,
-  PlusIcon,
   SlashIcon,
   UploadIcon,
   WorkflowIcon,
@@ -51,16 +50,6 @@ export function CanvasHeader({
         </div>
       </div>
       <div className="ml-14 flex items-center gap-1 sm:ml-3">
-        <Button
-          aria-label="新建画布"
-          disabled={file.busy}
-          onClick={file.newCanvas}
-          size="sm"
-          variant="ghost"
-        >
-          <PlusIcon className="size-4" />
-          <span className="hidden sm:inline">新建</span>
-        </Button>
         <Button
           aria-label="打开工作流"
           disabled={file.busy}

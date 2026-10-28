@@ -15,7 +15,6 @@ import {
   Attachments,
 } from "@workspace/ui/components/ai-elements/attachments";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -38,6 +37,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import type { RefObject } from "react";
 
+import { DemoConversation } from "@/components/demo-conversation";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import {
@@ -75,7 +75,7 @@ function MultimodalConversation({
   const hasErrors = Boolean(chatErrorMessage || composerError);
 
   return (
-    <Conversation className="min-h-0">
+    <DemoConversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
         {hasMessages || hasErrors ? (
           <>
@@ -105,7 +105,7 @@ function MultimodalConversation({
         )}
       </ConversationContent>
       <ConversationScrollButton />
-    </Conversation>
+    </DemoConversation>
   );
 }
 
@@ -391,7 +391,7 @@ export function MultimodalChatbotWorkspace({
 
   return (
     <div className="grid min-h-[70svh] gap-4 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <section className="flex min-h-[70svh] flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
+      <section className="flex min-h-[70svh] min-w-0 flex-col border border-foreground/10 bg-background lg:h-full lg:min-h-0">
         {isChatAvailable ? null : (
           <div className="border-foreground/10 border-b px-4 py-3 text-muted-foreground text-xs/relaxed">
             {setupMessage}

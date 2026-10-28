@@ -7,6 +7,7 @@ import type { UIMessage } from "ai";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import {
   appendPreviewHistory,
@@ -169,11 +170,13 @@ describe("sandbox-agent workspace UI", () => {
 
   it("keeps the console chevron unrotated while the console is collapsed", () => {
     const markup = renderToStaticMarkup(
-      createElement(
-        WebPreview,
-        null,
-        createElement(WebPreviewConsole, { logs: [] })
-      )
+      <DemoSession>
+        {createElement(
+          WebPreview,
+          null,
+          createElement(WebPreviewConsole, { logs: [] })
+        )}
+      </DemoSession>
     );
 
     expect(markup).not.toContain("rotate-180");
@@ -183,25 +186,27 @@ describe("sandbox-agent workspace UI", () => {
     const samplePrompt =
       "Build a pricing landing page with an interactive calculator and start a live preview.";
     const markup = renderToStaticMarkup(
-      createElement(
-        Tabs,
-        { value: "conversation" },
-        createElement(SandboxConversationPane, {
-          chatModel: "openai/gpt-5-mini",
-          error: null,
-          hasMessages: false,
-          isBusy: false,
-          isChatAvailable: false,
-          messages: [],
-          onOpenPreview: () => undefined,
-          onRetryError: () => undefined,
-          onRegenerate: () => undefined,
-          onSendMessage: () => undefined,
-          onStop: () => undefined,
-          samplePrompts: [samplePrompt],
-          status: "ready",
-        })
-      )
+      <DemoSession>
+        {createElement(
+          Tabs,
+          { value: "conversation" },
+          createElement(SandboxConversationPane, {
+            chatModel: "openai/gpt-5-mini",
+            error: null,
+            hasMessages: false,
+            isBusy: false,
+            isChatAvailable: false,
+            messages: [],
+            onOpenPreview: () => undefined,
+            onRetryError: () => undefined,
+            onRegenerate: () => undefined,
+            onSendMessage: () => undefined,
+            onStop: () => undefined,
+            samplePrompts: [samplePrompt],
+            status: "ready",
+          })
+        )}
+      </DemoSession>
     );
     const promptIndex = markup.indexOf(samplePrompt);
     const buttonStart = markup.lastIndexOf("<button", promptIndex);

@@ -8,7 +8,6 @@ import {
 } from "@phosphor-icons/react";
 import { Checkpoint } from "@workspace/ui/components/ai-elements/checkpoint";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -39,6 +38,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
+import { DemoConversation } from "@/components/demo-conversation";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -263,7 +263,7 @@ function CustomerMemoryConversation({
   sessionErrorMessage: string | null;
 }) {
   return (
-    <Conversation className="min-h-0">
+    <DemoConversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
         <CustomerMemoryConversationContent
           chatErrorMessage={chatErrorMessage}
@@ -277,7 +277,7 @@ function CustomerMemoryConversation({
         />
       </ConversationContent>
       <ConversationScrollButton />
-    </Conversation>
+    </DemoConversation>
   );
 }
 

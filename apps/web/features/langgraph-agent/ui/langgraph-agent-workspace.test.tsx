@@ -2,6 +2,7 @@ import type { ChatStatus } from "ai";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { LangGraphAgentWorkspace } from "./langgraph-agent-workspace";
 import type { LangGraphAgentMessage } from "./use-langgraph-agent";
@@ -44,14 +45,16 @@ vi.mock("./use-langgraph-agent", () => ({
 
 function createWorkspaceMarkup() {
   return renderToStaticMarkup(
-    createElement(LangGraphAgentWorkspace, {
-      assistantId: null,
-      isChatAvailable: false,
-      nodeVersion: "Node v24.14.0",
-      remoteUrl: null,
-      setupMessage:
-        "LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo.",
-    })
+    <DemoSession>
+      {createElement(LangGraphAgentWorkspace, {
+        assistantId: null,
+        isChatAvailable: false,
+        nodeVersion: "Node v24.14.0",
+        remoteUrl: null,
+        setupMessage:
+          "LANGGRAPH_AGENT_API_URL is missing. Point it at a LangGraph Agent Server before using this demo.",
+      })}
+    </DemoSession>
   );
 }
 

@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 import { ObjectGenerationWorkspace } from "./object-generation-workspace";
 import type { ObjectGenerationSessionController } from "./use-object-generation-session";
 
@@ -61,13 +62,15 @@ describe("ObjectGenerationWorkspace", () => {
 
   it("labels the completed-run action as a new regeneration, not an audit replay", () => {
     const markup = renderToStaticMarkup(
-      <ObjectGenerationWorkspace
-        acceptedMediaTypes={["application/pdf", "image/*"]}
-        chatModel="gpt-5-mini"
-        isReviewAvailable
-        nodeVersion="v24.0.0"
-        setupMessage={null}
-      />
+      <DemoSession>
+        <ObjectGenerationWorkspace
+          acceptedMediaTypes={["application/pdf", "image/*"]}
+          chatModel="gpt-5-mini"
+          isReviewAvailable
+          nodeVersion="v24.0.0"
+          setupMessage={null}
+        />
+      </DemoSession>
     );
 
     expect(markup).toContain("Regenerate object");
@@ -86,13 +89,15 @@ describe("ObjectGenerationWorkspace", () => {
     );
 
     const markup = renderToStaticMarkup(
-      <ObjectGenerationWorkspace
-        acceptedMediaTypes={["application/pdf", "image/*"]}
-        chatModel="gpt-5-mini"
-        isReviewAvailable
-        nodeVersion="v24.0.0"
-        setupMessage={null}
-      />
+      <DemoSession>
+        <ObjectGenerationWorkspace
+          acceptedMediaTypes={["application/pdf", "image/*"]}
+          chatModel="gpt-5-mini"
+          isReviewAvailable
+          nodeVersion="v24.0.0"
+          setupMessage={null}
+        />
+      </DemoSession>
     );
 
     expect(markup).toContain("grid-cols-[minmax(0,1fr)]");

@@ -146,6 +146,11 @@
           "path": "lib/generative-ui/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/generative-ui/runtime.ts"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         }
       ],
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs a chat route, AI SDK UI message rendering, OpenAI hosted web search through AI Gateway, and two custom tool-output components for comparison and recommendation outputs."

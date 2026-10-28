@@ -2,6 +2,7 @@ import type { UIMessage } from "ai";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { SkillsAgentWorkspace } from "./skills-agent-workspace";
 
@@ -37,20 +38,22 @@ vi.mock("./use-skills-agent-chat", () => ({
 
 function createWorkspaceMarkup() {
   return renderToStaticMarkup(
-    createElement(SkillsAgentWorkspace, {
-      availableSkills: [
-        {
-          description: "Challenge an idea until project context is durable.",
-          name: "grill-with-docs",
-        },
-      ],
-      chatModel: "openai/gpt-5-mini",
-      environmentLabel: "Node 24 + uv Python 3.13",
-      isChatAvailable: false,
-      sandboxProvider: "Vercel Sandbox",
-      setupMessage:
-        "AI_GATEWAY_API_KEY is missing. The demo can render, but skills-agent chat requests will fail until it is configured.",
-    })
+    <DemoSession>
+      {createElement(SkillsAgentWorkspace, {
+        availableSkills: [
+          {
+            description: "Challenge an idea until project context is durable.",
+            name: "grill-with-docs",
+          },
+        ],
+        chatModel: "openai/gpt-5-mini",
+        environmentLabel: "Node 24 + uv Python 3.13",
+        isChatAvailable: false,
+        sandboxProvider: "Vercel Sandbox",
+        setupMessage:
+          "AI_GATEWAY_API_KEY is missing. The demo can render, but skills-agent chat requests will fail until it is configured.",
+      })}
+    </DemoSession>
   );
 }
 

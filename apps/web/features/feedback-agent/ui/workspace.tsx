@@ -10,7 +10,10 @@ import {
 } from "@workspace/ui/components/card";
 import { Crosshair, ExternalLink, Inbox, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useBeforeDemoSessionReset } from "@/components/demo-session";
+import {
+  DemoSessionResetButton,
+  useBeforeDemoSessionReset,
+} from "@/components/demo-session";
 import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
 import { FeedbackCapture } from "./feedback-capture";
@@ -252,25 +255,14 @@ export function FeedbackWorkspace({
             </div>
           </CardContent>
         </Card>
-        <div className="flex min-h-0 flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-muted-foreground text-sm">
-              {selected
-                ? "Report and captured evidence"
-                : "Try it on this page"}
-            </p>
-            {selected ? (
-              <Button
-                onClick={() => setSelected(null)}
-                size="sm"
-                variant="outline"
-              >
-                Back to sample page
-              </Button>
-            ) : (
-              <Badge variant="outline">Live capture</Badge>
-            )}
-          </div>
+        <div
+          className="flex min-h-0 flex-col gap-3"
+          data-demo-session-workspace=""
+        >
+          <FeedbackWorkspaceHeader
+            isReportOpen={selected !== null}
+            onBack={() => setSelected(null)}
+          />
           {available ? null : (
             <p role="status">The feedback inbox is unavailable.</p>
           )}
@@ -294,5 +286,29 @@ export function FeedbackWorkspace({
         </div>
       </div>
     </>
+  );
+}
+
+function FeedbackWorkspaceHeader({
+  isReportOpen,
+  onBack,
+}: {
+  isReportOpen: boolean;
+  onBack: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-3">
+      <p className="mr-auto text-muted-foreground text-sm">
+        {isReportOpen ? "Report and captured evidence" : "Try it on this page"}
+      </p>
+      {isReportOpen ? (
+        <Button onClick={onBack} size="sm" variant="outline">
+          Back to sample page
+        </Button>
+      ) : (
+        <Badge variant="outline">Live capture</Badge>
+      )}
+      <DemoSessionResetButton />
+    </div>
   );
 }

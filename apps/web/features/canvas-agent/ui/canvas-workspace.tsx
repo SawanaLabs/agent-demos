@@ -213,25 +213,10 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             panOnDrag
             selectionOnDrag={false}
           >
-            <Controls
-              fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
-              position="top-left"
-            >
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <ControlButton
-                      aria-label="整理画布"
-                      disabled={c.busy || !flow || graph.nodes.length === 0}
-                      onClick={arrange}
-                    />
-                  }
-                >
-                  <LayoutDashboardIcon />
-                </TooltipTrigger>
-                <TooltipContent side="right">整理画布</TooltipContent>
-              </Tooltip>
-            </Controls>
+            <CanvasArrangeControls
+              disabled={c.busy || !flow || graph.nodes.length === 0}
+              onArrange={arrange}
+            />
           </Canvas>
           <CanvasToolbar add={add} busy={c.busy} />
           <CanvasStartHint controller={c} ready={ready} />
@@ -241,9 +226,44 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             {graph.nodes.length} 个节点 / {graph.edges.length} 条连线 ·
             刷新前请保存文件
           </p>
-          <CanvasChat controller={c} key={c.session} ready={ready} />
+          <CanvasChat
+            controller={c}
+            file={file}
+            key={c.session}
+            ready={ready}
+          />
         </div>
       </div>
     </main>
+  );
+}
+
+function CanvasArrangeControls({
+  disabled,
+  onArrange,
+}: {
+  disabled: boolean;
+  onArrange: () => void;
+}) {
+  return (
+    <Controls
+      fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
+      position="top-left"
+    >
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <ControlButton
+              aria-label="整理画布"
+              disabled={disabled}
+              onClick={onArrange}
+            />
+          }
+        >
+          <LayoutDashboardIcon />
+        </TooltipTrigger>
+        <TooltipContent side="right">整理画布</TooltipContent>
+      </Tooltip>
+    </Controls>
   );
 }

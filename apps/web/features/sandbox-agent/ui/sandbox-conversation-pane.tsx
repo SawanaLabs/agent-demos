@@ -3,7 +3,6 @@
 import type { useChat } from "@ai-sdk/react";
 import { StopIcon, WrenchIcon } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -25,6 +24,7 @@ import { Button } from "@workspace/ui/components/button";
 import { TabsContent } from "@workspace/ui/components/tabs";
 import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
+import { DemoConversation } from "@/components/demo-conversation";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
@@ -65,7 +65,7 @@ export function SandboxConversationPane({
   return (
     <TabsContent className="mt-0 min-h-0 flex-1" value="conversation">
       <div className="flex h-full min-h-0 flex-col">
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-4xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -109,7 +109,7 @@ export function SandboxConversationPane({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-4xl">

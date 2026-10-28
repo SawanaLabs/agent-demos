@@ -60,7 +60,6 @@ export function DemoLoadingShell({
     <DemoWorkspaceShell
       badges={badges}
       breadcrumbTitle={breadcrumbTitle}
-      isSessionResetDisabled
       summary={summary}
       title={title}
       workspaceClassName={workspaceClassName}

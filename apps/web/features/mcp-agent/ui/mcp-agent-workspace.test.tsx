@@ -2,6 +2,7 @@ import type { UIMessage } from "ai";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { configuredMcpServers, configuredMcpTools } from "../server/runtime";
 import { McpAgentWorkspace } from "./mcp-agent-workspace";
@@ -38,15 +39,17 @@ vi.mock("./use-mcp-agent-chat", () => ({
 
 function createWorkspaceMarkup() {
   return renderToStaticMarkup(
-    createElement(McpAgentWorkspace, {
-      chatModel: "openai/gpt-5-mini",
-      configuredServers: configuredMcpServers,
-      configuredTools: configuredMcpTools,
-      isChatAvailable: false,
-      nodeVersion: "Node v24.14.0",
-      setupMessage:
-        "AI_GATEWAY_API_KEY is missing. The demo can render, but MCP agent chat requests will fail until it is configured.",
-    })
+    <DemoSession>
+      {createElement(McpAgentWorkspace, {
+        chatModel: "openai/gpt-5-mini",
+        configuredServers: configuredMcpServers,
+        configuredTools: configuredMcpTools,
+        isChatAvailable: false,
+        nodeVersion: "Node v24.14.0",
+        setupMessage:
+          "AI_GATEWAY_API_KEY is missing. The demo can render, but MCP agent chat requests will fail until it is configured.",
+      })}
+    </DemoSession>
   );
 }
 

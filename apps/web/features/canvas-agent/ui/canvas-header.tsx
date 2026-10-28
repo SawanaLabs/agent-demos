@@ -3,7 +3,6 @@ import { Button } from "@workspace/ui/components/button";
 import {
   DownloadIcon,
   PlayIcon,
-  RotateCcwIcon,
   SlashIcon,
   UploadIcon,
   WorkflowIcon,
@@ -78,16 +77,6 @@ export function CanvasHeader({
         >
           <PlayIcon className="size-4" />
           {c.busy ? "运行中" : "运行工作流"}
-        </Button>
-        <Button
-          disabled={file.busy}
-          onClick={file.newCanvas}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          <RotateCcwIcon aria-hidden="true" className="size-4" />
-          清空会话
         </Button>
       </div>
       <input

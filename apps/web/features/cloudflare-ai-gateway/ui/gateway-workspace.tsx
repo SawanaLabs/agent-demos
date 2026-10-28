@@ -5,6 +5,7 @@ import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { Textarea } from "@workspace/ui/components/textarea";
 import Image from "next/image";
+import { DemoSessionResetButton } from "@/components/demo-session";
 import type { GatewaySetup } from "../contract";
 import { GatewayResults } from "./gateway-results";
 import { useGatewayWorkspace } from "./use-gateway-workspace";
@@ -18,8 +19,12 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
       <form
         className="flex min-h-0 flex-col gap-5 overflow-y-auto border border-border bg-card p-5"
+        data-demo-session-workspace=""
         onSubmit={state.generate}
       >
+        <div className="flex justify-end">
+          <DemoSessionResetButton />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="gateway-model">Model</Label>
           <select

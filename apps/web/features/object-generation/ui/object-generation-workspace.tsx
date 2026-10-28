@@ -14,7 +14,6 @@ import {
   Attachments,
 } from "@workspace/ui/components/ai-elements/attachments";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -37,6 +36,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { FileUIPart } from "ai";
 import { useMemo, useRef } from "react";
 
+import { DemoConversation } from "@/components/demo-conversation";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import { ObjectGenerationResultCard } from "./object-generation-result-card";
@@ -106,7 +106,7 @@ export function ObjectGenerationWorkspace({
           </div>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || hasConversationErrors ? (
               <>
@@ -195,7 +195,7 @@ export function ObjectGenerationWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">

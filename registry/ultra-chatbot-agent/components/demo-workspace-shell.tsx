@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
-import { DemoSession, DemoSessionResetButton } from "@/components/demo-session";
+import { DemoSession } from "@/components/demo-session";
 
 type DemoWorkspaceHeaderFrame = "header" | "card";
 
@@ -16,7 +16,6 @@ interface DemoWorkspaceShellProps {
   contentClassName?: string;
   headerClassName?: string;
   headerFrame?: DemoWorkspaceHeaderFrame;
-  isSessionResetDisabled?: boolean;
   maxWidthClassName?: string;
   sessionResetHref?: string;
   summary: ReactNode;
@@ -27,10 +26,10 @@ interface DemoWorkspaceShellProps {
 }
 
 const defaultHeaderClassName =
-  "flex flex-col gap-4 border border-foreground/10 bg-background px-4 py-5";
+  "grid gap-4 border border-foreground/10 bg-background px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end";
 
 const cardHeaderClassName =
-  "flex flex-col gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal";
+  "grid gap-4 bg-background px-4 py-5 text-base text-foreground leading-normal md:grid-cols-[minmax(0,1fr)_auto] md:items-end";
 
 export function DemoWorkspaceShell({
   badges = [],
@@ -40,7 +39,6 @@ export function DemoWorkspaceShell({
   contentClassName,
   headerClassName,
   headerFrame = "header",
-  isSessionResetDisabled = false,
   maxWidthClassName = "max-w-7xl",
   sessionResetHref,
   summary,
@@ -52,13 +50,10 @@ export function DemoWorkspaceShell({
   const headerContent = (
     <>
       <div className="min-w-0 space-y-2">
-        <div className="flex items-start justify-between gap-4">
-          <DemoBreadcrumb
-            className={breadcrumbClassName}
-            title={breadcrumbTitle ?? title}
-          />
-          <DemoSessionResetButton disabled={isSessionResetDisabled} />
-        </div>
+        <DemoBreadcrumb
+          className={breadcrumbClassName}
+          title={breadcrumbTitle ?? title}
+        />
         <h1
           className={cn("font-medium text-2xl tracking-tight", titleClassName)}
         >

@@ -15,7 +15,6 @@ import {
   Attachments,
 } from "@workspace/ui/components/ai-elements/attachments";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -38,6 +37,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { ChatStatus, UIMessage } from "ai";
 import type { RefObject } from "react";
 
+import { DemoConversation } from "@/components/demo-conversation";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import {
@@ -75,7 +75,7 @@ function MultimodalConversation({
   const hasErrors = Boolean(chatErrorMessage || composerError);
 
   return (
-    <Conversation className="min-h-0">
+    <DemoConversation className="min-h-0">
       <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
         {hasMessages || hasErrors ? (
           <>
@@ -105,7 +105,7 @@ function MultimodalConversation({
         )}
       </ConversationContent>
       <ConversationScrollButton />
-    </Conversation>
+    </DemoConversation>
   );
 }
 

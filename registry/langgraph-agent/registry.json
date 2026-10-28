@@ -128,6 +128,11 @@
           "path": "lib/langgraph-agent/server/stream-normalizer.ts",
           "type": "registry:lib",
           "target": "@lib/langgraph-agent/server/stream-normalizer.ts"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         }
       ],
       "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item installs the LangGraph Agent frontend and Next.js proxy route only; run a Python LangGraph backend separately from https://github.com/SawanaLabs/agent-demos/tree/main/apps/langgraph-agent-api. Local-first backend setup uses http://localhost:2024 with LANGGRAPH_AGENT_ASSISTANT_ID=agent and a shared LANGGRAPH_AGENT_API_KEY. The same backend folder also includes a Vercel FastAPI entry for deployment."

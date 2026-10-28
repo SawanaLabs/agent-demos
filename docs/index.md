@@ -43,7 +43,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/multimodal-chatbot.md | Multi-Modal Chatbot | Durable conventions for the image and PDF chat demo, including local QA boundaries for page-render hangs. | 2026-06-02 |
 | ./frontend/openai-agents-sdk-demo.md | OpenAI Agents SDK Demo | Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway. | 2026-06-16 |
 | ./frontend/persistent-agent.md | Persistent & Resume Agent | Batch 6.5 rules for URL-backed chat persistence, visitor isolation, and resumable streams. | 2026-06-01 |
-| ./frontend/project-guide-companion.md | Project Guide Companion | Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface. | 2026-06-16 |
+| ./frontend/project-guide-companion.md | Project Guide Companion | Site-owned companion chatbot boundary, page visibility policy, session history policy, model selector, and Project Docs MCP answer surface. | 2026-10-28 |
 | ./frontend/rag-chatbot.md | RAG Chatbot | Stable source-core, indexing, retrieval, and grounded-answer conventions for the RAG Chatbot demo. | 2026-06-08 |
 | ./frontend/registry-sync.md | Registry Sync | Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries. | 2026-06-04 |
 | ./frontend/sandbox-agent.md | Sandbox Agent | Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo. | 2026-06-03 |
@@ -69,6 +69,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./quality/resource-abuse-privacy-review.md | Resource Abuse and Privacy Review | Focused review boundary for protecting provider spend, hosted resources, private demo data, and project code integrity. | 2026-06-04 |
 | ./quality/ultracite.md | Ultracite | Durable conventions for the repository's Ultracite and Biome quality gate. | 2026-06-08 |
 | ./repo/DOCS.md | Repo Knowledge Protocol | Domain-level language, reading path, and boundary principles for repository layout and workspace workflow. | 2026-05-26 |
+| ./repo/branch-preview-review.md | Branch Preview Review | Use Vercel-generated branch URLs as the standard review surface for new Agent Demos and pre-merge checks. | 2026-09-26 |
 | ./repo/branch-workflow.md | Branch Workflow | Durable conventions for dedicated worker branches and the pull-request path into main. | 2026-09-24 |
 | ./repo/database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./repo/index.md | Repo | Navigation for repository layout and workflow knowledge. | 2026-05-21 |

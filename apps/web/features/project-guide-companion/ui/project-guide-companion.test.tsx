@@ -117,19 +117,16 @@ describe("ProjectGuideCompanionLauncher", () => {
     );
   }
 
-  it("keeps the Ask AI label visible from the tablet breakpoint upward", () => {
+  it("keeps the Ask AI label visible after the greeting is dismissed", () => {
     const markup = renderLauncher(false);
 
-    expect(markup).toContain("Ask AI");
-    expect(markup).toContain("hidden sm:inline");
+    expect(markup).toContain("<span>Ask AI</span>");
   });
 
-  it("shows the Ask AI label on mobile only while the first-session reveal is visible", () => {
+  it("keeps the Ask AI label visible during the first-session greeting", () => {
     const revealedMarkup = renderLauncher(true);
-    const collapsedMarkup = renderLauncher(false);
 
-    expect(revealedMarkup).toContain("inline sm:inline");
-    expect(collapsedMarkup).toContain("hidden sm:inline");
+    expect(revealedMarkup).toContain("<span>Ask AI</span>");
   });
 });
 
@@ -193,7 +190,7 @@ describe("ProjectGuideCompanionPanel", () => {
       />
     );
 
-    expect(markup).toContain("GLM-5");
+    expect(markup).toContain("GPT-5.6 Luna");
     expect(markup).not.toContain(">Project docs</span>");
   });
 

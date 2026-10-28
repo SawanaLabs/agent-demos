@@ -325,9 +325,7 @@ export function ProjectGuideCompanionLauncher({
         type="button"
       >
         <Compass className={surface === "demo" ? "size-4" : "size-5"} />
-        <span className={cn(showReveal ? "inline" : "hidden", "sm:inline")}>
-          Ask AI
-        </span>
+        <span>Ask AI</span>
       </Button>
     </>
   );

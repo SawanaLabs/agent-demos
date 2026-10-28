@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
+import { DemoSessionResetButton } from "@/components/demo-session";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import type { GatewaySetup } from "@/lib/cloudflare-ai-gateway/contract";
 import { GatewayResults } from "./gateway-results";
@@ -21,8 +22,12 @@ export function GatewayWorkspace({ setup }: { setup: GatewaySetup }) {
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
       <form
         className="flex min-h-0 flex-col gap-5 overflow-y-auto border border-border bg-card p-5"
+        data-demo-session-workspace=""
         onSubmit={state.generate}
       >
+        <div className="flex justify-end">
+          <DemoSessionResetButton />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="gateway-model">
             <PageText>{"Model"}</PageText>

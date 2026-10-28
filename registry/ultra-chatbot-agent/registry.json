@@ -243,6 +243,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/ultra-chatbot-agent/resume-pending-state.ts",
           "type": "registry:component",
           "target": "@components/ultra-chatbot-agent/resume-pending-state.ts"
@@ -776,6 +781,11 @@
           "path": "lib/ultra-chatbot-agent/skills-agent/server/workspace.ts",
           "type": "registry:lib",
           "target": "@lib/ultra-chatbot-agent/skills-agent/server/workspace.ts"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "components/page-copy.tsx",

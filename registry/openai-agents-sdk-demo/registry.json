@@ -99,6 +99,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
@@ -332,6 +337,11 @@
           "path": "docs/frontend/openai-agents-sdk-demo.md",
           "type": "registry:file",
           "target": "docs/frontend/openai-agents-sdk-demo.md"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "components/page-copy.tsx",

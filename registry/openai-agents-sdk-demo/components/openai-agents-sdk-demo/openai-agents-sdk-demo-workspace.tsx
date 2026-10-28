@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoConversation } from "@/components/demo-conversation";
 import { Chat } from "@ai-sdk/react";
 import {
   ArrowClockwiseIcon,
@@ -25,7 +26,6 @@ import {
   ConfirmationTitle,
 } from "@/components/ai-elements/confirmation";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -609,7 +609,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
           </div>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages ? (
               messages.map((message, index) => {
@@ -731,7 +731,7 @@ export function OpenAiAgentsSdkDemoWorkspace({
             ) : null}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">

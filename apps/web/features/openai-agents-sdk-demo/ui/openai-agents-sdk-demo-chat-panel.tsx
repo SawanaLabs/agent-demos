@@ -2,7 +2,6 @@
 
 import { ArrowClockwiseIcon, RobotIcon, StopIcon } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -28,6 +27,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { ChatAddToolApproveResponseFunction, ChatStatus } from "ai";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
 
 import type { OpenAiAgentsSdkDemoMessage } from "../message-metadata";
@@ -97,7 +97,7 @@ export function OpenAiAgentsSdkDemoChatPanel({
         </div>
       )}
 
-      <Conversation className="min-h-0">
+      <DemoConversation className="min-h-0">
         <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
           {hasMessages ? (
             <OpenAiAgentsSdkDemoMessageList
@@ -122,7 +122,7 @@ export function OpenAiAgentsSdkDemoChatPanel({
           ) : null}
         </ConversationContent>
         <ConversationScrollButton />
-      </Conversation>
+      </DemoConversation>
 
       <OpenAiAgentsSdkDemoComposer
         chatModel={chatModel}

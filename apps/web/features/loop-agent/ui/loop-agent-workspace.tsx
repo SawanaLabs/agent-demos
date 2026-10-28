@@ -26,7 +26,6 @@ import {
   ConfirmationTitle,
 } from "@workspace/ui/components/ai-elements/confirmation";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -67,6 +66,8 @@ import {
   type UIMessage,
 } from "ai";
 import { type ReactNode, useMemo } from "react";
+
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import type { SupportTriageResult } from "@/features/loop-agent/server/support-triage";
 import {
@@ -423,7 +424,7 @@ export function LoopAgentWorkspace({
           </div>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -470,7 +471,7 @@ export function LoopAgentWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">

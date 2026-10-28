@@ -8,6 +8,7 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DemoSessionResetButton } from "@/components/demo-session";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import { type ChatPhase, REPLIES, TABS, type UxReply } from "./ux-chat-data";
 
@@ -97,7 +98,11 @@ export function UxChat({ className }: { className?: string }) {
         "flex h-72 w-full max-w-sm flex-col overflow-hidden rounded-xl border bg-card",
         className
       )}
+      data-demo-conversation=""
     >
+      <div className="flex shrink-0 justify-end border-b px-3 py-2">
+        <DemoSessionResetButton />
+      </div>
       <div className="flex shrink-0 items-center justify-between border-b p-1.5">
         <div className="flex items-center">
           {TABS.map((item) => (

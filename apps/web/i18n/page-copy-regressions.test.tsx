@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import RouteErrorPage from "@/app/error";
+import { DemoSession, DemoSessionResetButton } from "@/components/demo-session";
 import { LinkPendingLabel } from "@/components/link-pending-label";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import { getCustomerMemorySamplePrompts } from "@/features/customer-memory-agent/ui/customer-memory-session";
@@ -22,6 +23,26 @@ function LoopPromptLabels() {
 }
 
 describe("localized page regressions", () => {
+  it.each([
+    ["en", en, "Clear session"],
+    ["zh-CN", zh, "清空会话"],
+  ] as const)("renders the shared session control in %s", (locale, messages, label) => {
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider
+        locale={locale}
+        messages={messages}
+        timeZone="UTC"
+      >
+        <SitePageCopy>
+          <DemoSession>
+            <DemoSessionResetButton />
+          </DemoSession>
+        </SitePageCopy>
+      </NextIntlClientProvider>
+    );
+    expect(html).toContain(label);
+  });
+
   it.each([
     ["en", en],
     ["zh-CN", zh],

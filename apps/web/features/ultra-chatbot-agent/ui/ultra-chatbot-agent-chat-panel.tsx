@@ -2,7 +2,6 @@
 
 import { CaretDownIcon, RobotIcon } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -22,8 +21,8 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import type { ChatStatus, UIMessage } from "ai";
 import type { Dispatch, SetStateAction } from "react";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
-
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import type { UltraChatbotAgentChatSession } from "../server/chat-store";
@@ -151,7 +150,7 @@ export function UltraChatbotAgentChatPanel({
         onVisibilityError={onVisibilityError}
         visibility={chatMeta.visibility}
       />
-      <Conversation className="min-h-0 min-w-0">
+      <DemoConversation className="min-h-0 min-w-0">
         <ConversationContent className="mx-auto flex w-full min-w-0 max-w-3xl flex-1 gap-6 px-4 py-6">
           {hasMessages || error ? (
             <>
@@ -200,7 +199,7 @@ export function UltraChatbotAgentChatPanel({
           )}
         </ConversationContent>
         <ConversationScrollButton />
-      </Conversation>
+      </DemoConversation>
       <UltraChatbotAgentComposer
         chatMeta={chatMeta}
         disabled={!isChatAvailable || isBusy}

@@ -65,6 +65,12 @@ export function useLangGraphAgent() {
   );
   /* eslint-enable react-hooks/refs */
   const controller = useChat({ chat });
+  useEffect(
+    () => () => {
+      chat.stop();
+    },
+    [chat]
+  );
   const hasMessages = controller.messages.length > 0;
   const isBusy =
     controller.status === "submitted" || controller.status === "streaming";

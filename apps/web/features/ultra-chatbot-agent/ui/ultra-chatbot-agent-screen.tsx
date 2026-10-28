@@ -26,6 +26,7 @@ export function UltraChatbotAgentScreen({
         "Model selector",
       ]}
       headerClassName="shrink-0"
+      sessionResetHref="/demos/ultra-chatbot-agent"
       summary={
         <>
           <PageText>{"A route-backed port of the pinned "}</PageText>

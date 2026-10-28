@@ -3,7 +3,6 @@
 import { useChat } from "@ai-sdk/react";
 import { ArrowClockwiseIcon, LinkIcon, RobotIcon } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -33,8 +32,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
-
 import {
   ConversationErrorMessage,
   useConversationErrorRetry,
@@ -50,6 +49,13 @@ function getTextContent(message: UIMessage) {
     .filter((part) => part.type === "text")
     .map((part) => part.text)
     .join("\n");
+}
+
+function getLatestAssistantText(messages: UIMessage[]) {
+  const assistant = [...messages]
+    .reverse()
+    .find((message) => message.role === "assistant");
+  return assistant ? getTextContent(assistant) : "";
 }
 
 function formatDateTime(value: string | null) {
@@ -292,25 +298,27 @@ export function PersistentAgentWorkspace({
     sendMessage,
     setMessages,
     status,
+    stop,
   } = useChat({
     id: chatId,
     messages: initialSession?.messages ?? [],
     resume: initialSession?.chat.activeStreamId != null,
     transport: createPersistentAgentTransport(),
   });
+  useEffect(
+    () => () => {
+      stop();
+    },
+    [stop]
+  );
   const retryConversationError = useConversationErrorRetry({
     clearError,
     regenerate,
   });
   const hasMessages = messages.length > 0;
   const isBusy = status === "submitted" || status === "streaming";
-  const latestAssistant = [...messages]
-    .reverse()
-    .find((message) => message.role === "assistant");
   const latestMessageRole = messages.at(-1)?.role;
-  const latestAssistantText = latestAssistant
-    ? getTextContent(latestAssistant)
-    : "";
+  const latestAssistantText = getLatestAssistantText(messages);
   const showThinking = isBusy && latestAssistantText.length === 0;
   const showResumeThinking = shouldShowResumeThinking({
     initialSession,
@@ -369,7 +377,7 @@ export function PersistentAgentWorkspace({
           </div>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -415,7 +423,7 @@ export function PersistentAgentWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">
@@ -446,23 +454,7 @@ export function PersistentAgentWorkspace({
             </PromptInput>
 
             {hasMessages ? null : (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {persistentAgentSamplePrompts.map((prompt) => (
-                  <Button
-                    className="h-auto max-w-full whitespace-normal text-left"
-                    key={prompt}
-                    onClick={() => {
-                      handleSubmit(prompt);
-                    }}
-                    size="sm"
-                    type="button"
-                    variant="outline"
-                  >
-                    <RobotIcon className="size-3.5" />
-                    <PageText>{prompt}</PageText>
-                  </Button>
-                ))}
-              </div>
+              <PersistentSamplePrompts onSend={handleSubmit} />
             )}
           </div>
         </div>
@@ -602,6 +594,30 @@ export function PersistentAgentWorkspace({
           ) : null}
         </div>
       </aside>
+    </div>
+  );
+}
+
+function PersistentSamplePrompts({
+  onSend,
+}: {
+  onSend: (text: string) => Promise<void>;
+}) {
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {persistentAgentSamplePrompts.map((prompt) => (
+        <Button
+          className="h-auto max-w-full whitespace-normal text-left"
+          key={prompt}
+          onClick={() => onSend(prompt)}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          <RobotIcon className="size-3.5" />
+          <PageText>{prompt}</PageText>
+        </Button>
+      ))}
     </div>
   );
 }

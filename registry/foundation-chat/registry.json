@@ -73,6 +73,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -101,6 +106,11 @@
           "path": "lib/foundation-chat/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/runtime.ts"
+        },
+        {
+          "path": "components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "components/page-copy.tsx",

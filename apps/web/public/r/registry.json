@@ -69,6 +69,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/foundation-chat/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/foundation-chat/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -97,6 +102,11 @@
           "path": "registry/foundation-chat/lib/foundation-chat/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/runtime.ts"
+        },
+        {
+          "path": "registry/foundation-chat/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "registry/foundation-chat/components/page-copy.tsx",
@@ -547,6 +557,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/generative-ui/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/generative-ui/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -590,6 +605,11 @@
           "path": "registry/generative-ui/lib/generative-ui/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/generative-ui/runtime.ts"
+        },
+        {
+          "path": "registry/generative-ui/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "registry/generative-ui/components/page-copy.tsx",
@@ -690,6 +710,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/minimal-chat-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/minimal-chat-agent/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -733,6 +758,11 @@
           "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/runtime.ts",
           "type": "registry:lib",
           "target": "@lib/minimal-chat-agent/runtime.ts"
+        },
+        {
+          "path": "registry/minimal-chat-agent/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "registry/minimal-chat-agent/components/page-copy.tsx",
@@ -2075,6 +2105,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/openai-agents-sdk-demo/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/openai-agents-sdk-demo/components/ai-elements/prompt-input.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/prompt-input.tsx"
@@ -2310,6 +2345,11 @@
           "target": "docs/frontend/openai-agents-sdk-demo.md"
         },
         {
+          "path": "registry/openai-agents-sdk-demo/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
+        },
+        {
           "path": "registry/openai-agents-sdk-demo/components/page-copy.tsx",
           "type": "registry:component",
           "target": "@components/page-copy.tsx"
@@ -2400,6 +2440,11 @@
           "target": "@components/demo-workspace-shell.tsx"
         },
         {
+          "path": "registry/langgraph-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
+        },
+        {
           "path": "registry/langgraph-agent/components/demo-breadcrumb.tsx",
           "type": "registry:component",
           "target": "@components/demo-breadcrumb.tsx"
@@ -2448,6 +2493,11 @@
           "path": "registry/langgraph-agent/lib/langgraph-agent/server/stream-normalizer.ts",
           "type": "registry:lib",
           "target": "@lib/langgraph-agent/server/stream-normalizer.ts"
+        },
+        {
+          "path": "registry/langgraph-agent/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
         },
         {
           "path": "registry/langgraph-agent/components/page-copy.tsx",
@@ -2689,6 +2739,11 @@
           "path": "registry/ultra-chatbot-agent/components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/ultra-chatbot-agent/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
         },
         {
           "path": "registry/ultra-chatbot-agent/components/ultra-chatbot-agent/resume-pending-state.ts",
@@ -3226,6 +3281,11 @@
           "target": "@lib/ultra-chatbot-agent/skills-agent/server/workspace.ts"
         },
         {
+          "path": "registry/ultra-chatbot-agent/components/demo-conversation.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-conversation.tsx"
+        },
+        {
           "path": "registry/ultra-chatbot-agent/components/page-copy.tsx",
           "type": "registry:component",
           "target": "@components/page-copy.tsx"
@@ -3335,6 +3395,11 @@
           "path": "registry/cloudflare-ai-gateway/components/demo-workspace-shell.tsx",
           "type": "registry:component",
           "target": "@components/demo-workspace-shell.tsx"
+        },
+        {
+          "path": "registry/cloudflare-ai-gateway/components/demo-session.tsx",
+          "type": "registry:component",
+          "target": "@components/demo-session.tsx"
         },
         {
           "path": "registry/cloudflare-ai-gateway/components/demo-breadcrumb.tsx",

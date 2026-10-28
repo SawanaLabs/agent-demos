@@ -26,6 +26,7 @@ export function PersistentAgentScreen({
         "Redis resume",
       ]}
       breadcrumbTitle="Persistent & Resume Agent"
+      sessionResetHref="/demos/persistent-agent"
       summary={
         <>
           <PageText>

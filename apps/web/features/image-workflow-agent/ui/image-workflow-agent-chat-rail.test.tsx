@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { createDefaultWorkflowGraph } from "../model/workflow-engine";
 import { ImageWorkflowAgentChatRail } from "./image-workflow-agent-chat-rail";
@@ -19,23 +20,25 @@ const setupState = {
 describe("ImageWorkflowAgentChatRail", () => {
   it("shows neutral generation progress instead of a workflow error during a manual run", () => {
     const markup = renderToStaticMarkup(
-      <ImageWorkflowAgentChatRail
-        chatError={undefined}
-        hasMessages={false}
-        isBusy={true}
-        isChatAvailable={true}
-        isManualRunPending={true}
-        manualError="Workflow is locked while the agent or manual run is still active."
-        messageStatus="ready"
-        messages={[]}
-        onRetryChatError={vi.fn()}
-        onSend={vi.fn()}
-        onSuggestionClick={vi.fn()}
-        resultNode={getImageResultNode(createDefaultWorkflowGraph())}
-        setupState={setupState}
-        status="generating"
-        suggestions={[]}
-      />
+      <DemoSession>
+        <ImageWorkflowAgentChatRail
+          chatError={undefined}
+          hasMessages={false}
+          isBusy={true}
+          isChatAvailable={true}
+          isManualRunPending={true}
+          manualError="Workflow is locked while the agent or manual run is still active."
+          messageStatus="ready"
+          messages={[]}
+          onRetryChatError={vi.fn()}
+          onSend={vi.fn()}
+          onSuggestionClick={vi.fn()}
+          resultNode={getImageResultNode(createDefaultWorkflowGraph())}
+          setupState={setupState}
+          status="generating"
+          suggestions={[]}
+        />
+      </DemoSession>
     );
 
     expect(markup).toContain("Generating image");

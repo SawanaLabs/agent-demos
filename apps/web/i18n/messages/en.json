@@ -1552,6 +1552,9 @@
     "已停止，可继续完成": "Stopped. Continue when ready",
     "正在执行：": "Running: ",
     "Agent 回复中断，可继续对话": "Agent response interrupted. You can continue chatting",
-    "操作未完成": "Operation incomplete"
+    "操作未完成": "Operation incomplete",
+    "Clear session": "Clear session",
+    "Clearing…": "Clearing…",
+    "Failed to clear session%2E": "Failed to clear session."
   }
 }

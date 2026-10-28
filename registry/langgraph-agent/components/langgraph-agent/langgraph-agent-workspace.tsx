@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -36,6 +35,7 @@ import {
   RefreshCwIcon,
   SquareIcon,
 } from "lucide-react";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
 
 import {
@@ -301,7 +301,7 @@ export function LangGraphAgentWorkspace({
           </>
         )}
 
-        <Conversation>
+        <DemoConversation>
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -358,7 +358,7 @@ export function LangGraphAgentWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <Separator />
         <div className="px-4 py-4">

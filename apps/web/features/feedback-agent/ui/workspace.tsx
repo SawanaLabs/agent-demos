@@ -10,6 +10,10 @@ import {
 } from "@workspace/ui/components/card";
 import { Crosshair, ExternalLink, Inbox, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import {
+  DemoSessionResetButton,
+  useBeforeDemoSessionReset,
+} from "@/components/demo-session";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import { submitToDemoInbox } from "../client/submit";
 import type { Feedback, FeedbackStatus, FeedbackSummary } from "../types";
@@ -48,6 +52,11 @@ export function FeedbackWorkspace({
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
+  useBeforeDemoSessionReset(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("identity");
+    window.history.replaceState({}, "", url);
+  });
   const refresh = useCallback(async () => {
     const result = await requestJson<{ feedback: FeedbackSummary[] }>();
     setItems(result.feedback);
@@ -257,29 +266,14 @@ export function FeedbackWorkspace({
             </div>
           </CardContent>
         </Card>
-        <div className="flex min-h-0 flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-muted-foreground text-sm">
-              <PageText>
-                {selected
-                  ? "Report and captured evidence"
-                  : "Try it on this page"}
-              </PageText>
-            </p>
-            {selected ? (
-              <Button
-                onClick={() => setSelected(null)}
-                size="sm"
-                variant="outline"
-              >
-                <PageText>{"Back to sample page"}</PageText>
-              </Button>
-            ) : (
-              <Badge variant="outline">
-                <PageText>{"Live capture"}</PageText>
-              </Badge>
-            )}
-          </div>
+        <div
+          className="flex min-h-0 flex-col gap-3"
+          data-demo-session-workspace=""
+        >
+          <FeedbackWorkspaceHeader
+            isReportOpen={selected !== null}
+            onBack={() => setSelected(null)}
+          />
           {available ? null : (
             <p role="status">
               <PageText>{"The feedback inbox is unavailable."}</PageText>
@@ -305,5 +299,37 @@ export function FeedbackWorkspace({
         </div>
       </div>
     </>
+  );
+}
+
+function FeedbackWorkspaceHeader({
+  isReportOpen,
+  onBack,
+}: {
+  isReportOpen: boolean;
+  onBack: () => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <p className="text-muted-foreground text-sm">
+          <PageText>
+            {isReportOpen
+              ? "Report and captured evidence"
+              : "Try it on this page"}
+          </PageText>
+        </p>
+        {isReportOpen ? (
+          <Button onClick={onBack} size="sm" variant="outline">
+            <PageText>{"Back to sample page"}</PageText>
+          </Button>
+        ) : (
+          <Badge variant="outline">
+            <PageText>{"Live capture"}</PageText>
+          </Badge>
+        )}
+      </div>
+      <DemoSessionResetButton />
+    </div>
   );
 }

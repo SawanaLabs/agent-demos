@@ -14,7 +14,7 @@ import {
 } from "@workspace/ui/components/ai-elements/prompt-input";
 import { Button } from "@workspace/ui/components/button";
 import { Spinner } from "@workspace/ui/components/spinner";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, RotateCcwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PageText, usePageCopy } from "@/components/page-copy";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
@@ -26,12 +26,15 @@ import {
 } from "./canvas-photo-input";
 import { CanvasWelcome } from "./canvas-welcome";
 import type { useCanvasAgent } from "./use-canvas-agent";
+import type { useWorkflowFile } from "./use-workflow-file";
 
 export function CanvasChat({
   controller,
+  file,
   ready,
 }: {
   controller: ReturnType<typeof useCanvasAgent>;
+  file: ReturnType<typeof useWorkflowFile>;
   ready: boolean;
 }) {
   const pageCopy = usePageCopy();
@@ -75,13 +78,17 @@ export function CanvasChat({
     <section
       aria-label={pageCopy("Canvas Agent 对话")}
       className="absolute right-2 bottom-3 z-10 flex w-[calc(100%-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-xl sm:right-5 sm:bottom-5 sm:w-96"
+      data-demo-conversation=""
     >
       <div className="flex items-center justify-between border-b px-4 py-2">
-        <div>
+        <div className="min-w-0 flex-1">
           <h2 className="font-medium text-sm">
             <PageText>{"Canvas Agent"}</PageText>
           </h2>
-          <p aria-live="polite" className="text-muted-foreground text-xs">
+          <p
+            aria-live="polite"
+            className="truncate text-muted-foreground text-xs"
+          >
             {heading}
           </p>
         </div>
@@ -93,6 +100,17 @@ export function CanvasChat({
           variant="ghost"
         >
           {expanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
+        </Button>
+        <Button
+          className="ml-2 shrink-0"
+          disabled={file.busy}
+          onClick={file.newCanvas}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          <RotateCcwIcon aria-hidden="true" className="size-4" />
+          <PageText>{"Clear session"}</PageText>
         </Button>
       </div>
       <div

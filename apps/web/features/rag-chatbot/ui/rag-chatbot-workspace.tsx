@@ -7,7 +7,6 @@ import {
   StopIcon,
 } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -42,8 +41,8 @@ import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import Link from "next/link";
 import { useMemo } from "react";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
-
 import type { ragChatbotSourceDocument } from "@/features/rag-chatbot/server/source-document";
 import {
   ConversationErrorMessage,
@@ -106,7 +105,7 @@ export function RagChatbotWorkspace({
           </div>
         )}
 
-        <Conversation className="min-h-0">
+        <DemoConversation className="min-h-0">
           <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
             {hasMessages || error ? (
               <>
@@ -209,7 +208,7 @@ export function RagChatbotWorkspace({
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+        </DemoConversation>
 
         <div className="border-foreground/10 border-t px-4 py-4">
           <div className="mx-auto w-full max-w-3xl">

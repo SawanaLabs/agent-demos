@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -32,6 +31,7 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { type ChatStatus, isToolUIPart, type UIMessage } from "ai";
 import { LoaderCircleIcon } from "lucide-react";
+import { DemoConversation } from "@/components/demo-conversation";
 import { PageText, usePageCopy } from "@/components/page-copy";
 
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
@@ -216,7 +216,7 @@ export function ImageWorkflowAgentChatRail({
       <ImageWorkflowAgentMobileResult resultNode={resultNode} />
       <SetupGuidance setupState={setupState} />
 
-      <Conversation className="min-h-0">
+      <DemoConversation className="min-h-0">
         <ConversationContent className="gap-5 p-4">
           {hasMessages
             ? messages.map((message, index) => (
@@ -261,7 +261,7 @@ export function ImageWorkflowAgentChatRail({
           ) : null}
         </ConversationContent>
         <ConversationScrollButton />
-      </Conversation>
+      </DemoConversation>
 
       <div className="border-foreground/10 border-t px-4 py-4">
         <div className="space-y-3">

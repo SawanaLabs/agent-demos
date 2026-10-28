@@ -45,8 +45,6 @@ type FlowInstance = Parameters<
 >[0];
 
 export function CanvasWorkspace({ ready }: { ready: boolean }) {
-  const pageCopy = usePageCopy();
-
   const c = useCanvasAgent();
   const file = useWorkflowFile(c);
   const canvasRegion = useRef<HTMLDivElement>(null);
@@ -217,27 +215,10 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             panOnDrag
             selectionOnDrag={false}
           >
-            <Controls
-              fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
-              position="top-left"
-            >
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <ControlButton
-                      aria-label={pageCopy("整理画布")}
-                      disabled={c.busy || !flow || graph.nodes.length === 0}
-                      onClick={arrange}
-                    />
-                  }
-                >
-                  <LayoutDashboardIcon />
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <PageText>{"整理画布"}</PageText>
-                </TooltipContent>
-              </Tooltip>
-            </Controls>
+            <CanvasArrangeControls
+              disabled={c.busy || !flow || graph.nodes.length === 0}
+              onArrange={arrange}
+            />
           </Canvas>
           <CanvasToolbar add={add} busy={c.busy} />
           <CanvasStartHint controller={c} ready={ready} />
@@ -249,9 +230,47 @@ export function CanvasWorkspace({ ready }: { ready: boolean }) {
             {graph.edges.length}
             <PageText>{" 条连线 · 刷新前请保存文件"}</PageText>
           </p>
-          <CanvasChat controller={c} key={c.session} ready={ready} />
+          <CanvasChat
+            controller={c}
+            file={file}
+            key={c.session}
+            ready={ready}
+          />
         </div>
       </div>
     </main>
+  );
+}
+
+function CanvasArrangeControls({
+  disabled,
+  onArrange,
+}: {
+  disabled: boolean;
+  onArrange: () => void;
+}) {
+  const pageCopy = usePageCopy();
+  return (
+    <Controls
+      fitViewOptions={{ padding: 0.35, maxZoom: 0.85 }}
+      position="top-left"
+    >
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <ControlButton
+              aria-label={pageCopy("整理画布")}
+              disabled={disabled}
+              onClick={onArrange}
+            />
+          }
+        >
+          <LayoutDashboardIcon />
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          <PageText>{"整理画布"}</PageText>
+        </TooltipContent>
+      </Tooltip>
+    </Controls>
   );
 }

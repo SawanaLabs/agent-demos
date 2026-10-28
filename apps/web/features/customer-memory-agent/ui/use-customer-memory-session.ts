@@ -8,6 +8,7 @@ import {
   buildCustomerMemorySessionViewState,
   getLatestCustomerMemoryPrompt,
 } from "./customer-memory-session";
+import { useCustomerMemorySessionReset } from "./use-customer-memory-session-reset";
 import {
   type CustomerMemoryRefreshSession,
   type CustomerMemorySelection,
@@ -123,7 +124,15 @@ export function useCustomerMemorySession(
     setSessionErrorMessage,
   });
 
-  refreshSessionRef.current = refreshSession;
+  useCustomerMemorySessionReset({
+    applySession,
+    isReadonlyAccount,
+    latestRefreshRequestIdRef,
+    refreshSession,
+    refreshSessionRef,
+    selectionRef,
+    stop,
+  });
 
   useStoredCustomerMemorySelection({
     selectionRef,
@@ -136,21 +145,13 @@ export function useCustomerMemorySession(
     setIsSessionLoading,
   });
 
-  async function selectCustomer(nextCustomerId: string) {
-    if (
-      isBusy ||
-      isCompactingContext ||
-      nextCustomerId === selectionRef.current.customerId
-    ) {
+  async function selectSession(selection: CustomerMemorySelection) {
+    if (isBusy || isCompactingContext) {
       return;
     }
-
-    selectionRef.current = {
-      customerId: nextCustomerId,
-      threadId: null,
-    };
-    setCustomerId(nextCustomerId);
-    setActiveThreadId(null);
+    selectionRef.current = selection;
+    setCustomerId(selection.customerId);
+    setActiveThreadId(selection.threadId);
     setSession(null);
     setMessages([]);
     clearError();
@@ -158,26 +159,17 @@ export function useCustomerMemorySession(
     await refreshSession();
   }
 
-  async function selectThread(threadId: string) {
-    if (
-      isBusy ||
-      isCompactingContext ||
-      threadId === selectionRef.current.threadId ||
-      !selectionRef.current.customerId
-    ) {
-      return;
+  async function selectCustomer(customerId: string) {
+    if (customerId !== selectionRef.current.customerId) {
+      await selectSession({ customerId, threadId: null });
     }
+  }
 
-    selectionRef.current = {
-      customerId: selectionRef.current.customerId,
-      threadId,
-    };
-    setActiveThreadId(threadId);
-    setSession(null);
-    setMessages([]);
-    clearError();
-
-    await refreshSession();
+  async function selectThread(threadId: string) {
+    const { customerId, threadId: currentThreadId } = selectionRef.current;
+    if (customerId && threadId !== currentThreadId) {
+      await selectSession({ customerId, threadId });
+    }
   }
 
   async function sendPrompt(text: string) {

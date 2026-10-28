@@ -4,6 +4,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { ReactNode } from "react";
 
 import { DemoBreadcrumb } from "@/components/demo-breadcrumb";
+import { DemoSession } from "@/components/demo-session";
 
 type DemoWorkspaceHeaderFrame = "header" | "card";
 
@@ -16,6 +17,7 @@ interface DemoWorkspaceShellProps {
   headerClassName?: string;
   headerFrame?: DemoWorkspaceHeaderFrame;
   maxWidthClassName?: string;
+  sessionResetHref?: string;
   summary: ReactNode;
   summaryClassName?: string;
   title: string;
@@ -38,6 +40,7 @@ export function DemoWorkspaceShell({
   headerClassName,
   headerFrame = "header",
   maxWidthClassName = "max-w-7xl",
+  sessionResetHref,
   summary,
   summaryClassName = "max-w-3xl",
   title,
@@ -46,7 +49,7 @@ export function DemoWorkspaceShell({
 }: DemoWorkspaceShellProps) {
   const headerContent = (
     <>
-      <div className="space-y-2">
+      <div className="min-w-0 space-y-2">
         <DemoBreadcrumb
           className={breadcrumbClassName}
           title={breadcrumbTitle ?? title}
@@ -79,30 +82,32 @@ export function DemoWorkspaceShell({
   );
 
   return (
-    <main className="min-h-svh bg-background text-foreground">
-      <div
-        className={cn(
-          "mx-auto flex w-full flex-col gap-6 px-4 py-6 md:px-6",
-          maxWidthClassName,
-          contentClassName
-        )}
-      >
-        {headerFrame === "card" ? (
-          <Card className={cn(cardHeaderClassName, headerClassName)}>
-            {headerContent}
-          </Card>
-        ) : (
-          <header className={cn(defaultHeaderClassName, headerClassName)}>
-            {headerContent}
-          </header>
-        )}
+    <DemoSession resetHref={sessionResetHref}>
+      <main className="min-h-svh bg-background text-foreground">
+        <div
+          className={cn(
+            "mx-auto flex w-full flex-col gap-6 px-4 py-6 md:px-6",
+            maxWidthClassName,
+            contentClassName
+          )}
+        >
+          {headerFrame === "card" ? (
+            <Card className={cn(cardHeaderClassName, headerClassName)}>
+              {headerContent}
+            </Card>
+          ) : (
+            <header className={cn(defaultHeaderClassName, headerClassName)}>
+              {headerContent}
+            </header>
+          )}
 
-        {workspaceClassName ? (
-          <div className={workspaceClassName}>{children}</div>
-        ) : (
-          children
-        )}
-      </div>
-    </main>
+          {workspaceClassName ? (
+            <div className={workspaceClassName}>{children}</div>
+          ) : (
+            children
+          )}
+        </div>
+      </main>
+    </DemoSession>
   );
 }

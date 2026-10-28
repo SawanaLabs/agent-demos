@@ -25,6 +25,7 @@ export function UltraChatbotAgentScreen({
         "Model selector",
       ]}
       headerClassName="shrink-0"
+      sessionResetHref="/demos/ultra-chatbot-agent"
       summary={
         <>
           A route-backed port of the pinned <code>vercel/ai-chatbot</code>{" "}

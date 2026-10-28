@@ -292,6 +292,8 @@ function useManualWorkflowRun({
   setIsManualRunPending: Dispatch<SetStateAction<boolean>>;
   setManualError: SetManualError;
 }) {
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
   return useCallback(async () => {
     if (isGraphLocked || !isChatAvailable) {
       return;
@@ -299,6 +301,8 @@ function useManualWorkflowRun({
 
     setIsManualRunPending(true);
     setManualError(null);
+    const controller = new AbortController();
+    requestRef.current = controller;
 
     try {
       const submittedGraph = graphRef.current;
@@ -308,6 +312,7 @@ function useManualWorkflowRun({
           "content-type": "application/json",
         },
         method: "POST",
+        signal: controller.signal,
       });
       const payload = (await response.json()) as {
         error?: string;
@@ -361,6 +366,12 @@ export function useImageWorkflowAgent(options: {
   );
   const { clearError, error, messages, regenerate, sendMessage, status } =
     useChat({ chat });
+  useEffect(
+    () => () => {
+      chat.stop();
+    },
+    [chat]
+  );
   const retryConversationError = useConversationErrorRetry({
     clearError,
     regenerate,

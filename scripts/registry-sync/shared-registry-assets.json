@@ -160,6 +160,49 @@
         }
       ],
       "forbidPatternsAfterTransform": ["@workspace/"]
+    },
+    {
+      "name": "demo-session",
+      "demos": [
+        "foundation-chat",
+        "generative-ui",
+        "langgraph-agent",
+        "minimal-chat-agent",
+        "openai-agents-sdk-demo",
+        "ultra-chatbot-agent",
+        "cloudflare-ai-gateway"
+      ],
+      "source": "apps/web/components/demo-session.tsx",
+      "target": "components/demo-session.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/button\";",
+          "to": "from \"@/components/ui/button\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/"]
+    },
+    {
+      "name": "demo-conversation",
+      "demos": [
+        "foundation-chat",
+        "generative-ui",
+        "langgraph-agent",
+        "minimal-chat-agent",
+        "openai-agents-sdk-demo",
+        "ultra-chatbot-agent"
+      ],
+      "source": "apps/web/components/demo-conversation.tsx",
+      "target": "components/demo-conversation.tsx",
+      "transforms": [
+        {
+          "from": "from \"@workspace/ui/components/ai-elements/conversation\";",
+          "to": "from \"@/components/ai-elements/conversation\";",
+          "expectedMatches": 1
+        }
+      ],
+      "forbidPatternsAfterTransform": ["@workspace/"]
     }
   ]
 }

@@ -9,7 +9,6 @@ import {
   StopIcon,
 } from "@phosphor-icons/react";
 import {
-  Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
@@ -35,8 +34,9 @@ import {
 } from "@workspace/ui/components/collapsible";
 import { cn } from "@workspace/ui/lib/utils";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { DemoConversation } from "@/components/demo-conversation";
 import { ConversationErrorMessage } from "@/features/shared/chat/ui/conversation-error-message";
 
 import type { StreamingAudience } from "../server/contract";
@@ -128,7 +128,7 @@ function StreamingTranscript({
         </div>
       )}
 
-      <Conversation className="min-h-0">
+      <DemoConversation className="min-h-0">
         <ConversationContent className="mx-auto flex w-full max-w-3xl flex-1 gap-6 px-4 py-6">
           {hasMessages || error ? (
             <>
@@ -171,7 +171,7 @@ function StreamingTranscript({
           )}
         </ConversationContent>
         <ConversationScrollButton />
-      </Conversation>
+      </DemoConversation>
     </>
   );
 }
@@ -503,6 +503,13 @@ export function StreamingChatShellWorkspace({
           api: "/api/demos/streaming-chat-shell",
         }),
       })
+  );
+
+  useEffect(
+    () => () => {
+      chat.stop();
+    },
+    [chat]
   );
 
   return (

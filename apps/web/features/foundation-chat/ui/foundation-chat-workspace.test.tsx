@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import { DemoSession } from "@/components/demo-session";
 
 import { FoundationChatWorkspace } from "./foundation-chat-workspace";
 
@@ -36,13 +37,15 @@ describe("foundation chat workspace UI", () => {
     const samplePrompt =
       "Explain the minimum files this Foundation Chat demo needs in a fresh Next.js app.";
     const markup = renderToStaticMarkup(
-      createElement(FoundationChatWorkspace, {
-        chatModel: "openai/gpt-4.1-mini",
-        isChatAvailable: false,
-        nodeVersion: "Node v24.14.0",
-        setupMessage:
-          "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured.",
-      })
+      <DemoSession>
+        {createElement(FoundationChatWorkspace, {
+          chatModel: "openai/gpt-4.1-mini",
+          isChatAvailable: false,
+          nodeVersion: "Node v24.14.0",
+          setupMessage:
+            "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured.",
+        })}
+      </DemoSession>
     );
 
     expect(getButtonOpeningTagForText(markup, samplePrompt)).toMatch(

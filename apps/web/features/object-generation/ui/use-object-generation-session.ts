@@ -173,6 +173,12 @@ export function useObjectGenerationSession(): ObjectGenerationSessionController 
     },
     schema: objectGenerationResultSchema,
   });
+  useEffect(
+    () => () => {
+      stop();
+    },
+    [stop]
+  );
 
   useSyncObjectGenerationSessionRefs(refs, {
     activeEntryId,

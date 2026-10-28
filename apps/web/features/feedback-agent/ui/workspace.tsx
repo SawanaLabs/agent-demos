@@ -297,17 +297,21 @@ function FeedbackWorkspaceHeader({
   onBack: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-3">
-      <p className="mr-auto text-muted-foreground text-sm">
-        {isReportOpen ? "Report and captured evidence" : "Try it on this page"}
-      </p>
-      {isReportOpen ? (
-        <Button onClick={onBack} size="sm" variant="outline">
-          Back to sample page
-        </Button>
-      ) : (
-        <Badge variant="outline">Live capture</Badge>
-      )}
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <p className="text-muted-foreground text-sm">
+          {isReportOpen
+            ? "Report and captured evidence"
+            : "Try it on this page"}
+        </p>
+        {isReportOpen ? (
+          <Button onClick={onBack} size="sm" variant="outline">
+            Back to sample page
+          </Button>
+        ) : (
+          <Badge variant="outline">Live capture</Badge>
+        )}
+      </div>
       <DemoSessionResetButton />
     </div>
   );

@@ -1616,6 +1616,18 @@
     "YOUR SESSION": "YOUR SESSION",
     "Your encore goes here%2E": "Your encore goes here.",
     "Your people%2E": "Your people.",
-    "cast photos selected": "cast photos selected"
+    "cast photos selected": "cast photos selected",
+    "Generate test video": "Generate test video",
+    "Test mode returns a fixed dog band video%2E Your photos stay in this browser and do not change the result%2E": "Test mode returns a fixed dog band video. Your photos stay in this browser and do not change the result.",
+    "Cast the band, swap seats, and try the fixed video test mode%2E Adapted from ShipWords with source attribution%2E": "Cast the band, swap seats, and try the fixed video test mode. Adapted from ShipWords with source attribution.",
+    "Loading the fixed test video%2E Your result will appear here%2E": "Loading the fixed test video. Your result will appear here.",
+    "Video unavailable": "Video unavailable",
+    "The test video could not be loaded%2E Try again%2E": "The test video could not be loaded. Try again.",
+    "Fixed test video": "Fixed test video",
+    "Add a photo, then generate a test video to try playback and download%2E": "Add a photo, then generate a test video to try playback and download.",
+    "Test mode": "Test mode",
+    "Download test video": "Download test video",
+    "Every test returns the same sample%2E No AI generation or credits are used%2E": "Every test returns the same sample. No AI generation or credits are used.",
+    "Sample video source": "Sample video source"
   }
 }

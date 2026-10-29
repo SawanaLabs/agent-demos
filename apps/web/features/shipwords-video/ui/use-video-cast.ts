@@ -10,6 +10,7 @@ import {
   type SeatId,
   validateCast,
 } from "../model/cast";
+import { generateMockVideo } from "../model/mock-generation";
 
 export function useVideoCast() {
   const copy = usePageCopy();
@@ -23,20 +24,38 @@ export function useVideoCast() {
   const [clipName, setClipName] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const objectUrls = useRef(new Set<string>());
+  const generation = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const urls = objectUrls.current;
     return () => {
+      generation.current?.abort();
       for (const url of urls) {
         URL.revokeObjectURL(url);
       }
     };
   }, []);
 
-  function remember(file: File) {
+  function remember(file: Blob) {
     const url = URL.createObjectURL(file);
     objectUrls.current.add(url);
     return url;
+  }
+
+  function cancelGeneration() {
+    generation.current?.abort();
+    generation.current = null;
+    setState("ready");
+  }
+
+  function clearResult() {
+    cancelGeneration();
+    if (clip) {
+      URL.revokeObjectURL(clip);
+      objectUrls.current.delete(clip);
+    }
+    setClip(null);
+    setClipName("");
   }
 
   async function addPhoto(file: File, seat: SeatId) {
@@ -61,8 +80,8 @@ export function useVideoCast() {
       return;
     }
     const photo = { name: file.name, url: remember(file) };
+    clearResult();
     setPhotos((current) => ({ ...current, [seat]: photo }));
-    setState("ready");
   }
 
   function pickPhoto(seat: SeatId) {
@@ -71,21 +90,43 @@ export function useVideoCast() {
   }
 
   function removePhoto(seat: SeatId) {
+    clearResult();
     setPhotos((current) => {
       const next = { ...current };
       delete next[seat];
       return next;
     });
-    setState("ready");
   }
 
   function movePhoto(from: SeatId, to: SeatId) {
+    clearResult();
     setPhotos((current) => moveCastPhoto(current, from, to));
     setSelected(to);
-    setState("ready");
   }
 
-  function startPreview() {
+  async function completeGeneration(controller: AbortController) {
+    try {
+      const video = await generateMockVideo(controller.signal);
+      if (controller.signal.aborted) {
+        return;
+      }
+      setClip(remember(video));
+      setClipName("shipwords-test-dog-band.mp4");
+      setState("completed");
+    } catch {
+      if (controller.signal.aborted) {
+        return;
+      }
+      setError(copy("The test video could not be loaded. Try again."));
+      setState("failed");
+    } finally {
+      if (generation.current === controller) {
+        generation.current = null;
+      }
+    }
+  }
+
+  function startGeneration() {
     const issue = validateCast(photos, permission);
     if (issue === "photo-required") {
       pickPhoto("lead");
@@ -95,17 +136,17 @@ export function useVideoCast() {
       setError(copy("Confirm you have permission to use these photos."));
       return false;
     }
+    clearResult();
     setError(null);
     setState("running");
+    const controller = new AbortController();
+    generation.current = controller;
+    completeGeneration(controller);
     return true;
   }
 
-  function loadClip(file: File) {
-    setClip(remember(file));
-    setClipName(file.name);
-  }
-
   function reset() {
+    cancelGeneration();
     for (const url of objectUrls.current) {
       URL.revokeObjectURL(url);
     }
@@ -120,26 +161,31 @@ export function useVideoCast() {
     setHighlighted(["lead"]);
   }
 
+  function reportPlaybackError() {
+    setError(copy("The test video could not be loaded. Try again."));
+    setState("failed");
+  }
+
   return {
     addPhoto,
+    cancelGeneration,
     clip,
     clipName,
     error,
     highlighted,
     input,
-    loadClip,
     movePhoto,
     permission,
     photos,
     pickPhoto,
     removePhoto,
+    reportPlaybackError,
     reset,
     selected,
     setHighlighted,
     setPermission,
     setSelected,
-    setState,
-    startPreview,
+    startGeneration,
     state,
   };
 }

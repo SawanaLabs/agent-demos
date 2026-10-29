@@ -19,8 +19,8 @@ export function ShipwordsVideoCallout() {
         </h2>
         <p className="max-w-2xl text-muted-foreground text-sm/relaxed">
           <PageText>
-            A standalone video tool UI with photo casting, seat swapping, and
-            generation state previews. MIT source attribution included.
+            Cast the band, swap seats, and try the fixed video test mode.
+            Adapted from ShipWords with source attribution.
           </PageText>
         </p>
       </div>

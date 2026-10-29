@@ -25,7 +25,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 - [AI SDK Recipes Checklist](./ai-sdk-recipes-checklist.md): Working checklist for converting AI SDK Recipes, guide, and docs examples into portable Agent Demos.
 - [Agent Demo Structure](./agent-demo-structure.md): Copy-boundary layout for independent full-stack agent demos.
 - [Depth Video Tool](./depth-video-tool.md): Browser-local short-video depth processing and the boundary between site tools and Agent Demos.
-- [ShipWords video UI slice](./shipwords-video-tool.md): Standalone Tiny Desk video UI, pinned MIT attribution, and local preview boundary.
+- [ShipWords video UI slice](./shipwords-video-tool.md): Standalone Tiny Desk video UI, fixed-output test generation, and source attribution.
 - [Generative UI](./generative-ui.md): Stable source-core and UX conventions for model-selected UI components rendered from AI SDK UI tool parts.
 - [Minimal Chat Agent](./minimal-chat-agent.md): Source-backed conventions for hosted search, public GitHub lookup, and questionnaire-driven human-in-the-loop tool output.
 - [Image Workflow Agent](./image-workflow-agent.md): Stable app-side conventions for the workflow canvas demo with graph-sync, manual run routing, and mobile chat fallback.
@@ -81,7 +81,7 @@ Use this domain when changing the Next.js app, shared UI package, Tailwind setup
 | ./registry-sync.md | Registry Sync | Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries. | 2026-06-04 |
 | ./sandbox-agent.md | Sandbox Agent | Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo. | 2026-06-03 |
 | ./shadcn-registry-distribution.md | shadcn Registry Distribution | Durable rules for packaging Agent Demos as shadcn registry items. | 2026-06-04 |
-| ./shipwords-video-tool.md | ShipWords video UI slice | Source attribution, copy boundary, and browser-only runtime for the Tiny Desk video tool adaptation. | 2026-10-29 |
+| ./shipwords-video-tool.md | ShipWords video UI slice | Source attribution, copy boundary, and fixed-output test generation for the Tiny Desk video tool adaptation. | 2026-10-29 |
 | ./site-usage-gate.md | Site Usage Gate | Visitor credit allowance, resource pricing, atomic spending, and homepage balance UI for the published demo website. | 2026-09-21 |
 | ./skills-agent.md | Skills Agent | Stable source-core, sandbox lifecycle, runtime toolchain, and UI conventions for the shipped skills-agent demo. | 2026-06-03 |
 | ./system-status-pages.md | System Status Pages | Durable conventions for branded app-level error, global-error, 404, and client exception reporting surfaces. | 2026-08-17 |

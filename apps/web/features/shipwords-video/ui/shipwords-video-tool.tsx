@@ -98,7 +98,7 @@ export function ShipwordsVideoTool() {
                 className="h-12 w-full rounded-lg bg-status-warning-300 font-medium text-primary-foreground hover:bg-status-warning-300"
                 disabled={cast.state === "running"}
                 onClick={() => {
-                  if (cast.startPreview()) {
+                  if (cast.startGeneration()) {
                     document
                       .getElementById("session-preview")
                       ?.scrollIntoView({ block: "start" });
@@ -106,8 +106,14 @@ export function ShipwordsVideoTool() {
                 }}
               >
                 <PlayIcon weight="fill" />
-                <PageText>Preview generation flow</PageText>
+                <PageText>Generate test video</PageText>
               </Button>
+              <p className="text-center text-status-warning-300 text-xs/relaxed">
+                <PageText>
+                  Test mode returns a fixed dog band video. Your photos stay in
+                  this browser and do not change the result.
+                </PageText>
+              </p>
               <p className="text-center text-[11px] text-muted-foreground">
                 <PageText>
                   PNG, JPEG or WebP · One clear face per photo

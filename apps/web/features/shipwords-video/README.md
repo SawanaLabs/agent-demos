@@ -16,17 +16,22 @@ catalogs contain this page's translations.
 
 ## Runtime boundary
 
-This is a browser-only UI demonstration. Photo uploads and optional sample
-video playback use object URLs. Files stay in the browser and reset clears them.
+This is a browser-only tool with fixed-output test generation. Photo uploads
+use object URLs. Photos stay in the browser and reset clears them.
 The preset buttons highlight cast seats. Uploaded photos can move or swap through
 drag and drop or keyboard-accessible selects.
 
-The primary action validates a photo and permission, then opens the generation
-state preview. The state selector explicitly controls ready, generating, result,
-and error views. There is no simulated completion timer or generation request.
-Download exports only the sample video selected by the visitor.
+The primary action validates a photo and permission, fetches the bundled
+`public/shipwords-video/mock-result.mp4`, then automatically displays playback
+and download. Every run returns the same dog band video regardless of the cast.
+Cancel, reset, editing the cast, and unmount abort an in-flight request.
+Failed requests and playback errors show a retry action while keeping the cast.
 
-To connect real generation, replace `startPreview` and the manual state selector
-with a server job contract, owned reference media, and provider-backed job status.
-The upstream example's private media, accounts, billing, and shared core are
-outside this slice. See [NOTICE.md](./NOTICE.md) for the pinned source.
+This adapts the fixed-result behavior of upstream's `UPSTREAM_MOCK_RESULT`;
+it does not run the Cloudflare workflow, database, billing, or model adapters.
+`model/mock-generation.ts` owns the fixed video request. No photo upload,
+AI call, or credit mutation occurs. The page labels this as test mode.
+
+To connect real generation, replace `generateMockVideo` with a server job
+contract, owned reference media, and provider-backed job status.
+See [NOTICE.md](./NOTICE.md) for code and sample media provenance.

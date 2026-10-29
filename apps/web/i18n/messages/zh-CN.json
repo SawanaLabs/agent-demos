@@ -1616,6 +1616,18 @@
     "YOUR SESSION": "你的专场",
     "Your encore goes here%2E": "你的返场时刻。",
     "Your people%2E": "你的伙伴。",
-    "cast photos selected": "张人物照片已选"
+    "cast photos selected": "张人物照片已选",
+    "Generate test video": "生成测试视频",
+    "Test mode returns a fixed dog band video%2E Your photos stay in this browser and do not change the result%2E": "测试模式会返回固定的狗狗乐队视频。照片仅保存在当前浏览器中，不会改变视频内容。",
+    "Cast the band, swap seats, and try the fixed video test mode%2E Adapted from ShipWords with source attribution%2E": "为乐队选角、交换位置，体验固定样片测试。改编自 ShipWords，已标注来源。",
+    "Loading the fixed test video%2E Your result will appear here%2E": "正在加载固定测试视频，完成后会自动显示。",
+    "Video unavailable": "视频加载失败",
+    "The test video could not be loaded%2E Try again%2E": "测试视频加载失败，请重试。",
+    "Fixed test video": "固定测试视频",
+    "Add a photo, then generate a test video to try playback and download%2E": "添加照片后，点击生成测试视频，即可体验播放和下载。",
+    "Test mode": "测试模式",
+    "Download test video": "下载测试视频",
+    "Every test returns the same sample%2E No AI generation or credits are used%2E": "每次测试均返回同一段样片，不调用 AI，也不消耗积分。",
+    "Sample video source": "样片来源"
   }
 }

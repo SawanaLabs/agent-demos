@@ -49,6 +49,7 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./frontend/registry-sync.md | Registry Sync | Author-side rules for keeping app-first Agent Demos aligned with registry copy boundaries. | 2026-06-04 |
 | ./frontend/sandbox-agent.md | Sandbox Agent | Stable source-core, preview, and sandbox lifecycle conventions for the shipped sandbox-agent demo. | 2026-06-03 |
 | ./frontend/shadcn-registry-distribution.md | shadcn Registry Distribution | Durable rules for packaging Agent Demos as shadcn registry items. | 2026-06-04 |
+| ./frontend/shipwords-video-tool.md | ShipWords video UI slice | Source attribution, copy boundary, and browser-only runtime for the Tiny Desk video tool adaptation. | 2026-10-29 |
 | ./frontend/site-usage-gate.md | Site Usage Gate | Visitor credit allowance, resource pricing, atomic spending, and homepage balance UI for the published demo website. | 2026-09-21 |
 | ./frontend/skills-agent.md | Skills Agent | Stable source-core, sandbox lifecycle, runtime toolchain, and UI conventions for the shipped skills-agent demo. | 2026-06-03 |
 | ./frontend/system-status-pages.md | System Status Pages | Durable conventions for branded app-level error, global-error, 404, and client exception reporting surfaces. | 2026-08-17 |

@@ -33,6 +33,7 @@ import {
   registryGuideConfig,
   registryGuideUrl,
 } from "@/features/registry-guide/registry-guide-data";
+import { ShipwordsVideoCallout } from "@/features/shipwords-video/ui/shipwords-video-callout";
 import { CreditBalanceButton } from "@/features/site-usage-gate/ui/credit-balance-button";
 
 export const metadata: Metadata = {
@@ -363,6 +364,8 @@ export default function Page() {
         <RegistryGuideCallout />
 
         <DepthVideoToolCallout />
+
+        <ShipwordsVideoCallout />
 
         <section className="space-y-8">
           <div className="space-y-4">

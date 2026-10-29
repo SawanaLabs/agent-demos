@@ -10,6 +10,7 @@ Keep both files when copying or distributing this slice.
 
 The Next.js components adapt the source's five photo seats, cast presets,
 photo swapping, permission step, portrait preview, and generation states.
+The page layout and controls follow Agent Demos' shared design system.
 The stage SVG is an original illustration. This slice includes no upstream
 photographs, brand assets, payment code, or generation backend.
 

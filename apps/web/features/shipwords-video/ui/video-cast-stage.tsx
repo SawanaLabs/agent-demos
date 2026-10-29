@@ -26,7 +26,7 @@ function CastSeat({
     >
       <button
         aria-label={`${copy("Choose photo for")} ${copy(seat.label)}`}
-        className={`relative grid aspect-square w-full place-items-center rounded-full border-2 border-dashed bg-background/80 text-status-warning-300 shadow-lg outline-offset-4 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-status-warning-300 ${cast.highlighted.includes(seat.id) ? "border-status-warning-300 ring-4 ring-status-warning-500/15" : "border-foreground/40"}`}
+        className={`relative grid aspect-square w-full place-items-center rounded-full border-2 border-dashed bg-background/90 text-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${cast.highlighted.includes(seat.id) ? "border-primary ring-2 ring-primary/20" : "border-foreground/40"}`}
         draggable={Boolean(photo)}
         onClick={() => cast.pickPhoto(seat.id)}
         onDragOver={(event) => event.preventDefault()}
@@ -69,7 +69,7 @@ function CastSeat({
           <XIcon className="size-3" />
         </button>
       ) : null}
-      <span className="absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap rounded bg-background/90 px-2 py-1 text-[10px] text-foreground sm:text-xs">
+      <span className="absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap bg-background/90 px-2 py-1 text-[10px] text-foreground sm:text-xs">
         <PageText>{seat.label}</PageText>
       </span>
     </div>
@@ -115,13 +115,13 @@ export function VideoCastStage({ cast }: { cast: VideoCastController }) {
       />
       <fieldset
         aria-label={copy("Choose people on the stage")}
-        className="relative isolate aspect-[1.1] overflow-hidden rounded-2xl border border-foreground/15 bg-muted/20"
+        className="relative isolate aspect-[1.1] overflow-hidden border border-border bg-muted/30"
       >
         {/* Original stage illustration replaces the third-party media excluded by ShipWords. */}
         {/* biome-ignore lint/performance/noImgElement: a static SVG stage diagram does not benefit from the image optimizer. */}
         <img
           alt=""
-          className="absolute inset-0 size-full object-cover opacity-65"
+          className="absolute inset-0 size-full object-cover opacity-60 grayscale"
           height={600}
           src="/shipwords-video/stage.svg"
           width={660}
@@ -129,12 +129,12 @@ export function VideoCastStage({ cast }: { cast: VideoCastController }) {
         {seats.map((seat) => (
           <CastSeat cast={cast} key={seat.id} seat={seat} />
         ))}
-        <span className="absolute bottom-3 left-3 rounded bg-background/90 px-2 py-1 text-[10px] text-muted-foreground">
+        <span className="absolute bottom-3 left-3 bg-background/90 px-2 py-1 text-[10px] text-muted-foreground">
           <PageText>Illustrated stage</PageText>
         </span>
       </fieldset>
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <p className="text-status-warning-300">
+        <p className="text-foreground">
           <span className="font-medium tabular-nums">
             {Object.keys(cast.photos).length}/5
           </span>{" "}

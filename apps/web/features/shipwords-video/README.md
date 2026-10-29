@@ -8,8 +8,9 @@ Copy this folder, `app/tools/shipwords-video/page.tsx`, and
 `public/shipwords-video/`. Keep [NOTICE.md](./NOTICE.md) and
 [LICENSE.shipwords](./LICENSE.shipwords).
 
-The UI uses React, Next.js Link, Phosphor icons, shared shadcn `Button`,
-`Checkbox`, and `NativeSelect`, and the host's semantic theme tokens.
+The UI uses React, Next.js Link, Phosphor icons, shared shadcn `Badge`, `Button`,
+`Card`, `Checkbox`, and `NativeSelect`, and the host's semantic theme tokens.
+Its typography, panels, actions, and light/dark appearance follow Agent Demos.
 `@/components/page-copy` provides portable English defaults; copy that adapter
 or replace it with your own translation function. The host's English and Chinese
 catalogs contain this page's translations.

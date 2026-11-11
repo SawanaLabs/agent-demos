@@ -24,7 +24,7 @@ Use this domain when changing workspace layout, package boundaries, or root scri
 | File | Title | Description | Updated |
 | --- | --- | --- | --- |
 | ./DOCS.md | Repo Knowledge Protocol | Domain-level language, reading path, and boundary principles for repository layout and workspace workflow. | 2026-05-26 |
-| ./branch-preview-review.md | Branch Preview Review | Use Vercel-generated branch URLs as the standard review surface for new Agent Demos and pre-merge checks. | 2026-09-26 |
+| ./branch-preview-review.md | Branch Preview Review | Use Vercel-generated branch URLs as the standard review surface for new Agent Demos and pre-merge checks. | 2026-11-11 |
 | ./branch-workflow.md | Branch Workflow | Durable conventions for dedicated worker branches and the pull-request path into main. | 2026-09-24 |
 | ./database-workflow.md | Database Workflow | Durable rules for schema sync, Drizzle CLI usage, and escalation when database changes are blocked. | 2026-05-26 |
 | ./monorepo.md | Monorepo | Durable conventions for the pnpm and Turborepo workspace structure. | 2026-06-02 |

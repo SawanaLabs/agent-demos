@@ -1,7 +1,7 @@
 ---
 title: Branch Preview Review
 description: Use Vercel-generated branch URLs as the standard review surface for new Agent Demos and pre-merge checks.
-updateAt: 2026-09-26
+updateAt: 2026-11-11
 ---
 
 # Branch Preview Review
@@ -20,9 +20,14 @@ updateAt: 2026-09-26
 ## Concrete Values for This Repo
 
 - **Vercel project**: `ai-sdk-6-ai-elements-demos`
-- **Vercel scope / team slug**: `multicul-lives-projects`
+- **Vercel scope / team slug**: `sawanas-projects`
+- **Vercel project ID**: `prj_Z2aSh4Q1NfL7PPJUJcSVk93t4INP`
+- **Vercel team ID**: `team_YqcqlrZWU1botWlbC3Kt7zaH`
+- **Deployment account**: use the existing Sawana owner connection; the Silver Wolf account has viewer access in this team. Do not purchase a deployer seat. Local CLI owner profile: `--global-config ~/.config/vercel-cli/main`.
 - **Production alias**: `agent-demos.hsawana9.com`
-- **Branch URL template**: `https://ai-sdk-6-ai-elements-demos-git-<branch>-multicul-lives-projects.vercel.app`
+- **LangGraph backend**: `agent-demos-langgraph-agent-api` (`prj_EYyQmZsXfn7excQ8etuBfFA9FtpJ`) is in the same Sawana team. Preserve its existing API alias and database.
+- **Uploads**: new uploads use the public `agent-demos-uploads` Blob store in Sawana. Historical absolute URLs still use the original store; retain that store until references have been migrated. A verified copy alone does not redirect old URLs.
+- **Branch URL template**: `https://ai-sdk-6-ai-elements-demos-git-<branch>-sawanas-projects.vercel.app`
 - **Demo page on a branch**: append the demo path, e.g. `…/demos/<demo-slug>`
 
 When handing a URL to Sawana, always resolve the branch name into this template — do not leave `<project>` / `<scope>` placeholders, and do not guess a different scope.
@@ -33,6 +38,7 @@ When handing a URL to Sawana, always resolve the branch name into this template 
 - Hand-off messages for review should include the branch URL, not only the commit or PR number. When the exact URL is not known, give the branch name and say "use the Vercel branch preview URL"; Sawana can pick it up from the PR comment or the Vercel dashboard.
 - Review-ready means the branch preview deployment has finished building. Do not ask for review on a branch whose Vercel check is still running or failed.
 - For demos that depend on preview-only environment variables or services (e.g. sandbox providers, test keys), confirm the preview deployment actually exercises the feature before asking Sawana to click through it.
+- Sandbox runtime credentials come from the current request's OIDC context via `@vercel/oidc`; the environment token supports local CLI runs. Keep project OIDC enabled with the team issuer and verify Sandbox creation after changing teams.
 - Branch previews are still previews. Do not point them at production writes (production database mutations, real payments, real outbound email) unless the task explicitly calls for it.
 
 ## What Sawana Reviews There

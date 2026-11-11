@@ -94,6 +94,9 @@ importers:
       '@vercel/blob':
         specifier: ^2.4.0
         version: 2.4.0
+      '@vercel/oidc':
+        specifier: 3.2.0
+        version: 3.2.0
       '@vercel/sandbox':
         specifier: ^2.0.0
         version: 2.0.0

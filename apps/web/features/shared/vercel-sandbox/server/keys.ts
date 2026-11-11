@@ -1,4 +1,5 @@
 import { createEnv } from "@t3-oss/env-nextjs";
+import { getContext } from "@vercel/oidc";
 import { z } from "zod";
 
 export const keys = () =>
@@ -12,7 +13,9 @@ export const keys = () =>
     },
     runtimeEnv: {
       VERCEL_SANDBOX_INTEGRATION: process.env.VERCEL_SANDBOX_INTEGRATION,
-      VERCEL_OIDC_TOKEN: process.env.VERCEL_OIDC_TOKEN,
+      VERCEL_OIDC_TOKEN:
+        getContext().headers?.["x-vercel-oidc-token"] ??
+        process.env.VERCEL_OIDC_TOKEN,
       VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
       VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
       VERCEL_TOKEN: process.env.VERCEL_TOKEN,

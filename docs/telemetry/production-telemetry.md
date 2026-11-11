@@ -31,6 +31,8 @@ Plausible owns automatic pageviews and standard engagement measurement. Its offi
 
 Sawana clarified that basic integration means minimizing custom code while retaining official optional measurements. Business-specific custom events are not added. The existing typed GA4 events and Google consent controls remain independent; do not forward `demo_action` events to Plausible. Keep this host integration out of copyable demos and generated registry artifacts.
 
+The 404 call captures `window.location.href` in the official `url` option when the effect runs. Queued calls retain that URL even if the visitor navigates away before the tracker initializes.
+
 ## Consent Contract
 
 `SiteAnalyticsRoot` installs the consent-default script with `beforeInteractive` before rendering `<GoogleAnalytics />`:

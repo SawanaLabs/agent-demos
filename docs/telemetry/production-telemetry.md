@@ -1,7 +1,7 @@
 ---
 title: Production Telemetry
 description: GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site.
-updateAt: 2026-08-22
+updateAt: 2026-11-11
 ---
 
 # Production Telemetry
@@ -22,6 +22,14 @@ Do not send success/failure outcomes to GA4 and do not write ordinary success li
 - Vercel Production: `NEXT_PUBLIC_GA_MEASUREMENT_ID` is required and must match a GA4 `G-*` Measurement ID; missing or invalid configuration fails fast.
 - Never reuse the Production property for Preview validation. Preview test mode fails when the Production reference is absent, malformed, or equal to the Preview ID.
 - Runtime error records include bounded `deployment_environment`, optional Git ref, and hostname only. URL paths and queries are discarded.
+
+## Basic Plausible Analytics
+
+The published host also sends basic traffic statistics to our self-hosted Plausible CE at `plausible.hsawana9.com`, under the site `agent-demos.hsawana9.com`. Set `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` to the site's generated script URL in Vercel Production only. The analytics environment contract passes this URL to `SiteAnalyticsRoot`, which initializes and loads the official tracker only in Production. Local and Preview traffic stay excluded even if the URL is present.
+
+Plausible owns automatic pageviews and standard engagement measurement. Its official outbound-link, file-download, form-submission and 404 goals are enabled in the self-hosted site configuration. The 404 template mounts `PlausibleNotFound` to call the official `plausible('404')` event after each missing-page navigation; a queue handles tracker loading order. Normal pages do not mount this reporter. This small template adapter follows the [official 404 installation](https://plausible.io/docs/error-pages-tracking-404).
+
+Sawana clarified that basic integration means minimizing custom code while retaining official optional measurements. Business-specific custom events are not added. The existing typed GA4 events and Google consent controls remain independent; do not forward `demo_action` events to Plausible. Keep this host integration out of copyable demos and generated registry artifacts.
 
 ## Consent Contract
 

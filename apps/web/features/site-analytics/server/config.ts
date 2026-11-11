@@ -4,11 +4,13 @@ export type SiteAnalyticsConfig =
       readonly enabled: true;
       readonly measurementId: string;
       readonly mode: "preview" | "production";
+      readonly plausibleScriptUrl?: string;
     };
 
 interface SiteAnalyticsEnvironment {
   readonly isVercel?: boolean;
   readonly nodeEnvironment?: "development" | "production" | "test";
+  readonly plausibleScriptUrl?: string;
   readonly previewMeasurementId?: string;
   readonly productionMeasurementId?: string;
   readonly vercelEnvironment?: "development" | "preview" | "production";
@@ -56,6 +58,7 @@ export function readSiteAnalyticsConfig(
         "NEXT_PUBLIC_GA_MEASUREMENT_ID"
       ),
       mode: "production",
+      plausibleScriptUrl: environment.plausibleScriptUrl,
     };
   }
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 export const keys = () =>
   createEnv({
     client: {
+      NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL: z.url().optional(),
       NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().trim().min(1).optional(),
       NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID: z
         .string()
@@ -12,6 +13,8 @@ export const keys = () =>
         .optional(),
     },
     runtimeEnv: {
+      NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL:
+        process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL,
       NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
       NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID:
         process.env.NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID,

@@ -81,5 +81,5 @@ Start here, then read `docs/DOCS.md` for cross-domain conventions. Follow the do
 | ./research/text-model-cost-research.md | 文本模型标价与任务成本研究 | GPT-4.1 mini、GPT-5 mini 与 GPT-5.6 Luna 的官方标价、Artificial Analysis 任务成本与比较边界。 | 2026-09-21 |
 | ./telemetry/DOCS.md | Telemetry Knowledge Protocol | Domain language and hard boundaries for deployed product analytics and runtime error logging. | 2026-08-17 |
 | ./telemetry/index.md | Telemetry | Navigation for deployed product analytics and runtime error logging knowledge. | 2026-08-17 |
-| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-08-22 |
+| ./telemetry/production-telemetry.md | Production Telemetry | GA4 product analytics and Vercel Runtime Logs contracts for the published Agent Demos site. | 2026-11-11 |
 <!-- END:docs-generated-catalog -->

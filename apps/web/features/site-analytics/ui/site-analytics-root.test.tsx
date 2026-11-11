@@ -6,12 +6,14 @@ vi.mock("next/script", () => ({
     children,
     id,
     strategy,
+    src,
   }: {
     readonly children: string;
     readonly id: string;
     readonly strategy: string;
+    readonly src?: string;
   }) => (
-    <script data-strategy={strategy} id={id}>
+    <script data-strategy={strategy} id={id} src={src}>
       {children}
     </script>
   ),
@@ -26,6 +28,38 @@ vi.mock("@next/third-parties/google", () => ({
 import { SiteAnalyticsRoot } from "./site-analytics-root";
 
 describe("site analytics root", () => {
+  it("loads basic Plausible only on Production while keeping GA4", () => {
+    const scriptUrl = "https://plausible.hsawana9.com/js/pa-test.js";
+    const markup = renderToStaticMarkup(
+      <SiteAnalyticsRoot
+        config={{
+          enabled: true,
+          measurementId: "G-TEST1234",
+          mode: "production",
+          plausibleScriptUrl: scriptUrl,
+        }}
+      >
+        <main>Product</main>
+      </SiteAnalyticsRoot>
+    );
+    expect(markup).toContain(scriptUrl);
+    expect(markup).toContain('id="plausible-init"');
+    expect(markup).toContain('data-testid="google-analytics"');
+
+    const preview = renderToStaticMarkup(
+      <SiteAnalyticsRoot
+        config={{
+          enabled: true,
+          measurementId: "G-TEST1234",
+          mode: "preview",
+          plausibleScriptUrl: scriptUrl,
+        }}
+      >
+        <main>Product</main>
+      </SiteAnalyticsRoot>
+    );
+    expect(preview).not.toContain("plausible");
+  });
   it("renders consent defaults before the GA provider when enabled", () => {
     const markup = renderToStaticMarkup(
       <SiteAnalyticsRoot

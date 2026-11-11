@@ -31,6 +31,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const analyticsConfig = readSiteAnalyticsConfig({
+    plausibleScriptUrl: env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL,
     isVercel: env.VERCEL === "1",
     nodeEnvironment: env.NODE_ENV,
     previewMeasurementId: env.NEXT_PUBLIC_GA_PREVIEW_MEASUREMENT_ID,

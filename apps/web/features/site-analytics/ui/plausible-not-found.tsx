@@ -19,7 +19,7 @@ export function PlausibleNotFound({ enabled }: { readonly enabled: boolean }) {
       queue.q.push(args);
     };
     target.plausible ??= queue;
-    target.plausible("404");
+    target.plausible("404", { url: window.location.href });
   }, [enabled, pathname]);
 
   return null;

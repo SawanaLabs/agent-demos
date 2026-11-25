@@ -1,5 +1,6 @@
-import { generateText } from "ai";
+import { generateImage, generateText } from "ai";
 
+import { openAIModelId } from "@/features/shared/ai-gateway/server/openai-platform";
 import type {
   WorkflowResultImage,
   WorkflowRunPlan,
@@ -9,6 +10,17 @@ import {
   type ImageWorkflowAgentEnv,
   type ImageWorkflowAgentGateway,
 } from "./env";
+
+const gptImage2Sizes = {
+  "1:1": "1024x1024",
+  "16:9": "1536x864",
+  "9:16": "864x1536",
+} as const;
+const legacyImageSizes = {
+  "1:1": "1024x1024",
+  "16:9": "1536x1024",
+  "9:16": "1024x1536",
+} as const;
 
 export class ImageWorkflowExecutionError extends Error {
   code: "network" | "no-image" | "provider";
@@ -21,6 +33,7 @@ export class ImageWorkflowExecutionError extends Error {
 
 export interface ImageWorkflowExecutionDependencies {
   createGateway: (env: ImageWorkflowAgentEnv) => ImageWorkflowAgentGateway;
+  generateImage?: typeof generateImage;
   generateText: typeof generateText;
 }
 
@@ -59,6 +72,27 @@ export async function executeImageWorkflowRunPlan(
   const gateway = dependencies.createGateway(env);
 
   try {
+    const openaiModel = openAIModelId(plan.imageModel);
+    if (openaiModel) {
+      const prompt = createRunPrompt(plan);
+      const sizes = openaiModel.startsWith("gpt-image-2")
+        ? gptImage2Sizes
+        : legacyImageSizes;
+      const { image } = await (dependencies.generateImage ?? generateImage)({
+        maxRetries: 0,
+        model: gateway.imageModel(plan.imageModel),
+        prompt: plan.referenceImage
+          ? { images: [plan.referenceImage.dataUrl], text: prompt }
+          : prompt,
+        size: sizes[plan.aspectRatio],
+      });
+
+      return {
+        dataUrl: `data:${image.mediaType};base64,${image.base64}`,
+        mediaType: image.mediaType,
+      };
+    }
+
     const result = await dependencies.generateText({
       messages: [
         {
@@ -110,7 +144,7 @@ export async function executeImageWorkflowRunPlan(
     ) {
       throw new ImageWorkflowExecutionError(
         "network",
-        "AI Gateway network error while generating the workflow image."
+        "Network error while generating the workflow image."
       );
     }
 

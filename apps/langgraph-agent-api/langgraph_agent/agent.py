@@ -128,10 +128,21 @@ def _resolve_model_name() -> str:
 
 
 def _create_chat_model() -> ChatOpenAI:
+    model = _resolve_model_name()
+    openai_key = (os.getenv("OPENAI_API_KEY") or "").strip()
+    if openai_key and model.startswith("openai/"):
+        return ChatOpenAI(
+            api_key=openai_key,
+            base_url="https://api.openai.com/v1",
+            max_retries=0,
+            model=model.removeprefix("openai/"),
+            streaming=True,
+        )
+
     return ChatOpenAI(
         api_key=_read_gateway_api_key(),
         base_url=os.getenv("AI_GATEWAY_BASE_URL", DEFAULT_GATEWAY_BASE_URL),
-        model=_resolve_model_name(),
+        model=model,
         streaming=True,
         temperature=0.2,
     )

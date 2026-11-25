@@ -1,9 +1,8 @@
-import type { RunStreamEvent, RunToolApprovalItem } from "@openai/agents";
 import {
-  run,
-  setDefaultOpenAIClient,
-  setOpenAIAPI,
-  setOpenAIResponsesTransport,
+  OpenAIProvider,
+  Runner,
+  type RunStreamEvent,
+  type RunToolApprovalItem,
 } from "@openai/agents";
 import { createAiSdkUiMessageStream } from "@openai/agents-extensions/ai-sdk-ui";
 import {
@@ -92,17 +91,29 @@ function isLikelyImageGenerationPrompt(messages: UIMessage[]) {
   return /生成.*图|图片|image|draw|illustration|artwork|poster/.test(content);
 }
 
-function configureOpenAiAgentsSdkDemoGatewayClient(env: DemoEnv) {
-  const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+function createDemoRunner(
+  env: DemoEnv,
+  modelProfile: ReturnType<typeof getOpenAiAgentsSdkDemoModelProfile>
+) {
+  const direct = modelProfile.provider === "openai-platform";
+  const apiKey = direct ? env.OPENAI_API_KEY?.trim() : env.AI_GATEWAY_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "Missing credentials for the selected OpenAI Agents model."
+    );
+  }
 
-  setOpenAIAPI(modelProfile.api);
-  setOpenAIResponsesTransport(modelProfile.responsesTransport);
-  setDefaultOpenAIClient(
-    new OpenAI({
-      apiKey: env.AI_GATEWAY_API_KEY,
-      baseURL: modelProfile.baseUrl,
-    })
-  );
+  return new Runner({
+    modelProvider: new OpenAIProvider({
+      openAIClient: new OpenAI({
+        apiKey,
+        baseURL: modelProfile.baseUrl,
+        ...(direct && { maxRetries: 0 }),
+      }),
+      useResponses: true,
+      useResponsesWebSocket: false,
+    }),
+  });
 }
 
 async function createDemoAgent(env: DemoEnv, origin: string) {
@@ -303,8 +314,8 @@ export async function streamOpenAiAgentsSdkDemo(
     signal?: AbortSignal;
   }
 ) {
-  configureOpenAiAgentsSdkDemoGatewayClient(env);
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+  const runner = createDemoRunner(env, modelProfile);
   const { agent, mcpServers } = await createDemoAgent(
     env,
     options?.origin ?? "http://localhost:3000"
@@ -334,7 +345,7 @@ export async function streamOpenAiAgentsSdkDemo(
   let agentStream: DemoAgentStream;
 
   if (approvalResume) {
-    agentStream = (await run(agent, approvalResume.state, {
+    agentStream = (await runner.run(agent, approvalResume.state, {
       ...(options?.signal ? { signal: options.signal } : {}),
       maxTurns: runProfile.maxTurns,
       ...sandboxRunConfig,
@@ -350,7 +361,7 @@ export async function streamOpenAiAgentsSdkDemo(
       env
     );
 
-    agentStream = (await run(agent, runRequest.input, {
+    agentStream = (await runner.run(agent, runRequest.input, {
       context: demoContext,
       ...runRequest.options,
       ...sandboxRunConfig,

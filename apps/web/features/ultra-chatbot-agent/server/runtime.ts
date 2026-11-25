@@ -346,6 +346,7 @@ export async function handleUltraChatbotAgentChatRequest(
 
   const provider = createUltraChatbotAgentProvider(env);
   const modelId = provider.resolveModelId(input.selectedChatModel);
+  const hostedTools = provider.hostedTools(modelId);
   const projectDocsMcpToolbox =
     await createUltraChatbotAgentProjectDocsMcpToolbox({
       origin: new URL(request.url).origin,
@@ -427,8 +428,8 @@ export async function handleUltraChatbotAgentChatRequest(
         }),
         [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool(
           {
-            model: provider.hostedToolsGateway(modelId),
-            webSearchTool: provider.hostedToolsGateway.tools.webSearch({
+            model: hostedTools.model,
+            webSearchTool: hostedTools.tools.webSearch({
               searchContextSize: "medium",
             }),
           }

@@ -9,11 +9,9 @@ import {
   importChatModule,
   MemorySessionMock,
   openAiConstructorMock,
+  openAiProviderMock,
   resetOpenAiAgentsSdkDemoChatMocks,
   runMock,
-  setDefaultOpenAIClientMock,
-  setOpenAIAPIMock,
-  setOpenAIResponsesTransportMock,
 } from "./chat-test-fixtures";
 
 beforeEach(resetOpenAiAgentsSdkDemoChatMocks);
@@ -175,20 +173,36 @@ function createPreviousResponseMessages(): UIMessage[] {
 }
 
 function expectGatewayClientConfigured() {
-  expect(setOpenAIAPIMock).toHaveBeenCalledWith("responses");
-  expect(setOpenAIResponsesTransportMock).toHaveBeenCalledWith("http");
   expect(openAiConstructorMock).toHaveBeenCalledWith({
     apiKey: "gateway-key",
     baseURL: "https://ai-gateway.vercel.sh/v1",
   });
-  expect(setDefaultOpenAIClientMock).toHaveBeenCalledWith({
-    config: {
-      apiKey: "gateway-key",
-      baseURL: "https://ai-gateway.vercel.sh/v1",
-    },
-    kind: "gateway-openai-client",
+  expect(openAiProviderMock).toHaveBeenCalledWith({
+    openAIClient: expect.objectContaining({
+      config: {
+        apiKey: "gateway-key",
+        baseURL: "https://ai-gateway.vercel.sh/v1",
+      },
+    }),
+    useResponses: true,
+    useResponsesWebSocket: false,
   });
 }
+
+it("uses a request-scoped Platform Responses client with retries disabled", async () => {
+  const { streamOpenAiAgentsSdkDemo } = await importChatModule();
+  const response = await streamOpenAiAgentsSdkDemo(createRunPathMessages(), {
+    AI_GATEWAY_API_KEY: "gateway-key",
+    OPENAI_API_KEY: "platform-key",
+  });
+
+  expect(response.status).toBe(200);
+  expect(openAiConstructorMock).toHaveBeenCalledWith({
+    apiKey: "platform-key",
+    baseURL: "https://api.openai.com/v1",
+    maxRetries: 0,
+  });
+});
 
 function getMainAgentConfig(): Record<string, unknown> {
   const config = agentConstructorMock.mock.calls

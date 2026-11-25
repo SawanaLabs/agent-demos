@@ -2,6 +2,7 @@ from langchain_core.messages import HumanMessage
 
 from langgraph_agent.agent import (
     DEFAULT_MODEL,
+    _create_chat_model,
     _resolve_model_name,
     plan_node,
     route_node,
@@ -21,6 +22,19 @@ def test_langgraph_agent_model_can_be_overridden(monkeypatch) -> None:
     monkeypatch.setenv("LANGGRAPH_AGENT_MODEL", "openai/gpt-5")
 
     assert _resolve_model_name() == "openai/gpt-5"
+
+
+def test_openai_model_uses_platform_client_without_retries(monkeypatch) -> None:
+    monkeypatch.delenv("AI_GATEWAY_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "platform-test-key")
+    monkeypatch.setenv("LANGGRAPH_AGENT_MODEL", "openai/gpt-5-mini")
+
+    model = _create_chat_model()
+
+    assert model.model_name == "gpt-5-mini"
+    assert model.openai_api_base == "https://api.openai.com/v1"
+    assert model.max_retries == 0
+    assert model.temperature is None
 
 
 def test_plan_node_summarizes_latest_human_request() -> None:

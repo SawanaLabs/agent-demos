@@ -125,11 +125,13 @@ export function getOpenAiAgentsSdkDemoRuntimeState(
   const chatModel = getOpenAiAgentsSdkDemoChatModel(env);
   const voiceRouteState =
     getOpenAiAgentsSdkDemoVoiceClientSecretRouteState(env);
-  const issues = env.AI_GATEWAY_API_KEY
-    ? []
-    : [
-        "AI_GATEWAY_API_KEY is missing. Add it to apps/web/.env.local using the contract in apps/web/.env.example.",
-      ];
+  const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+  const issues =
+    env.AI_GATEWAY_API_KEY || modelProfile.provider === "openai-platform"
+      ? []
+      : [
+          "Model credentials are missing. Add OPENAI_API_KEY or AI_GATEWAY_API_KEY to apps/web/.env.local using the contract in apps/web/.env.example.",
+        ];
   const isChatAvailable = issues.length === 0;
 
   return {
@@ -149,7 +151,7 @@ export function getOpenAiAgentsSdkDemoRuntimeState(
     isChatAvailable,
     mcpCatalog: getOpenAiAgentsSdkDemoMcpCatalog(),
     mcpProfile: getOpenAiAgentsSdkDemoMcpProfile(),
-    modelProfile: getOpenAiAgentsSdkDemoModelProfile(env),
+    modelProfile,
     nodeVersion: process.version,
     runProfile: getOpenAiAgentsSdkDemoRunProfile(env),
     sandboxProfile: getOpenAiAgentsSdkDemoSandboxProfile(),

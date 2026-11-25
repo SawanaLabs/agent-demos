@@ -8,9 +8,9 @@ import {
 } from "./database";
 import {
   createRagChatbotGateway,
-  getRagChatbotConfig,
   getRagChatbotEnv,
   type RagChatbotEnv,
+  resolveRagChatbotEmbeddingModel,
 } from "./env";
 import {
   buildRagPdfChunks,
@@ -108,9 +108,8 @@ export async function indexRagChatbotSource(
   }
 
   const gateway = createRagChatbotGateway(env);
-  const { embeddingModel } = getRagChatbotConfig(env);
   const { embeddings } = await embedMany({
-    model: gateway.embeddingModel(embeddingModel),
+    model: gateway.embeddingModel(resolveRagChatbotEmbeddingModel(env)),
     values: chunks.map((chunk) => chunk.content),
   });
   const resourceValues = {

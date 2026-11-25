@@ -1,3 +1,4 @@
+import { openAIModelId } from "@/features/shared/ai-gateway/server/openai-platform";
 import {
   consumeResource,
   ResourceUsageDeniedError,
@@ -38,7 +39,8 @@ async function executePlanWithNetworkRetry(
   } catch (error) {
     if (
       error instanceof ImageWorkflowExecutionError &&
-      error.code === "network"
+      error.code === "network" &&
+      !openAIModelId(plan.imageModel)
     ) {
       return executePlan(plan, env);
     }
@@ -69,7 +71,7 @@ export async function executeImageWorkflowGraph(
 ): Promise<WorkflowGraph> {
   const executePlan = dependencies.executePlan ?? executeImageWorkflowRunPlan;
   const randomUUID = dependencies.randomUUID ?? (() => crypto.randomUUID());
-  const config = readImageWorkflowAgentConfig(env);
+  const config = readImageWorkflowAgentConfig(env, "image");
   const plan = buildWorkflowRunPlan(graph, {
     imageModel: config.imageModel,
   });

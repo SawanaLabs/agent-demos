@@ -1,9 +1,12 @@
 import { createOpenAI } from "@ai-sdk/openai";
-
 import {
   createAiGateway,
   getAiGatewayConfig,
 } from "@/features/shared/ai-gateway/server/env";
+import {
+  createOpenAIPlatform,
+  openAIModelId,
+} from "@/features/shared/ai-gateway/server/openai-platform";
 
 import {
   getUltraChatbotAgentDefaultModel,
@@ -14,7 +17,10 @@ type DemoEnv = Record<string, string | undefined>;
 
 export interface UltraChatbotAgentProvider {
   gateway: ReturnType<typeof createAiGateway>;
-  hostedToolsGateway: ReturnType<typeof createOpenAI>;
+  hostedTools: (modelId: string) => {
+    model: ReturnType<ReturnType<typeof createOpenAI>["responses"]>;
+    tools: ReturnType<typeof createOpenAI>["tools"];
+  };
   resolveModelId: (selectedChatModel?: string) => string;
 }
 
@@ -69,16 +75,30 @@ export function createUltraChatbotAgentProvider(
   env: DemoEnv
 ): UltraChatbotAgentProvider {
   const gateway = createAiGateway(env);
-  const { apiKey, baseURL } = getAiGatewayConfig(env);
-  const hostedToolsGateway = createOpenAI({
-    apiKey,
-    baseURL: resolveOpenAICompatibleBaseURL(baseURL),
-    name: "gateway-openai",
-  });
+  const direct = createOpenAIPlatform(env.OPENAI_API_KEY);
 
   return {
     gateway,
-    hostedToolsGateway,
+    hostedTools(modelId: string) {
+      const directId = openAIModelId(modelId);
+      if (directId && direct) {
+        return { model: direct.responses(directId), tools: direct.tools };
+      }
+
+      const { apiKey, baseURL } = getAiGatewayConfig(env);
+      if (!apiKey) {
+        throw new Error("Missing AI_GATEWAY_API_KEY for this model.");
+      }
+      const hostedToolsGateway = createOpenAI({
+        apiKey,
+        baseURL: resolveOpenAICompatibleBaseURL(baseURL),
+        name: "gateway-openai",
+      });
+      return {
+        model: hostedToolsGateway.responses(modelId),
+        tools: hostedToolsGateway.tools,
+      };
+    },
     resolveModelId(selectedChatModel?: string) {
       return resolveUltraChatbotAgentSelectedModelId({
         env,

@@ -248,7 +248,7 @@ export async function generateImageWorkflowAgentResponse(
   const executeWorkflowGraph =
     dependencies.executeWorkflowGraph ?? executeImageWorkflowGraph;
   const runStreamText = dependencies.streamText ?? streamText;
-  const config = readImageWorkflowAgentConfig(env);
+  const config = readImageWorkflowAgentConfig(env, "chat");
   const gateway = createGateway(env);
   let currentGraph = graph;
   const handledStreamErrors = new Set<unknown>();

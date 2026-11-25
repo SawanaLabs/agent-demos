@@ -45,14 +45,12 @@ interface ChatMockState {
   MemorySessionMock: MemorySessionMockConstructor;
   OutputGuardrailTripwireTriggeredMock: GuardrailTripwireTriggeredMock;
   openAiConstructorMock: VitestMock;
+  openAiProviderMock: VitestMock;
   RunStateMock: {
     fromString: VitestMock;
   };
   runMock: VitestMock;
   SandboxAgentMock: VitestMock;
-  setDefaultOpenAIClientMock: VitestMock;
-  setOpenAIAPIMock: VitestMock;
-  setOpenAIResponsesTransportMock: VitestMock;
   toolMock: VitestMock;
   toolSearchToolMock: VitestMock;
   UnixLocalSandboxClientMock: VitestMock;
@@ -147,9 +145,7 @@ const chatMockState: ChatMockState = vi.hoisted(() => ({
   ManifestMock: vi.fn(),
   UnixLocalSandboxClientMock: vi.fn(),
   localDirMock: vi.fn(),
-  setDefaultOpenAIClientMock: vi.fn(),
-  setOpenAIAPIMock: vi.fn(),
-  setOpenAIResponsesTransportMock: vi.fn(),
+  openAiProviderMock: vi.fn(),
   toolMock: vi.fn(),
   toolSearchToolMock: vi.fn(),
   webSearchToolMock: vi.fn(),
@@ -192,11 +188,7 @@ const ManifestMock: VitestMock = chatMockState.ManifestMock;
 const UnixLocalSandboxClientMock: VitestMock =
   chatMockState.UnixLocalSandboxClientMock;
 const localDirMock: VitestMock = chatMockState.localDirMock;
-const setDefaultOpenAIClientMock: VitestMock =
-  chatMockState.setDefaultOpenAIClientMock;
-const setOpenAIAPIMock: VitestMock = chatMockState.setOpenAIAPIMock;
-const setOpenAIResponsesTransportMock: VitestMock =
-  chatMockState.setOpenAIResponsesTransportMock;
+const openAiProviderMock: VitestMock = chatMockState.openAiProviderMock;
 const toolMock: VitestMock = chatMockState.toolMock;
 const toolSearchToolMock: VitestMock = chatMockState.toolSearchToolMock;
 const webSearchToolMock: VitestMock = chatMockState.webSearchToolMock;
@@ -210,11 +202,9 @@ export {
   MemorySessionMock,
   OutputGuardrailTripwireTriggeredMock,
   openAiConstructorMock,
+  openAiProviderMock,
   RunStateMock,
   runMock,
-  setDefaultOpenAIClientMock,
-  setOpenAIAPIMock,
-  setOpenAIResponsesTransportMock,
 };
 
 vi.mock("@openai/agents", () => ({
@@ -231,11 +221,11 @@ vi.mock("@openai/agents", () => ({
   MemorySession: MemorySessionMock,
   MCPServerStreamableHttp: MCPServerStreamableHttpMock,
   OutputGuardrailTripwireTriggered: OutputGuardrailTripwireTriggeredMock,
+  OpenAIProvider: openAiProviderMock,
+  Runner: class {
+    run = runMock;
+  },
   RunState: RunStateMock,
-  run: runMock,
-  setDefaultOpenAIClient: setDefaultOpenAIClientMock,
-  setOpenAIAPI: setOpenAIAPIMock,
-  setOpenAIResponsesTransport: setOpenAIResponsesTransportMock,
   tool: toolMock,
   toolSearchTool: toolSearchToolMock,
   webSearchTool: webSearchToolMock,
@@ -303,9 +293,7 @@ function resetCoreMocks() {
   UnixLocalSandboxClientMock.mockReset();
   localDirMock.mockReset();
   RunStateMock.fromString.mockReset();
-  setDefaultOpenAIClientMock.mockReset();
-  setOpenAIAPIMock.mockReset();
-  setOpenAIResponsesTransportMock.mockReset();
+  openAiProviderMock.mockClear();
   toolMock.mockReset();
   toolSearchToolMock.mockReset();
   webSearchToolMock.mockReset();

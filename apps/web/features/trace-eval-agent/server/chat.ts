@@ -55,10 +55,15 @@ export async function streamTraceEvalAgent(
 ) {
   const { apiKey, baseURL } = getTraceEvalAgentConfig(env);
   const chatModel = resolveTraceEvalAgentChatModel(env);
+  const directKey = chatModel.startsWith("openai/")
+    ? env.OPENAI_API_KEY?.trim()
+    : undefined;
   const openai = createOpenAI({
-    apiKey,
-    baseURL: resolveOpenAICompatibleBaseURL(baseURL),
-    name: "gateway-openai",
+    apiKey: directKey || apiKey,
+    baseURL: directKey
+      ? "https://api.openai.com/v1"
+      : resolveOpenAICompatibleBaseURL(baseURL),
+    name: directKey ? "openai" : "gateway-openai",
   });
   const runId = crypto.randomUUID();
   const startedAt = Date.now();
@@ -82,7 +87,7 @@ export async function streamTraceEvalAgent(
       recordOutputs: true,
     },
     messages: await convertToModelMessages(replayableMessages),
-    model: openai(chatModel),
+    model: openai(directKey ? chatModel.slice("openai/".length) : chatModel),
     providerOptions: TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
     stopWhen: stepCountIs(20),
     system: traceEvalAgentInstructions,

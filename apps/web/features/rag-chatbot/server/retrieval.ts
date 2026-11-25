@@ -8,9 +8,9 @@ import {
 } from "./database";
 import {
   createRagChatbotGateway,
-  getRagChatbotConfig,
   getRagChatbotEnv,
   type RagChatbotEnv,
+  resolveRagChatbotEmbeddingModel,
 } from "./env";
 import { ensureRagKnowledgeBaseReady } from "./knowledge-base-status";
 import { ragChatbotSourceDocument } from "./source-document";
@@ -132,9 +132,8 @@ export async function generateRagEmbedding(
 ): Promise<number[]> {
   const gateway = createRagChatbotGateway(env);
   const normalizedValue = value.replaceAll("\n", " ").trim();
-  const { embeddingModel } = getRagChatbotConfig(env);
   const { embedding } = await embed({
-    model: gateway.embeddingModel(embeddingModel),
+    model: gateway.embeddingModel(resolveRagChatbotEmbeddingModel(env)),
     value: normalizedValue,
   });
 

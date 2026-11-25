@@ -1,5 +1,7 @@
 import { createGateway } from "ai";
 
+import { type DemoModelProvider, withOpenAIPlatform } from "./openai-platform";
+
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-luna";
 export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const MINIMUM_NODE_VERSION = "22.13.0";
@@ -176,11 +178,11 @@ export function buildAiGatewayContractSetupState<
 export function createAiGatewayFromContract(
   env: AiGatewayEnvRecord,
   options: AiGatewayContractOptions
-): ReturnType<typeof createGateway> {
+): DemoModelProvider {
   const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);
 
-  return createGateway({
-    apiKey,
-    baseURL,
-  });
+  return withOpenAIPlatform(
+    createGateway({ apiKey, baseURL }),
+    env.OPENAI_API_KEY
+  );
 }

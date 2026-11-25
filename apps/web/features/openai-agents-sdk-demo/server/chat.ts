@@ -99,7 +99,10 @@ function configureOpenAiAgentsSdkDemoGatewayClient(env: DemoEnv) {
   setOpenAIResponsesTransport(modelProfile.responsesTransport);
   setDefaultOpenAIClient(
     new OpenAI({
-      apiKey: env.AI_GATEWAY_API_KEY,
+      apiKey:
+        modelProfile.provider === "openai-platform"
+          ? env.OPENAI_API_KEY?.trim()
+          : env.AI_GATEWAY_API_KEY,
       baseURL: modelProfile.baseUrl,
     })
   );

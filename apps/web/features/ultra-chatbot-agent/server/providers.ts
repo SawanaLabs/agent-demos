@@ -1,9 +1,12 @@
 import { createOpenAI } from "@ai-sdk/openai";
-
 import {
   createAiGateway,
   getAiGatewayConfig,
 } from "@/features/shared/ai-gateway/server/env";
+import {
+  createOpenAIPlatform,
+  openAIModelId,
+} from "@/features/shared/ai-gateway/server/openai-platform";
 
 import {
   getUltraChatbotAgentDefaultModel,
@@ -14,7 +17,10 @@ type DemoEnv = Record<string, string | undefined>;
 
 export interface UltraChatbotAgentProvider {
   gateway: ReturnType<typeof createAiGateway>;
-  hostedToolsGateway: ReturnType<typeof createOpenAI>;
+  hostedTools: (modelId: string) => {
+    model: ReturnType<ReturnType<typeof createOpenAI>["responses"]>;
+    tools: ReturnType<typeof createOpenAI>["tools"];
+  };
   resolveModelId: (selectedChatModel?: string) => string;
 }
 
@@ -78,7 +84,16 @@ export function createUltraChatbotAgentProvider(
 
   return {
     gateway,
-    hostedToolsGateway,
+    hostedTools(modelId: string) {
+      const directId = openAIModelId(modelId);
+      const direct = directId && createOpenAIPlatform(env.OPENAI_API_KEY);
+      return direct
+        ? { model: direct.responses(directId), tools: direct.tools }
+        : {
+            model: hostedToolsGateway.responses(modelId),
+            tools: hostedToolsGateway.tools,
+          };
+    },
     resolveModelId(selectedChatModel?: string) {
       return resolveUltraChatbotAgentSelectedModelId({
         env,

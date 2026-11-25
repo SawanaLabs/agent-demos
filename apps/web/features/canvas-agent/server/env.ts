@@ -4,33 +4,51 @@ import {
   DEFAULT_GATEWAY_BASE_URL,
 } from "@/features/shared/ai-gateway/server/contract";
 
+import {
+  openAIModelId,
+  withOpenAIPlatform,
+} from "@/features/shared/ai-gateway/server/openai-platform";
+
 export const DEFAULT_CANVAS_TEXT_MODEL = DEFAULT_CHAT_MODEL;
 export const CANVAS_TEXT_PROVIDER_OPTIONS = {
   openai: { reasoningEffort: "medium" },
 } as const;
 export const DEFAULT_CANVAS_IMAGE_MODEL = "openai/gpt-image-2";
 
+function canvasModelIds() {
+  return {
+    text: process.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CANVAS_TEXT_MODEL,
+    image: process.env.AI_GATEWAY_IMAGE_MODEL || DEFAULT_CANVAS_IMAGE_MODEL,
+  };
+}
+
 export function canvasSetup() {
+  const { text, image } = canvasModelIds();
   return {
     ready: Boolean(
-      process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN
+      process.env.AI_GATEWAY_API_KEY ||
+        process.env.VERCEL_OIDC_TOKEN ||
+        (process.env.OPENAI_API_KEY?.trim() &&
+          openAIModelId(text) &&
+          openAIModelId(image))
     ),
   };
 }
+
 export function canvasModels(): { text: LanguageModel; image: ImageModel } {
   if (!canvasSetup().ready) {
-    throw new Error("请配置 AI_GATEWAY_API_KEY 后使用 AI。");
+    throw new Error("请配置 OPENAI_API_KEY 或 AI_GATEWAY_API_KEY 后使用 AI。");
   }
-  const gateway = createGateway({
-    apiKey: process.env.AI_GATEWAY_API_KEY,
-    baseURL: process.env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
-  });
+  const provider = withOpenAIPlatform(
+    createGateway({
+      apiKey: process.env.AI_GATEWAY_API_KEY,
+      baseURL: process.env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL,
+    }),
+    process.env.OPENAI_API_KEY
+  );
+  const { text, image } = canvasModelIds();
   return {
-    text: gateway.languageModel(
-      process.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CANVAS_TEXT_MODEL
-    ),
-    image: gateway.imageModel(
-      process.env.AI_GATEWAY_IMAGE_MODEL || DEFAULT_CANVAS_IMAGE_MODEL
-    ),
+    text: provider.languageModel(text),
+    image: provider.imageModel(image),
   };
 }

@@ -6,6 +6,7 @@ import {
   DEFAULT_GATEWAY_BASE_URL,
 } from "../../shared/ai-gateway/server/contract";
 import { DEFAULT_CHAT_MODEL } from "../../shared/ai-gateway/server/keys";
+import { withOpenAIPlatform } from "../../shared/ai-gateway/server/openai-platform";
 
 export const DEFAULT_IMAGE_WORKFLOW_AGENT_IMAGE_MODEL =
   "google/gemini-3.1-flash-lite-image";
@@ -16,7 +17,7 @@ const missingCredentialsIssue =
   "AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN is missing. The demo can render, but workflow runs will fail until credentials are configured.";
 
 export type ImageWorkflowAgentEnv = AiGatewayEnvRecord;
-export type ImageWorkflowAgentGateway = ReturnType<typeof createGateway>;
+export type ImageWorkflowAgentGateway = ReturnType<typeof withOpenAIPlatform>;
 
 export interface ImageWorkflowAgentConfig {
   apiKey: string | null;
@@ -98,7 +99,7 @@ export function createImageWorkflowAgentGateway(
 ): ImageWorkflowAgentGateway {
   const config = readImageWorkflowAgentConfig(env);
 
-  return createGateway({
+  const gateway = createGateway({
     apiKey: config.apiKey ?? undefined,
     baseURL: config.baseURL,
     headers: config.apiKey
@@ -107,4 +108,5 @@ export function createImageWorkflowAgentGateway(
           Authorization: `Bearer ${config.oidcToken}`,
         },
   });
+  return withOpenAIPlatform(gateway, env.OPENAI_API_KEY);
 }

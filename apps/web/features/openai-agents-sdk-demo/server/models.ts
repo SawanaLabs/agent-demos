@@ -14,7 +14,7 @@ export interface OpenAiAgentsSdkDemoModelProfile {
   api: "responses";
   baseUrl: string;
   model: string;
-  provider: "gateway-openai-client";
+  provider: "gateway-openai-client" | "openai-platform";
   reasoningEffort: DemoReasoningEffort;
   responsesTransport: "http";
   textVerbosity: DemoTextVerbosity;
@@ -83,11 +83,15 @@ export function getOpenAiAgentsSdkDemoTextVerbosity(
 export function getOpenAiAgentsSdkDemoModelProfile(
   env: DemoEnv
 ): OpenAiAgentsSdkDemoModelProfile {
+  const model = getOpenAiAgentsSdkDemoChatModel(env);
+  const direct = env.OPENAI_API_KEY?.trim() && model.startsWith("openai/");
   return {
     api: "responses",
-    baseUrl: getOpenAiAgentsSdkDemoGatewayBaseUrl(env),
-    model: getOpenAiAgentsSdkDemoChatModel(env),
-    provider: "gateway-openai-client",
+    baseUrl: direct
+      ? "https://api.openai.com/v1"
+      : getOpenAiAgentsSdkDemoGatewayBaseUrl(env),
+    model: direct ? model.slice("openai/".length) : model,
+    provider: direct ? "openai-platform" : "gateway-openai-client",
     reasoningEffort: getOpenAiAgentsSdkDemoReasoningEffort(env),
     responsesTransport: "http",
     textVerbosity: getOpenAiAgentsSdkDemoTextVerbosity(env),
@@ -148,15 +152,15 @@ export function getOpenAiAgentsSdkDemoProviderErrorMessage(error: unknown) {
 }
 
 export function supportsOpenAiAgentsSdkToolSearch(model: string) {
-  const normalizedModel = model.toLowerCase();
+  const normalizedModel = model.toLowerCase().replace(/^openai\//, "");
 
-  if (!normalizedModel.startsWith("openai/gpt-5")) {
+  if (!normalizedModel.startsWith("gpt-5")) {
     return false;
   }
 
   if (
-    normalizedModel.startsWith("openai/gpt-5.4") ||
-    normalizedModel.startsWith("openai/gpt-5.5")
+    normalizedModel.startsWith("gpt-5.4") ||
+    normalizedModel.startsWith("gpt-5.5")
   ) {
     return true;
   }

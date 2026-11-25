@@ -7,6 +7,16 @@
       "target": "lib/ai-gateway/contract.ts",
       "transforms": [
         {
+          "from": "\nimport { type DemoModelProvider, withOpenAIPlatform } from \"./openai-platform\";\n",
+          "to": "",
+          "expectedMatches": 1
+        },
+        {
+          "from": "): DemoModelProvider {\n  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);\n\n  return withOpenAIPlatform(\n    createGateway({ apiKey, baseURL }),\n    env.OPENAI_API_KEY\n  );\n}",
+          "to": "): ReturnType<typeof createGateway> {\n  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);\n\n  return createGateway({\n    apiKey,\n    baseURL,\n  });\n}",
+          "expectedMatches": 1
+        },
+        {
           "from": "const nodeVersionPattern =\n  /^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:[-+].*)?$/;",
           "to": "const nodeVersionPattern = /^v?(\\d+)\\.(\\d+)\\.(\\d+)(?:[-+].*)?$/;",
           "expectedMatches": 1

@@ -4,6 +4,7 @@ import { z } from "zod";
 export function feedbackEnv() {
   return createEnv({
     server: {
+      OPENAI_API_KEY: z.string().min(1).optional(),
       REDIS_URL: z.string().url().optional(),
       AI_GATEWAY_API_KEY: z.string().min(1).optional(),
       AI_GATEWAY_BASE_URL: z
@@ -13,6 +14,7 @@ export function feedbackEnv() {
       AI_GATEWAY_CHAT_MODEL: z.string().default("openai/gpt-5.6-luna"),
     },
     runtimeEnv: {
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       REDIS_URL: process.env.REDIS_URL,
       AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
       AI_GATEWAY_BASE_URL: process.env.AI_GATEWAY_BASE_URL,

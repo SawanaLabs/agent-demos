@@ -1,6 +1,10 @@
 import { createGateway } from "ai";
 
-import { type DemoModelProvider, withOpenAIPlatform } from "./openai-platform";
+import {
+  canUseOpenAIPlatform,
+  type DemoModelProvider,
+  withOpenAIPlatform,
+} from "./openai-platform";
 
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-luna";
 export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
@@ -17,7 +21,7 @@ export interface ParsedNodeVersion {
 }
 
 export interface AiGatewayContractConfig {
-  apiKey: string;
+  apiKey: string | undefined;
   baseURL: string;
   chatModel: string;
 }
@@ -128,7 +132,12 @@ export function readAiGatewayContractConfig(
   assertSupportedNodeRuntime();
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
 
-  if (!resolvedEnv.apiKey) {
+  if (
+    !(
+      resolvedEnv.apiKey ||
+      canUseOpenAIPlatform(env.OPENAI_API_KEY, resolvedEnv.chatModel)
+    )
+  ) {
     throw new Error(options.missingApiKeyError);
   }
 
@@ -156,7 +165,12 @@ export function buildAiGatewayContractSetupState<
     );
   }
 
-  if (!resolvedEnv.apiKey) {
+  if (
+    !(
+      resolvedEnv.apiKey ||
+      canUseOpenAIPlatform(env.OPENAI_API_KEY, resolvedEnv.chatModel)
+    )
+  ) {
     issues.push(options.missingApiKeyIssue || genericMissingApiKeyIssue);
   }
 
@@ -179,10 +193,15 @@ export function createAiGatewayFromContract(
   env: AiGatewayEnvRecord,
   options: AiGatewayContractOptions
 ): DemoModelProvider {
-  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);
+  assertSupportedNodeRuntime();
+  const { apiKey, baseURL } = resolveAiGatewayContractEnv(env, options);
+  if (!(apiKey || env.OPENAI_API_KEY?.trim())) {
+    throw new Error(options.missingApiKeyError);
+  }
 
   return withOpenAIPlatform(
-    createGateway({ apiKey, baseURL }),
-    env.OPENAI_API_KEY
+    apiKey ? createGateway({ apiKey, baseURL }) : undefined,
+    env.OPENAI_API_KEY,
+    options.missingApiKeyError
   );
 }

@@ -6,7 +6,10 @@ import {
   DEFAULT_GATEWAY_BASE_URL,
 } from "../../shared/ai-gateway/server/contract";
 import { DEFAULT_CHAT_MODEL } from "../../shared/ai-gateway/server/keys";
-import { withOpenAIPlatform } from "../../shared/ai-gateway/server/openai-platform";
+import {
+  canUseOpenAIPlatform,
+  withOpenAIPlatform,
+} from "../../shared/ai-gateway/server/openai-platform";
 
 export const DEFAULT_IMAGE_WORKFLOW_AGENT_IMAGE_MODEL =
   "google/gemini-3.1-flash-lite-image";
@@ -18,6 +21,7 @@ const missingCredentialsIssue =
 
 export type ImageWorkflowAgentEnv = AiGatewayEnvRecord;
 export type ImageWorkflowAgentGateway = ReturnType<typeof withOpenAIPlatform>;
+type WorkflowStage = "chat" | "image";
 
 export interface ImageWorkflowAgentConfig {
   apiKey: string | null;
@@ -52,16 +56,32 @@ export function resolveImageWorkflowAgentConfig(
 }
 
 export function readImageWorkflowAgentConfig(
-  env: ImageWorkflowAgentEnv = getImageWorkflowAgentEnv()
+  env: ImageWorkflowAgentEnv = getImageWorkflowAgentEnv(),
+  stage?: WorkflowStage
 ): ImageWorkflowAgentConfig {
   assertSupportedNodeRuntime();
   const config = resolveImageWorkflowAgentConfig(env);
 
-  if (!(config.apiKey || config.oidcToken)) {
+  if (!hasWorkflowCredentials(config, env.OPENAI_API_KEY, stage)) {
     throw new Error(missingCredentialsError);
   }
 
   return config;
+}
+
+function hasWorkflowCredentials(
+  config: ImageWorkflowAgentConfig,
+  openaiKey: string | undefined,
+  stage?: WorkflowStage
+) {
+  if (config.apiKey || config.oidcToken) {
+    return true;
+  }
+
+  return (
+    (stage === "image" || canUseOpenAIPlatform(openaiKey, config.chatModel)) &&
+    (stage === "chat" || canUseOpenAIPlatform(openaiKey, config.imageModel))
+  );
 }
 
 export function getImageWorkflowAgentSetupState(
@@ -78,7 +98,7 @@ export function getImageWorkflowAgentSetupState(
     );
   }
 
-  if (!(config.apiKey || config.oidcToken)) {
+  if (!hasWorkflowCredentials(config, env.OPENAI_API_KEY)) {
     issues.push(missingCredentialsIssue);
   }
 
@@ -97,16 +117,22 @@ export function getImageWorkflowAgentSetupState(
 export function createImageWorkflowAgentGateway(
   env: ImageWorkflowAgentEnv = getImageWorkflowAgentEnv()
 ): ImageWorkflowAgentGateway {
-  const config = readImageWorkflowAgentConfig(env);
+  assertSupportedNodeRuntime();
+  const config = resolveImageWorkflowAgentConfig(env);
 
-  const gateway = createGateway({
-    apiKey: config.apiKey ?? undefined,
-    baseURL: config.baseURL,
-    headers: config.apiKey
-      ? undefined
-      : {
-          Authorization: `Bearer ${config.oidcToken}`,
-        },
-  });
-  return withOpenAIPlatform(gateway, env.OPENAI_API_KEY);
+  const gateway =
+    config.apiKey || config.oidcToken
+      ? createGateway({
+          apiKey: config.apiKey ?? undefined,
+          baseURL: config.baseURL,
+          headers: config.apiKey
+            ? undefined
+            : { Authorization: `Bearer ${config.oidcToken}` },
+        })
+      : undefined;
+  return withOpenAIPlatform(
+    gateway,
+    env.OPENAI_API_KEY,
+    missingCredentialsError
+  );
 }

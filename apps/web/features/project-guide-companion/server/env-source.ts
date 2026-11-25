@@ -6,5 +6,6 @@ export function getProjectGuideCompanionAppEnv(): ProjectGuideCompanionEnv {
     AI_GATEWAY_API_KEY: env.AI_GATEWAY_API_KEY,
     AI_GATEWAY_BASE_URL: env.AI_GATEWAY_BASE_URL,
     AI_GATEWAY_CHAT_MODEL: env.AI_GATEWAY_CHAT_MODEL,
+    OPENAI_API_KEY: env.OPENAI_API_KEY,
   };
 }

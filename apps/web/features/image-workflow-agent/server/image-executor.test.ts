@@ -3,6 +3,51 @@ import { describe, expect, it, vi } from "vitest";
 import { executeImageWorkflowRunPlan } from "./image-executor";
 
 describe("image workflow execution adapter", () => {
+  it("sends reference images to the OpenAI Images API without replaying a failed request", async () => {
+    const dataUrl = "data:image/png;base64,cmVm";
+    const imageModel = vi.fn().mockReturnValue("openai-image-model");
+    const generateImage = vi.fn().mockResolvedValue({
+      image: { base64: "aW1hZ2U=", mediaType: "image/png" },
+    });
+    const generateText = vi.fn();
+
+    await expect(
+      executeImageWorkflowRunPlan(
+        {
+          aspectRatio: "16:9",
+          imageModel: "openai/gpt-image-2",
+          prompt: "Edit the launch visual",
+          referenceImage: {
+            dataUrl,
+            filename: "reference.png",
+            mediaType: "image/png",
+            sizeBytes: 3,
+          },
+          resultNodeId: "result-1",
+          revision: 1,
+        },
+        { OPENAI_API_KEY: "test-openai-key" },
+        {
+          createGateway: () => ({ imageModel }) as never,
+          generateImage,
+          generateText,
+        }
+      )
+    ).resolves.toMatchObject({ mediaType: "image/png" });
+
+    expect(imageModel).toHaveBeenCalledWith("openai/gpt-image-2");
+    expect(generateImage).toHaveBeenCalledWith({
+      maxRetries: 0,
+      model: "openai-image-model",
+      prompt: {
+        images: [dataUrl],
+        text: expect.stringContaining("Edit the launch visual"),
+      },
+      size: "1536x864",
+    });
+    expect(generateText).not.toHaveBeenCalled();
+  });
+
   it("uses the configured image model and converts the first generated image to a data URL", async () => {
     const gateway = {
       languageModel: vi.fn((modelId: string) => `language-model:${modelId}`),

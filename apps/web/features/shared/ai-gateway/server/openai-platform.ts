@@ -21,6 +21,13 @@ export function openAIModelId(modelId: string) {
   return modelId.startsWith("openai/") ? modelId.slice("openai/".length) : null;
 }
 
+export function canUseOpenAIPlatform(
+  apiKey: string | undefined,
+  modelId: string
+) {
+  return Boolean(apiKey?.trim() && openAIModelId(modelId));
+}
+
 export function createOpenAIPlatform(apiKey?: string) {
   return apiKey?.trim()
     ? createOpenAI({ apiKey: apiKey.trim(), baseURL: OPENAI_BASE_URL })
@@ -28,31 +35,42 @@ export function createOpenAIPlatform(apiKey?: string) {
 }
 
 export function withOpenAIPlatform(
-  gateway: Gateway,
-  apiKey?: string
+  gateway: Gateway | undefined,
+  apiKey?: string,
+  missingGatewayCredentials = "Missing AI_GATEWAY_API_KEY for this model."
 ): DemoModelProvider {
   const openai = createOpenAIPlatform(apiKey);
-  if (!openai) {
+  if (!openai && gateway) {
+    return gateway;
+  }
+
+  function requireGateway() {
+    if (!gateway) {
+      throw new Error(missingGatewayCredentials);
+    }
+
     return gateway;
   }
 
   const languageModel = (modelId: string) => {
     const directId = openAIModelId(modelId);
-    return directId
+    return directId && openai
       ? openai.responses(directId)
-      : gateway.languageModel(modelId);
+      : requireGateway().languageModel(modelId);
   };
 
   return Object.assign(languageModel, {
     embeddingModel(modelId: string) {
       const directId = openAIModelId(modelId);
-      return directId
+      return directId && openai
         ? openai.embedding(directId)
-        : gateway.embeddingModel(modelId);
+        : requireGateway().embeddingModel(modelId);
     },
     imageModel(modelId: string) {
       const directId = openAIModelId(modelId);
-      return directId ? openai.image(directId) : gateway.imageModel(modelId);
+      return directId && openai
+        ? openai.image(directId)
+        : requireGateway().imageModel(modelId);
     },
     languageModel,
   });

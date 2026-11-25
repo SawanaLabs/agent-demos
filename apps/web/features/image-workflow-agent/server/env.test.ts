@@ -48,6 +48,23 @@ describe("image workflow agent env", () => {
     });
   });
 
+  it("checks the selected model for each stage with only the Platform key", () => {
+    const env = { OPENAI_API_KEY: "test-openai-key" };
+
+    expect(readImageWorkflowAgentConfig(env, "chat").chatModel).toMatch(
+      /^openai\//
+    );
+    expect(() => readImageWorkflowAgentConfig(env, "image")).toThrow(
+      /gateway credentials/
+    );
+    expect(
+      getImageWorkflowAgentSetupState({
+        ...env,
+        AI_GATEWAY_IMAGE_MODEL: "openai/gpt-image-2",
+      }).isReady
+    ).toBe(true);
+  });
+
   it("throws an explicit credential error when runtime config is required", () => {
     expect(() => readImageWorkflowAgentConfig({})).toThrowError(
       "Missing AI gateway credentials. Set AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN before using the image workflow agent."

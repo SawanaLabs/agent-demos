@@ -41,6 +41,22 @@ describe("rag chatbot env", () => {
     );
   });
 
+  it("allows the default OpenAI chat and indexing with only the Platform key", () => {
+    const env = {
+      DATABASE_URL: "postgresql://localhost/database",
+      OPENAI_API_KEY: "test-openai-key",
+    };
+
+    expect(getRagChatbotSetupState(env).isReady).toBe(true);
+    expect(getRagChatbotIndexSetupIssue(env)).toBeNull();
+    expect(
+      getRagChatbotIndexSetupIssue({
+        ...env,
+        AI_GATEWAY_EMBEDDING_MODEL: "google/gemini-embedding-001",
+      })
+    ).toMatch(/AI_GATEWAY_API_KEY/);
+  });
+
   it("reports the index setup issue in dependency order", () => {
     expect(getRagChatbotIndexSetupIssue({})).toMatch(/AI_GATEWAY_API_KEY/i);
     expect(

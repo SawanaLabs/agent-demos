@@ -134,6 +134,7 @@ def _create_chat_model() -> ChatOpenAI:
         return ChatOpenAI(
             api_key=openai_key,
             base_url="https://api.openai.com/v1",
+            max_retries=0,
             model=model.removeprefix("openai/"),
             streaming=True,
         )

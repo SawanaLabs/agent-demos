@@ -7,14 +7,24 @@
       "target": "lib/ai-gateway/contract.ts",
       "transforms": [
         {
-          "from": "\nimport { type DemoModelProvider, withOpenAIPlatform } from \"./openai-platform\";\n",
+          "from": "\nimport {\n  canUseOpenAIPlatform,\n  type DemoModelProvider,\n  withOpenAIPlatform,\n} from \"./openai-platform\";\n",
           "to": "",
           "expectedMatches": 1
         },
         {
-          "from": "): DemoModelProvider {\n  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);\n\n  return withOpenAIPlatform(\n    createGateway({ apiKey, baseURL }),\n    env.OPENAI_API_KEY\n  );\n}",
+          "from": "): DemoModelProvider {\n  assertSupportedNodeRuntime();\n  const { apiKey, baseURL } = resolveAiGatewayContractEnv(env, options);\n  if (!(apiKey || env.OPENAI_API_KEY?.trim())) {\n    throw new Error(options.missingApiKeyError);\n  }\n\n  return withOpenAIPlatform(\n    apiKey ? createGateway({ apiKey, baseURL }) : undefined,\n    env.OPENAI_API_KEY,\n    options.missingApiKeyError\n  );\n}",
           "to": "): ReturnType<typeof createGateway> {\n  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);\n\n  return createGateway({\n    apiKey,\n    baseURL,\n  });\n}",
           "expectedMatches": 1
+        },
+        {
+          "from": "export interface AiGatewayContractConfig {\n  apiKey: string | undefined;",
+          "to": "export interface AiGatewayContractConfig {\n  apiKey: string;",
+          "expectedMatches": 1
+        },
+        {
+          "from": "  if (\n    !(\n      resolvedEnv.apiKey ||\n      canUseOpenAIPlatform(env.OPENAI_API_KEY, resolvedEnv.chatModel)\n    )\n  ) {",
+          "to": "  if (!resolvedEnv.apiKey) {",
+          "expectedMatches": 2
         },
         {
           "from": "const nodeVersionPattern =\n  /^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:[-+].*)?$/;",

@@ -75,24 +75,29 @@ export function createUltraChatbotAgentProvider(
   env: DemoEnv
 ): UltraChatbotAgentProvider {
   const gateway = createAiGateway(env);
-  const { apiKey, baseURL } = getAiGatewayConfig(env);
-  const hostedToolsGateway = createOpenAI({
-    apiKey,
-    baseURL: resolveOpenAICompatibleBaseURL(baseURL),
-    name: "gateway-openai",
-  });
+  const direct = createOpenAIPlatform(env.OPENAI_API_KEY);
 
   return {
     gateway,
     hostedTools(modelId: string) {
       const directId = openAIModelId(modelId);
-      const direct = directId && createOpenAIPlatform(env.OPENAI_API_KEY);
-      return direct
-        ? { model: direct.responses(directId), tools: direct.tools }
-        : {
-            model: hostedToolsGateway.responses(modelId),
-            tools: hostedToolsGateway.tools,
-          };
+      if (directId && direct) {
+        return { model: direct.responses(directId), tools: direct.tools };
+      }
+
+      const { apiKey, baseURL } = getAiGatewayConfig(env);
+      if (!apiKey) {
+        throw new Error("Missing AI_GATEWAY_API_KEY for this model.");
+      }
+      const hostedToolsGateway = createOpenAI({
+        apiKey,
+        baseURL: resolveOpenAICompatibleBaseURL(baseURL),
+        name: "gateway-openai",
+      });
+      return {
+        model: hostedToolsGateway.responses(modelId),
+        tools: hostedToolsGateway.tools,
+      };
     },
     resolveModelId(selectedChatModel?: string) {
       return resolveUltraChatbotAgentSelectedModelId({

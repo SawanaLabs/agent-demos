@@ -90,4 +90,28 @@ describe("image workflow runtime", () => {
     });
     expect(JSON.stringify(graph)).not.toContain("Private provider response.");
   });
+
+  it("does not repeat an OpenAI image generation after an ambiguous network failure", async () => {
+    const executePlan = vi
+      .fn()
+      .mockRejectedValue(
+        new ImageWorkflowExecutionError("network", "Connection closed.")
+      );
+
+    const graph = await executeImageWorkflowGraph(
+      createRunnableGraph(),
+      {
+        AI_GATEWAY_IMAGE_MODEL: "openai/gpt-image-2",
+        OPENAI_API_KEY: "test-openai-key",
+      },
+      { executePlan, randomUUID: () => "run-1" }
+    );
+
+    expect(executePlan).toHaveBeenCalledOnce();
+    expect(
+      graph.nodes.find((node) => node.kind === "image-result")?.data
+    ).toMatchObject({
+      status: "failed",
+    });
+  });
 });

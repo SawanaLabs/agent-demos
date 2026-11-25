@@ -7,10 +7,13 @@ import {
   createAiGatewayFromContract,
   readAiGatewayContractConfig,
 } from "@/features/shared/ai-gateway/server/contract";
+import { canUseOpenAIPlatform } from "@/features/shared/ai-gateway/server/openai-platform";
 import { getRagChatbotAppEnv } from "./env-source";
 
 const DEFAULT_RAG_CHATBOT_CHAT_MODEL = "openai/gpt-4.1-mini";
 const DEFAULT_EMBEDDING_MODEL = "openai/text-embedding-3-small";
+const missingEmbeddingCredentials =
+  "The configured embedding model requires AI_GATEWAY_API_KEY, or OPENAI_API_KEY for an OpenAI model.";
 
 export type RagChatbotEnv = AiGatewayEnvRecord;
 
@@ -40,8 +43,18 @@ export function getRagChatbotEnv(): RagChatbotEnv {
   return getRagChatbotAppEnv();
 }
 
-function resolveRagChatbotEmbeddingModel(env: RagChatbotEnv) {
+export function resolveRagChatbotEmbeddingModel(env: RagChatbotEnv) {
   return env.AI_GATEWAY_EMBEDDING_MODEL || DEFAULT_EMBEDDING_MODEL;
+}
+
+function hasRagEmbeddingCredentials(env: RagChatbotEnv) {
+  return (
+    Boolean(env.AI_GATEWAY_API_KEY) ||
+    canUseOpenAIPlatform(
+      env.OPENAI_API_KEY,
+      resolveRagChatbotEmbeddingModel(env)
+    )
+  );
 }
 
 export function getRagChatbotConfig(
@@ -78,14 +91,18 @@ export function getRagChatbotSetupState(
       chatModel: resolvedEnv.chatModel,
       embeddingModel: resolveRagChatbotEmbeddingModel(currentEnv),
     }),
+    getAdditionalIssues: (_, currentEnv) =>
+      hasRagEmbeddingCredentials(currentEnv)
+        ? []
+        : [missingEmbeddingCredentials],
   });
 }
 
 export function getRagChatbotIndexSetupIssue(
   env: RagChatbotEnv = getRagChatbotEnv()
 ): string | null {
-  if (!env.AI_GATEWAY_API_KEY) {
-    return "AI_GATEWAY_API_KEY is missing. Source indexing requires embedding generation through AI Gateway.";
+  if (!hasRagEmbeddingCredentials(env)) {
+    return missingEmbeddingCredentials;
   }
 
   if (!env.DATABASE_URL) {

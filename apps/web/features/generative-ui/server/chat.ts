@@ -161,15 +161,13 @@ export async function streamGenerativeUiChat(
   env: GenerativeUiEnv = getGenerativeUiEnv()
 ) {
   const { apiKey, baseURL, chatModel } = getGenerativeUiConfig(env);
-  const directKey = chatModel.startsWith("openai/")
-    ? env.OPENAI_API_KEY?.trim()
-    : undefined;
+  const directModel = chatModel.startsWith("openai/");
   const openai = createOpenAI({
-    apiKey: directKey || apiKey,
-    baseURL: directKey
+    apiKey: directModel ? env.OPENAI_API_KEY?.trim() : apiKey,
+    baseURL: directModel
       ? "https://api.openai.com/v1"
       : resolveOpenAICompatibleBaseURL(baseURL),
-    name: directKey ? "openai" : "gateway-openai",
+    name: directModel ? "openai" : "gateway-openai",
   });
   const runId = crypto.randomUUID();
   const startedAt = Date.now();
@@ -195,7 +193,7 @@ export async function streamGenerativeUiChat(
     messages: await convertToModelMessages(
       prepareGenerativeUiModelMessages(messages)
     ),
-    model: openai(directKey ? chatModel.slice("openai/".length) : chatModel),
+    model: openai(directModel ? chatModel.slice("openai/".length) : chatModel),
     providerOptions: GENERATIVE_UI_PROVIDER_OPTIONS,
     system: systemPrompt,
     tools: {

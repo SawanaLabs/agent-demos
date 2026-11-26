@@ -44,6 +44,7 @@ it("serializes paused RunState metadata when a tool approval interruption is ret
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     }
   );
 
@@ -125,6 +126,7 @@ it("resumes a paused run from serialized RunState after an approval response", a
 
   await streamOpenAiAgentsSdkDemo(createApprovalResponseMessages(), {
     AI_GATEWAY_API_KEY: "gateway-key",
+    OPENAI_API_KEY: "test-openai-key",
   });
 
   expect(RunStateMock.fromString).toHaveBeenCalledWith(
@@ -184,6 +186,7 @@ it("blocks a normal user turn while a tool approval is still pending", async () 
   await expect(
     streamOpenAiAgentsSdkDemo(createPendingApprovalMessages(), {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     })
   ).rejects.toThrow("A tool approval is pending");
   expect(runMock).not.toHaveBeenCalled();

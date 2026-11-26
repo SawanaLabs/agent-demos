@@ -260,6 +260,7 @@ describe("indexRagChatbotSource", () => {
     const result = await indexRagChatbotSource(
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://example",
       },
       {
@@ -301,6 +302,7 @@ describe("indexRagChatbotSource", () => {
     const result = await indexRagChatbotSource(
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://example",
       },
       {
@@ -325,7 +327,10 @@ describe("indexRagChatbotSource", () => {
       status: "indexed",
     });
     expect(embedManyMock).toHaveBeenCalledWith({
-      model: "embedding-model",
+      model: expect.objectContaining({
+        modelId: "text-embedding-3-small",
+        provider: "openai.embedding",
+      }),
       values: [
         "Logotype usage. Use the logotype consistently across approved layouts.",
         "Seal usage. Reserve the seal for official and ceremonial applications.",
@@ -383,6 +388,7 @@ describe("indexRagChatbotSource", () => {
       indexRagChatbotSource(
         {
           AI_GATEWAY_API_KEY: "test-key",
+          OPENAI_API_KEY: "test-openai-key",
           DATABASE_URL: "postgresql://example",
         },
         {

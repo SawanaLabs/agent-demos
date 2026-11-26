@@ -4,7 +4,7 @@ import type { RagKnowledgeBaseStatus } from "./knowledge-base-status";
 import { getRagChatbotRuntimeState, handleRagChatbotRequest } from "./runtime";
 
 const missingDatabasePattern = /DATABASE_URL/i;
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 function createKnowledgeBaseStatus(
   overrides: Partial<RagKnowledgeBaseStatus>
@@ -25,7 +25,7 @@ describe("rag chatbot runtime", () => {
     expect(state).toMatchObject({
       isChatAvailable: false,
       statusLabel: "Setup required",
-      setupMessage: expect.stringMatching(missingGatewayKeyPattern),
+      setupMessage: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -34,6 +34,7 @@ describe("rag chatbot runtime", () => {
       getRagChatbotRuntimeState(
         {
           AI_GATEWAY_API_KEY: "test-key",
+          OPENAI_API_KEY: "test-openai-key",
           DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         },
         {
@@ -58,6 +59,7 @@ describe("rag chatbot runtime", () => {
       getRagChatbotRuntimeState(
         {
           AI_GATEWAY_API_KEY: "test-key",
+          OPENAI_API_KEY: "test-openai-key",
           DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         },
         {
@@ -81,6 +83,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -112,7 +115,7 @@ describe("rag chatbot runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -124,6 +127,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         getKnowledgeBaseStatus: async () =>
@@ -152,6 +156,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -177,6 +182,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -201,6 +207,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -231,6 +238,7 @@ describe("rag chatbot runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {

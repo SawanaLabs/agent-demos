@@ -9,6 +9,7 @@ describe("sandbox-agent runtime", () => {
   it("surfaces the preview-first runtime state when setup is ready", async () => {
     const runtimeState = await getSandboxAgentRuntimeState({
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       VERCEL_OIDC_TOKEN: "test-oidc-token",
     });
 
@@ -39,6 +40,7 @@ describe("sandbox-agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       }
     );
@@ -71,6 +73,7 @@ describe("sandbox-agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       },
       {

@@ -25,8 +25,8 @@ updateAt: 2026-06-16
 - **SDK-first backend**: Backend code shaped around official SDK primitives such as `Agent`, `Runner`, `run()`, `RunContext`, `RunState`, `RunResult`, `StreamedRunResult`, `tool()`, `handoff()`, sessions, and tracing.
 - **Run state surface**: The persisted or returned data needed to continue a run safely: `history`, `newItems`, `finalOutput`, `interruptions`, `state`, `lastAgent` / `activeAgent`, `lastResponseId`, `runContext`, usage, and trace metadata.
 - **AI SDK UI bridge**: The official adapter from `@openai/agents-extensions/ai-sdk-ui` that converts an OpenAI Agents SDK stream into AI SDK UI-compatible chunks.
-- **Gateway-backed OpenAI client**: The official `openai` client configured against AI Gateway's OpenAI-compatible Responses endpoint and injected into the OpenAI Agents SDK with `setDefaultOpenAIClient(...)`.
-- **Provider transport boundary**: The narrow layer where `AI_GATEWAY_API_KEY`, base URL, model id, and reasoning settings are configured. Agent behavior must still be modeled through OpenAI Agents SDK primitives.
+- **Gateway-backed OpenAI client**: The official `openai` client configured against AI Gateway’s OpenAI-compatible Responses endpoint for models from other vendors.
+- **Provider transport boundary**: The narrow layer where the selected model determines the endpoint and credential. Agent behavior must still be modeled through OpenAI Agents SDK primitives.
 - **Provider capability block**: An explicit setup or runtime state used when AI Gateway or the selected model/provider cannot support an official OpenAI Agents SDK capability.
 - **Capability lane**: One coherent mode or section inside the ultra demo, such as "tools and approvals" or "handoffs and typed results", with its own backend module, focused tests, and visible UI states while remaining inside the same **Whole-demo copy boundary**.
 - **General OpenAI Agent**: The product shape for the ultra demo: a ChatGPT-like conversational agent built from OpenAI Agents SDK primitives, with official SDK capabilities exposed through one coherent chat workspace.
@@ -100,8 +100,8 @@ updateAt: 2026-06-16
   - `apps/web/app/demos/openai-agents-sdk-demo/page.tsx`
   - `apps/web/app/api/demos/openai-agents-sdk-demo/route.ts`
 - The backend currently uses a feature-local `Agent`, `run(..., { stream: true })`, and `createAiSdkUiMessageStream(...)` wrapped in AI SDK UI response helpers.
-- The provider path currently uses `setOpenAIAPI("responses")` plus `setDefaultOpenAIClient(new OpenAI(...))` to route through AI Gateway's OpenAI-compatible Responses endpoint.
-- The current default demo model is `openai/gpt-5-mini`, inherited from the repo's AI Gateway config style. Keep the default configurable through `AI_GATEWAY_CHAT_MODEL` and `OPENAI_AGENTS_MODEL`.
+- A request-scoped Runner uses the official Responses provider. OpenAI models use the OpenAI Platform endpoint.
+- The current default demo model is `openai/gpt-5-mini`, with the namespace removed when sent to OpenAI. Keep the default configurable through `AI_GATEWAY_CHAT_MODEL` and `OPENAI_AGENTS_MODEL`.
 - The `Agents` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/agents.ts`, which constructs the official `Agent` used by the chat route.
 - The `Models` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/models.ts`, which centralizes model id, Responses API selection, HTTP transport, AI Gateway base URL, reasoning effort, and text verbosity.
 - The current agent now passes both `modelSettings.reasoning.effort` and `modelSettings.text.verbosity` into the official `Agent` constructor. This matters because once custom `modelSettings` are provided, the SDK no longer applies the GPT-5 default `text.verbosity = low` automatically.
@@ -142,8 +142,8 @@ updateAt: 2026-06-16
   - `server/state.ts`: session ids, serialized `RunState`, approval resolution, `history`, `lastResponseId`, and any local persistence boundary.
   - `server/stream.ts`: full SDK event handling plus the AI SDK UI bridge. Text streaming should stay bridged; richer SDK events should be emitted through explicit UI message parts or feature-local side-channel metadata.
   - `server/capabilities/*`: one file per official-document capability lane when the module gets large enough. These are internal lanes inside one demo, not separate Agent Demos.
-- Configure SDK-wide defaults in one stable bootstrap path, not ad hoc inside every request branch. The OpenAI Agents SDK config docs describe `setDefaultOpenAIClient(...)` and `setOpenAIAPI(...)` as process-wide defaults.
-- Keep AI Gateway as a transport/provider layer. Do not let provider swapping erase SDK semantics. Features that depend on OpenAI Responses-specific behavior should fail explicitly when the selected Gateway model/provider cannot support them.
+- Construct the SDK Runner with a request-scoped model provider so concurrent requests can select different transports.
+- Preserve SDK semantics for OpenAI Platform and the Gateway transport for other model providers. Features that depend on OpenAI Responses-specific behavior should fail explicitly when the selected Gateway model/provider cannot support them.
 - Capability support must be explicit. A capability can be `implemented`, `used this run`, `not exercised`, `blocked by provider`, or `requires native OpenAI credentials`; it should never be treated as covered by a silent fallback.
 - Prefer OpenAI Responses API chaining, sessions, or serialized `RunState` over manual UI transcript reconstruction once tools, approvals, handoffs, or MCP enter the flow.
 - Preserve the official AI SDK UI bridge for assistant text and standard AI SDK UI chunks. Add feature-local rendering for SDK-native artifacts that the bridge does not expose well enough.
@@ -151,7 +151,7 @@ updateAt: 2026-06-16
 - Keep official guide coverage visible in the right-side inspector. A user should be able to see that a Tesla research conversation exercised `Tools`, `Handoffs`, `Results`, `Sessions`, `Tracing`, or other official guide families without reading the code.
 - Make coverage evidence concrete enough for code review. Avoid vague "supported" badges unless the row also names the official guide, SDK primitive, observable run item/event, and current-run usage state.
 - Keep all credentials explicit:
-  - `AI_GATEWAY_API_KEY` is required for the Gateway-backed OpenAI client.
+  - `OPENAI_API_KEY` authenticates the default OpenAI Platform Responses client. Other vendor models use the Gateway client and `AI_GATEWAY_API_KEY`.
   - `OPENAI_AGENTS_GATEWAY_BASE_URL` remains an optional demo-local override.
   - `OPENAI_AGENTS_MODEL` remains an optional demo-local model override.
   - Add hosted-tool, MCP, tracing, sandbox, or voice credentials only when the matching lane is implemented.

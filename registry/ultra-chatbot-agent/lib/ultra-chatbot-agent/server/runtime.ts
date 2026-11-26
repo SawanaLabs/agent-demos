@@ -380,6 +380,7 @@ export async function handleUltraChatbotAgentChatRequest(
   }
 
   try {
+    const hostedTools = provider.hostedTools(modelId);
     const agent = new ToolLoopAgent({
       instructions: getUltraChatbotAgentSystemPrompt({
         capabilities,
@@ -419,8 +420,8 @@ export async function handleUltraChatbotAgentChatRequest(
         }),
         [ultraChatbotAgentSearchToolName]: createUltraChatbotAgentWebSearchTool(
           {
-            model: provider.hostedToolsGateway(modelId),
-            webSearchTool: provider.hostedToolsGateway.tools.webSearch({
+            model: hostedTools.model,
+            webSearchTool: hostedTools.tools.webSearch({
               searchContextSize: "medium",
             }),
           }

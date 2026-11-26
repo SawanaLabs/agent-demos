@@ -102,6 +102,8 @@ async function createOpenAiAgentsSdkDemoVoiceClientSecret({
 >[0]): Promise<OpenAiAgentsSdkDemoVoiceClientSecretResponse> {
   const client = new OpenAI({
     apiKey,
+    baseURL: "https://api.openai.com/v1",
+    maxRetries: 0,
   });
 
   const response = await client.realtime.clientSecrets.create(params, {

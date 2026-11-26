@@ -27,6 +27,7 @@ describe("project guide companion runtime", () => {
     expect(
       getProjectGuideCompanionRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       chatModel: "openai/gpt-5.6-luna",
@@ -51,7 +52,7 @@ describe("project guide companion runtime", () => {
     expect(response.status).toBe(500);
     expect(streamProjectGuideCompanion).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/AI_GATEWAY_API_KEY/i),
+      error: expect.stringMatching(/OPENAI_API_KEY/i),
     });
   });
 
@@ -84,6 +85,7 @@ describe("project guide companion runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         clock: () => new Date("2026-06-08T12:00:00.000Z"),
@@ -96,6 +98,7 @@ describe("project guide companion runtime", () => {
       [expect.objectContaining({ id: "fresh" })],
       expect.objectContaining({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       }),
       "openai/gpt-5-mini"
     );
@@ -114,6 +117,7 @@ describe("project guide companion runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamProjectGuideCompanion,

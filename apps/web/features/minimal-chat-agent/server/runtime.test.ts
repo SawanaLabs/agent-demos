@@ -5,12 +5,15 @@ import {
   handleMinimalChatAgentRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("minimal chat agent runtime", () => {
   it("maps gateway setup into a page-facing runtime state", () => {
     expect(
-      getMinimalChatAgentRuntimeState({ AI_GATEWAY_API_KEY: "test-key" })
+      getMinimalChatAgentRuntimeState({
+        OPENAI_API_KEY: "test-openai-key",
+        AI_GATEWAY_API_KEY: "test-key",
+      })
     ).toEqual({
       chatModel: "openai/gpt-5-mini",
       isChatAvailable: true,
@@ -34,7 +37,7 @@ describe("minimal chat agent runtime", () => {
     expect(response.status).toBe(500);
     expect(streamMinimalChatAgent).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -44,14 +47,14 @@ describe("minimal chat agent runtime", () => {
         body: "{",
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
     const invalidMessagesResponse = await handleMinimalChatAgentRequest(
       new Request("http://localhost/api/demos/minimal-chat-agent", {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
 
     expect(malformedResponse.status).toBe(400);
@@ -85,14 +88,14 @@ describe("minimal chat agent runtime", () => {
 
     const response = await handleMinimalChatAgentRequest(
       request,
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       { streamMinimalChatAgent }
     );
 
     expect(response.status).toBe(200);
     expect(streamMinimalChatAgent).toHaveBeenCalledWith(
       messages,
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       request.signal
     );
   });

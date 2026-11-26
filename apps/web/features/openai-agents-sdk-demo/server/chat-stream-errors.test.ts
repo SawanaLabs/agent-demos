@@ -55,6 +55,7 @@ it("surfaces stream errors through the AI SDK UI error handler", async () => {
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      AI_GATEWAY_CHAT_MODEL: "google/gemini-3.1-flash-lite",
     }
   );
 
@@ -132,6 +133,7 @@ it("maps terminated image-generation streams to an explicit provider block", asy
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      AI_GATEWAY_CHAT_MODEL: "google/gemini-3.1-flash-lite",
     }
   );
 
@@ -155,6 +157,7 @@ it("maps guardrail tripwires to explicit chat errors", async () => {
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     }
   );
 

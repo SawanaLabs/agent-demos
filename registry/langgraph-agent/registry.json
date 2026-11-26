@@ -95,11 +95,6 @@
           "target": "@components/ai-elements/shimmer.tsx"
         },
         {
-          "path": "lib/ai-gateway/contract.ts",
-          "type": "registry:lib",
-          "target": "@lib/ai-gateway/contract.ts"
-        },
-        {
           "path": "lib/langgraph-agent/server/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/langgraph-agent/server/env-source.ts"

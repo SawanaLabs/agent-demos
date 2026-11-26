@@ -6,6 +6,7 @@ describe("openai agents sdk demo runtime state tracing and context guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         OPENAI_AGENTS_DISABLE_TRACING: "1",
         OPENAI_AGENTS_TRACING_API_KEY: "trace-key",
       })
@@ -44,6 +45,7 @@ describe("openai agents sdk demo runtime state tracing and context guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([
@@ -71,6 +73,7 @@ describe("openai agents sdk demo runtime state tracing and context guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       contextProfile: {
@@ -106,6 +109,7 @@ describe("openai agents sdk demo runtime state execution guides", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -140,6 +144,7 @@ describe("openai agents sdk demo runtime state execution guides", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -169,6 +174,7 @@ describe("openai agents sdk demo runtime state execution guides", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -203,6 +209,7 @@ describe("openai agents sdk demo runtime state execution guides", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -228,6 +235,7 @@ describe("openai agents sdk demo runtime state extension and agent guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -262,6 +270,7 @@ describe("openai agents sdk demo runtime state extension and agent guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -285,6 +294,7 @@ describe("openai agents sdk demo runtime state extension and agent guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -307,6 +317,7 @@ describe("openai agents sdk demo runtime state extension and agent guides", () =
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       guideCoverage: expect.arrayContaining([

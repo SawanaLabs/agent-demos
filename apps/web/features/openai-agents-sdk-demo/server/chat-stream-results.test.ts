@@ -70,6 +70,7 @@ it("captures official stream events and returns a streaming summary to the UI", 
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     }
   );
 
@@ -167,6 +168,7 @@ it("persists settled RunResult surfaces into result metadata after completion", 
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     }
   );
 
@@ -256,6 +258,7 @@ it("adds generated image files to the UI stream when image_generation completes"
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
     }
   );
 

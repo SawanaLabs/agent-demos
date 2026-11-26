@@ -77,7 +77,7 @@ describe("streamTraceEvalAgent", () => {
     toUiMessageStreamResponseMock.mockReturnValue(Response.json({ ok: true }));
   });
 
-  it("streams a research response with Gateway search, sources, and metadata", async () => {
+  it("streams a research response with OpenAI search, sources, and metadata", async () => {
     const messages = [
       {
         id: "m1",
@@ -134,14 +134,15 @@ describe("streamTraceEvalAgent", () => {
     ];
     const response = await streamTraceEvalAgent(messages, {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
     });
 
     expect(response.status).toBe(200);
     expect(createOpenAIMock).toHaveBeenCalledWith({
-      apiKey: "test-key",
-      baseURL: "https://ai-gateway.example/v1",
-      name: "gateway-openai",
+      apiKey: "test-openai-key",
+      baseURL: "https://api.openai.com/v1",
+      name: "openai",
     });
     expect(convertToModelMessagesMock).toHaveBeenCalledWith([
       messages[0],
@@ -163,7 +164,7 @@ describe("streamTraceEvalAgent", () => {
           isEnabled: true,
         }),
         messages: [{ content: "converted", role: "user" }],
-        model: "openai-model:openai/gpt-5-mini",
+        model: "openai-model:gpt-5-mini",
         providerOptions: TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
         stopWhen: "stop-when",
         system: expect.stringContaining(

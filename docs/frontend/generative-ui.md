@@ -59,4 +59,4 @@ updateAt: 2026-06-15
 
 - `generative-ui` is expected to ship as a public registry demo.
 - Registry source must include the demo-owned UI components, server runtime, UI contract, thin route entries, shared demo shell, shared chat controller, and AI Gateway contract.
-- The registry item should keep `AI_GATEWAY_API_KEY` as the only required credential. `GENERATIVE_UI_CHAT_MODEL` is an optional feature-specific override.
+- The registry item uses `OPENAI_API_KEY` for the default OpenAI model. `GENERATIVE_UI_CHAT_MODEL` is an optional feature-specific override.

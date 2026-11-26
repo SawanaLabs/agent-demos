@@ -45,6 +45,7 @@ describe("image workflow agent chat", () => {
       createDefaultWorkflowGraph(),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
       },
       {
@@ -113,6 +114,7 @@ describe("image workflow agent chat", () => {
       createDefaultWorkflowGraph(),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         createGateway: () =>
@@ -157,7 +159,7 @@ describe("image workflow agent chat", () => {
           },
         ],
         createDefaultWorkflowGraph(),
-        { AI_GATEWAY_API_KEY: "test-key" },
+        { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
         {
           createGateway: () => ({ languageModel: () => "chat-model" }) as never,
           executeWorkflowGraph: vi.fn(),
@@ -202,7 +204,7 @@ describe("image workflow agent chat", () => {
         },
       ],
       invalidGraph,
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         createGateway: () => ({ languageModel: () => "chat-model" }) as never,
         observer,
@@ -267,6 +269,7 @@ describe("image workflow agent chat", () => {
       createDefaultWorkflowGraph(),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         createGateway: () =>
@@ -429,7 +432,7 @@ describe("image workflow agent chat", () => {
           }),
         ]),
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       { observer }
     );
     expect(ran.image).toEqual({
@@ -471,7 +474,7 @@ describe("image workflow agent chat", () => {
           }),
         ]),
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       { observer }
     );
   });

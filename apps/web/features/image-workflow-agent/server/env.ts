@@ -7,7 +7,9 @@ import {
 } from "../../shared/ai-gateway/server/contract";
 import { DEFAULT_CHAT_MODEL } from "../../shared/ai-gateway/server/keys";
 import {
-  canUseOpenAIPlatform,
+  hasDemoModelCredentials,
+  MISSING_OPENAI_PLATFORM_KEY,
+  openAIModelId,
   withOpenAIPlatform,
 } from "../../shared/ai-gateway/server/openai-platform";
 
@@ -16,8 +18,6 @@ export const DEFAULT_IMAGE_WORKFLOW_AGENT_IMAGE_MODEL =
 
 const missingCredentialsError =
   "Missing AI gateway credentials. Set AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN before using the image workflow agent.";
-const missingCredentialsIssue =
-  "AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN is missing. The demo can render, but workflow runs will fail until credentials are configured.";
 
 export type ImageWorkflowAgentEnv = AiGatewayEnvRecord;
 export type ImageWorkflowAgentGateway = ReturnType<typeof withOpenAIPlatform>;
@@ -62,26 +62,40 @@ export function readImageWorkflowAgentConfig(
   assertSupportedNodeRuntime();
   const config = resolveImageWorkflowAgentConfig(env);
 
-  if (!hasWorkflowCredentials(config, env.OPENAI_API_KEY, stage)) {
-    throw new Error(missingCredentialsError);
+  const [issue] = workflowCredentialIssues(config, env.OPENAI_API_KEY, stage);
+  if (issue) {
+    throw new Error(issue);
   }
 
   return config;
 }
 
-function hasWorkflowCredentials(
+function workflowCredentialIssues(
   config: ImageWorkflowAgentConfig,
   openaiKey: string | undefined,
   stage?: WorkflowStage
 ) {
-  if (config.apiKey || config.oidcToken) {
-    return true;
+  const models = {
+    chat: config.chatModel,
+    image: config.imageModel,
+  };
+  const issues = new Set<string>();
+  for (const model of stage ? [models[stage]] : Object.values(models)) {
+    if (
+      !hasDemoModelCredentials(
+        model,
+        openaiKey,
+        config.apiKey || config.oidcToken
+      )
+    ) {
+      issues.add(
+        openAIModelId(model) === null
+          ? missingCredentialsError
+          : MISSING_OPENAI_PLATFORM_KEY
+      );
+    }
   }
-
-  return (
-    (stage === "image" || canUseOpenAIPlatform(openaiKey, config.chatModel)) &&
-    (stage === "chat" || canUseOpenAIPlatform(openaiKey, config.imageModel))
-  );
+  return [...issues];
 }
 
 export function getImageWorkflowAgentSetupState(
@@ -98,9 +112,7 @@ export function getImageWorkflowAgentSetupState(
     );
   }
 
-  if (!hasWorkflowCredentials(config, env.OPENAI_API_KEY)) {
-    issues.push(missingCredentialsIssue);
-  }
+  issues.push(...workflowCredentialIssues(config, env.OPENAI_API_KEY));
 
   return {
     config: {

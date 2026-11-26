@@ -126,12 +126,13 @@ export function getOpenAiAgentsSdkDemoRuntimeState(
   const voiceRouteState =
     getOpenAiAgentsSdkDemoVoiceClientSecretRouteState(env);
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
-  const issues =
-    env.AI_GATEWAY_API_KEY || modelProfile.provider === "openai-platform"
-      ? []
-      : [
-          "Model credentials are missing. Add OPENAI_API_KEY or AI_GATEWAY_API_KEY to apps/web/.env.local using the contract in apps/web/.env.example.",
-        ];
+  const credentialName =
+    modelProfile.provider === "openai-platform"
+      ? "OPENAI_API_KEY"
+      : "AI_GATEWAY_API_KEY";
+  const issues = env[credentialName]?.trim()
+    ? []
+    : [`${credentialName} is required for the configured chat model.`];
   const isChatAvailable = issues.length === 0;
 
   return {
@@ -243,8 +244,10 @@ export async function handleOpenAiAgentsSdkDemoRequest(
       );
     }
 
-    const providerErrorMessage =
-      getOpenAiAgentsSdkDemoProviderErrorMessage(error);
+    const providerErrorMessage = getOpenAiAgentsSdkDemoProviderErrorMessage(
+      error,
+      runtimeState.modelProfile.provider
+    );
 
     if (providerErrorMessage) {
       return Response.json(

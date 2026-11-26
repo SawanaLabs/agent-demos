@@ -1,6 +1,7 @@
 import { createGateway, generateText } from "ai";
 import { z } from "zod";
 import {
+  hasDemoModelCredentials,
   openAIModelId,
   withOpenAIPlatform,
 } from "@/features/shared/ai-gateway/server/openai-platform";
@@ -125,14 +126,16 @@ async function uploadScreenshot(
 async function analyze(owner: string, id: string) {
   const config = feedbackEnv();
   if (
-    !(
-      config.AI_GATEWAY_API_KEY ||
-      (config.OPENAI_API_KEY?.trim() &&
-        openAIModelId(config.AI_GATEWAY_CHAT_MODEL))
+    !hasDemoModelCredentials(
+      config.AI_GATEWAY_CHAT_MODEL,
+      config.OPENAI_API_KEY,
+      config.AI_GATEWAY_API_KEY
     )
   ) {
     throw new FeedbackError(
-      "Configure OPENAI_API_KEY or AI_GATEWAY_API_KEY to analyze feedback.",
+      openAIModelId(config.AI_GATEWAY_CHAT_MODEL) === null
+        ? "Configure AI_GATEWAY_API_KEY to analyze feedback."
+        : "Configure OPENAI_API_KEY to analyze feedback.",
       503
     );
   }

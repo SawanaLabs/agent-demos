@@ -5,13 +5,14 @@ import {
   handleMultimodalChatbotRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("multimodal chatbot runtime", () => {
   it("maps shared gateway setup into a multimodal-ready runtime state", () => {
     expect(
       getMultimodalChatbotRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1",
       })
     ).toEqual({
@@ -27,7 +28,7 @@ describe("multimodal chatbot runtime", () => {
   it("keeps setup errors inside the multimodal runtime shape", () => {
     expect(getMultimodalChatbotRuntimeState({})).toMatchObject({
       isChatAvailable: false,
-      setupMessage: expect.stringMatching(missingGatewayKeyPattern),
+      setupMessage: expect.stringMatching(missingOpenAiKeyPattern),
       statusLabel: "Setup required",
     });
   });
@@ -43,7 +44,7 @@ describe("multimodal chatbot runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -53,7 +54,7 @@ describe("multimodal chatbot runtime", () => {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         streamMultimodalChatbot: async () => Response.json({ ok: true }),
       }
@@ -90,7 +91,7 @@ describe("multimodal chatbot runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         streamMultimodalChatbot: async (messages) =>
           Response.json({ messageCount: messages.length }),
@@ -126,7 +127,7 @@ describe("multimodal chatbot runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         streamMultimodalChatbot: async () => Response.json({ ok: true }),
       }

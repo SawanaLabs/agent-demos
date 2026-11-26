@@ -9,7 +9,9 @@ import {
 import { DEFAULT_CHAT_MODEL } from "./keys";
 
 vi.mock("ai", () => ({
-  createGateway: vi.fn((config) => ({ config })),
+  createGateway: vi.fn((config) => ({
+    languageModel: (modelId: string) => ({ config, modelId }),
+  })),
 }));
 
 const contractOptions = {
@@ -24,7 +26,7 @@ describe("AI Gateway runtime contract", () => {
   it("reads gateway config with defaults", () => {
     expect(
       readAiGatewayContractConfig(
-        { AI_GATEWAY_API_KEY: "test-key" },
+        { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
         contractOptions
       )
     ).toEqual({
@@ -35,7 +37,12 @@ describe("AI Gateway runtime contract", () => {
   });
 
   it("throws the caller-owned setup error when the key is missing", () => {
-    expect(() => readAiGatewayContractConfig({}, contractOptions)).toThrowError(
+    expect(() =>
+      readAiGatewayContractConfig(
+        { AI_GATEWAY_CHAT_MODEL: "google/gemini-3.1-flash-lite" },
+        contractOptions
+      )
+    ).toThrowError(
       "Missing AI_GATEWAY_API_KEY. Add it to .env.local before using the test demo."
     );
   });
@@ -44,6 +51,7 @@ describe("AI Gateway runtime contract", () => {
     const setup = buildAiGatewayContractSetupState(
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
         DATABASE_URL: "",
       },
@@ -77,11 +85,13 @@ describe("AI Gateway runtime contract", () => {
       createAiGatewayFromContract(
         {
           AI_GATEWAY_API_KEY: "test-key",
+          OPENAI_API_KEY: "test-openai-key",
           AI_GATEWAY_BASE_URL: "https://gateway.example.com",
         },
         contractOptions
-      )
+      ).languageModel("google/gemini-3.1-flash-lite")
     ).toEqual({
+      modelId: "google/gemini-3.1-flash-lite",
       config: {
         apiKey: "test-key",
         baseURL: "https://gateway.example.com",

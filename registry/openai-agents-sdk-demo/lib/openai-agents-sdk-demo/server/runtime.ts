@@ -125,11 +125,14 @@ export function getOpenAiAgentsSdkDemoRuntimeState(
   const chatModel = getOpenAiAgentsSdkDemoChatModel(env);
   const voiceRouteState =
     getOpenAiAgentsSdkDemoVoiceClientSecretRouteState(env);
-  const issues = env.AI_GATEWAY_API_KEY
+  const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+  const credentialName =
+    modelProfile.provider === "openai-platform"
+      ? "OPENAI_API_KEY"
+      : "AI_GATEWAY_API_KEY";
+  const issues = env[credentialName]?.trim()
     ? []
-    : [
-        "AI_GATEWAY_API_KEY is missing. Add it to your installed Next.js app's .env.local before running this registry demo.",
-      ];
+    : [`${credentialName} is required for the configured chat model.`];
   const isChatAvailable = issues.length === 0;
 
   return {
@@ -242,7 +245,10 @@ export async function handleOpenAiAgentsSdkDemoRequest(
     }
 
     const providerErrorMessage =
-      getOpenAiAgentsSdkDemoProviderErrorMessage(error);
+      getOpenAiAgentsSdkDemoProviderErrorMessage(
+        error,
+        runtimeState.modelProfile.provider
+      );
 
     if (providerErrorMessage) {
       return Response.json(

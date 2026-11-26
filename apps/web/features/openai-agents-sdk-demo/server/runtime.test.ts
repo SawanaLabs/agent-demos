@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { OpenAiAgentsSdkDemoRunInputError } from "./running";
 import { handleOpenAiAgentsSdkDemoRequest } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("openai agents sdk demo request handling", () => {
   it("returns a setup error before attempting agent work", async () => {
@@ -17,7 +17,7 @@ describe("openai agents sdk demo request handling", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -46,6 +46,7 @@ describe("openai agents sdk demo request handling", () => {
       request,
       {
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamOpenAiAgentsSdkDemo: async (messages, _env, options) =>
@@ -84,6 +85,7 @@ describe("openai agents sdk demo request handling", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamOpenAiAgentsSdkDemo: async () => {
@@ -125,6 +127,7 @@ describe("openai agents sdk demo request handling", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamOpenAiAgentsSdkDemo: async () => {
@@ -158,6 +161,7 @@ describe("openai agents sdk demo request handling", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_AGENTS_MODEL: "anthropic/claude-sonnet-4.6",
       },
       {
         streamOpenAiAgentsSdkDemo: async () => {

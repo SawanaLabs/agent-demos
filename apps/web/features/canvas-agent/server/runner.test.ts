@@ -22,6 +22,7 @@ it.each([
   false,
   true,
 ])("uses GPT Image 2 low and preserves reference inputs: %s", async (withReference) => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.stubEnv("AI_GATEWAY_IMAGE_MODEL", "");
   vi.mocked(generateImage).mockResolvedValue({
@@ -37,7 +38,7 @@ it.each([
   const call = vi.mocked(generateImage).mock.calls[0]?.[0];
   assert(call);
   expect(call).toMatchObject({
-    model: { modelId: "openai/gpt-image-2" },
+    model: { modelId: "gpt-image-2" },
     size: "1536x864",
     providerOptions: { openai: { quality: "low" } },
   });
@@ -78,6 +79,7 @@ it("preserves diagnostic errors while redacting credentials", async () => {
 });
 
 it("uses Luna medium for text nodes and respects the configured model", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.mocked(generateText).mockResolvedValue({ text: "done" } as Awaited<
     ReturnType<typeof generateText>
@@ -88,13 +90,14 @@ it("uses Luna medium for text nodes and respects the configured model", async ()
     vi.stubEnv("AI_GATEWAY_CHAT_MODEL", model);
     expect(await generateNode(node, [])).toEqual({ text: "done" });
     expect(vi.mocked(generateText).mock.lastCall?.[0]).toMatchObject({
-      model: { modelId: model || "openai/gpt-5.6-luna" },
+      model: { modelId: model.replace(/^openai\//, "") || "gpt-5.6-luna" },
       providerOptions: { openai: { reasoningEffort: "medium" } },
     });
   }
 });
 
 it("blocks image generation before the provider call when the host denies credits", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   const node = initialGraph().nodes[1];
   assert(node);
@@ -109,6 +112,7 @@ it("blocks image generation before the provider call when the host denies credit
 });
 
 it("requests a structured result list for multi-text while charging one text generation", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   const results = [
     { label: "产品", text: "Closeup" },
@@ -132,6 +136,7 @@ it("requests a structured result list for multi-text while charging one text gen
 });
 
 it("uses native image batching and reserves the entire batch before generation", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.mocked(generateImage).mockResolvedValue({
     images: Array.from({ length: 3 }, () => ({
@@ -212,6 +217,7 @@ it("keeps previous output on failed regeneration, then invalidates only downstre
 it("passes each selected generated text verbatim to its image request through explicit inputs", async () => {
   const { addCanvasNode } = await import("../model/generation");
   const { createNode } = await import("../model/graph");
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.mocked(generateText).mockResolvedValue({
     output: {
@@ -266,6 +272,7 @@ it("resumes a migrated completed workflow without regenerating existing results"
 });
 
 it("leaves image dimensions to the provider in auto mode", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.mocked(generateImage).mockResolvedValue({
     image: { mediaType: "image/png", base64: "b3V0" },

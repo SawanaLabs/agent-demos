@@ -5,8 +5,9 @@
       "name": "foundation-chat",
       "type": "registry:block",
       "title": "Foundation Chat",
-      "description": "A production-ready AI Gateway chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
+      "description": "A production-ready OpenAI Platform chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "ai",
@@ -27,6 +28,7 @@
         "https://elements.ai-sdk.dev/api/registry/message.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
@@ -93,6 +95,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "lib/foundation-chat/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/env-source.ts"
@@ -118,7 +125,7 @@
           "target": "@components/page-copy.tsx"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds server-side model provider env vars to .env.local."
     }
   ]
 }

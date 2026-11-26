@@ -43,22 +43,19 @@ export const readGenerativeUiEnv = getGenerativeUiEnv;
 export function getGenerativeUiConfig(
   env: GenerativeUiEnv = getGenerativeUiEnv()
 ): GenerativeUiConfig {
-  return {
-    ...readAiGatewayContractConfig(env, generativeUiContract),
-    chatModel: resolveGenerativeUiChatModel(env),
-  };
+  return readAiGatewayContractConfig(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveGenerativeUiChatModel(env) },
+    generativeUiContract
+  );
 }
 
 export function getGenerativeUiSetupState(
   env: GenerativeUiEnv = getGenerativeUiEnv()
 ): GenerativeUiSetupState {
-  return buildAiGatewayContractSetupState(env, {
-    ...generativeUiContract,
-    buildConfig: (resolvedEnv) => ({
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolveGenerativeUiChatModel(env),
-    }),
-  });
+  return buildAiGatewayContractSetupState(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveGenerativeUiChatModel(env) },
+    generativeUiContract
+  );
 }
 
 export function createGenerativeUiGateway(

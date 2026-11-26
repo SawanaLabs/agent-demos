@@ -14,7 +14,7 @@ it("reports setup requirements when gateway, database, or redis config is missin
 
   expect(getUltraChatbotAgentRuntimeState({})).toMatchObject({
     isChatAvailable: false,
-    setupMessage: expect.stringContaining("AI_GATEWAY_API_KEY"),
+    setupMessage: expect.stringContaining("OPENAI_API_KEY"),
     statusLabel: "Setup required",
   });
 });
@@ -35,6 +35,7 @@ it("rejects unknown selected models before touching persistence", async () => {
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -60,6 +61,7 @@ it("rejects unsupported attachments before touching persistence", async () => {
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }

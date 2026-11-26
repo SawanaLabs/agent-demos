@@ -5,13 +5,14 @@ import {
   handleStreamingChatShellRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("streaming chat shell runtime", () => {
   it("maps shared gateway setup into a streaming-shell runtime state", () => {
     expect(
       getStreamingChatShellRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1-mini",
       })
     ).toEqual({
@@ -27,7 +28,7 @@ describe("streaming chat shell runtime", () => {
   it("keeps setup errors inside the streaming-shell runtime shape", () => {
     expect(getStreamingChatShellRuntimeState({})).toMatchObject({
       isChatAvailable: false,
-      setupMessage: expect.stringMatching(missingGatewayKeyPattern),
+      setupMessage: expect.stringMatching(missingOpenAiKeyPattern),
       statusLabel: "Setup required",
     });
   });
@@ -43,7 +44,7 @@ describe("streaming chat shell runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -53,7 +54,7 @@ describe("streaming chat shell runtime", () => {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         streamStreamingChatShell: async () => Response.json({ ok: true }),
       }
@@ -80,7 +81,7 @@ describe("streaming chat shell runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         streamStreamingChatShell: async (messages, _env, options) =>
           Response.json({

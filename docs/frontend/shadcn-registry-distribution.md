@@ -35,7 +35,7 @@ pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 - Generate the visible handoff URL from the registry guide config instead of hard-coding it inside the page component, so future host changes update registry commands and the agent prompt together.
 - Treat coding-agent-assisted adaptation as part of the consumer story. A Registry Consumer may install a demo into a new or existing project, give the installed source plus linked docs to their coding agent, and ask that agent to adapt routes, styling, data services, or provider settings to the host project.
 - Treat Foundation Chat as the recommended starter demo for first-time registry consumers, not as a prerequisite for other public registry demos. Public copy must not imply that other demo commands require Foundation Chat to be installed first.
-- The provider checkpoint happens after Foundation Chat has been installed. The default installed provider seam is AI Gateway; when the user has another provider key or preference, the coding agent should read AI SDK Providers docs, install the documented provider package, and adapt the installed Foundation Chat provider seam and env contract in the consumer project.
+- The provider checkpoint happens after Foundation Chat has been installed. The default installed provider is OpenAI Platform; when the user has another provider key or preference, the coding agent should read AI SDK Providers docs, install the documented provider package, and adapt the installed Foundation Chat provider seam and env contract in the consumer project.
 - Vercel deployment guidance should prefer the CLI path but link to current Vercel CLI, link, and deploy docs instead of freezing detailed commands in the public page. The acceptance criteria must require an actual deployment trigger, the deployment URL, and the full `/demos/foundation-chat` deployed page URL.
 
 ## Current Rules
@@ -103,7 +103,7 @@ pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 - `foundation-chat` is the first registry block and proves the minimum installable demo shape.
 - It installs a page route, API route, feature component pair, and AI SDK runtime helper.
 - It depends on official shadcn registry primitives through `registryDependencies`, including `utils`, so a fresh consumer project gets the same base-nova source the CLI would install by hand.
-- It intentionally keeps only the basic AI Gateway chat contract so the first registry item stays small enough to validate in fresh projects.
+- It intentionally keeps only the basic provider contract for chat so the first registry item stays small enough to validate in fresh projects.
 - Treat `registry/foundation-chat/` as the reference implementation for future demo registry items unless a later doc explicitly replaces it.
 - Consumer-facing install syntax should standardize on a registry namespace:
 
@@ -184,7 +184,7 @@ pnpm dlx shadcn@latest registry add @agent-demos=https://agent-demos.hsawana9.co
 pnpm dlx shadcn@latest add @agent-demos/foundation-chat
 ```
 
-Then set `AI_GATEWAY_API_KEY` in `.env.local` and run:
+Then set `OPENAI_API_KEY` in `.env.local` and run:
 
 ```bash
 pnpm lint
@@ -214,7 +214,7 @@ The current ready demos explicitly omitted from registry source are:
 
 `langgraph-agent` is intentionally published as **Frontend slice distribution**: the registry item installs the Next.js page, route proxy, UI, and adapter runtime, while the Python LangGraph backend stays a separate service that the Registry Consumer runs locally or deploys from `apps/langgraph-agent-api`.
 
-`ultra-chatbot-agent` is intentionally published as a complete full-stack registry item. The install ships the workspace shell, route-backed chat APIs, model selector, history, voting, documents, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. AI Gateway, Postgres, and Redis are required for the main happy path. Blob and Vercel Sandbox credentials belong to Ultra's core capability set and should be configured when validating uploads or sandbox execution.
+`ultra-chatbot-agent` is intentionally published as a complete full-stack registry item. The install ships the workspace shell, route-backed chat APIs, model selector, history, voting, documents, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. OpenAI Platform, Postgres, and Redis are required for the default flow. Blob and Vercel Sandbox credentials belong to Ultra's core capability set and should be configured when validating uploads or sandbox execution.
 
 The current acceptance bar for a queue-complete registry batch is:
 
@@ -269,9 +269,9 @@ Use one clean consumer project per demo for the primary acceptance check. Do not
 
 Run registry verification as one vertical demo loop at a time. If a demo fails fresh-consumer acceptance, fix that demo to passing before starting the next demo, then commit that completed demo slice separately. Avoid broad queue-first audits that turn one shared registry failure into repeated noise across many demos.
 
-Use the current simple-to-complex verification order: `foundation-chat`, `multimodal-chatbot`, `object-generation`, `generative-ui`, `streaming-chat-shell`, `loop-agent`, `mcp-agent`, `trace-eval-agent`, `rag-chatbot`, `customer-memory-agent`, `persistent-agent`, `sandbox-agent`, `skills-agent`, `langgraph-agent`, then `ultra-chatbot-agent`. This order prioritizes AI-Gateway-only demos with smaller state surfaces before database, Redis, external backend, Blob, MCP, RAG, and Vercel Sandbox-backed demos.
+Use the current simple-to-complex verification order: `foundation-chat`, `multimodal-chatbot`, `object-generation`, `generative-ui`, `streaming-chat-shell`, `loop-agent`, `mcp-agent`, `trace-eval-agent`, `rag-chatbot`, `customer-memory-agent`, `persistent-agent`, `sandbox-agent`, `skills-agent`, `langgraph-agent`, then `ultra-chatbot-agent`. This order prioritizes provider-only demos with smaller state surfaces before database, Redis, external backend, Blob, MCP, RAG, and Vercel Sandbox-backed demos.
 
-For AI-Gateway-only registry demos, the fresh-consumer happy path must include a browser-level interaction after `AI_GATEWAY_API_KEY` is configured: open the installed demo page, click the first suggestion, and verify that the UI completes a visible assistant response. API route smoke checks are supporting evidence only; they do not replace the page-level suggestion flow.
+For provider-only registry demos, the fresh-consumer happy path must include a browser-level interaction after the selected model's provider key is configured: open the installed demo page, click the first suggestion, and verify that the UI completes a visible assistant response. API route smoke checks are supporting evidence only; they do not replace the page-level suggestion flow.
 
 For this registry-verification phase, browser-level E2E means a human-style Codex in-app Browser check against the running fresh consumer dev server. CLI automation may create the consumer app, install the registry item, configure env, start the server, and collect logs, but the acceptance interaction itself is performed through the browser: open the demo page, click the first suggestion, observe the visible response, and inspect obvious UI/runtime failures.
 
@@ -291,4 +291,4 @@ Use this condensed checklist when the next demo starts registry work:
 - fresh consumer page probes return `200`
 - fresh consumer invalid-body API probes return the expected validation error
 - fresh consumer `pnpm exec tsc --noEmit`, `pnpm build`, and `pnpm dev` pass
-- AI-Gateway-only demo: fresh consumer browser flow clicks the first suggestion and receives a visible assistant response
+- provider-only demo: fresh consumer browser flow clicks the first suggestion and receives a visible assistant response

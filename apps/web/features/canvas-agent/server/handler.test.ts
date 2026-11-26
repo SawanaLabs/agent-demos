@@ -16,6 +16,7 @@ afterEach(() => {
 });
 
 it("preserves completed tools across turns while excluding interrupted calls", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   vi.stubEnv("AI_GATEWAY_CHAT_MODEL", "");
   const response = await handleCanvasChat(
@@ -50,7 +51,7 @@ it("preserves completed tools across turns while excluding interrupted calls", a
   );
   await response.text();
   expect(vi.mocked(streamText).mock.calls[0]?.[0]).toMatchObject({
-    model: { modelId: "openai/gpt-5.6-luna" },
+    model: { modelId: "gpt-5.6-luna" },
     providerOptions: { openai: { reasoningEffort: "medium" } },
   });
   const messages = vi.mocked(streamText).mock.calls[0]?.[0].messages;
@@ -85,6 +86,7 @@ it("preserves completed tools across turns while excluding interrupted calls", a
 });
 
 it("accepts photo-only messages and binds the attachment through addNode in plan mode", async () => {
+  vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
   vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
   const url =
     "https://example.public.blob.vercel-storage.com/canvas-agent/uploads/photo.png";

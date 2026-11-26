@@ -79,6 +79,7 @@ describe("streamMinimalChatAgent", () => {
       messages,
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_BASE_URL: "https://ai-gateway.example/v3/ai",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
       },
@@ -87,9 +88,8 @@ describe("streamMinimalChatAgent", () => {
 
     expect(response.status).toBe(200);
     expect(createOpenAIMock).toHaveBeenCalledWith({
-      apiKey: "test-key",
-      baseURL: "https://ai-gateway.example/v1",
-      name: "gateway-openai",
+      apiKey: "test-openai-key",
+      baseURL: "https://api.openai.com/v1",
     });
     expect(stepCountIsMock).toHaveBeenCalledWith(5);
     expect(streamTextMock).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe("streamMinimalChatAgent", () => {
         abortSignal: abortController.signal,
         maxOutputTokens: 4096,
         messages: [{ content: "converted", role: "user" }],
-        model: "openai-model:openai/gpt-5-mini",
+        model: "openai-model:gpt-5-mini",
         stopWhen: "five-step-limit",
         system: expect.stringContaining(
           "Use ask_user instead of guessing when the request is ambiguous"

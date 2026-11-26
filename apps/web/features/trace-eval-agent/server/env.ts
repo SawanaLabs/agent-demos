@@ -41,22 +41,19 @@ export function getTraceEvalAgentEnv(): TraceEvalAgentEnv {
 export function getTraceEvalAgentConfig(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentConfig {
-  return {
-    ...readAiGatewayContractConfig(env, traceEvalAgentContract),
-    chatModel: resolveTraceEvalAgentChatModel(env),
-  };
+  return readAiGatewayContractConfig(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveTraceEvalAgentChatModel(env) },
+    traceEvalAgentContract
+  );
 }
 
 export function getTraceEvalAgentSetupState(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentSetupState {
-  return buildAiGatewayContractSetupState(env, {
-    ...traceEvalAgentContract,
-    buildConfig: (resolvedEnv) => ({
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolveTraceEvalAgentChatModel(env),
-    }),
-  });
+  return buildAiGatewayContractSetupState(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveTraceEvalAgentChatModel(env) },
+    traceEvalAgentContract
+  );
 }
 
 export function createTraceEvalAgentGateway(

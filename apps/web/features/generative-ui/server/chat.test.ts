@@ -91,13 +91,14 @@ describe("streamGenerativeUiChat", () => {
     ];
     const response = await streamGenerativeUiChat(messages, {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
     });
 
     expect(response.status).toBe(200);
     expect(createOpenAIMock).toHaveBeenCalledWith({
-      apiKey: "test-key",
-      baseURL: "https://ai-gateway.example/v1",
-      name: "gateway-openai",
+      apiKey: "test-openai-key",
+      baseURL: "https://api.openai.com/v1",
+      name: "openai",
     });
     expect(streamTextMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -106,7 +107,7 @@ describe("streamGenerativeUiChat", () => {
           isEnabled: true,
         }),
         messages: [{ content: "converted", role: "user" }],
-        model: "openai-model:openai/gpt-5-mini",
+        model: "openai-model:gpt-5-mini",
         providerOptions: GENERATIVE_UI_PROVIDER_OPTIONS,
         system: expect.stringContaining("Use showFeatureComparison"),
       })
@@ -190,6 +191,7 @@ describe("streamGenerativeUiChat", () => {
 
     await streamGenerativeUiChat(messages, {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
     });
 
     expect(convertToModelMessagesMock).toHaveBeenCalledWith([

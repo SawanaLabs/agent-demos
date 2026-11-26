@@ -79,7 +79,7 @@ apps/web/features/openai-agents-sdk-demo/
 
 ## Contracts
 
-- Missing `AI_GATEWAY_API_KEY` blocks chat requests with an explicit setup error.
+- OpenAI models require `OPENAI_API_KEY`. Other providers require the AI Gateway credential. A missing credential returns an explicit setup error.
 - The backend source core stays on the official OpenAI Agents SDK run path.
 - The route returns the official AI SDK UI bridge response instead of a repo-local custom stream format.
 - The current Tools slice wires `tool()`, one approval-required `tool({ needsApproval: true })`, `webSearchTool()`, `fileSearchTool()` when vector stores are configured, `codeInterpreterTool()`, `imageGenerationTool()`, `toolSearchTool()` on supported GPT-5.4+/5.5 models, and `agent.asTool()` into the main agent.

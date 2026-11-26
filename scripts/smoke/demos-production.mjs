@@ -19,9 +19,10 @@ const defaultPort = Number(runtimeEnv.DEMO_SMOKE_PORT || 4300);
 const defaultTimeoutMs = Number(runtimeEnv.DEMO_SMOKE_TIMEOUT_MS || 30_000);
 const verbose = runtimeEnv.DEMO_SMOKE_VERBOSE === "1";
 
-const gatewayMissingNeedles = [
+const missingCredentialMessages = [
   "AI_GATEWAY_API_KEY is missing",
   "Missing AI_GATEWAY_API_KEY",
+  "OPENAI_API_KEY is required for OpenAI Platform",
 ];
 
 const readyRoutes = new Set([
@@ -73,6 +74,7 @@ function createSmokeEnv() {
   return {
     ...runtimeEnv,
     NODE_ENV: "production",
+    OPENAI_API_KEY: "demo-smoke-openai-key",
     AI_GATEWAY_API_KEY:
       runtimeEnv.AI_GATEWAY_API_KEY || "demo-smoke-ai-gateway-key",
     AI_GATEWAY_BASE_URL:
@@ -168,8 +170,8 @@ async function fetchRoute(baseUrl, route) {
     signal: AbortSignal.timeout(defaultTimeoutMs),
   });
   const html = await response.text();
-  const gatewayMissingNeedle = gatewayMissingNeedles.find((needle) =>
-    html.includes(needle)
+  const missingCredentialMessage = missingCredentialMessages.find((message) =>
+    html.includes(message)
   );
 
   return {
@@ -177,7 +179,7 @@ async function fetchRoute(baseUrl, route) {
     status: response.status,
     bytes: html.length,
     cacheControl: response.headers.get("cache-control"),
-    gatewayMissingNeedle,
+    missingCredentialMessage,
     hasReady: html.includes("Ready"),
   };
 }
@@ -190,9 +192,9 @@ function buildFailures(results) {
       failures.push(`${result.route} returned HTTP ${result.status}.`);
     }
 
-    if (result.gatewayMissingNeedle) {
+    if (result.missingCredentialMessage) {
       failures.push(
-        `${result.route} rendered gateway setup text: ${result.gatewayMissingNeedle}`
+        `${result.route} rendered a credential setup message: ${result.missingCredentialMessage}`
       );
     }
 
@@ -245,7 +247,7 @@ async function main() {
           status: result.status,
           bytes: result.bytes,
           hasReady: result.hasReady,
-          hasGatewayMissingMessage: Boolean(result.gatewayMissingNeedle),
+          hasMissingCredentialMessage: Boolean(result.missingCredentialMessage),
         })
       );
     }

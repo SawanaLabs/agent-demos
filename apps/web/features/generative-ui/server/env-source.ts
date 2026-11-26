@@ -1,5 +1,5 @@
-import { env as appEnv } from "@/env";
+import { getEnv } from "@/env";
 
 export function getGenerativeUiAppEnv() {
-  return appEnv;
+  return getEnv();
 }

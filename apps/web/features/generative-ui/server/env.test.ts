@@ -1,9 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getGenerativeUiConfig, getGenerativeUiSetupState } from "./env";
 import { resolveGenerativeUiChatModel } from "./model";
 
 describe("generative UI env", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("reads the Platform credential through the default app environment", () => {
+    vi.stubEnv("OPENAI_API_KEY", "platform-credential-fixture");
+
+    expect(getGenerativeUiSetupState().isReady).toBe(true);
+    expect(getGenerativeUiConfig().chatModel).toBe("openai/gpt-5-mini");
+  });
+
   it("keeps the feature default model ahead of the global gateway fallback", () => {
     expect(
       getGenerativeUiConfig({

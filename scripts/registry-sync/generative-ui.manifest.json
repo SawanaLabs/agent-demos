@@ -218,17 +218,17 @@
       "target": "registry/generative-ui/lib/generative-ui/env-source.ts",
       "transforms": [
         {
-          "from": "import { env as appEnv } from \"@/env\";\n\n",
+          "from": "import { getEnv } from \"@/env\";\n\n",
           "to": "",
           "expectedMatches": 1
         },
         {
-          "from": "export function getGenerativeUiAppEnv() {\n  return appEnv;\n}\n",
+          "from": "export function getGenerativeUiAppEnv() {\n  return getEnv();\n}\n",
           "to": "export function getGenerativeUiAppEnv() {\n  // biome-ignore lint/style/noProcessEnv: Registry source installs into consumer apps without this repo's env wrapper.\n  return process.env;\n}\n",
           "expectedMatches": 1
         }
       ],
-      "forbidPatternsAfterTransform": ["@/env", "appEnv"]
+      "forbidPatternsAfterTransform": ["@/env", "getEnv"]
     },
     {
       "source": "apps/web/features/generative-ui/server/env.ts",

@@ -1,8 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getTraceEvalAgentConfig, getTraceEvalAgentSetupState } from "./env";
 import { resolveTraceEvalAgentChatModel } from "./model";
 
 describe("trace eval agent env", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("reads the Platform credential through the default app environment", () => {
+    vi.stubEnv("OPENAI_API_KEY", "platform-credential-fixture");
+
+    expect(getTraceEvalAgentSetupState().isReady).toBe(true);
+    expect(getTraceEvalAgentConfig().chatModel).toBe("openai/gpt-5-mini");
+  });
+
   it("keeps the feature default model ahead of the global gateway fallback", () => {
     expect(
       getTraceEvalAgentConfig({

@@ -161,10 +161,12 @@ export function buildAiGatewayContractSetupState<
   TConfig extends AiGatewaySetupConfig,
 >(
   env: AiGatewayEnvRecord,
-  options: AiGatewayContractOptions<TConfig>
+  options: AiGatewayContractOptions<TConfig>,
+  selectedChatModel?: string
 ): AiGatewayContractSetupState<TConfig> {
   const issues: string[] = [];
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
+  const chatModel = selectedChatModel ?? resolvedEnv.chatModel;
 
   try {
     assertSupportedNodeRuntime();
@@ -175,14 +177,10 @@ export function buildAiGatewayContractSetupState<
   }
 
   if (
-    !hasDemoModelCredentials(
-      resolvedEnv.chatModel,
-      env.OPENAI_API_KEY,
-      resolvedEnv.apiKey
-    )
+    !hasDemoModelCredentials(chatModel, env.OPENAI_API_KEY, resolvedEnv.apiKey)
   ) {
     issues.push(
-      openAIModelId(resolvedEnv.chatModel) === null
+      openAIModelId(chatModel) === null
         ? options.missingApiKeyIssue || genericMissingApiKeyIssue
         : MISSING_OPENAI_PLATFORM_KEY
     );

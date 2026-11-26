@@ -12,6 +12,7 @@ import Redis from "ioredis";
 import { after } from "next/dist/server/after";
 import { createResumableStreamContext } from "resumable-stream/ioredis";
 
+import { hasDemoModelCredentials } from "@/lib/ai-gateway/openai-platform";
 import { getUltraChatbotAgentAppEnv } from "./env";
 
 const appEnv = getUltraChatbotAgentAppEnv();
@@ -86,9 +87,16 @@ function getRedisSetupIssue(env: DemoEnv) {
 }
 
 export function getUltraChatbotAgentRuntimeState(
-  env: DemoEnv = appEnv
+  env: DemoEnv = appEnv,
+  selectedChatModel?: string
 ): UltraChatbotAgentRuntimeState {
-  const gatewaySetup = getAiGatewaySetupState(env);
+  const models = getUltraChatbotAgentModelCatalog();
+  const modelToCheck =
+    selectedChatModel ??
+    models.find(({ id }) =>
+      hasDemoModelCredentials(id, env.OPENAI_API_KEY, env.AI_GATEWAY_API_KEY)
+    )?.id;
+  const gatewaySetup = getAiGatewaySetupState(env, modelToCheck);
   const databaseSetup = getDatabaseSetupState(env);
   const issues = [
     ...gatewaySetup.issues,
@@ -108,7 +116,7 @@ export function getUltraChatbotAgentRuntimeState(
       gatewaySetup.config.chatModel
     ),
     isChatAvailable: issues.length === 0,
-    models: getUltraChatbotAgentModelCatalog(),
+    models,
     nodeVersion: gatewaySetup.nodeVersion,
     resumeRequiresRedis: true,
     setupMessage: issues.length > 0 ? issues.join(" ") : null,
@@ -236,17 +244,6 @@ export async function handleUltraChatbotAgentChatRequest(
   viewer: { visitorId: string },
   env: DemoEnv = appEnv
 ) {
-  const runtimeState = getUltraChatbotAgentRuntimeState(env);
-
-  if (!runtimeState.isChatAvailable) {
-    return Response.json(
-      {
-        error: runtimeState.setupMessage,
-      },
-      { status: 500 }
-    );
-  }
-
   let body: unknown;
 
   try {
@@ -286,6 +283,14 @@ export async function handleUltraChatbotAgentChatRequest(
       },
       { status: 400 }
     );
+  }
+
+  const runtimeState = getUltraChatbotAgentRuntimeState(
+    env,
+    input.selectedChatModel
+  );
+  if (!runtimeState.isChatAvailable) {
+    return Response.json({ error: runtimeState.setupMessage }, { status: 500 });
   }
 
   if (hasUnsupportedAttachment(input.message)) {

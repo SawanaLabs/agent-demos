@@ -35,9 +35,14 @@ export function getAiGatewayConfig(
 }
 
 export function getAiGatewaySetupState(
-  env: AiGatewayEnv = appEnv
+  env: AiGatewayEnv = appEnv,
+  selectedChatModel?: string
 ): AiGatewaySetupState {
-  return buildAiGatewayContractSetupState(env, aiGatewayContract);
+  return buildAiGatewayContractSetupState(
+    env,
+    aiGatewayContract,
+    selectedChatModel
+  );
 }
 
 export function createAiGateway(env: AiGatewayEnv = appEnv): AiGatewayProvider {

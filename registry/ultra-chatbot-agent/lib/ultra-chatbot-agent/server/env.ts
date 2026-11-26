@@ -58,9 +58,10 @@ export function getAiGatewayConfig(
 }
 
 export function getAiGatewaySetupState(
-  env: UltraChatbotAgentEnv = getUltraChatbotAgentAppEnv()
+  env: UltraChatbotAgentEnv = getUltraChatbotAgentAppEnv(),
+  selectedChatModel?: string
 ): UltraChatbotAgentSetupState {
-  return buildAiGatewayContractSetupState(env, ultraChatbotAgentContract);
+  return buildAiGatewayContractSetupState(env, ultraChatbotAgentContract, selectedChatModel);
 }
 
 export function createAiGateway(

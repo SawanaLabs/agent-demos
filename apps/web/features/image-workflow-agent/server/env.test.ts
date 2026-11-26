@@ -16,7 +16,8 @@ describe("image workflow agent env", () => {
       },
       isReady: false,
       issues: [
-        "AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN is missing. The demo can render, but workflow runs will fail until credentials are configured.",
+        "OPENAI_API_KEY is required for OpenAI Platform.",
+        "Missing AI gateway credentials. Set AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN before using the image workflow agent.",
       ],
       nodeVersion: process.version,
     });
@@ -26,6 +27,7 @@ describe("image workflow agent env", () => {
     expect(
       readImageWorkflowAgentConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5-mini",
         AI_GATEWAY_IMAGE_MODEL: "google/gemini-3.1-flash-lite-image",
       })
@@ -37,11 +39,14 @@ describe("image workflow agent env", () => {
     });
   });
 
-  it("accepts Vercel OIDC without an API key", () => {
+  it("accepts Vercel OIDC for the Gemini image stage", () => {
     expect(
-      readImageWorkflowAgentConfig({
-        VERCEL_OIDC_TOKEN: "oidc-token",
-      })
+      readImageWorkflowAgentConfig(
+        {
+          VERCEL_OIDC_TOKEN: "oidc-token",
+        },
+        "image"
+      )
     ).toMatchObject({
       apiKey: null,
       oidcToken: "oidc-token",
@@ -66,8 +71,8 @@ describe("image workflow agent env", () => {
   });
 
   it("throws an explicit credential error when runtime config is required", () => {
-    expect(() => readImageWorkflowAgentConfig({})).toThrowError(
-      "Missing AI gateway credentials. Set AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN before using the image workflow agent."
-    );
+    expect(() =>
+      readImageWorkflowAgentConfig({ AI_GATEWAY_API_KEY: "gateway-key" })
+    ).toThrowError("OPENAI_API_KEY is required for OpenAI Platform.");
   });
 });

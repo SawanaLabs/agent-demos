@@ -129,8 +129,10 @@ def _resolve_model_name() -> str:
 
 def _create_chat_model() -> ChatOpenAI:
     model = _resolve_model_name()
-    openai_key = (os.getenv("OPENAI_API_KEY") or "").strip()
-    if openai_key and model.startswith("openai/"):
+    if model.startswith("openai/") or "/" not in model:
+        openai_key = (os.getenv("OPENAI_API_KEY") or "").strip()
+        if not openai_key:
+            raise RuntimeError("OPENAI_API_KEY is required for OpenAI Platform.")
         return ChatOpenAI(
             api_key=openai_key,
             base_url="https://api.openai.com/v1",
@@ -162,14 +164,15 @@ def inspect_frontend_contract(topic: str) -> str:
         "events, and does not provide durable checkpoints; ordinary chat "
         "continuity comes from the messages sent with each run request. Use "
         "Python 3.12 for the Vercel-compatible API project. Backend env keys "
-        "are AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN, optional "
+        "are OPENAI_API_KEY for OpenAI models, AI_GATEWAY_API_KEY or "
+        "VERCEL_OIDC_TOKEN for other providers, optional "
         "AI_GATEWAY_BASE_URL, and required LANGGRAPH_AGENT_API_KEY; "
         "LANGGRAPH_AGENT_MODEL defaults to openai/gpt-5-mini. The Next.js "
         "server route reads LANGGRAPH_AGENT_API_URL, "
         "LANGGRAPH_AGENT_ASSISTANT_ID, and the same required "
         "LANGGRAPH_AGENT_API_KEY, then sends that service key as x-api-key to "
         "the Python backend. Do not expose them as NEXT_PUBLIC variables. Do "
-        "not send the AI_GATEWAY_API_KEY from the frontend; it stays "
+        "not send model provider keys from the frontend; they stay "
         "server-side in the Python backend. The local FastAPI wrapper runs on "
         "port 2024 with uv run uvicorn app:app --host 127.0.0.1 --port 2024. "
         "For this repository's local paired setup, use pnpm dev:langgraph-agent; "

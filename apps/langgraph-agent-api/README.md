@@ -59,7 +59,8 @@ header, but the paired web app still requires the same server-only value in env.
 
 The local scripts default `LANGGRAPH_AGENT_MODEL` to `openai/gpt-5-mini`.
 Set `LANGGRAPH_AGENT_MODEL` before running either script to test a different
-OpenAI-compatible model through Vercel AI Gateway.
+OpenAI model through OpenAI Platform. Set the server-only `OPENAI_API_KEY`
+in `apps/langgraph-agent-api/.env` for local development.
 
 ## Vercel FastAPI Entry
 
@@ -78,7 +79,7 @@ keep `framework` set to `fastapi` through `vercel.json`. The current production
 project is `agent-demos-langgraph-agent-api` at:
 
 ```text
-https://agent-demos-langgraph-agent-api.vercel.app
+https://langgraph-api.agent-demos.hsawana9.com
 ```
 
 Keep `pyproject.toml` and `uv.lock` as the dependency source of truth. The
@@ -115,7 +116,7 @@ directory is present in `PATH`.
 The required API project environment variables are:
 
 ```bash
-AI_GATEWAY_API_KEY=<vercel-ai-gateway-key>
+OPENAI_API_KEY=<openai-platform-project-key>
 LANGGRAPH_AGENT_API_KEY=<required-shared-service-key>
 LANGGRAPH_AGENT_MODEL=openai/gpt-5-mini
 ```
@@ -123,7 +124,7 @@ LANGGRAPH_AGENT_MODEL=openai/gpt-5-mini
 Set the web project to the deployed API URL and the same service key:
 
 ```bash
-LANGGRAPH_AGENT_API_URL=https://<api-project>.vercel.app
+LANGGRAPH_AGENT_API_URL=https://langgraph-api.agent-demos.hsawana9.com
 LANGGRAPH_AGENT_ASSISTANT_ID=agent
 LANGGRAPH_AGENT_API_KEY=<same-required-shared-service-key>
 ```

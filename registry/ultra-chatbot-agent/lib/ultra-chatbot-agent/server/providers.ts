@@ -1,9 +1,13 @@
 import { createOpenAI } from "@ai-sdk/openai";
-
 import {
-  createAiGateway,
-  getAiGatewayConfig,
-} from "./env";
+  DEFAULT_CHAT_MODEL,
+  DEFAULT_GATEWAY_BASE_URL,
+} from "@/lib/ai-gateway/contract";
+import { createAiGateway } from "./env";
+import {
+  createOpenAIPlatform,
+  openAIModelId,
+} from "@/lib/ai-gateway/openai-platform";
 
 import {
   getUltraChatbotAgentDefaultModel,
@@ -14,7 +18,10 @@ type DemoEnv = Record<string, string | undefined>;
 
 export interface UltraChatbotAgentProvider {
   gateway: ReturnType<typeof createAiGateway>;
-  hostedToolsGateway: ReturnType<typeof createOpenAI>;
+  hostedTools: (modelId: string) => {
+    model: ReturnType<ReturnType<typeof createOpenAI>["responses"]>;
+    tools: ReturnType<typeof createOpenAI>["tools"];
+  };
   resolveModelId: (selectedChatModel?: string) => string;
 }
 
@@ -56,7 +63,7 @@ export function resolveUltraChatbotAgentSelectedModelId(input: {
     return input.selectedChatModel;
   }
 
-  const { chatModel } = getAiGatewayConfig(input.env);
+  const chatModel = input.env.AI_GATEWAY_CHAT_MODEL || DEFAULT_CHAT_MODEL;
 
   if (isUltraChatbotAgentModelId(chatModel)) {
     return chatModel;
@@ -69,16 +76,32 @@ export function createUltraChatbotAgentProvider(
   env: DemoEnv
 ): UltraChatbotAgentProvider {
   const gateway = createAiGateway(env);
-  const { apiKey, baseURL } = getAiGatewayConfig(env);
-  const hostedToolsGateway = createOpenAI({
-    apiKey,
-    baseURL: resolveOpenAICompatibleBaseURL(baseURL),
-    name: "gateway-openai",
-  });
 
   return {
     gateway,
-    hostedToolsGateway,
+    hostedTools(modelId: string) {
+      const directId = openAIModelId(modelId);
+      if (directId !== null) {
+        const direct = createOpenAIPlatform(env.OPENAI_API_KEY);
+        return { model: direct.responses(directId), tools: direct.tools };
+      }
+
+      const apiKey = env.AI_GATEWAY_API_KEY;
+      if (!apiKey) {
+        throw new Error("Missing AI_GATEWAY_API_KEY for this model.");
+      }
+      const hostedToolsGateway = createOpenAI({
+        apiKey,
+        baseURL: resolveOpenAICompatibleBaseURL(
+          env.AI_GATEWAY_BASE_URL || DEFAULT_GATEWAY_BASE_URL
+        ),
+        name: "gateway-openai",
+      });
+      return {
+        model: hostedToolsGateway.responses(modelId),
+        tools: hostedToolsGateway.tools,
+      };
+    },
     resolveModelId(selectedChatModel?: string) {
       return resolveUltraChatbotAgentSelectedModelId({
         env,

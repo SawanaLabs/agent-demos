@@ -11,7 +11,7 @@ import { getMinimalChatAgentAppEnv } from "./env-source";
 
 export const DEFAULT_MINIMAL_CHAT_AGENT_MODEL = "openai/gpt-5-mini";
 const incompatibleModelIssue =
-  "Minimal Chat Agent requires an openai/* AI Gateway model for provider-native web search.";
+  "Minimal Chat Agent requires an openai/* OpenAI Platform model for provider-native web search.";
 
 export type MinimalChatAgentEnv = AiGatewayEnvRecord;
 export type MinimalChatAgentConfig = AiGatewayContractConfig;

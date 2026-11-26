@@ -1,5 +1,13 @@
 import { createGateway } from "ai";
 
+import {
+  type DemoModelProvider,
+  hasDemoModelCredentials,
+  MISSING_OPENAI_PLATFORM_KEY,
+  openAIModelId,
+  withOpenAIPlatform,
+} from "./openai-platform";
+
 export const DEFAULT_CHAT_MODEL = "openai/gpt-5.6-luna";
 export const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v3/ai";
 export const MINIMUM_NODE_VERSION = "22.13.0";
@@ -14,7 +22,7 @@ export interface ParsedNodeVersion {
 }
 
 export interface AiGatewayContractConfig {
-  apiKey: string;
+  apiKey: string | undefined;
   baseURL: string;
   chatModel: string;
 }
@@ -108,13 +116,15 @@ export function resolveAiGatewayContractEnv(
   env: AiGatewayEnvRecord,
   options: Pick<AiGatewayContractOptions, "defaultBaseURL" | "defaultChatModel">
 ): AiGatewayResolvedEnv {
+  const configuredModel = env.AI_GATEWAY_CHAT_MODEL || options.defaultChatModel;
+  const nativeModel = openAIModelId(configuredModel);
   return {
     apiKey: env.AI_GATEWAY_API_KEY,
     baseURL:
       env.AI_GATEWAY_BASE_URL ||
       options.defaultBaseURL ||
       DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || options.defaultChatModel,
+    chatModel: nativeModel === null ? configuredModel : `openai/${nativeModel}`,
   };
 }
 
@@ -125,8 +135,18 @@ export function readAiGatewayContractConfig(
   assertSupportedNodeRuntime();
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
 
-  if (!resolvedEnv.apiKey) {
-    throw new Error(options.missingApiKeyError);
+  if (
+    !hasDemoModelCredentials(
+      resolvedEnv.chatModel,
+      env.OPENAI_API_KEY,
+      resolvedEnv.apiKey
+    )
+  ) {
+    throw new Error(
+      openAIModelId(resolvedEnv.chatModel) === null
+        ? options.missingApiKeyError
+        : MISSING_OPENAI_PLATFORM_KEY
+    );
   }
 
   return {
@@ -140,10 +160,12 @@ export function buildAiGatewayContractSetupState<
   TConfig extends AiGatewaySetupConfig,
 >(
   env: AiGatewayEnvRecord,
-  options: AiGatewayContractOptions<TConfig>
+  options: AiGatewayContractOptions<TConfig>,
+  selectedChatModel?: string
 ): AiGatewayContractSetupState<TConfig> {
   const issues: string[] = [];
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
+  const chatModel = selectedChatModel ?? resolvedEnv.chatModel;
 
   try {
     assertSupportedNodeRuntime();
@@ -153,8 +175,14 @@ export function buildAiGatewayContractSetupState<
     );
   }
 
-  if (!resolvedEnv.apiKey) {
-    issues.push(options.missingApiKeyIssue || genericMissingApiKeyIssue);
+  if (
+    !hasDemoModelCredentials(chatModel, env.OPENAI_API_KEY, resolvedEnv.apiKey)
+  ) {
+    issues.push(
+      openAIModelId(chatModel) === null
+        ? options.missingApiKeyIssue || genericMissingApiKeyIssue
+        : MISSING_OPENAI_PLATFORM_KEY
+    );
   }
 
   issues.push(...(options.getAdditionalIssues?.(resolvedEnv, env) ?? []));
@@ -175,11 +203,12 @@ export function buildAiGatewayContractSetupState<
 export function createAiGatewayFromContract(
   env: AiGatewayEnvRecord,
   options: AiGatewayContractOptions
-): ReturnType<typeof createGateway> {
-  const { apiKey, baseURL } = readAiGatewayContractConfig(env, options);
-
-  return createGateway({
-    apiKey,
-    baseURL,
-  });
+): DemoModelProvider {
+  assertSupportedNodeRuntime();
+  const { apiKey, baseURL } = resolveAiGatewayContractEnv(env, options);
+  return withOpenAIPlatform(
+    apiKey ? createGateway({ apiKey, baseURL }) : undefined,
+    env.OPENAI_API_KEY,
+    options.missingApiKeyError
+  );
 }

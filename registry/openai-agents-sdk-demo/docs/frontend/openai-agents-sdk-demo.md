@@ -1,14 +1,14 @@
 ---
 title: OpenAI Agents SDK Demo
 description: Complete copy-boundary, capability coverage, and bridge conventions for the ultra OpenAI Agents SDK demo running through AI Gateway.
-updateAt: 2026-06-03
+updateAt: 2026-06-16
 ---
 
 # OpenAI Agents SDK Demo
 
 ## Scope
 
-- Covers the `openai-agents-sdk-demo` roadmap entry under `apps/web/features`.
+- Covers the `openai-agents-sdk-demo` ready demo under `apps/web/features`.
 - Covers the ultra version target: a complete OpenAI Agents SDK TypeScript **Agent Demo** that can be copied as one coherent feature slice.
 - Covers the product expectation that all OpenAI Agents SDK capabilities relevant to this demo live inside this one demo, without splitting capability families into separate demos.
 - Covers the backend orchestration boundary, the AI SDK UI bridge, AI Gateway transport, run state, approvals, sessions, tracing, and the frontend surfaces needed to show them.
@@ -25,8 +25,8 @@ updateAt: 2026-06-03
 - **SDK-first backend**: Backend code shaped around official SDK primitives such as `Agent`, `Runner`, `run()`, `RunContext`, `RunState`, `RunResult`, `StreamedRunResult`, `tool()`, `handoff()`, sessions, and tracing.
 - **Run state surface**: The persisted or returned data needed to continue a run safely: `history`, `newItems`, `finalOutput`, `interruptions`, `state`, `lastAgent` / `activeAgent`, `lastResponseId`, `runContext`, usage, and trace metadata.
 - **AI SDK UI bridge**: The official adapter from `@openai/agents-extensions/ai-sdk-ui` that converts an OpenAI Agents SDK stream into AI SDK UI-compatible chunks.
-- **Gateway-backed OpenAI client**: The official `openai` client configured against AI Gateway's OpenAI-compatible Responses endpoint and injected into the OpenAI Agents SDK with `setDefaultOpenAIClient(...)`.
-- **Provider transport boundary**: The narrow layer where `AI_GATEWAY_API_KEY`, base URL, model id, and reasoning settings are configured. Agent behavior must still be modeled through OpenAI Agents SDK primitives.
+- **Gateway-backed OpenAI client**: The official `openai` client configured against AI Gateway’s OpenAI-compatible Responses endpoint for models from other vendors.
+- **Provider transport boundary**: The narrow layer where the selected model determines the endpoint and credential. Agent behavior must still be modeled through OpenAI Agents SDK primitives.
 - **Provider capability block**: An explicit setup or runtime state used when AI Gateway or the selected model/provider cannot support an official OpenAI Agents SDK capability.
 - **Capability lane**: One coherent mode or section inside the ultra demo, such as "tools and approvals" or "handoffs and typed results", with its own backend module, focused tests, and visible UI states while remaining inside the same **Whole-demo copy boundary**.
 - **General OpenAI Agent**: The product shape for the ultra demo: a ChatGPT-like conversational agent built from OpenAI Agents SDK primitives, with official SDK capabilities exposed through one coherent chat workspace.
@@ -52,7 +52,7 @@ updateAt: 2026-06-03
 - The default workflow can feel like a Tesla deep research task: collect source material, inspect financials and market context, split work across specialist agents, request human approval for sensitive or high-cost actions, challenge conclusions with guardrails, and produce an **Analyst Review Packet**. Do not over-optimize around this artifact; use it mainly to make official SDK capabilities easy to judge.
 - The demo should produce research analysis and cited reasoning, not investment advice. It should avoid buy/sell/hold recommendations unless the user explicitly asks for a simulated analyst opinion, and even then it must label the result as a demo artifact for human review.
 - Financial facts are time-sensitive. Do not hardcode current Tesla metrics, prices, filings, or earnings claims as durable product truth; fetch, upload, or cite source material at runtime, or ask the user for the analysis period.
-- All demo-related code is expected to travel together. In a registry consumer, keep the **Copy Boundary** centered on `lib/openai-agents-sdk-demo`, `components/openai-agents-sdk-demo`, and the thin `app/demos/openai-agents-sdk-demo` / `app/api/demos/openai-agents-sdk-demo` route entries that invoke them.
+- All demo-related code is expected to travel together. Keep the **Copy Boundary** centered on `apps/web/features/openai-agents-sdk-demo` plus the thin Next.js page/API route entries that invoke it.
 - Follow the AI SDK and OpenAI Agents SDK docs closely. Preserve the **Source Core** for official runtime behavior before adding repo-specific UI organization.
 - Use `skills-agent` as the local quality reference: preserve the official source core, expose the real runtime capability surface, show generated artifacts or runtime events visibly, keep setup errors explicit, and keep the feature slice portable.
 - Do not intentionally reduce the SDK capability surface to make implementation easier. If a stable SDK feature needs UI, state, or route work, add that work inside this demo instead of cutting the feature.
@@ -95,20 +95,20 @@ updateAt: 2026-06-03
 
 ## Current Implementation Status
 
-- The registry feature slice installs backend code under `lib/openai-agents-sdk-demo` and UI code under `components/openai-agents-sdk-demo`.
+- The first feature slice exists under `apps/web/features/openai-agents-sdk-demo`.
 - The route contract is split as:
-  - `app/demos/openai-agents-sdk-demo/page.tsx`
-  - `app/api/demos/openai-agents-sdk-demo/route.ts`
+  - `apps/web/app/demos/openai-agents-sdk-demo/page.tsx`
+  - `apps/web/app/api/demos/openai-agents-sdk-demo/route.ts`
 - The backend currently uses a feature-local `Agent`, `run(..., { stream: true })`, and `createAiSdkUiMessageStream(...)` wrapped in AI SDK UI response helpers.
-- The provider path currently uses `setOpenAIAPI("responses")` plus `setDefaultOpenAIClient(new OpenAI(...))` to route through AI Gateway's OpenAI-compatible Responses endpoint.
-- The current default demo model is `openai/gpt-5-mini`, inherited from the repo's AI Gateway config style. Keep the default configurable through `AI_GATEWAY_CHAT_MODEL` and `OPENAI_AGENTS_MODEL`.
-- The `Agents` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/agents.ts`, which constructs the official `Agent` used by the chat route.
-- The `Models` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/models.ts`, which centralizes model id, Responses API selection, HTTP transport, AI Gateway base URL, reasoning effort, and text verbosity.
+- A request-scoped Runner uses the official Responses provider. OpenAI models use the OpenAI Platform endpoint.
+- The current default demo model is `openai/gpt-5-mini`, with the namespace removed when sent to OpenAI. Keep the default configurable through `AI_GATEWAY_CHAT_MODEL` and `OPENAI_AGENTS_MODEL`.
+- The `Agents` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/agents.ts`, which constructs the official `Agent` used by the chat route.
+- The `Models` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/models.ts`, which centralizes model id, Responses API selection, HTTP transport, AI Gateway base URL, reasoning effort, and text verbosity.
 - The current agent now passes both `modelSettings.reasoning.effort` and `modelSettings.text.verbosity` into the official `Agent` constructor. This matters because once custom `modelSettings` are provided, the SDK no longer applies the GPT-5 default `text.verbosity = low` automatically.
-- The `Tools` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/tools.ts`, which configures thin official `tool()` examples, one approval-required `tool({ needsApproval: true })`, hosted OpenAI tools, and one `agent.asTool()` specialist for the current demo.
-- The `Guardrails` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/guardrails.ts`, which configures one input guardrail and one output guardrail on the main agent.
-- The `Running Agents` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/running.ts`, which owns continuation strategy, provider-aware `previousResponseId` selection, `MemorySession` fallback, explicit `maxTurns`, and request-signal usage.
-- The `Streaming` guide first slice is now separated into `lib/openai-agents-sdk-demo/server/streaming.ts`, which wraps the official `RunStreamEvent` source with a thin observer and records stream metadata without replacing the official AI SDK UI bridge.
+- The `Tools` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/tools.ts`, which configures thin official `tool()` examples, one approval-required `tool({ needsApproval: true })`, hosted OpenAI tools, and one `agent.asTool()` specialist for the current demo.
+- The `Guardrails` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/guardrails.ts`, which configures one input guardrail and one output guardrail on the main agent.
+- The `Running Agents` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/running.ts`, which owns continuation strategy, provider-aware `previousResponseId` selection, `MemorySession` fallback, explicit `maxTurns`, and request-signal usage.
+- The `Streaming` guide first slice is now separated into `apps/web/features/openai-agents-sdk-demo/server/streaming.ts`, which wraps the official `RunStreamEvent` source with a thin observer and records stream metadata without replacing the official AI SDK UI bridge.
 - The `Agent Orchestration` guide first slice currently reuses the existing `research_memo_agent` specialist in `server/tools.ts` as the official `agent.asTool()` path and marks that guide from real run metadata when the specialist executes.
 - The `Handoffs` guide first slice now lives in `server/handoffs.ts`. The main demo agent exposes one direct specialist agent in `handoffs: [agent]` and one explicit `handoff()` with `inputType`, `onHandoff`, and a local copy of the official `removeAllTools` / prompt-prefix helpers because the published `@openai/agents-core/extensions` entry is not resolvable through the current app package graph.
 - The `Results` guide first slice now lives in `server/results.ts`. The chat route waits for `await agentStream.completed` and then maps the settled `RunResult` surface into message metadata: `activeAgent`, `lastAgent`, `finalOutput`, `history`, `newItems`, `output`, `interruptions`, `state.usage`, and `rawResponses`.
@@ -118,8 +118,8 @@ updateAt: 2026-06-03
 - The `Sandbox Agents` guide first slice now lives in `server/sandbox.ts`. It defines one official `SandboxAgent` with `Manifest`, `localDir(...)`, and `Capabilities.default()`, passes a `UnixLocalSandboxClient` through `run(..., { sandbox })`, persists `sessionState` by demo `sessionId`, and exposes sandbox profile plus latest sandbox summary in the runtime inspector.
 - The `Extensions / AI SDK Integration` first slice now lives in `server/extensions.ts`. The route keeps the official `@openai/agents-extensions/ai-sdk-ui` bridge on `createAiSdkUiMessageStream(...)`, writes bridge usage metadata after each settled run, and exposes the beta `aisdk(model)` adapter as an explicit `not-used` boundary because this demo's main run still needs deferred Responses tool loading.
 - The `Voice Agents` slice now spans `server/voice.ts`, `server/voice-realtime.ts`, `server/voice-websocket.ts`, `server/voice-server-audio.ts`, `server/voice-sip.ts`, `server/voice-sip-route.ts`, `server/voice-cloudflare-worker.ts`, `server/voice-cloudflare-app.ts`, `server/voice-cloudflare-worker-module.ts`, `server/voice-twilio-route.ts`, `server/voice-twilio-bridge.ts`, `server/voice-twilio-app.ts`, `server/voice-extensions.ts`, and `ui/openai-agents-sdk-demo-voice-panel.tsx`. It exposes the official `RealtimeAgent` / `RealtimeSession` primitives, wires a real `/api/demos/openai-agents-sdk-demo/realtime/client-secrets` route through `client.realtime.clientSecrets.create()`, meters successful client-secret minting as `send_message` usage for `openai-agents-sdk-demo`, starts a browser `OpenAIRealtimeWebRTC` session through `session.connect({ apiKey })` on the page itself, includes dedicated server-side factories for `OpenAIRealtimeWebSocket`, a raw server audio loop on `RealtimeSession.sendAudio()` plus `session.on("audio")`, `OpenAIRealtimeSIP`, `CloudflareRealtimeTransportLayer`, and `TwilioRealtimeTransportLayer`, and now exposes a Cloudflare worker runtime wrapper, a deployed-shape Cloudflare fetch app, a deployable Cloudflare worker module, and a deployed-shape Twilio media-stream app factory. The workspace layout keeps `Conversation + Screen` as the only persistent regions inside the `100svh` demo surface; the right-side screen rail owns the compact voice entry strip, and the full realtime controls live in a dialog so the voice lane does not keep compressing the chat column.
-- The first guide-family coverage registry lives in `lib/openai-agents-sdk-demo/server/guide-coverage.ts`. It tracks source guide URL, SDK primitive, observable runtime evidence, implementation status, provider capability status, and current-run readiness for each planned guide family.
-- The current-run inspector derivation lives in `components/openai-agents-sdk-demo/openai-agents-sdk-demo-runtime-inspector.ts`. The **Demo Workspace** passes messages, guide coverage, and setup profiles into this **Runtime Inspector Module** instead of scanning assistant metadata inline.
+- The first guide-family coverage registry lives in `apps/web/features/openai-agents-sdk-demo/server/guide-coverage.ts`. It tracks source guide URL, SDK primitive, observable runtime evidence, implementation status, provider capability status, and current-run readiness for each planned guide family.
+- The current-run inspector derivation lives in `apps/web/features/openai-agents-sdk-demo/ui/openai-agents-sdk-demo-runtime-inspector.ts`. The **Demo Workspace** passes messages, guide coverage, and setup profiles into this **Runtime Inspector Module** instead of scanning assistant metadata inline.
 - The chat route now writes tool-usage and guardrail-evaluation metadata after the streamed run settles, so the workspace can mark `Tools`, `Guardrails`, and individual catalog rows from real SDK results instead of inferring usage from visible text alone.
 - The chat route now also writes stream-summary metadata after the streamed run settles. The current summary captures agent names plus counts and unique names for `raw_model_stream_event` and `run_item_stream_event`.
 - The chat route now also writes handoff-summary metadata after the streamed run settles. The current summary captures `lastAgent`, handoff target names, and handoff transitions from real `handoff_call_item` / `handoff_output_item` values.
@@ -142,8 +142,8 @@ updateAt: 2026-06-03
   - `server/state.ts`: session ids, serialized `RunState`, approval resolution, `history`, `lastResponseId`, and any local persistence boundary.
   - `server/stream.ts`: full SDK event handling plus the AI SDK UI bridge. Text streaming should stay bridged; richer SDK events should be emitted through explicit UI message parts or feature-local side-channel metadata.
   - `server/capabilities/*`: one file per official-document capability lane when the module gets large enough. These are internal lanes inside one demo, not separate Agent Demos.
-- Configure SDK-wide defaults in one stable bootstrap path, not ad hoc inside every request branch. The OpenAI Agents SDK config docs describe `setDefaultOpenAIClient(...)` and `setOpenAIAPI(...)` as process-wide defaults.
-- Keep AI Gateway as a transport/provider layer. Do not let provider swapping erase SDK semantics. Features that depend on OpenAI Responses-specific behavior should fail explicitly when the selected Gateway model/provider cannot support them.
+- Construct the SDK Runner with a request-scoped model provider so concurrent requests can select different transports.
+- Preserve SDK semantics for OpenAI Platform and the Gateway transport for other model providers. Features that depend on OpenAI Responses-specific behavior should fail explicitly when the selected Gateway model/provider cannot support them.
 - Capability support must be explicit. A capability can be `implemented`, `used this run`, `not exercised`, `blocked by provider`, or `requires native OpenAI credentials`; it should never be treated as covered by a silent fallback.
 - Prefer OpenAI Responses API chaining, sessions, or serialized `RunState` over manual UI transcript reconstruction once tools, approvals, handoffs, or MCP enter the flow.
 - Preserve the official AI SDK UI bridge for assistant text and standard AI SDK UI chunks. Add feature-local rendering for SDK-native artifacts that the bridge does not expose well enough.
@@ -151,7 +151,7 @@ updateAt: 2026-06-03
 - Keep official guide coverage visible in the right-side inspector. A user should be able to see that a Tesla research conversation exercised `Tools`, `Handoffs`, `Results`, `Sessions`, `Tracing`, or other official guide families without reading the code.
 - Make coverage evidence concrete enough for code review. Avoid vague "supported" badges unless the row also names the official guide, SDK primitive, observable run item/event, and current-run usage state.
 - Keep all credentials explicit:
-  - `AI_GATEWAY_API_KEY` is required for the Gateway-backed OpenAI client.
+  - `OPENAI_API_KEY` authenticates the default OpenAI Platform Responses client. Other vendor models use the Gateway client and `AI_GATEWAY_API_KEY`.
   - `OPENAI_AGENTS_GATEWAY_BASE_URL` remains an optional demo-local override.
   - `OPENAI_AGENTS_MODEL` remains an optional demo-local model override.
   - Add hosted-tool, MCP, tracing, sandbox, or voice credentials only when the matching lane is implemented.

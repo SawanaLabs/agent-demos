@@ -212,6 +212,7 @@ it("persists route-backed turns with selected model and visibility", async () =>
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -268,6 +269,7 @@ it("projects replay history before sending multi-turn search chats to the model"
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -332,6 +334,7 @@ it("replays a persisted user turn when regenerating a failed assistant response"
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -379,6 +382,7 @@ it("exposes sandbox-backed tools after sandbox is already enabled", async () => 
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -419,6 +423,7 @@ it("exposes sandbox-backed tools after sandbox is already enabled", async () => 
     chatId: "7dad003a-e507-448b-ac02-10937a0290da",
     env: {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     },
@@ -464,6 +469,7 @@ it("returns a concrete setup error when enabled sandbox tools cannot be prepared
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }

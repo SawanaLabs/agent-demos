@@ -5,13 +5,14 @@ import {
   handleGenerativeUiRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("generative UI runtime", () => {
   it("maps feature-local gateway setup into runtime state", () => {
     expect(
       getGenerativeUiRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         GENERATIVE_UI_CHAT_MODEL: "openai/gpt-5",
       })
     ).toEqual({
@@ -37,7 +38,7 @@ describe("generative UI runtime", () => {
     expect(response.status).toBe(500);
     expect(streamGenerativeUiChat).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -47,7 +48,7 @@ describe("generative UI runtime", () => {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
 
     expect(response.status).toBe(400);
@@ -75,13 +76,14 @@ describe("generative UI runtime", () => {
         body: JSON.stringify({ messages }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       { streamGenerativeUiChat }
     );
 
     expect(response.status).toBe(200);
     expect(streamGenerativeUiChat).toHaveBeenCalledWith(messages, {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
     });
   });
 });

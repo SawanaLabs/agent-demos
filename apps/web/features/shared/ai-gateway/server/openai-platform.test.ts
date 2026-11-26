@@ -64,9 +64,24 @@ it("sends OpenAI text, embeddings, and images directly while retaining other mod
     expect(provider("google/gemini-3.1-flash-lite").provider).toBe(
       gateway("google/gemini-3.1-flash-lite").provider
     );
-    expect(withOpenAIPlatform(gateway)).toBe(gateway);
     expect(requests).toHaveBeenCalledTimes(3);
   } finally {
     vi.unstubAllGlobals();
   }
+});
+
+it("requires a Platform key for every OpenAI model even when Gateway is configured", () => {
+  const gateway = createGateway({ apiKey: "gateway-fixture" });
+  const provider = withOpenAIPlatform(gateway, " ");
+  expect(() => provider("openai/gpt-5-mini")).toThrow(/OPENAI_API_KEY/);
+  expect(() => provider("gpt-5-mini")).toThrow(/OPENAI_API_KEY/);
+  expect(() =>
+    provider.embeddingModel("openai/text-embedding-3-small")
+  ).toThrow(/OPENAI_API_KEY/);
+  expect(() => provider.imageModel("openai/gpt-image-2")).toThrow(
+    /OPENAI_API_KEY/
+  );
+  expect(provider("google/gemini-3.1-flash-lite").provider).toBe(
+    gateway("google/gemini-3.1-flash-lite").provider
+  );
 });

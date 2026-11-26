@@ -4,13 +4,14 @@ import {
   handleObjectGenerationRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("content review runtime", () => {
   it("maps shared gateway setup into a structured-review runtime state", () => {
     expect(
       getObjectGenerationRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1",
       })
     ).toEqual({
@@ -38,7 +39,7 @@ describe("content review runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         createObjectGenerationStream: async (input) => ({
           textStream: (async function* () {
@@ -106,7 +107,7 @@ describe("content review runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         createObjectGenerationStream: async () => ({
           textStream: (async function* () {
@@ -136,7 +137,7 @@ describe("content review runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -155,7 +156,7 @@ describe("content review runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         createObjectGenerationStream: async () => ({
           textStream: (async function* () {
@@ -180,7 +181,7 @@ describe("content review runtime", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         createObjectGenerationStream: async () => ({
           textStream: (async function* () {

@@ -1,3 +1,4 @@
+import pytest
 from langchain_core.messages import HumanMessage
 
 from langgraph_agent.agent import (
@@ -35,6 +36,25 @@ def test_openai_model_uses_platform_client_without_retries(monkeypatch) -> None:
     assert model.openai_api_base == "https://api.openai.com/v1"
     assert model.max_retries == 0
     assert model.temperature is None
+
+
+def test_openai_models_require_platform_credentials_even_with_gateway(monkeypatch) -> None:
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("AI_GATEWAY_API_KEY", "gateway-test-key")
+    for model_id in ("openai/gpt-5-mini", "gpt-5-mini"):
+        monkeypatch.setenv("LANGGRAPH_AGENT_MODEL", model_id)
+        with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
+            _create_chat_model()
+
+
+def test_other_models_keep_the_gateway_route(monkeypatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "platform-test-key")
+    monkeypatch.setenv("AI_GATEWAY_API_KEY", "gateway-test-key")
+    monkeypatch.setenv("AI_GATEWAY_BASE_URL", "https://gateway.example/v1")
+    monkeypatch.setenv("LANGGRAPH_AGENT_MODEL", "google/gemini-3.1-flash-lite")
+    model = _create_chat_model()
+    assert model.model_name == "google/gemini-3.1-flash-lite"
+    assert model.openai_api_base == "https://gateway.example/v1"
 
 
 def test_plan_node_summarizes_latest_human_request() -> None:

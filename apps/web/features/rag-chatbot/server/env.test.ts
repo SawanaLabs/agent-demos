@@ -15,7 +15,7 @@ describe("rag chatbot env", () => {
     expect(getRagChatbotSetupState({})).toMatchObject({
       isReady: false,
       issues: expect.arrayContaining([
-        expect.stringMatching(/AI_GATEWAY_API_KEY/i),
+        expect.stringMatching(/OPENAI_API_KEY/i),
       ]),
     });
   });
@@ -24,6 +24,7 @@ describe("rag chatbot env", () => {
     expect(
       getRagChatbotConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       baseURL: "https://ai-gateway.vercel.sh/v3/ai",
@@ -33,6 +34,7 @@ describe("rag chatbot env", () => {
   });
 
   it("reads the embedding model from the app env contract", () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-openai-key");
     vi.stubEnv("AI_GATEWAY_API_KEY", "test-key");
     vi.stubEnv("AI_GATEWAY_EMBEDDING_MODEL", "openai/text-embedding-3-large");
 
@@ -58,15 +60,19 @@ describe("rag chatbot env", () => {
   });
 
   it("reports the index setup issue in dependency order", () => {
-    expect(getRagChatbotIndexSetupIssue({})).toMatch(/AI_GATEWAY_API_KEY/i);
+    expect(
+      getRagChatbotIndexSetupIssue({ AI_GATEWAY_API_KEY: "gateway-key" })
+    ).toMatch(/OPENAI_API_KEY/i);
     expect(
       getRagChatbotIndexSetupIssue({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatch(/DATABASE_URL/i);
     expect(
       getRagChatbotIndexSetupIssue({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       })
     ).toBeNull();

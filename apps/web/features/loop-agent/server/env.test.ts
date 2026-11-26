@@ -6,6 +6,7 @@ describe("loop agent env", () => {
     expect(
       getLoopAgentConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_BASE_URL: "https://gateway.example.com/v3/ai",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5",
       })
@@ -20,6 +21,6 @@ describe("loop agent env", () => {
     const setup = getLoopAgentSetupState({});
 
     expect(setup.isReady).toBe(false);
-    expect(setup.issues.join(" ")).toMatch(/AI_GATEWAY_API_KEY/i);
+    expect(setup.issues.join(" ")).toMatch(/OPENAI_API_KEY/i);
   });
 });

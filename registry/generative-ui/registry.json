@@ -32,6 +32,7 @@
         "https://elements.ai-sdk.dev/api/registry/tool.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "GENERATIVE_UI_CHAT_MODEL": "openai/gpt-5-mini"
@@ -116,6 +117,11 @@
           "path": "lib/ai-gateway/contract.ts",
           "type": "registry:lib",
           "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
         },
         {
           "path": "lib/generative-ui/ui-contract.ts",

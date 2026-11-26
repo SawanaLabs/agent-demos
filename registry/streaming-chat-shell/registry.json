@@ -7,6 +7,7 @@
       "title": "Streaming Chat Shell",
       "description": "A developer-facing chat workspace with a shared chat session and replayable SSE trace.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -25,6 +26,7 @@
         "https://elements.ai-sdk.dev/api/registry/message.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
@@ -76,6 +78,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "lib/streaming-chat-shell/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/streaming-chat-shell/env-source.ts"
@@ -101,7 +108,7 @@
           "target": "@lib/streaming-chat-shell/streaming-turn.ts"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and AI Gateway env vars required for shared useChat and developer replay traces."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and server-side model provider env vars required for shared useChat and developer replay traces."
     }
   ]
 }

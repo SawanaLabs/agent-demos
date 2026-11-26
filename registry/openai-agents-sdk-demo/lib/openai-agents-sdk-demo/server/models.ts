@@ -14,7 +14,7 @@ export interface OpenAiAgentsSdkDemoModelProfile {
   api: "responses";
   baseUrl: string;
   model: string;
-  provider: "gateway-openai-client";
+  provider: "openai-platform" | "gateway-openai-client";
   reasoningEffort: DemoReasoningEffort;
   responsesTransport: "http";
   textVerbosity: DemoTextVerbosity;
@@ -83,11 +83,14 @@ export function getOpenAiAgentsSdkDemoTextVerbosity(
 export function getOpenAiAgentsSdkDemoModelProfile(
   env: DemoEnv
 ): OpenAiAgentsSdkDemoModelProfile {
+  const direct = model.startsWith("openai/") || !model.includes("/");
   return {
     api: "responses",
-    baseUrl: getOpenAiAgentsSdkDemoGatewayBaseUrl(env),
-    model: getOpenAiAgentsSdkDemoChatModel(env),
-    provider: "gateway-openai-client",
+    baseUrl: direct
+      ? "https://api.openai.com/v1"
+      : getOpenAiAgentsSdkDemoGatewayBaseUrl(env),
+    model: model.replace(/^openai\//, ""),
+    provider: direct ? "openai-platform" : "gateway-openai-client",
     reasoningEffort: getOpenAiAgentsSdkDemoReasoningEffort(env),
     responsesTransport: "http",
     textVerbosity: getOpenAiAgentsSdkDemoTextVerbosity(env),
@@ -123,7 +126,14 @@ function getErrorMessage(error: unknown) {
   }
 }
 
-export function getOpenAiAgentsSdkDemoProviderErrorMessage(error: unknown) {
+export function getOpenAiAgentsSdkDemoProviderErrorMessage(
+  error: unknown,
+  provider: OpenAiAgentsSdkDemoModelProfile["provider"]
+) {
+  if (provider !== "gateway-openai-client") {
+    return null;
+  }
+
   const message = getErrorMessage(error);
 
   if (/At least one user message is required in the input/i.test(message)) {

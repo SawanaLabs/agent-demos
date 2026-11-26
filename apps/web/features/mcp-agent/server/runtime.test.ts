@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { getMcpAgentRuntimeState, handleMcpAgentRequest } from "./runtime";
 
-const missingSetupErrorPattern = /AI_GATEWAY_API_KEY/i;
+const missingSetupErrorPattern = /OPENAI_API_KEY/i;
 
 describe("mcp-agent runtime", () => {
   it("surfaces the static MCP runtime contract when setup is ready", () => {
     const runtimeState = getMcpAgentRuntimeState({
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
     });
 
     expect(runtimeState.chatModel).toBe("openai/gpt-5-mini");
@@ -53,6 +54,7 @@ describe("mcp-agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamMcpAgent: async (messages, options) =>

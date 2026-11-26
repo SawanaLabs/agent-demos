@@ -8,6 +8,7 @@ describe("generative UI env", () => {
     expect(
       getGenerativeUiConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1-mini",
       })
     ).toEqual({
@@ -21,6 +22,7 @@ describe("generative UI env", () => {
     expect(
       getGenerativeUiConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         GENERATIVE_UI_CHAT_MODEL: "openai/gpt-5",
       }).chatModel
     ).toBe("openai/gpt-5");
@@ -30,6 +32,7 @@ describe("generative UI env", () => {
     expect(
       getGenerativeUiSetupState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1-mini",
       }).config.chatModel
     ).toBe("openai/gpt-5-mini");
@@ -44,6 +47,6 @@ describe("generative UI env", () => {
     const setup = getGenerativeUiSetupState({});
 
     expect(setup.isReady).toBe(false);
-    expect(setup.issues.join(" ")).toMatch(/AI_GATEWAY_API_KEY/i);
+    expect(setup.issues.join(" ")).toMatch(/OPENAI_API_KEY/i);
   });
 });

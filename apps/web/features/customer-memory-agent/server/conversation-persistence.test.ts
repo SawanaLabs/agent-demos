@@ -76,6 +76,7 @@ describe("customer memory conversation persistence", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {

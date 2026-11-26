@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { getLoopAgentRuntimeState, handleLoopAgentRequest } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("loop agent runtime", () => {
   it("uses the loop-agent default chat model in runtime state", () => {
     expect(
       getLoopAgentRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       }).chatModel
     ).toBe("openai/gpt-5-mini");
   });
@@ -24,7 +25,7 @@ describe("loop agent runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -36,6 +37,7 @@ describe("loop agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       }
     );
 
@@ -66,6 +68,7 @@ describe("loop agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamLoopAgent: async (messages) =>

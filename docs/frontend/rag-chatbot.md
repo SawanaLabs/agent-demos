@@ -26,7 +26,7 @@ updateAt: 2026-06-08
 - Preserve the AI SDK RAG source core: document ingestion, chunking, embeddings, durable Postgres storage, pgvector similarity search, tool calling, and a bounded multi-step loop.
 - Use the NASA Graphics Standards Manual as the current first `RAG Source Document`; show both the source PDF and NASA source page in the workspace.
 - Do not imply trademark, logo, or commercial usage permission beyond the source document's own claims.
-- Require `AI_GATEWAY_API_KEY` for chat and embedding generation. Require `DATABASE_URL` for pgvector-backed chat availability and source indexing.
+- Require `OPENAI_API_KEY` for the default chat and embedding models. A non-OpenAI model requires `AI_GATEWAY_API_KEY` for its stage. Require `DATABASE_URL` for pgvector-backed chat availability and source indexing.
 - Keep `POST /api/demos/rag-chatbot/index` as the explicit source-indexing path for the configured document.
 - Keep indexing idempotent by hashing the source PDF and reusing the existing resource when the content hash matches.
 - Use explicit setup messages when Gateway, database, or index state is missing. Chat requests should fail clearly when the knowledge base is unavailable.

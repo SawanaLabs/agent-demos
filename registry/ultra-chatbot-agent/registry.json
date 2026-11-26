@@ -53,6 +53,7 @@
         "https://elements.ai-sdk.dev/api/registry/tool.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
@@ -428,6 +429,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "lib/ultra-chatbot-agent/attachment-config.ts",
           "type": "registry:lib",
           "target": "@lib/ultra-chatbot-agent/attachment-config.ts"
@@ -793,7 +799,7 @@
           "target": "@components/page-copy.tsx"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure AI Gateway, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure OpenAI Platform, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families."
     }
   ]
 }

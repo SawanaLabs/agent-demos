@@ -16,22 +16,46 @@ export interface DemoModelProvider {
 }
 
 export const OPENAI_BASE_URL = "https://api.openai.com/v1";
+export const MISSING_OPENAI_PLATFORM_KEY =
+  "OPENAI_API_KEY is required for OpenAI Platform.";
+
+const nativeOpenAIModelPattern =
+  /^(?:gpt-|chatgpt-|o[134](?:-|$)|text-embedding-|dall-e-)/;
 
 export function openAIModelId(modelId: string) {
-  return modelId.startsWith("openai/") ? modelId.slice("openai/".length) : null;
+  if (modelId.startsWith("openai/")) {
+    return modelId.slice("openai/".length);
+  }
+  return !modelId.includes("/") && nativeOpenAIModelPattern.test(modelId)
+    ? modelId
+    : null;
 }
 
-export function canUseOpenAIPlatform(
-  apiKey: string | undefined,
-  modelId: string
+export function hasDemoModelCredentials(
+  modelId: string,
+  openaiKey: string | undefined,
+  gatewayCredential: string | null | undefined
 ) {
-  return Boolean(apiKey?.trim() && openAIModelId(modelId));
+  return Boolean(
+    openAIModelId(modelId) === null
+      ? gatewayCredential?.trim()
+      : openaiKey?.trim()
+  );
+}
+
+export function requireOpenAIPlatformKey(apiKey?: string) {
+  const key = apiKey?.trim();
+  if (!key) {
+    throw new Error(MISSING_OPENAI_PLATFORM_KEY);
+  }
+  return key;
 }
 
 export function createOpenAIPlatform(apiKey?: string) {
-  return apiKey?.trim()
-    ? createOpenAI({ apiKey: apiKey.trim(), baseURL: OPENAI_BASE_URL })
-    : undefined;
+  return createOpenAI({
+    apiKey: requireOpenAIPlatformKey(apiKey),
+    baseURL: OPENAI_BASE_URL,
+  });
 }
 
 export function withOpenAIPlatform(
@@ -39,9 +63,10 @@ export function withOpenAIPlatform(
   apiKey?: string,
   missingGatewayCredentials = "Missing AI_GATEWAY_API_KEY for this model."
 ): DemoModelProvider {
-  const openai = createOpenAIPlatform(apiKey);
-  if (!openai && gateway) {
-    return gateway;
+  let openai: ReturnType<typeof createOpenAIPlatform> | undefined;
+  function requireOpenAI() {
+    openai ??= createOpenAIPlatform(apiKey);
+    return openai;
   }
 
   function requireGateway() {
@@ -54,23 +79,23 @@ export function withOpenAIPlatform(
 
   const languageModel = (modelId: string) => {
     const directId = openAIModelId(modelId);
-    return directId && openai
-      ? openai.responses(directId)
-      : requireGateway().languageModel(modelId);
+    return directId === null
+      ? requireGateway().languageModel(modelId)
+      : requireOpenAI().responses(directId);
   };
 
   return Object.assign(languageModel, {
     embeddingModel(modelId: string) {
       const directId = openAIModelId(modelId);
-      return directId && openai
-        ? openai.embedding(directId)
-        : requireGateway().embeddingModel(modelId);
+      return directId === null
+        ? requireGateway().embeddingModel(modelId)
+        : requireOpenAI().embedding(directId);
     },
     imageModel(modelId: string) {
       const directId = openAIModelId(modelId);
-      return directId && openai
-        ? openai.image(directId)
-        : requireGateway().imageModel(modelId);
+      return directId === null
+        ? requireGateway().imageModel(modelId)
+        : requireOpenAI().image(directId);
     },
     languageModel,
   });

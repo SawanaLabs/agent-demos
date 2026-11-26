@@ -141,7 +141,7 @@ describe("persistent agent runtime setup", () => {
       cleanupScheduleUtc: "0 20 * * *",
       isChatAvailable: false,
       resumeRequiresRedis: true,
-      setupMessage: expect.stringContaining("AI_GATEWAY_API_KEY"),
+      setupMessage: expect.stringContaining("OPENAI_API_KEY"),
       statusLabel: "Setup required",
     });
   });
@@ -162,6 +162,7 @@ describe("persistent agent runtime setup", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         REDIS_URL: "redis://localhost:6379",
       }
@@ -190,6 +191,7 @@ describe("persistent agent chat request handling", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         REDIS_URL: "redis://localhost:6379",
       }
@@ -277,6 +279,7 @@ describe("persistent agent chat request handling", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         REDIS_URL: "redis://localhost:6379",
       }
@@ -315,6 +318,7 @@ describe("persistent agent resumable streams", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         REDIS_URL: "redis://localhost:6379",
       }
@@ -332,6 +336,7 @@ describe("persistent agent resumable streams", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
         REDIS_URL: "redis://localhost:6379",
       }

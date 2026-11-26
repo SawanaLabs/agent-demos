@@ -5,12 +5,15 @@ import {
   handleMultiAgentExplorerRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("multi-agent explorer runtime", () => {
   it("maps gateway setup into a page-facing runtime state", () => {
     expect(
-      getMultiAgentExplorerRuntimeState({ AI_GATEWAY_API_KEY: "test-key" })
+      getMultiAgentExplorerRuntimeState({
+        OPENAI_API_KEY: "test-openai-key",
+        AI_GATEWAY_API_KEY: "test-key",
+      })
     ).toEqual({
       chatModel: "openai/gpt-5-mini",
       isChatAvailable: true,
@@ -34,7 +37,7 @@ describe("multi-agent explorer runtime", () => {
     expect(response.status).toBe(500);
     expect(streamMultiAgentExplorer).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -44,14 +47,14 @@ describe("multi-agent explorer runtime", () => {
         body: "{",
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
     const invalidMessagesResponse = await handleMultiAgentExplorerRequest(
       new Request("http://localhost/api/demos/multi-agent-explorer", {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
 
     expect(malformedResponse.status).toBe(400);
@@ -87,14 +90,14 @@ describe("multi-agent explorer runtime", () => {
 
     const response = await handleMultiAgentExplorerRequest(
       request,
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       { streamMultiAgentExplorer }
     );
 
     expect(response.status).toBe(200);
     expect(streamMultiAgentExplorer).toHaveBeenCalledWith(
       messages,
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       request.signal
     );
   });

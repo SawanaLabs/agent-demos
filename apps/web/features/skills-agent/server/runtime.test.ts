@@ -26,6 +26,7 @@ describe("skills agent runtime", () => {
     const runtimeState = await getSkillsAgentRuntimeState(
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       },
       {
@@ -76,6 +77,7 @@ describe("skills agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       },
       {
@@ -111,6 +113,7 @@ describe("skills agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       },
       {
@@ -142,6 +145,7 @@ describe("skills agent runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         VERCEL_OIDC_TOKEN: "test-oidc-token",
       },
       {

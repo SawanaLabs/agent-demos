@@ -7,6 +7,7 @@
       "title": "Object Generation",
       "description": "A structured-output review workspace that streams a generated object directly inside the assistant message.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -27,6 +28,7 @@
         "https://elements.ai-sdk.dev/api/registry/message.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
@@ -83,6 +85,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "lib/object-generation/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/object-generation/env-source.ts"
@@ -103,7 +110,7 @@
           "target": "@lib/object-generation/schema.ts"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and AI Gateway env vars required for structured output over text, image, and PDF inputs."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and server-side model provider env vars required for structured output over text, image, and PDF inputs."
     }
   ]
 }

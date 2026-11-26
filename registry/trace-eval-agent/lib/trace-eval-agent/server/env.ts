@@ -1,13 +1,13 @@
-import { getTraceEvalAgentAppEnv } from "./env-source";
 import {
-  buildAiGatewayContractSetupState,
-  createAiGatewayFromContract,
-  readAiGatewayContractConfig,
   type AiGatewayContractConfig,
   type AiGatewayContractSetupState,
   type AiGatewayEnvRecord,
   type AiGatewaySetupConfig,
+  buildAiGatewayContractSetupState,
+  createAiGatewayFromContract,
+  readAiGatewayContractConfig,
 } from "@/lib/ai-gateway/contract";
+import { getTraceEvalAgentAppEnv } from "./env-source";
 import {
   DEFAULT_TRACE_EVAL_AGENT_CHAT_MODEL,
   resolveTraceEvalAgentChatModel,
@@ -19,14 +19,19 @@ export type TraceEvalAgentEnv = AiGatewayEnvRecord;
 
 export type TraceEvalAgentConfig = AiGatewayContractConfig;
 
-export type TraceEvalAgentSetupState = AiGatewayContractSetupState<AiGatewaySetupConfig>;
+export type TraceEvalAgentSetupState =
+  AiGatewayContractSetupState<AiGatewaySetupConfig>;
 
-export type TraceEvalAgentGateway = ReturnType<typeof createAiGatewayFromContract>;
+export type TraceEvalAgentGateway = ReturnType<
+  typeof createAiGatewayFromContract
+>;
 
 const traceEvalAgentContract = {
   defaultChatModel: DEFAULT_CHAT_MODEL,
-  missingApiKeyError: "Missing AI_GATEWAY_API_KEY. Add it to .env.local before using the trace eval agent.",
-  missingApiKeyIssue: "AI_GATEWAY_API_KEY is missing. The demo can render, but trace and eval requests will fail until it is configured.",
+  missingApiKeyError:
+    "Missing AI_GATEWAY_API_KEY. Add it to .env.local before using the trace eval agent.",
+  missingApiKeyIssue:
+    "AI_GATEWAY_API_KEY is missing. The demo can render, but trace and eval requests will fail until it is configured.",
 } as const;
 
 export function getTraceEvalAgentEnv(): TraceEvalAgentEnv {
@@ -36,22 +41,19 @@ export function getTraceEvalAgentEnv(): TraceEvalAgentEnv {
 export function getTraceEvalAgentConfig(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentConfig {
-  return {
-    ...readAiGatewayContractConfig(env, traceEvalAgentContract),
-    chatModel: resolveTraceEvalAgentChatModel(env),
-  };
+  return readAiGatewayContractConfig(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveTraceEvalAgentChatModel(env) },
+    traceEvalAgentContract
+  );
 }
 
 export function getTraceEvalAgentSetupState(
   env: TraceEvalAgentEnv = getTraceEvalAgentEnv()
 ): TraceEvalAgentSetupState {
-  return buildAiGatewayContractSetupState(env, {
-    ...traceEvalAgentContract,
-    buildConfig: (resolvedEnv) => ({
-      baseURL: resolvedEnv.baseURL,
-      chatModel: resolveTraceEvalAgentChatModel(env),
-    }),
-  });
+  return buildAiGatewayContractSetupState(
+    { ...env, AI_GATEWAY_CHAT_MODEL: resolveTraceEvalAgentChatModel(env) },
+    traceEvalAgentContract
+  );
 }
 
 export function createTraceEvalAgentGateway(

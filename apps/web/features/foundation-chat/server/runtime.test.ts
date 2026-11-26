@@ -5,13 +5,14 @@ import {
   handleFoundationChatRequest,
 } from "./runtime";
 
-const missingGatewayKeyPattern = /AI_GATEWAY_API_KEY/i;
+const missingOpenAiKeyPattern = /OPENAI_API_KEY/i;
 
 describe("foundation chat runtime", () => {
   it("maps feature-local gateway setup into a feature-local runtime state", () => {
     expect(
       getFoundationChatRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1-nano",
       })
     ).toEqual({
@@ -26,7 +27,7 @@ describe("foundation chat runtime", () => {
   it("keeps setup errors inside the foundation chat runtime shape", () => {
     expect(getFoundationChatRuntimeState({})).toMatchObject({
       isChatAvailable: false,
-      setupMessage: expect.stringMatching(missingGatewayKeyPattern),
+      setupMessage: expect.stringMatching(missingOpenAiKeyPattern),
       statusLabel: "Setup required",
     });
   });
@@ -42,7 +43,7 @@ describe("foundation chat runtime", () => {
 
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(missingGatewayKeyPattern),
+      error: expect.stringMatching(missingOpenAiKeyPattern),
     });
   });
 
@@ -52,7 +53,7 @@ describe("foundation chat runtime", () => {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" }
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" }
     );
 
     expect(response.status).toBe(400);

@@ -6,6 +6,7 @@ describe("openai agents sdk demo runtime state core setup", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       aiSdkExtensionProfile: {
@@ -34,7 +35,7 @@ describe("openai agents sdk demo runtime state core setup", () => {
         suggestedDefaultTarget: "Tesla",
       },
       modelProfile: expect.objectContaining({
-        model: "openai/gpt-5-mini",
+        model: "gpt-5-mini",
       }),
       mcpProfile: {
         convertSchemasToStrict: true,
@@ -81,7 +82,7 @@ describe("openai agents sdk demo runtime state core setup", () => {
       traceProfile: {
         defaultServerRuntimeTracing: "enabled",
         disableEnvVar: "OPENAI_AGENTS_DISABLE_TRACING",
-        exportApiKeySource: "missing",
+        exportApiKeySource: "OPENAI_API_KEY",
         groupingStrategy: "session-id",
         sdkPrimitives: [
           "generateTraceId",
@@ -95,10 +96,11 @@ describe("openai agents sdk demo runtime state core setup", () => {
     });
   });
 
-  it("reports the configured AI Gateway chat model when setup is complete", () => {
+  it("reports the configured OpenAI chat model when setup is complete", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -113,6 +115,7 @@ describe("openai agents sdk demo runtime state core setup", () => {
     expect(
       getOpenAiAgentsSdkDemoRuntimeState({
         AI_GATEWAY_API_KEY: "gateway-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
       })
     ).toMatchObject({
@@ -131,9 +134,9 @@ describe("openai agents sdk demo runtime state core setup", () => {
       ]),
       modelProfile: {
         api: "responses",
-        baseUrl: "https://ai-gateway.vercel.sh/v1",
-        model: "openai/gpt-5.4-mini",
-        provider: "gateway-openai-client",
+        baseUrl: "https://api.openai.com/v1",
+        model: "gpt-5.4-mini",
+        provider: "openai-platform",
         reasoningEffort: "medium",
         responsesTransport: "http",
         textVerbosity: "low",

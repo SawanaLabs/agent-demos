@@ -263,7 +263,7 @@ export default function RegistryGuidePage() {
               <PageText> </PageText>
               <PageText>
                 {
-                  "stack: one chat page, one API route, and the required AI Gateway env vars. If the provider choice changes after installation, use the"
+                  "stack: one chat page, one API route, and the OpenAI Platform credential setup. If the provider choice changes after installation, use the"
                 }
               </PageText>
               <PageText> </PageText>
@@ -342,10 +342,8 @@ export default function RegistryGuidePage() {
           <RequirementCard title="Configure a provider">
             <PageText>{"The default path uses"}</PageText>
             <PageText> </PageText>
-            <ExternalLink
-              href={registryGuideConfig.sourceLinks.aiGatewayAuthenticationDocs}
-            >
-              <PageText>{"AI Gateway"}</PageText>
+            <ExternalLink href={registryGuideConfig.sourceLinks.openAiApiKeys}>
+              <PageText>{"OpenAI Platform"}</PageText>
             </ExternalLink>
             <PageText>
               {
@@ -536,12 +534,9 @@ export default function RegistryGuidePage() {
                   <PageText>{"Default to"}</PageText>
                   <PageText> </PageText>
                   <ExternalLink
-                    href={
-                      registryGuideConfig.sourceLinks
-                        .aiGatewayAuthenticationDocs
-                    }
+                    href={registryGuideConfig.sourceLinks.openAiApiKeys}
                   >
-                    <PageText>{"AI Gateway authentication"}</PageText>
+                    <PageText>{"an OpenAI Platform project API key"}</PageText>
                   </ExternalLink>
                   <PageText>
                     {
@@ -683,7 +678,7 @@ export default function RegistryGuidePage() {
                 <p className="text-muted-foreground text-xs/relaxed">
                   <PageText>
                     {
-                      "Once the code is installed, ask whether to continue with the default AI Gateway setup or use a provider key the user already has, such as Moonshot, DeepSeek, or MiniMax. If the provider changes, read"
+                      "Once the code is installed, ask whether to continue with the default OpenAI Platform setup or use a provider key the user already has, such as Moonshot, DeepSeek, or MiniMax. If the provider changes, read"
                     }
                   </PageText>
                   <PageText> </PageText>
@@ -782,7 +777,7 @@ export default function RegistryGuidePage() {
                 <li>
                   <PageText>
                     {
-                      "AI SDK runtime helper plus the default AI Gateway env seam."
+                      "AI SDK runtime helper plus the server-side provider credential setup."
                     }
                   </PageText>
                 </li>

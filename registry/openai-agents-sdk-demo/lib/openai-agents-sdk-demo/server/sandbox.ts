@@ -170,7 +170,10 @@ export function createOpenAiAgentsSdkDemoSandboxWorkspaceAgent({
         "Prefer rg and sed for inspection, and cite the exact sandbox paths you read.",
         "Do not claim changes to the host repository. Any edits stay inside the sandbox workspace unless the user explicitly asks for a patch plan.",
       ].join(" "),
-    model: sandboxAgentModel,
+    model:
+      modelProfile.provider === "openai-platform"
+        ? sandboxAgentModel.replace(/^openai\//, "")
+        : modelProfile.model,
     modelSettings: {
       reasoning: {
         effort: modelProfile.reasoningEffort,

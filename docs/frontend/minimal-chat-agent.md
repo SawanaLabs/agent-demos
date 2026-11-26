@@ -26,7 +26,7 @@ The upstream source was inspected at commit `8d3939449dbc26dffa86af3b7776618a08f
 
 ## Security and reliability boundaries
 
-- `AI_GATEWAY_API_KEY` stays server-only.
+- `OPENAI_API_KEY` stays server-only. The hosted search model uses OpenAI Platform directly.
 - The selected model must have an `openai/` prefix because the hosted search tool is OpenAI-native.
 - The GitHub lookup accepts only `owner/name`, calls the public API server-side, and times out after five seconds.
 - API errors are normalized before reaching the chat UI.

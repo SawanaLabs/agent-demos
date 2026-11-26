@@ -6,8 +6,9 @@
     {
       "name": "foundation-chat",
       "title": "Foundation Chat",
-      "description": "A production-ready AI Gateway chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
+      "description": "A production-ready OpenAI Platform chat shell for Next.js, AI SDK 6, AI Elements, and shadcn/ui.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "ai",
@@ -89,6 +90,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/foundation-chat/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/foundation-chat/lib/foundation-chat/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/foundation-chat/env-source.ts"
@@ -115,11 +121,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds AI Gateway env vars to .env.local.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item depends on official shadcn registry primitives plus AI Elements conversation and message, writes the route files into the consumer app directory, and adds server-side model provider env vars to .env.local.",
       "type": "registry:block"
     },
     {
@@ -127,6 +134,7 @@
       "title": "RAG Chatbot",
       "description": "A grounded document support chatbot with a portable sample index, optional pgvector ingestion, and visible tool traces.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@neondatabase/serverless",
@@ -206,6 +214,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/rag-chatbot/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/rag-chatbot/lib/rag-chatbot/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/rag-chatbot/env-source.ts"
@@ -257,12 +270,13 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini",
         "AI_GATEWAY_EMBEDDING_MODEL": "openai/text-embedding-3-small"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, a portable sample retrieval index, optional pgvector-backed ingestion, and the AI Gateway env vars required for grounded chat.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat and indexing routes, client workspace components, a portable sample retrieval index, optional pgvector-backed ingestion, and the server-side model provider env vars required for grounded chat.",
       "type": "registry:block"
     },
     {
@@ -270,6 +284,7 @@
       "title": "Multimodal Chatbot",
       "description": "An AI Gateway chat workspace for ad-hoc image and PDF questions with inline file parts.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -339,6 +354,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/multimodal-chatbot/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/multimodal-chatbot/lib/multimodal-chatbot/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/multimodal-chatbot/env-source.ts"
@@ -355,11 +375,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and AI Gateway env vars required for image and PDF chat.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and server-side model provider env vars required for image and PDF chat.",
       "type": "registry:block"
     },
     {
@@ -367,6 +388,7 @@
       "title": "Object Generation",
       "description": "A structured-output review workspace that streams a generated object directly inside the assistant message.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -438,6 +460,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/object-generation/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/object-generation/lib/object-generation/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/object-generation/env-source.ts"
@@ -459,11 +486,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and AI Gateway env vars required for structured output over text, image, and PDF inputs.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the object-generation demo page, streaming review routes, client workspace, and server-side model provider env vars required for structured output over text, image, and PDF inputs.",
       "type": "registry:block"
     },
     {
@@ -577,6 +605,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/generative-ui/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/generative-ui/lib/generative-ui/ui-contract.ts",
           "type": "registry:lib",
           "target": "@lib/generative-ui/ui-contract.ts"
@@ -618,6 +651,7 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "GENERATIVE_UI_CHAT_MODEL": "openai/gpt-5-mini"
@@ -630,6 +664,7 @@
       "title": "Minimal Chat Agent",
       "description": "A source-backed minimal AI SDK agent with OpenAI hosted web search, public GitHub repository lookup, and questionnaire-driven human-in-the-loop tool output.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/openai@^3.0.65",
         "@ai-sdk/react@^3.0.190",
         "@base-ui/react",
@@ -730,6 +765,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/minimal-chat-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/minimal-chat-agent/lib/minimal-chat-agent/types.ts",
           "type": "registry:lib",
           "target": "@lib/minimal-chat-agent/types.ts"
@@ -771,6 +811,7 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
@@ -783,6 +824,7 @@
       "title": "Memory & Persistence Agent",
       "description": "A support workspace with in-memory default persistence, optional Postgres storage, explicit saved memories, retrieval, and compaction checkpoints.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@neondatabase/serverless",
@@ -893,6 +935,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/customer-memory-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/customer-memory-agent/lib/customer-memory-agent/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/customer-memory-agent/env-source.ts"
@@ -964,11 +1011,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped in-memory persistence, saved-memory retrieval, compaction checkpoints, and AI Gateway env vars required for end-to-end chat. Add DATABASE_URL when you want Postgres-backed persistence.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the customer-memory demo page, session and thread routes, visitor-scoped in-memory persistence, saved-memory retrieval, compaction checkpoints, and server-side model provider env vars required for end-to-end chat. Add DATABASE_URL when you want Postgres-backed persistence.",
       "type": "registry:block"
     },
     {
@@ -976,6 +1024,7 @@
       "title": "Streaming Chat Shell",
       "description": "A developer-facing chat workspace with a shared chat session and replayable SSE trace.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -1040,6 +1089,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/streaming-chat-shell/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/streaming-chat-shell/lib/streaming-chat-shell/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/streaming-chat-shell/env-source.ts"
@@ -1066,11 +1120,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and AI Gateway env vars required for shared useChat and developer replay traces.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, chat route, replayable SSE events route, feature-local chat workspace, and server-side model provider env vars required for shared useChat and developer replay traces.",
       "type": "registry:block"
     },
     {
@@ -1078,6 +1133,7 @@
       "title": "Loop Agent",
       "description": "A support triage agent with parallel context gathering, SLA reasoning, and human approval.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -1142,6 +1198,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/loop-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/loop-agent/lib/loop-agent/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/loop-agent/env-source.ts"
@@ -1168,11 +1229,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the loop-agent page, chat route, approval-aware chat workspace, support triage tools, and AI Gateway env vars required for the bounded tool loop.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the loop-agent page, chat route, approval-aware chat workspace, support triage tools, and server-side model provider env vars required for the bounded tool loop.",
       "type": "registry:block"
     },
     {
@@ -1291,6 +1353,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/trace-eval-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/trace-eval-agent/lib/trace-eval-agent/server/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/trace-eval-agent/server/env-source.ts"
@@ -1352,12 +1419,13 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
         "TRACE_EVAL_AGENT_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, research chat route, deterministic eval route, streamed judge route, client workspace, and AI Gateway env vars required for live search plus trace and eval inspection.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the demo page, research chat route, deterministic eval route, streamed judge route, client workspace, and server-side model provider env vars required for live search plus trace and eval inspection.",
       "type": "registry:block"
     },
     {
@@ -1365,6 +1433,7 @@
       "title": "Persistent Agent",
       "description": "An addressable chat resource that persists conversation state in Postgres and reconnects in-flight streams through Redis.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@neondatabase/serverless",
@@ -1453,6 +1522,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/persistent-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/persistent-agent/lib/persistent-agent/server/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/persistent-agent/server/env-source.ts"
@@ -1489,11 +1563,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, in-memory chat storage by default, optional Postgres-backed chat storage, optional Redis resumable stream support, and the AI Gateway env vars required for the browser happy path.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the persistent chat pages, route-backed streaming APIs, visitor cookie contract, in-memory chat storage by default, optional Postgres-backed chat storage, optional Redis resumable stream support, and the server-side model provider env vars required for the browser happy path.",
       "type": "registry:block"
     },
     {
@@ -1501,6 +1576,7 @@
       "title": "Sandbox Agent",
       "description": "A sandbox-backed prototype builder that gives each chat an isolated workspace and a live preview tab.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -1621,6 +1697,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/sandbox-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/sandbox-agent/lib/sandbox-agent/server/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/sandbox-agent/server/env-source.ts"
@@ -1672,11 +1753,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, local preview route, preview health route, client workspace, sandbox session registry, shell/file tool surface, and AI Gateway env vars. It runs with a local isolated workspace by default; Vercel Sandbox credentials are optional if you want remote sandbox execution.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the sandbox-agent page, node runtime chat route, local preview route, preview health route, client workspace, sandbox session registry, shell/file tool surface, and server-side model provider env vars. It runs with a local isolated workspace by default; Vercel Sandbox credentials are optional if you want remote sandbox execution.",
       "type": "registry:block"
     },
     {
@@ -1684,6 +1766,7 @@
       "title": "Skills Agent",
       "description": "A repo-local skills workspace that loads real SKILL.md packages on demand and turns rough ideas into durable agent assets.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -1745,6 +1828,11 @@
           "path": "registry/skills-agent/lib/ai-gateway/contract.ts",
           "type": "registry:lib",
           "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/skills-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
         },
         {
           "path": "registry/skills-agent/lib/skills-agent/server/env-source.ts",
@@ -1868,6 +1956,7 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
@@ -1880,6 +1969,7 @@
       "title": "MCP Agent",
       "description": "An MCP-backed workspace that inspects installed project docs and optional local Next.js runtime state through AI SDK MCP clients.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/mcp",
         "@ai-sdk/react",
         "@base-ui/react",
@@ -1965,6 +2055,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/mcp-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/mcp-agent/lib/mcp-agent/server/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/mcp-agent/server/env-source.ts"
@@ -2016,11 +2111,12 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini"
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the MCP agent page, chat route, built-in project-docs MCP route, client workspace, local project-docs discovery, and the AI Gateway env vars required for MCP-backed chat. The optional Next.js runtime MCP server becomes available after next-devtools-mcp can attach to a running Next.js dev server.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the MCP agent page, chat route, built-in project-docs MCP route, client workspace, local project-docs discovery, and the server-side model provider env vars required for MCP-backed chat. The optional Next.js runtime MCP server becomes available after next-devtools-mcp can attach to a running Next.js dev server.",
       "type": "registry:block"
     },
     {
@@ -2028,6 +2124,7 @@
       "title": "OpenAI Agents SDK Demo",
       "description": "A complete OpenAI Agents SDK workspace that bridges official Agents runs into AI SDK UI messages, with tools, guardrails, handoffs, MCP docs, sandbox inspection, tracing, and voice transport lanes.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@modelcontextprotocol/sdk",
@@ -2153,6 +2250,11 @@
           "path": "registry/openai-agents-sdk-demo/lib/ai-gateway/contract.ts",
           "type": "registry:lib",
           "target": "@lib/ai-gateway/contract.ts"
+        },
+        {
+          "path": "registry/openai-agents-sdk-demo/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
         },
         {
           "path": "registry/openai-agents-sdk-demo/lib/openai-agents-sdk-demo/message-metadata.ts",
@@ -2370,7 +2472,7 @@
         "OPENAI_API_KEY": "",
         "OPENAI_AGENTS_TWILIO_MEDIA_STREAM_URL": ""
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. The main local happy path needs AI_GATEWAY_API_KEY and runs through the installed chat route. Native realtime voice, SIP, Twilio, and Cloudflare transport lanes are included in source and require OPENAI_API_KEY plus their public transport wiring before live verification.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. The main local happy path needs OPENAI_API_KEY and runs through the installed chat route. Native realtime voice, SIP, Twilio, and Cloudflare transport lanes are included in source and require OPENAI_API_KEY plus their public transport wiring before live verification.",
       "type": "registry:block"
     },
     {
@@ -2458,11 +2560,6 @@
           "path": "registry/langgraph-agent/components/ai-elements/shimmer.tsx",
           "type": "registry:component",
           "target": "@components/ai-elements/shimmer.tsx"
-        },
-        {
-          "path": "registry/langgraph-agent/lib/ai-gateway/contract.ts",
-          "type": "registry:lib",
-          "target": "@lib/ai-gateway/contract.ts"
         },
         {
           "path": "registry/langgraph-agent/lib/langgraph-agent/server/env-source.ts",
@@ -2926,6 +3023,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "registry/ultra-chatbot-agent/lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "registry/ultra-chatbot-agent/lib/ultra-chatbot-agent/attachment-config.ts",
           "type": "registry:lib",
           "target": "@lib/ultra-chatbot-agent/attachment-config.ts"
@@ -3292,6 +3394,7 @@
         }
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-5-mini",
@@ -3305,7 +3408,7 @@
         "VERCEL_TEAM_ID": "",
         "VERCEL_TOKEN": ""
       },
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure AI Gateway, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families.",
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the complete Ultra Chatbot Agent page, route-backed APIs, model selector, history, votes, document artifacts, Blob upload route, RAG-backed knowledge search, Project Docs MCP route, gated sandbox tools, cleanup cron, Drizzle schema, and setup notes. Configure OpenAI Platform, Postgres, and Redis for the main chat happy path; add Blob and Vercel Sandbox credentials for those capability families.",
       "type": "registry:block"
     },
     {

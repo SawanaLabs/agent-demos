@@ -7,6 +7,7 @@ describe("foundation chat env", () => {
     expect(
       getFoundationChatConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toEqual({
       apiKey: "test-key",
@@ -22,9 +23,7 @@ describe("foundation chat env", () => {
         chatModel: "openai/gpt-4.1-mini",
       },
       isReady: false,
-      issues: [
-        "AI_GATEWAY_API_KEY is missing. The demo can render, but chat requests will fail until it is configured.",
-      ],
+      issues: ["OPENAI_API_KEY is required for OpenAI Platform."],
       nodeVersion: process.version,
     });
   });

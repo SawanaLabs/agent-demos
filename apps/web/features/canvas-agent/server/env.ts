@@ -5,7 +5,7 @@ import {
 } from "@/features/shared/ai-gateway/server/contract";
 
 import {
-  openAIModelId,
+  hasDemoModelCredentials,
   withOpenAIPlatform,
 } from "@/features/shared/ai-gateway/server/openai-platform";
 
@@ -24,14 +24,13 @@ function canvasModelIds() {
 
 export function canvasSetup() {
   const { text, image } = canvasModelIds();
+  const openaiKey = process.env.OPENAI_API_KEY;
+  const gatewayCredential =
+    process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
   return {
-    ready: Boolean(
-      process.env.AI_GATEWAY_API_KEY ||
-        process.env.VERCEL_OIDC_TOKEN ||
-        (process.env.OPENAI_API_KEY?.trim() &&
-          openAIModelId(text) &&
-          openAIModelId(image))
-    ),
+    ready:
+      hasDemoModelCredentials(text, openaiKey, gatewayCredential) &&
+      hasDemoModelCredentials(image, openaiKey, gatewayCredential),
   };
 }
 

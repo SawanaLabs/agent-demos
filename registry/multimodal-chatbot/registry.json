@@ -7,6 +7,7 @@
       "title": "Multimodal Chatbot",
       "description": "An AI Gateway chat workspace for ad-hoc image and PDF questions with inline file parts.",
       "dependencies": [
+        "@ai-sdk/openai",
         "@ai-sdk/react",
         "@base-ui/react",
         "@phosphor-icons/react",
@@ -25,6 +26,7 @@
         "https://elements.ai-sdk.dev/api/registry/message.json"
       ],
       "envVars": {
+        "OPENAI_API_KEY": "",
         "AI_GATEWAY_API_KEY": "",
         "AI_GATEWAY_BASE_URL": "https://ai-gateway.vercel.sh/v3/ai",
         "AI_GATEWAY_CHAT_MODEL": "openai/gpt-4.1-mini"
@@ -81,6 +83,11 @@
           "target": "@lib/ai-gateway/contract.ts"
         },
         {
+          "path": "lib/ai-gateway/openai-platform.ts",
+          "type": "registry:lib",
+          "target": "@lib/ai-gateway/openai-platform.ts"
+        },
+        {
           "path": "lib/multimodal-chatbot/env-source.ts",
           "type": "registry:lib",
           "target": "@lib/multimodal-chatbot/env-source.ts"
@@ -96,7 +103,7 @@
           "target": "@lib/multimodal-chatbot/runtime.ts"
         }
       ],
-      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and AI Gateway env vars required for image and PDF chat."
+      "docs": "Install into a Next.js App Router project initialized with shadcn/ui. This item adds the multimodal demo page, chat route, client workspace, and server-side model provider env vars required for image and PDF chat."
     }
   ]
 }

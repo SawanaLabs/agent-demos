@@ -9,6 +9,7 @@ describe("multimodal chatbot env", () => {
     expect(
       getMultimodalChatbotConfig({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         AI_GATEWAY_BASE_URL: "https://gateway.example.com/v3/ai",
         AI_GATEWAY_CHAT_MODEL: "openai/gpt-4.1",
       })
@@ -23,6 +24,6 @@ describe("multimodal chatbot env", () => {
     const setup = getMultimodalChatbotSetupState({});
 
     expect(setup.isReady).toBe(false);
-    expect(setup.issues.join(" ")).toMatch(/AI_GATEWAY_API_KEY/i);
+    expect(setup.issues.join(" ")).toMatch(/OPENAI_API_KEY/i);
   });
 });

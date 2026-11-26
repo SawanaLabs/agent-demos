@@ -62,9 +62,10 @@ function isRequestValidationError(error: Error) {
 }
 
 export function getProjectGuideCompanionRuntimeState(
-  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv()
+  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv(),
+  selectedChatModel?: string
 ): ProjectGuideCompanionRuntimeState {
-  const setup = getProjectGuideCompanionSetupState(env);
+  const setup = getProjectGuideCompanionSetupState(env, selectedChatModel);
 
   return {
     chatModel: setup.config.chatModel,
@@ -114,17 +115,6 @@ export async function handleProjectGuideCompanionRequest(
   env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv(),
   dependencies: Partial<ProjectGuideCompanionRuntimeDependencies> = {}
 ) {
-  const runtimeState = getProjectGuideCompanionRuntimeState(env);
-
-  if (!runtimeState.isChatAvailable) {
-    return Response.json(
-      {
-        error: runtimeState.setupMessage,
-      },
-      { status: 500 }
-    );
-  }
-
   let payload: ProjectGuideCompanionRequestPayload;
 
   try {
@@ -139,6 +129,14 @@ export async function handleProjectGuideCompanionRequest(
     }
 
     throw error;
+  }
+
+  const runtimeState = getProjectGuideCompanionRuntimeState(
+    env,
+    payload.selectedChatModel
+  );
+  if (!runtimeState.isChatAvailable) {
+    return Response.json({ error: runtimeState.setupMessage }, { status: 500 });
   }
 
   const stream =

@@ -49,7 +49,7 @@ The project uses multiple demos to cover practical agent application scenarios i
 
 | Demo | Registry | Pattern | Summary |
 | --- | --- | --- | --- |
-| Foundation Chat | Public | Foundation | A production-ready base chat wired to AI Gateway and AI SDK 6. |
+| Foundation Chat | Public | Foundation | A production-ready base chat wired to OpenAI Platform and AI SDK 6. |
 | RAG Chatbot | Public | RAG | Knowledge-base ingestion and retrieval over durable storage. |
 | Multi-Modal Chatbot | Public | Multimodal | Chat over user-provided images and PDFs in a single turn. |
 | Object Generation | Public | Structured output | Generate a typed object from text, images, and PDFs, then render it in the assistant message. |
@@ -69,7 +69,7 @@ The public registry source is tracked in `registry/registry-demos.json`. Repo de
 
 ## Related Resources
 
-This project builds on public docs, tools, and open-source work from the broader Next.js and AI agent ecosystem. The `/registry-guide` page follows the same idea in executable form: start from shadcn Create, install one registry slice, configure AI Gateway, then give a focused task brief to a coding agent.
+This project builds on public docs, tools, and open-source work from the broader Next.js and AI agent ecosystem. The `/registry-guide` page follows the same idea in executable form: start from shadcn Create, install one registry slice, configure an OpenAI Platform project key, then give a focused task brief to a coding agent.
 
 | Resource | Why it matters here |
 | --- | --- |
@@ -77,7 +77,8 @@ This project builds on public docs, tools, and open-source work from the broader
 | [AI Elements](https://elements.ai-sdk.dev/docs) | shadcn-style AI interface components for conversations, messages, prompt input, tool state, reasoning, sources, and workflow UI. |
 | [shadcn/ui](https://ui.shadcn.com/docs) and [shadcn Create](https://ui.shadcn.com/create) | Source-owned UI primitives and the fastest path to a styled Next.js consumer app before installing a demo slice. |
 | [shadcn Registry](https://ui.shadcn.com/docs/registry) | The distribution model used by `@agent-demos` to ship copyable pages, routes, components, libs, and env examples. |
-| [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/authentication) | The default provider contract for public demos so installs can start from one server-side key. |
+| [OpenAI Platform](https://platform.openai.com/api-keys) | Default provider for OpenAI models, authenticated with a server-side project key. |
+| [Vercel AI Gateway](https://vercel.com/docs/ai-gateway/authentication) | Provider for other model vendors and the explicit gateway comparison demo. |
 | [Next.js](https://nextjs.org/docs) and [Turborepo](https://turbo.build/repo/docs) | The app-router and monorepo foundation used by the gallery, registry guide, demo routes, and packages. |
 | [next-forge](https://www.next-forge.com/docs) | A production-grade Turborepo/Next.js reference for teams that want a fuller SaaS application shell around copied demo slices. |
 | [Vercel Sandbox](https://vercel.com/docs/vercel-sandbox) | Isolated command/file execution and live-preview infrastructure behind the sandbox-oriented demos. |

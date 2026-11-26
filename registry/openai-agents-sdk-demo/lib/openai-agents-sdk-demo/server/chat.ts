@@ -1,9 +1,8 @@
-import type { RunStreamEvent, RunToolApprovalItem } from "@openai/agents";
 import {
-  run,
-  setDefaultOpenAIClient,
-  setOpenAIAPI,
-  setOpenAIResponsesTransport,
+  OpenAIProvider,
+  Runner,
+  type RunStreamEvent,
+  type RunToolApprovalItem,
 } from "@openai/agents";
 import { createAiSdkUiMessageStream } from "@openai/agents-extensions/ai-sdk-ui";
 import {
@@ -92,17 +91,29 @@ function isLikelyImageGenerationPrompt(messages: UIMessage[]) {
   return /生成.*图|图片|image|draw|illustration|artwork|poster/.test(content);
 }
 
-function configureOpenAiAgentsSdkDemoGatewayClient(env: DemoEnv) {
-  const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+function createDemoRunner(
+  env: DemoEnv,
+  modelProfile: ReturnType<typeof getOpenAiAgentsSdkDemoModelProfile>
+) {
+  const direct = modelProfile.provider === "openai-platform";
+  const apiKey = direct ? env.OPENAI_API_KEY?.trim() : env.AI_GATEWAY_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      `${direct ? "OPENAI_API_KEY" : "AI_GATEWAY_API_KEY"} is required for the selected model.`
+    );
+  }
 
-  setOpenAIAPI(modelProfile.api);
-  setOpenAIResponsesTransport(modelProfile.responsesTransport);
-  setDefaultOpenAIClient(
-    new OpenAI({
-      apiKey: env.AI_GATEWAY_API_KEY,
-      baseURL: modelProfile.baseUrl,
-    })
-  );
+  return new Runner({
+    modelProvider: new OpenAIProvider({
+      openAIClient: new OpenAI({
+        apiKey,
+        baseURL: modelProfile.baseUrl,
+        ...(direct && { maxRetries: 0 }),
+      }),
+      useResponses: true,
+      useResponsesWebSocket: false,
+    }),
+  });
 }
 
 async function createDemoAgent(env: DemoEnv, origin: string) {
@@ -295,6 +306,46 @@ function mergeOpenAiAgentsSdkDemoMessageMetadata(
   };
 }
 
+function getDemoStreamError(
+  error: unknown,
+  messages: UIMessage[],
+  modelProfile: ReturnType<typeof getOpenAiAgentsSdkDemoModelProfile>
+): string {
+  const approvalMessage =
+    getOpenAiAgentsSdkDemoApprovalErrorMessage(error);
+
+  if (approvalMessage) {
+    return approvalMessage;
+  }
+
+  const guardrailMessage =
+    getOpenAiAgentsSdkDemoGuardrailErrorMessage(error);
+
+  if (guardrailMessage) {
+    return guardrailMessage;
+  }
+
+  if (
+    error instanceof Error &&
+    error.message === "terminated" &&
+    isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(modelProfile) &&
+    isLikelyImageGenerationPrompt(messages)
+  ) {
+    return "The current AI Gateway Responses path registered imageGenerationTool(), but the upstream stream terminated before this demo received a renderable image artifact. In this provider configuration, image generation is blocked.";
+  }
+
+  const providerErrorMessage =
+    getOpenAiAgentsSdkDemoProviderErrorMessage(error, modelProfile.provider);
+
+  if (providerErrorMessage) {
+    return providerErrorMessage;
+  }
+
+  return error instanceof Error
+    ? error.message
+    : "The agent stream failed.";
+}
+
 export async function streamOpenAiAgentsSdkDemo(
   messages: UIMessage[],
   env: DemoEnv = process.env,
@@ -303,8 +354,8 @@ export async function streamOpenAiAgentsSdkDemo(
     signal?: AbortSignal;
   }
 ) {
-  configureOpenAiAgentsSdkDemoGatewayClient(env);
   const modelProfile = getOpenAiAgentsSdkDemoModelProfile(env);
+  const runner = createDemoRunner(env, modelProfile);
   const { agent, mcpServers } = await createDemoAgent(
     env,
     options?.origin ?? "http://localhost:3000"
@@ -334,7 +385,7 @@ export async function streamOpenAiAgentsSdkDemo(
   let agentStream: DemoAgentStream;
 
   if (approvalResume) {
-    agentStream = (await run(agent, approvalResume.state, {
+    agentStream = (await runner.run(agent, approvalResume.state, {
       ...(options?.signal ? { signal: options.signal } : {}),
       maxTurns: runProfile.maxTurns,
       ...sandboxRunConfig,
@@ -350,7 +401,7 @@ export async function streamOpenAiAgentsSdkDemo(
       env
     );
 
-    agentStream = (await run(agent, runRequest.input, {
+    agentStream = (await runner.run(agent, runRequest.input, {
       context: demoContext,
       ...runRequest.options,
       ...sandboxRunConfig,
@@ -458,41 +509,7 @@ export async function streamOpenAiAgentsSdkDemo(
             })
             .finally(() => mcpServers.close());
         },
-        onError(error) {
-          const approvalMessage =
-            getOpenAiAgentsSdkDemoApprovalErrorMessage(error);
-
-          if (approvalMessage) {
-            return approvalMessage;
-          }
-
-          const guardrailMessage =
-            getOpenAiAgentsSdkDemoGuardrailErrorMessage(error);
-
-          if (guardrailMessage) {
-            return guardrailMessage;
-          }
-
-          if (
-            error instanceof Error &&
-            error.message === "terminated" &&
-            isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(modelProfile) &&
-            isLikelyImageGenerationPrompt(messages)
-          ) {
-            return "The current AI Gateway Responses path registered imageGenerationTool(), but the upstream stream terminated before this demo received a renderable image artifact. In this provider configuration, image generation is blocked.";
-          }
-
-          const providerErrorMessage =
-            getOpenAiAgentsSdkDemoProviderErrorMessage(error);
-
-          if (providerErrorMessage) {
-            return providerErrorMessage;
-          }
-
-          return error instanceof Error
-            ? error.message
-            : "The agent stream failed.";
-        },
+        onError: (error) => getDemoStreamError(error, messages, modelProfile),
       }),
     });
 

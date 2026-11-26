@@ -99,7 +99,7 @@ function createDemoRunner(
   const apiKey = direct ? env.OPENAI_API_KEY?.trim() : env.AI_GATEWAY_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "Missing credentials for the selected OpenAI Agents model."
+      `${direct ? "OPENAI_API_KEY" : "AI_GATEWAY_API_KEY"} is required for the selected model.`
     );
   }
 
@@ -306,6 +306,44 @@ function mergeOpenAiAgentsSdkDemoMessageMetadata(
   };
 }
 
+function getDemoStreamError(
+  error: unknown,
+  messages: UIMessage[],
+  modelProfile: ReturnType<typeof getOpenAiAgentsSdkDemoModelProfile>
+): string {
+  const approvalMessage = getOpenAiAgentsSdkDemoApprovalErrorMessage(error);
+
+  if (approvalMessage) {
+    return approvalMessage;
+  }
+
+  const guardrailMessage = getOpenAiAgentsSdkDemoGuardrailErrorMessage(error);
+
+  if (guardrailMessage) {
+    return guardrailMessage;
+  }
+
+  if (
+    error instanceof Error &&
+    error.message === "terminated" &&
+    isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(modelProfile) &&
+    isLikelyImageGenerationPrompt(messages)
+  ) {
+    return "The current AI Gateway Responses path registered imageGenerationTool(), but the upstream stream terminated before this demo received a renderable image artifact. In this provider configuration, image generation is blocked.";
+  }
+
+  const providerErrorMessage = getOpenAiAgentsSdkDemoProviderErrorMessage(
+    error,
+    modelProfile.provider
+  );
+
+  if (providerErrorMessage) {
+    return providerErrorMessage;
+  }
+
+  return error instanceof Error ? error.message : "The agent stream failed.";
+}
+
 export async function streamOpenAiAgentsSdkDemo(
   messages: UIMessage[],
   env: DemoEnv = process.env,
@@ -469,41 +507,7 @@ export async function streamOpenAiAgentsSdkDemo(
             })
             .finally(() => mcpServers.close());
         },
-        onError(error) {
-          const approvalMessage =
-            getOpenAiAgentsSdkDemoApprovalErrorMessage(error);
-
-          if (approvalMessage) {
-            return approvalMessage;
-          }
-
-          const guardrailMessage =
-            getOpenAiAgentsSdkDemoGuardrailErrorMessage(error);
-
-          if (guardrailMessage) {
-            return guardrailMessage;
-          }
-
-          if (
-            error instanceof Error &&
-            error.message === "terminated" &&
-            isOpenAiAgentsSdkDemoImageGenerationProviderBlocked(modelProfile) &&
-            isLikelyImageGenerationPrompt(messages)
-          ) {
-            return "The current AI Gateway Responses path registered imageGenerationTool(), but the upstream stream terminated before this demo received a renderable image artifact. In this provider configuration, image generation is blocked.";
-          }
-
-          const providerErrorMessage =
-            getOpenAiAgentsSdkDemoProviderErrorMessage(error);
-
-          if (providerErrorMessage) {
-            return providerErrorMessage;
-          }
-
-          return error instanceof Error
-            ? error.message
-            : "The agent stream failed.";
-        },
+        onError: (error) => getDemoStreamError(error, messages, modelProfile),
       }),
     });
 

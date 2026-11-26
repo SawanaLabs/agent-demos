@@ -1,8 +1,10 @@
 import { createGateway } from "ai";
 
 import {
-  canUseOpenAIPlatform,
   type DemoModelProvider,
+  hasDemoModelCredentials,
+  MISSING_OPENAI_PLATFORM_KEY,
+  openAIModelId,
   withOpenAIPlatform,
 } from "./openai-platform";
 
@@ -115,13 +117,15 @@ export function resolveAiGatewayContractEnv(
   env: AiGatewayEnvRecord,
   options: Pick<AiGatewayContractOptions, "defaultBaseURL" | "defaultChatModel">
 ): AiGatewayResolvedEnv {
+  const configuredModel = env.AI_GATEWAY_CHAT_MODEL || options.defaultChatModel;
+  const nativeModel = openAIModelId(configuredModel);
   return {
     apiKey: env.AI_GATEWAY_API_KEY,
     baseURL:
       env.AI_GATEWAY_BASE_URL ||
       options.defaultBaseURL ||
       DEFAULT_GATEWAY_BASE_URL,
-    chatModel: env.AI_GATEWAY_CHAT_MODEL || options.defaultChatModel,
+    chatModel: nativeModel === null ? configuredModel : `openai/${nativeModel}`,
   };
 }
 
@@ -133,12 +137,17 @@ export function readAiGatewayContractConfig(
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
 
   if (
-    !(
-      resolvedEnv.apiKey ||
-      canUseOpenAIPlatform(env.OPENAI_API_KEY, resolvedEnv.chatModel)
+    !hasDemoModelCredentials(
+      resolvedEnv.chatModel,
+      env.OPENAI_API_KEY,
+      resolvedEnv.apiKey
     )
   ) {
-    throw new Error(options.missingApiKeyError);
+    throw new Error(
+      openAIModelId(resolvedEnv.chatModel) === null
+        ? options.missingApiKeyError
+        : MISSING_OPENAI_PLATFORM_KEY
+    );
   }
 
   return {
@@ -152,10 +161,12 @@ export function buildAiGatewayContractSetupState<
   TConfig extends AiGatewaySetupConfig,
 >(
   env: AiGatewayEnvRecord,
-  options: AiGatewayContractOptions<TConfig>
+  options: AiGatewayContractOptions<TConfig>,
+  selectedChatModel?: string
 ): AiGatewayContractSetupState<TConfig> {
   const issues: string[] = [];
   const resolvedEnv = resolveAiGatewayContractEnv(env, options);
+  const chatModel = selectedChatModel ?? resolvedEnv.chatModel;
 
   try {
     assertSupportedNodeRuntime();
@@ -166,12 +177,13 @@ export function buildAiGatewayContractSetupState<
   }
 
   if (
-    !(
-      resolvedEnv.apiKey ||
-      canUseOpenAIPlatform(env.OPENAI_API_KEY, resolvedEnv.chatModel)
-    )
+    !hasDemoModelCredentials(chatModel, env.OPENAI_API_KEY, resolvedEnv.apiKey)
   ) {
-    issues.push(options.missingApiKeyIssue || genericMissingApiKeyIssue);
+    issues.push(
+      openAIModelId(chatModel) === null
+        ? options.missingApiKeyIssue || genericMissingApiKeyIssue
+        : MISSING_OPENAI_PLATFORM_KEY
+    );
   }
 
   issues.push(...(options.getAdditionalIssues?.(resolvedEnv, env) ?? []));
@@ -195,10 +207,6 @@ export function createAiGatewayFromContract(
 ): DemoModelProvider {
   assertSupportedNodeRuntime();
   const { apiKey, baseURL } = resolveAiGatewayContractEnv(env, options);
-  if (!(apiKey || env.OPENAI_API_KEY?.trim())) {
-    throw new Error(options.missingApiKeyError);
-  }
-
   return withOpenAIPlatform(
     apiKey ? createGateway({ apiKey, baseURL }) : undefined,
     env.OPENAI_API_KEY,

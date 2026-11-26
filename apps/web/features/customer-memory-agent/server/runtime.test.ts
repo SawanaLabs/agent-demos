@@ -5,7 +5,7 @@ import {
   handleCustomerMemoryChatRequest,
 } from "./runtime";
 
-const missingGatewaySetupPattern = /AI_GATEWAY_API_KEY/i;
+const missingGatewaySetupPattern = /OPENAI_API_KEY/i;
 
 describe("customer memory runtime", () => {
   it("reports setup requirements when gateway or database config is missing", () => {
@@ -21,6 +21,7 @@ describe("customer memory runtime", () => {
     expect(
       getCustomerMemoryRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       })
     ).toMatchObject({
@@ -60,6 +61,7 @@ describe("customer memory runtime", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -77,6 +79,7 @@ describe("customer memory runtime", () => {
       }),
       expect.objectContaining({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     );
   });
@@ -96,6 +99,7 @@ describe("customer memory runtime", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       }
     );
@@ -128,6 +132,7 @@ describe("customer memory runtime", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {
@@ -173,6 +178,7 @@ describe("customer memory runtime", () => {
       },
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
         DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       },
       {

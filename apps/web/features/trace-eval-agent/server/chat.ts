@@ -9,7 +9,6 @@ import {
 import { projectTraceEvalHistoryForModel } from "../model/trace-eval-chat-history";
 import { getTraceEvalAgentConfig, type TraceEvalAgentEnv } from "./env";
 import {
-  resolveTraceEvalAgentChatModel,
   TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
   TRACE_EVAL_SEARCH_TOOL_NAME,
 } from "./model";
@@ -53,17 +52,14 @@ export async function streamTraceEvalAgent(
   messages: UIMessage[],
   env: TraceEvalAgentEnv
 ) {
-  const { apiKey, baseURL } = getTraceEvalAgentConfig(env);
-  const chatModel = resolveTraceEvalAgentChatModel(env);
-  const directKey = chatModel.startsWith("openai/")
-    ? env.OPENAI_API_KEY?.trim()
-    : undefined;
+  const { apiKey, baseURL, chatModel } = getTraceEvalAgentConfig(env);
+  const directModel = chatModel.startsWith("openai/");
   const openai = createOpenAI({
-    apiKey: directKey || apiKey,
-    baseURL: directKey
+    apiKey: directModel ? env.OPENAI_API_KEY?.trim() : apiKey,
+    baseURL: directModel
       ? "https://api.openai.com/v1"
       : resolveOpenAICompatibleBaseURL(baseURL),
-    name: directKey ? "openai" : "gateway-openai",
+    name: directModel ? "openai" : "gateway-openai",
   });
   const runId = crypto.randomUUID();
   const startedAt = Date.now();
@@ -87,7 +83,7 @@ export async function streamTraceEvalAgent(
       recordOutputs: true,
     },
     messages: await convertToModelMessages(replayableMessages),
-    model: openai(directKey ? chatModel.slice("openai/".length) : chatModel),
+    model: openai(directModel ? chatModel.slice("openai/".length) : chatModel),
     providerOptions: TRACE_EVAL_AGENT_PROVIDER_OPTIONS,
     stopWhen: stepCountIs(20),
     system: traceEvalAgentInstructions,

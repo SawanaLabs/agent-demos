@@ -19,7 +19,6 @@ import {
 import { resolveProjectGuideCompanionModelId } from "../model-catalog";
 import {
   createProjectGuideCompanionGateway,
-  getProjectGuideCompanionConfig,
   getProjectGuideCompanionEnv,
   type ProjectGuideCompanionEnv,
 } from "./env";
@@ -70,10 +69,8 @@ export async function streamProjectGuideCompanion(
   selectedChatModel?: string
 ) {
   const gateway = createProjectGuideCompanionGateway(env);
-  const { chatModel: configuredChatModel } =
-    getProjectGuideCompanionConfig(env);
   const chatModel = resolveProjectGuideCompanionModelId(
-    selectedChatModel ?? configuredChatModel
+    selectedChatModel ?? env.AI_GATEWAY_CHAT_MODEL
   );
   const result = streamText({
     messages: await convertToModelMessages(messages),

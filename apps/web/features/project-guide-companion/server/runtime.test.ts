@@ -22,11 +22,20 @@ function createMessage(input: {
   };
 }
 
+const currentTime = "2026-06-08T12:00:00.000Z";
+const userMessage = createMessage({
+  createdAt: currentTime,
+  id: "user-1",
+  role: "user",
+  text: "What is this project?",
+});
+
 describe("project guide companion runtime", () => {
   it("surfaces setup state without requiring a request", () => {
     expect(
       getProjectGuideCompanionRuntimeState({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       })
     ).toMatchObject({
       chatModel: "openai/gpt-5.6-luna",
@@ -35,14 +44,14 @@ describe("project guide companion runtime", () => {
     });
   });
 
-  it("returns setup errors before attempting model work", async () => {
+  it("requires OpenAI credentials for the default model even with a Gateway key", async () => {
     const streamProjectGuideCompanion = vi.fn();
     const response = await handleProjectGuideCompanionRequest(
       new Request("http://localhost/api/project-guide-companion", {
-        body: JSON.stringify({ messages: [] }),
+        body: JSON.stringify({ messages: [userMessage] }),
         method: "POST",
       }),
-      {},
+      { AI_GATEWAY_API_KEY: "test-key" },
       {
         streamProjectGuideCompanion,
       }
@@ -51,8 +60,31 @@ describe("project guide companion runtime", () => {
     expect(response.status).toBe(500);
     expect(streamProjectGuideCompanion).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toMatchObject({
-      error: expect.stringMatching(/AI_GATEWAY_API_KEY/i),
+      error: expect.stringMatching(/OPENAI_API_KEY/i),
     });
+  });
+
+  it("uses the selected Gateway model with only its credential configured", async () => {
+    const streamProjectGuideCompanion = vi.fn(() => Response.json({}));
+    const env = { AI_GATEWAY_API_KEY: "test-key" };
+    const response = await handleProjectGuideCompanionRequest(
+      new Request("http://localhost/api/project-guide-companion", {
+        body: JSON.stringify({
+          messages: [userMessage],
+          selectedChatModel: "zai/glm-5",
+        }),
+        method: "POST",
+      }),
+      env,
+      { clock: () => new Date(currentTime), streamProjectGuideCompanion }
+    );
+
+    expect(response.status).toBe(200);
+    expect(streamProjectGuideCompanion).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: "user-1" })],
+      env,
+      "zai/glm-5"
+    );
   });
 
   it("validates and trims client-sent context before streaming", async () => {
@@ -84,6 +116,7 @@ describe("project guide companion runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         clock: () => new Date("2026-06-08T12:00:00.000Z"),
@@ -96,6 +129,7 @@ describe("project guide companion runtime", () => {
       [expect.objectContaining({ id: "fresh" })],
       expect.objectContaining({
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       }),
       "openai/gpt-5-mini"
     );
@@ -114,6 +148,7 @@ describe("project guide companion runtime", () => {
       }),
       {
         AI_GATEWAY_API_KEY: "test-key",
+        OPENAI_API_KEY: "test-openai-key",
       },
       {
         streamProjectGuideCompanion,

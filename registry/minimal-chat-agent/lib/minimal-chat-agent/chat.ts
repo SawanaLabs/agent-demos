@@ -23,40 +23,15 @@ const systemPrompt = [
   "Keep questions and final answers concise.",
 ].join(" ");
 
-const trailingSlashPattern = /\/$/;
-const v3AiSuffixPattern = /\/v3\/ai$/;
-
-function resolveOpenAICompatibleBaseURL(baseURL: string) {
-  const normalizedBaseURL = baseURL.replace(trailingSlashPattern, "");
-
-  if (normalizedBaseURL.endsWith("/v1")) {
-    return normalizedBaseURL;
-  }
-
-  if (normalizedBaseURL.endsWith("/v3/ai")) {
-    return normalizedBaseURL.replace(v3AiSuffixPattern, "/v1");
-  }
-
-  throw new Error(
-    `Minimal Chat Agent expects AI_GATEWAY_BASE_URL to end with /v3/ai or /v1. Received: ${baseURL}`
-  );
-}
-
 export async function streamMinimalChatAgent(
   messages: UIMessage[],
   env: MinimalChatAgentEnv = getMinimalChatAgentEnv(),
   abortSignal?: AbortSignal
 ) {
-  const { apiKey, baseURL, chatModel } = getMinimalChatAgentConfig(env);
-  const directKey = chatModel.startsWith("openai/")
-    ? env.OPENAI_API_KEY?.trim()
-    : undefined;
+  const { chatModel } = getMinimalChatAgentConfig(env);
   const openai = createOpenAI({
-    apiKey: directKey || apiKey,
-    baseURL: directKey
-      ? "https://api.openai.com/v1"
-      : resolveOpenAICompatibleBaseURL(baseURL),
-    name: directKey ? "openai" : "gateway-openai",
+    apiKey: env.OPENAI_API_KEY?.trim(),
+    baseURL: "https://api.openai.com/v1",
   });
   const runId = crypto.randomUUID();
   const startedAt = Date.now();
@@ -74,7 +49,7 @@ export async function streamMinimalChatAgent(
     },
     maxOutputTokens: 4096,
     messages: await convertToModelMessages(messages),
-    model: openai(directKey ? chatModel.slice("openai/".length) : chatModel),
+    model: openai(chatModel.slice("openai/".length)),
     stopWhen: stepCountIs(5),
     system: systemPrompt,
     tools: createMinimalChatAgentTools(openai.tools),

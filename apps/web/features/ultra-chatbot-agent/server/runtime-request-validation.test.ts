@@ -14,7 +14,7 @@ it("reports setup requirements when gateway, database, or redis config is missin
 
   expect(getUltraChatbotAgentRuntimeState({})).toMatchObject({
     isChatAvailable: false,
-    setupMessage: expect.stringContaining("AI_GATEWAY_API_KEY"),
+    setupMessage: expect.stringContaining("OPENAI_API_KEY"),
     statusLabel: "Setup required",
   });
 });
@@ -35,6 +35,7 @@ it("rejects unknown selected models before touching persistence", async () => {
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }
@@ -42,6 +43,40 @@ it("rejects unknown selected models before touching persistence", async () => {
 
   expect(response.status).toBe(400);
   expect(storeState.saveIncomingUserMessage).not.toHaveBeenCalled();
+});
+
+it("keeps Gateway chat available with only a Gateway credential", async () => {
+  const {
+    getUltraChatbotAgentRuntimeState,
+    handleUltraChatbotAgentChatRequest,
+  } = await importRuntimeModule();
+  const env = {
+    AI_GATEWAY_API_KEY: "test-key",
+    DATABASE_URL: "postgresql://user:password@localhost:5432/database",
+    REDIS_URL: "redis://localhost:6379",
+  };
+
+  expect(getUltraChatbotAgentRuntimeState(env)).toMatchObject({
+    chatModel: "openai/gpt-4.1-mini",
+    isChatAvailable: true,
+  });
+
+  const response = await handleUltraChatbotAgentChatRequest(
+    new Request("http://localhost/api/demos/ultra-chatbot-agent", {
+      body: JSON.stringify({
+        id: "7dad003a-e507-448b-ac02-10937a0290da",
+        message: createUserMessage(),
+        selectedChatModel: "deepseek/deepseek-v4-flash",
+        selectedVisibilityType: "private",
+      }),
+      method: "POST",
+    }),
+    { visitorId: "visitor-123" },
+    env
+  );
+
+  expect(response.status).toBe(200);
+  expect(storeState.saveIncomingUserMessage).toHaveBeenCalledOnce();
 });
 
 it("rejects unsupported attachments before touching persistence", async () => {
@@ -60,6 +95,7 @@ it("rejects unsupported attachments before touching persistence", async () => {
     { visitorId: "visitor-123" },
     {
       AI_GATEWAY_API_KEY: "test-key",
+      OPENAI_API_KEY: "test-openai-key",
       DATABASE_URL: "postgresql://user:password@localhost:5432/database",
       REDIS_URL: "redis://localhost:6379",
     }

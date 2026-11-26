@@ -40,9 +40,14 @@ export function getProjectGuideCompanionConfig(
 }
 
 export function getProjectGuideCompanionSetupState(
-  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv()
+  env: ProjectGuideCompanionEnv = getProjectGuideCompanionEnv(),
+  selectedChatModel?: string
 ): ProjectGuideCompanionSetupState {
-  return buildAiGatewayContractSetupState(env, projectGuideCompanionContract);
+  return buildAiGatewayContractSetupState(
+    env,
+    projectGuideCompanionContract,
+    selectedChatModel
+  );
 }
 
 export function createProjectGuideCompanionGateway(

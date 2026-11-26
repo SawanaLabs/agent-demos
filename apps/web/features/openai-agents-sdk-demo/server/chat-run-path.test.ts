@@ -20,11 +20,12 @@ it("configures the official Agents run path and AI SDK UI response bridge", asyn
   const { streamOpenAiAgentsSdkDemo } = await importChatModule();
   const response = await streamOpenAiAgentsSdkDemo(createRunPathMessages(), {
     AI_GATEWAY_API_KEY: "gateway-key",
+    OPENAI_API_KEY: "test-openai-key",
     AI_GATEWAY_CHAT_MODEL: "openai/gpt-5.4-mini",
   });
 
   expect(response.status).toBe(200);
-  expectGatewayClientConfigured();
+  expectPlatformClientConfigured();
   const mainAgentConfig = getMainAgentConfig();
 
   expectMainAgentConfig(mainAgentConfig);
@@ -38,6 +39,7 @@ it("continues later turns with previousResponseId instead of replaying assistant
 
   await streamOpenAiAgentsSdkDemo(createPreviousResponseMessages(), {
     AI_GATEWAY_API_KEY: "gateway-key",
+    OPENAI_API_KEY: "test-openai-key",
   });
 
   expect(runMock).toHaveBeenLastCalledWith(
@@ -92,6 +94,7 @@ it("prefers the demo-specific model override when it is present", async () => {
     ],
     {
       AI_GATEWAY_API_KEY: "gateway-key",
+      OPENAI_API_KEY: "test-openai-key",
       AI_GATEWAY_CHAT_MODEL: "anthropic/claude-sonnet-4.5",
       OPENAI_AGENTS_MODEL: "openai/gpt-5.4-mini",
       OPENAI_AGENTS_REASONING_EFFORT: "high",
@@ -100,7 +103,7 @@ it("prefers the demo-specific model override when it is present", async () => {
 
   expect(agentConstructorMock).toHaveBeenCalledWith(
     expect.objectContaining({
-      model: "openai/gpt-5.4-mini",
+      model: "gpt-5.4-mini",
       modelSettings: {
         reasoning: {
           effort: "high",
@@ -172,16 +175,18 @@ function createPreviousResponseMessages(): UIMessage[] {
   ];
 }
 
-function expectGatewayClientConfigured() {
+function expectPlatformClientConfigured() {
   expect(openAiConstructorMock).toHaveBeenCalledWith({
-    apiKey: "gateway-key",
-    baseURL: "https://ai-gateway.vercel.sh/v1",
+    apiKey: "test-openai-key",
+    baseURL: "https://api.openai.com/v1",
+    maxRetries: 0,
   });
   expect(openAiProviderMock).toHaveBeenCalledWith({
     openAIClient: expect.objectContaining({
       config: {
-        apiKey: "gateway-key",
-        baseURL: "https://ai-gateway.vercel.sh/v1",
+        apiKey: "test-openai-key",
+        baseURL: "https://api.openai.com/v1",
+        maxRetries: 0,
       },
     }),
     useResponses: true,
@@ -224,7 +229,7 @@ function getMainAgentConfig(): Record<string, unknown> {
 
 function expectMainAgentConfig(mainAgentConfig: Record<string, unknown>) {
   expect(mainAgentConfig).toMatchObject({
-    model: "openai/gpt-5.4-mini",
+    model: "gpt-5.4-mini",
     modelSettings: {
       reasoning: {
         effort: "medium",
@@ -334,7 +339,6 @@ function expectMainAgentInstructions(mainAgentConfig: Record<string, unknown>) {
     "Use build_research_brief only at the start of an investment research",
     "Use a handoff when one specialist should take over the conversation directly.",
     "default to Tesla",
-    "The current AI Gateway Responses path cannot return a renderable image_generation artifact to this chat surface.",
   ]) {
     expect(instructionText).toContain(expectedText);
   }

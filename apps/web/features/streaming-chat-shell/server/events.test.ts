@@ -9,7 +9,7 @@ describe("streaming chat shell custom stream", () => {
         body: JSON.stringify({ prompt: "hello" }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         async *streamStreamingChatShellEvents() {
           yield { type: "text", text: "hello" } as const;
@@ -38,7 +38,7 @@ describe("streaming chat shell custom stream", () => {
         }),
         method: "POST",
       }),
-      { AI_GATEWAY_API_KEY: "test-key" },
+      { OPENAI_API_KEY: "test-openai-key", AI_GATEWAY_API_KEY: "test-key" },
       {
         async *streamStreamingChatShellEvents(_messages, _env, options) {
           yield { type: "start", audience: options.audience } as const;

@@ -1,8 +1,10 @@
-import { put } from "@vercel/blob";
 import { z } from "zod";
 
 import { env as appEnv } from "@/env";
-import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
+import {
+  demoMediaLegacyToken,
+  putDemoMedia,
+} from "@/features/shared/demo-media/server/storage";
 
 import {
   isUltraChatbotAgentAcceptedUploadMediaType,
@@ -111,7 +113,7 @@ export async function handleUltraChatbotAgentFileUploadRequest(
   let token: string;
 
   try {
-    token = getVercelBlobToken(env);
+    token = demoMediaLegacyToken(env);
   } catch (error) {
     return Response.json(
       {
@@ -190,7 +192,7 @@ export async function handleUltraChatbotAgentFileUploadRequest(
   });
 
   try {
-    const uploadedBlob = await put(pathname, file, {
+    const uploadedBlob = await putDemoMedia(pathname, file, {
       access: "public",
       token,
     });

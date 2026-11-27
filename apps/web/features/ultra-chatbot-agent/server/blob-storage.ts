@@ -1,4 +1,7 @@
-import { del, list } from "@vercel/blob";
+import {
+  deleteDemoMedia as del,
+  listDemoMedia as list,
+} from "@/features/shared/demo-media/server/storage";
 
 export const ultraChatbotAgentUploadPathRoot = "ultra-chatbot-agent";
 export const ultraChatbotAgentUploadListLimit = 1000;
@@ -59,7 +62,7 @@ async function listUltraChatbotAgentBlobs(input: {
   token: string;
 }) {
   let cursor: string | undefined;
-  const blobs: Awaited<ReturnType<typeof list>>["blobs"] = [];
+  const blobs: Awaited<ReturnType<typeof list>>["blobs"][number][] = [];
 
   do {
     const listOptions: {

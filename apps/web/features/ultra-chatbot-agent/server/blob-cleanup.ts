@@ -1,6 +1,6 @@
 import { env as appEnv } from "@/env";
 import { demoDataRetentionDays } from "@/features/shared/demo-data-retention/server/policy";
-import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
+import { demoMediaLegacyToken } from "@/features/shared/demo-media/server/storage";
 
 import {
   cleanupExpiredUltraChatbotAgentBlobs,
@@ -21,6 +21,6 @@ export function cleanupExpiredUltraChatbotAgentUploadBlobs(
     now: input.now,
     retentionDays:
       input.retentionDays ?? ultraChatbotAgentBlobCleanupRetentionDays,
-    token: getVercelBlobToken(env),
+    token: demoMediaLegacyToken(env),
   });
 }

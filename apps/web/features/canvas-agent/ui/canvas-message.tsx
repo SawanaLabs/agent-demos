@@ -14,6 +14,7 @@ import { Button } from "@workspace/ui/components/button";
 import { isToolUIPart, type UIMessage } from "ai";
 import Image from "next/image";
 import { PageText } from "@/components/page-copy";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 import { questionSchema } from "../model/chat-attachments";
 import { CanvasTool } from "./canvas-tool";
 
@@ -40,7 +41,7 @@ export function CanvasMessage({
                 className="h-auto max-h-44 w-auto rounded-lg object-contain"
                 height={180}
                 key={key}
-                src={part.url}
+                src={currentDemoMediaUrl(part.url)}
                 unoptimized
                 width={240}
               />

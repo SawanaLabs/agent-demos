@@ -1,5 +1,9 @@
-import { put } from "@vercel/blob";
-import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
+import {
+  demoMediaLegacyToken,
+  putDemoMedia,
+  readDemoMedia,
+} from "@/features/shared/demo-media/server/storage";
+import { demoMediaKey } from "@/features/shared/demo-media/urls";
 import {
   canvasImageDataSchema,
   canvasImageTypes,
@@ -15,13 +19,13 @@ export async function storeCanvasImage(image: string, signal?: AbortSignal) {
   if (bytes.length > maxCanvasImageBytes) {
     throw new Error("图片超过 8 MB 存储上限。");
   }
-  const stored = await put(
+  const stored = await putDemoMedia(
     `canvas-agent/results/${crypto.randomUUID()}.${imageExtension(image)}`,
     bytes,
     {
       access: "public",
       contentType,
-      token: getVercelBlobToken(),
+      token: demoMediaLegacyToken(),
       abortSignal: signal,
     }
   );
@@ -33,7 +37,11 @@ export async function loadCanvasImage(image: string, signal?: AbortSignal) {
     return canvasImageDataSchema.parse(image);
   }
   canvasImageUrlSchema.parse(image);
-  const response = await fetch(image, { signal, redirect: "error" });
+  const key = demoMediaKey(image);
+  const response =
+    key === null
+      ? await fetch(image, { signal, redirect: "error" })
+      : await readDemoMedia(key, signal);
   if (!response.ok) {
     throw new Error(`图片资源读取失败 (${response.status})。`);
   }

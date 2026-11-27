@@ -1,4 +1,5 @@
 import { isFileUIPart, isTextUIPart, type UIMessage } from "ai";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 
 function getReplayableAssistantText(message: UIMessage) {
   return message.parts
@@ -30,9 +31,13 @@ export function projectUltraChatbotAgentHistoryForModel(messages: UIMessage[]) {
     }
 
     if (message.role === "user") {
-      const parts = message.parts.filter(
-        (part) => isTextUIPart(part) || isFileUIPart(part)
-      );
+      const parts = message.parts
+        .filter((part) => isTextUIPart(part) || isFileUIPart(part))
+        .map((part) =>
+          isFileUIPart(part)
+            ? { ...part, url: currentDemoMediaUrl(part.url) }
+            : part
+        );
 
       return parts.length > 0
         ? [

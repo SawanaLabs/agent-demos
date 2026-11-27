@@ -1,4 +1,4 @@
-import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
+import { demoMediaLegacyToken } from "@/features/shared/demo-media/server/storage";
 import {
   deleteUltraChatbotAgentBlobsForChat,
   deleteUltraChatbotAgentBlobsForVisitor,
@@ -52,7 +52,7 @@ export async function handleUltraChatbotAgentDeleteHistoryRequest(viewer: {
     });
 
   await deleteUltraChatbotAgentBlobsForVisitor({
-    token: getVercelBlobToken(),
+    token: demoMediaLegacyToken(),
     visitorId: viewer.visitorId,
   });
 
@@ -83,7 +83,7 @@ export async function handleUltraChatbotAgentDeleteChatRequest(
 
   await deleteUltraChatbotAgentBlobsForChat({
     chatId,
-    token: getVercelBlobToken(),
+    token: demoMediaLegacyToken(),
     visitorId: viewer.visitorId,
   });
 

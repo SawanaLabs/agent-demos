@@ -21,6 +21,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import type { UIMessage } from "ai";
 import type { ReactNode } from "react";
 import { PageText, usePageCopy } from "@/components/page-copy";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 
 import { UltraChatbotAgentDocumentPreview } from "./ultra-chatbot-agent-document-preview";
 import { UltraChatbotAgentKnowledgeBaseResultCard } from "./ultra-chatbot-agent-knowledge-base-result";
@@ -379,6 +380,7 @@ function UltraChatbotAgentMessageAttachments({
             attachment={{
               ...part,
               id: attachmentId,
+              url: currentDemoMediaUrl(part.url),
             }}
             key={attachmentId}
             onRemove={onRemove ? () => onRemove(part.url) : undefined}

@@ -5,16 +5,20 @@ import { AlertCircleIcon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { PageText } from "@/components/page-copy";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 
 export function CanvasImage({ src, label }: { src: string; label: string }) {
   const [attempt, setAttempt] = useState(0);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading"
   );
-  let imageSrc = src;
+  let imageSrc = currentDemoMediaUrl(src);
   if (attempt && src.startsWith("https:")) {
-    const url = new URL(src);
-    if (url.hostname.endsWith(".public.blob.vercel-storage.com")) {
+    const url = new URL(imageSrc);
+    if (
+      url.hostname.endsWith(".public.blob.vercel-storage.com") ||
+      url.pathname.startsWith("/demo-media/")
+    ) {
       url.searchParams.set("previewRetry", String(attempt));
       imageSrc = url.toString();
     }

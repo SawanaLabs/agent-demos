@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { demoMediaKey } from "@/features/shared/demo-media/urls";
 
 export const canvasImageTypes = [
   "image/png",
@@ -10,8 +11,12 @@ export const maxCanvasImageBytes = 8 * 1024 * 1024;
 export const canvasImageUrlSchema = z
   .string()
   .max(2048)
-  .regex(
-    /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\/canvas-agent\/(uploads|results)\/[A-Za-z0-9_/-]+\.(png|jpe?g|webp|gif)$/
+  .refine(
+    (value) =>
+      demoMediaKey(value)?.startsWith("canvas-agent/") ||
+      /^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\/canvas-agent\/(uploads|results)\/[A-Za-z0-9_/-]+\.(png|jpe?g|webp|gif)$/.test(
+        value
+      )
   );
 export const canvasImageDataSchema = z
   .string()

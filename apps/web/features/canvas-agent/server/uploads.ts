@@ -1,5 +1,8 @@
-import { list } from "@vercel/blob";
 import { type HandleUploadBody, handleUpload } from "@vercel/blob/client";
+import {
+  listDemoMedia,
+  signDemoImageUpload,
+} from "@/features/shared/demo-media/server/storage";
 import { getVercelBlobToken } from "@/features/shared/vercel-blob/server/env";
 import { canvasImageTypes, maxCanvasImageBytes } from "../model/image";
 
@@ -8,6 +11,39 @@ export function canvasUploadPrefix(visitorId: string) {
     throw new Error("上传身份无效。");
   }
   return `canvas-agent/uploads/${visitorId}/${new Date().toISOString().slice(0, 10)}/`;
+}
+
+export async function prepareCanvasUpload(request: Request, visitorId: string) {
+  const url = new URL(request.url);
+  const site = request.headers.get("sec-fetch-site");
+  if (site !== null && site !== "same-origin") {
+    throw new Error("上传来源无效。");
+  }
+  const contentType = url.searchParams.get("type");
+  const size = Number(url.searchParams.get("size"));
+  if (
+    contentType === null ||
+    !canvasImageTypes.some((type) => type === contentType) ||
+    !Number.isSafeInteger(size) ||
+    size <= 0 ||
+    size > maxCanvasImageBytes
+  ) {
+    throw new Error("图片类型或大小不符合要求。");
+  }
+  const prefix = canvasUploadPrefix(visitorId);
+  const usage = await listDemoMedia({ limit: 20, prefix });
+  if (
+    usage.blobs.length >= 20 ||
+    usage.blobs.reduce((sum, blob) => sum + blob.size, 0) + size >
+      64 * 1024 * 1024
+  ) {
+    throw new Error("今日图片上传额度已用完。");
+  }
+  const pathname = `${prefix}${crypto.randomUUID()}.${contentType.slice(6)}`;
+  return await signDemoImageUpload(pathname, {
+    contentLength: size,
+    contentType,
+  });
 }
 
 export async function handleCanvasUpload(request: Request, visitorId: string) {
@@ -32,7 +68,7 @@ export async function handleCanvasUpload(request: Request, visitorId: string) {
         ) {
           throw new Error("上传路径无效。");
         }
-        const usage = await list({ prefix, limit: 20, token });
+        const usage = await listDemoMedia({ prefix, limit: 20, token });
         if (
           usage.blobs.length >= 20 ||
           usage.blobs.reduce((sum, blob) => sum + blob.size, 0) >=

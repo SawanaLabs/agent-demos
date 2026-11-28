@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { PageText, usePageCopy } from "@/components/page-copy";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 import type { CanvasNode, CanvasOutput } from "../model/graph";
 import { imageExtension } from "../model/image";
 import type { connectedInputs } from "../model/inputs";
@@ -150,14 +151,18 @@ export function CanvasNodeView({ data }: { data: CanvasNodeData }) {
               alt={node.label}
               className="nodrag max-h-72 w-full rounded-sm object-contain"
               height={240}
-              src={image}
+              src={currentDemoMediaUrl(image)}
               unoptimized
               width={296}
             />
             <a
               className="nodrag flex items-center gap-1 text-xs underline"
               download={`${node.label}.${imageExtension(image)}`}
-              href={image.startsWith("https:") ? `${image}?download=1` : image}
+              href={
+                image.startsWith("https:")
+                  ? `${currentDemoMediaUrl(image)}?download=1`
+                  : image
+              }
             >
               <DownloadIcon className="size-3" />
               <PageText>{"下载图片"}</PageText>

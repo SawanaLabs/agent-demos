@@ -6,6 +6,7 @@ import {
   type ToolUIPart,
   type UIMessage,
 } from "ai";
+import { currentDemoMediaUrl } from "@/features/shared/demo-media/urls";
 
 export type UltraChatbotAgentToolPart = DynamicToolUIPart | ToolUIPart;
 
@@ -244,7 +245,7 @@ export function getUltraChatbotAgentSourceParts(message: UIMessage) {
     .map((part) => ({
       sourceId: part.sourceId,
       title: part.title?.trim() || part.url,
-      url: part.url,
+      url: currentDemoMediaUrl(part.url),
     }));
 
   if (explicitSources.length > 0) {
